@@ -1,0 +1,317 @@
+@font-face {
+  font-family: 'BPG Arial Caps';
+  /* The browser will look for src/fonts/... */
+  src: url('fonts/bpg-arial-caps-webfont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'BPG Arial';
+  src: url('fonts/bpg-arial-webfont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Apply the fonts */
+h1, h2, h3, h4, h5 { font-family: 'BPG Arial Caps', sans-serif; }
+body, p, span, div { font-family: 'BPG Arial', sans-serif; }
+
+/* --- HEADER LAYOUT --- */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  /* background: white;*/
+  /*border-bottom: 1px solid #e0e0e0;*/
+  position: sticky; /* Keeps header at top */
+  top: 0;
+  z-index: 2000; /* Above Leaflet maps */
+  height: 60px;
+}
+
+
+
+.app-brand {
+  /* 1. Typography */
+  font-size: 1.5rem;
+  font-family: 'BPG Arial Caps', sans-serif;
+  font-weight: bold;
+  color: #2c3e50;
+  
+  /* 2. THE "STATIC OBJECT" FIX */
+  /* flex: 0 (don't grow) 0 (don't shrink) 280px (basis width) */
+  flex: 0 0 380px; 
+  
+  /* 3. Backup Widths (Force the browser to respect the size) */
+  width: 380px;
+  max-width: 380px;
+  
+  /* 4. Alignment */
+  text-align: left;       /* Anchor text to the left */
+  overflow: hidden;       /* Safety: if text is HUGE, cut it off, don't push menu */
+  white-space: nowrap;    /* Keep text on one line */
+  
+  /* 5. Vertical alignment fixes */
+  display: flex;
+  align-items: center;
+}
+
+.app-brand a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  width: 100%;
+}
+
+/* --- MOBILE RESET --- */
+@media (max-width: 768px) {
+  .app-brand {
+    /* Release the "Static" lock on mobile so it fits small screens */
+    flex: 1 1 auto; 
+    width: auto;
+    max-width: none;
+    min-width: 0; /* Allow shrinking below content size if absolutely needed */
+    font-size: 1.2rem; 
+  }
+}
+
+/* --- MOBILE RESET --- */
+@media (max-width: 768px) {
+  .app-brand {
+    /* On mobile, let it shrink naturally so it doesn't push the menu button off-screen */
+    min-width: auto; 
+    font-size: 1.2rem; /* Optional: slightly smaller on phone */
+    flex-shrink: 1;    /* Allow shrinking if needed */
+  }
+}
+/* --- DESKTOP NAVIGATION (Default) --- */
+.top-nav {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Navigation Links */
+.top-nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 0.5rem; /* Reduced side padding since we use min-width */
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  
+  /* --- STABILITY FIXES --- */
+  display: inline-block;     /* Required for width properties to work */
+  min-width: 110px;          /* Wide enough for "კანდიდატები" (Candidates) */
+  text-align: center;        /* Keeps shorter words ("Data") centered */
+  white-space: nowrap;       /* Prevents wrapping on strict limits */
+}
+
+/* Hover State */
+.top-nav a:hover {
+  background-color: #f0f2f5;
+  color: #2c3e50;
+  border-color: #d1d5db;
+}
+
+/* --- MOBILE MENU TOGGLE (Hidden on Desktop) --- */
+.menu-toggle {
+  display: none; /* Hidden by default */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.menu-toggle svg {
+  width: 24px;
+  height: 24px;
+  fill: #2c3e50;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+  
+  /* Show the Hamburger Button */
+  .menu-toggle {
+    display: block;
+  }
+
+  /* Transform Nav into a Dropdown */
+  .top-nav {
+    display: none; /* Hidden until toggled */
+    position: absolute;
+    top: 60px; /* Height of header */
+    left: 0;
+    right: 0;
+    background: white;
+    flex-direction: column;
+    gap: 0;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  /* When JavaScript adds the 'open' class, show it */
+  .top-nav.open {
+    display: flex;
+  }
+
+  /* Mobile Link Styling (Full width blocks) */
+.top-nav a {
+    width: 100%;       /* Force full width on mobile */
+    min-width: auto;   /* RESET the fixed desktop width */
+    text-align: left;  /* Left align looks better in vertical lists */
+    padding: 1rem;
+    border-radius: 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .app-brand a {
+    min-width: auto;   /* Let it shrink naturally on phones */
+    font-size: 1.2rem; /* Optional: slightly smaller font on mobile */
+    white-space: normal; /* Allow wrapping if it really needs it */
+  }
+
+  .top-nav a:hover {
+    background-color: #f8f9fa;
+  }
+}
+
+.lang-btn {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: #333;
+  transition: all 0.2s;
+  font-family: 'BPG Arial', sans-serif;
+}
+
+.lang-btn:hover {
+  background: #e9ecef;
+  border-color: #ced4da;
+}
+
+#observablehq-header {
+  border-bottom: none !important;
+}
+
+/* Add to src/custom-style.css */
+
+.candidate-photo-placeholder {
+  width: 150px;
+  height: 150px;
+  background-color: #e0e0e0;
+  color: #777;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 4px;
+  border: 2px dashed #ccc;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+}
+
+/* Add to src/custom-style.css */
+
+/* Data Card Layout */
+.data-card {
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 8px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow 0.2s;
+}
+
+.data-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Button Group */
+.btn-group {
+  display: flex;
+  gap: 8px;
+  margin-top: auto; /* Pushes buttons to bottom */
+}
+
+/* Primary Button (Download Election) */
+.btn-primary-outline {
+  background: white;
+  border: 1px solid #007bff;
+  color: #007bff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-primary-outline:hover {
+  background: #007bff;
+  color: white;
+}
+
+/* Secondary Button (Download Candidates) */
+.btn-secondary-outline {
+  background: white;
+  border: 1px solid #6c757d;
+  color: #6c757d;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-secondary-outline:hover {
+  background: #6c757d;
+  color: white;
+}
+
+/* Add to src/custom-style.css */
+
+/* Analysis Card */
+.analysis-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  height: 100%; /* Fill height of grid cell */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.analysis-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* Solid Primary Button (Read More) */
+.btn-primary-solid {
+  background-color: #2c3e50; /* Dark Blue/Grey */
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  transition: background-color 0.2s;
+  text-decoration: none; /* In case we change it to an <a> tag later */
+}
+
+.btn-primary-solid:hover {
+  background-color: #1a252f;
+}
