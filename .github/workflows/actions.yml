@@ -44,17 +44,6 @@ jobs:
             any::googlesheets4
             any::httr
 
-      - name: Import data
-        run: Rscript src/data/download_data.R
-
-      - name: Commit and push downloaded data
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/data/dashboard_data.xlsx
-          git diff-index --quiet HEAD || git commit -m "Update data from Excel file"
-          git push
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
