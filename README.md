@@ -14,5 +14,5 @@ This repository contains a dashboard for visualizing and analyzing election data
 - HTML/CSS for structuring and styling the dashboard
 - JavaScript for interactivity and data manipulation
 - Git for version control
-- R (through OFHQ data loaders) for data cleaning and preprocessing
+- R (through OF data loaders) for data cleaning and preprocessing
 - LLMs for assistance with coding and data analysis (ChatGPT, Google Gemini)
