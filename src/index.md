@@ -12,7 +12,7 @@ import L from "npm:leaflet";
 
 import {getLang, tr} from "./components/state.js";
 // Load Data
-const dict = await FileAttachment("data/translations.json").json();
+const dict = await FileAttachment("data/config/translations.json").json();
 ```
 
 ```js

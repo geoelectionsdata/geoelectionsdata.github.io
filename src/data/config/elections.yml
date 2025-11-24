@@ -1,0 +1,75 @@
+# src/data/config/elections.yml
+
+- id: "parl_2024"
+  type: "Parliamentary"
+  date: "2024-10-26"
+  name:
+    en: "2024 Parliamentary Elections"
+    ka: "2024 წლის საპარლამენტო არჩევნები"
+  
+  # Sub-elections logic (e.g. if you have multiple votes happening same day)
+  sub_elections:
+    - id: "proportional_2024"
+      name:
+        en: "Proportional List"
+        ka: "პროპორციული სია"
+    # In 2024 it was fully proportional, but for 2020 you might add "majoritarian"
+
+  # Data Sources (Paths relative to your R loader script location)
+  files:
+    results: "../../voting/parl_2024_pr.csv"
+    candidates: "../../candidates/parl_2024.csv"
+    
+    # Spatial Data
+    shapes:
+      country: "../../data/shp/country_outline_1990.json"  # The country boundary
+      # The district polygons (High level)
+      districts: "../../data/shp/districts_1990.json"
+      # The precinct points (Low level)
+      precincts: "../../data/shp/precincts_2024.json"
+- id: "parl_1919"
+  type: "Parliamentary"
+  date: "1919-02-19 - 1919-03-17"
+  name:
+    en: "1919 Elections to the Constituent Assembly"
+    ka: "1919 წლის დამფუძნებელი კრების არჩევნები"
+  
+  # Sub-elections logic (e.g. if you have multiple votes happening same day)
+  sub_elections:
+    - id: "proportional_1919"
+      name:
+        en: "Proportional List"
+        ka: "პროპორციული სია"
+
+  # Data Sources (Paths relative to your R loader script location)
+  files:
+    results: "../../voting/parl_1919_pr.csv"
+    candidates: "../../candidates/parl_1919.csv"
+    
+    # Spatial Data
+    shapes:
+      country: "../../data/shp/country_outline_1919.json"  # The country boundary
+      # The district polygons (High level)
+      districts: "../../data/shp/districts_1919.json"
+      # The precinct points (Low level)
+      precincts: NA
+
+- id: "pres_2018"
+  type: "Presidential"
+  date: "2018-10-28"
+  name:
+    en: "2018 Presidential Elections"
+    ka: "2018 წლის საპრეზიდენტო არჩევნები"
+  
+  sub_elections:
+    - id: "round_1"
+      name: {en: "Round 1", ka: "პირველი ტური"}
+    - id: "round_2"
+      name: {en: "Round 2", ka: "მეორე ტური"}
+
+  files:
+    results: "../../data_raw/2018/results_presidential.csv"
+    candidates: "../../data_raw/2018/candidates.csv"
+    shapes:
+      districts: "../../data_raw/shapes/districts_2018.shp" # Shapes might change over years!
+      precincts: "../../data_raw/2018/precincts.csv"

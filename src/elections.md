@@ -8,7 +8,7 @@ toc: false
 import L from "npm:leaflet";
 import {getLang, tr} from "./components/state.js";
 
-const dict = await FileAttachment("data/translations.json").json();
+const dict = await FileAttachment("data/config/translations.json").json();
 const lang = getLang();
 ```
 ```js
