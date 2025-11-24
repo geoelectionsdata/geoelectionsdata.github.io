@@ -1,6 +1,6 @@
 # Georgia Elections Data Dashboard
 
-This repository contains a dashboard for visualizing and analyzing election data from the state of Georgia. The dashboard documents official election results, voter turnout, and candidates who participated in elections held in Georgia.
+This repository contains a dashboard for visualizing and analyzing election data from Georgia. Regretfully, Electionsdata.ge, a website that previously provided comprehensive election data, is gone, therefore this project aims to fill that gap.
 
 ## To do
 - [ ] Put together a wireframe for the dashboard
