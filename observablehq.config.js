@@ -6,10 +6,13 @@ const headerContent = readFileSync("./src/components/header.html", "utf8");
 
 // See https://observablehq.com/framework/config for documentation.
 export default {
+  root: "src",
   header: headerContent,
   head: `
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="custom-style.css">
+    <link rel="stylesheet" href="fonts/bpg-arial.css">
+    <link rel="stylesheet" href="fonts/bpg-arial-caps.css">
     <link rel="icon" href="logo_ka-1.svg" type="image/svg" sizes="32x32">
   `,
   pages: [
@@ -26,30 +29,6 @@ export default {
   // The pages and sections in the sidebar. If you don’t specify this option,
   // all pages will be listed in alphabetical order. Listing pages explicitly
   // lets you organize them into sections and have unlisted pages.
-  module: {
-    loaders: [
-      {
-        test: /\.scss$/,
-        loader: 'style-loader!css-loader!sass-loader'
-      },
-      {
-        test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[ext]',
-              outputPath: 'fonts/'
-            }
-          }
-        ]
-      }
-    ]
-  },
-
-  // The path to the source root.
-  root: "src",
-
   // Some additional configuration options and their defaults:
   theme: "light",
   // theme: "default", // try "light", "dark", "slate", etc.
