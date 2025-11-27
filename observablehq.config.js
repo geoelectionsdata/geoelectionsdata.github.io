@@ -7,12 +7,11 @@ const headerContent = readFileSync("./src/components/header.html", "utf8");
 // See https://observablehq.com/framework/config for documentation.
 export default {
   root: "src",
+  base: "/electionsdata-wireframe/",
   header: headerContent,
   head: `
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="custom-style.css">
-    <link rel="stylesheet" href="fonts/bpg-arial.css">
-    <link rel="stylesheet" href="fonts/bpg-arial-caps.css">
     <link rel="icon" href="logo_ka-1.svg" type="image/svg" sizes="32x32">
   `,
   pages: [

@@ -1,5 +1,10 @@
 import * as Inputs from "npm:@observablehq/inputs";
 import {Generators} from "npm:@observablehq/stdlib";
+import {loadFonts} from "./fontloader.js"; 
+
+// EXECUTE IMMEDIATELY
+// Since this module is imported by every page, the fonts will load automatically.
+loadFonts();
 // --- 1. UPDATE DICTIONARY HERE ---
 function updateGlobalNavbar(lang) {
   const navDict = {
