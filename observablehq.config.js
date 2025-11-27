@@ -7,7 +7,7 @@ const headerContent = readFileSync("./src/components/header.html", "utf8");
 // See https://observablehq.com/framework/config for documentation.
 export default {
   header: headerContent,
-  base: "/electionsdata-wireframe/", 
+  base: "/electionsdata-wireframe/src", 
   head: `
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     
