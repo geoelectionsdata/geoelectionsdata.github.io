@@ -1,18 +1,15 @@
 ---
-theme: dashboard
+theme: [air, alt, wide]
 title: Candidates
 toc: false
 ---
 
 ```js
-
 import {getLang, tr} from "./components/state.js";
 
 const dict = await FileAttachment("data/config/translations.json").json();
 const lang = getLang();
 
-// MOCK DATA (Replicating your R data.frame)
-// We add 'Type' and 'Level' fields to demonstrate filtering
 const candidatesData = [
   {Name: "Candidate A", Party: "Party X", Type: "Parliamentary", Election: "Dummy election 1", District: "District 1", Level: "District 1", Tags: "SMD"},
   {Name: "Candidate B", Party: "Party Y", Type: "Parliamentary", Election: "Dummy election 1", District: "District 2", Level: "District 2", Tags: "SMD, By-election"},
@@ -20,85 +17,61 @@ const candidatesData = [
   {Name: "Candidate D", Party: "Party Z", Type: "Presidential",  Election: "Dummy election 1", District: "Nationwide", Level: "Country",    Tags: "Main"},
   {Name: "Candidate E", Party: "Party Y", Type: "Parliamentary", Election: "Dummy election 1", District: "District 1", Level: "District 1", Tags: "List"},
 ];
-
 ```
 
 ```js
-// 1. Election Type
 const typeInput = Inputs.select(
-  ["Parliamentary", "Presidential", "Local", "Adjara", "Plebiscite"], 
+  ["Parliamentary", "Presidential", "Local", "Adjara", "Plebiscite"],
   {
     label: tr(dict, lang, "candidates.election_type"),
     format: k => tr(dict, lang, `type.${k.toLowerCase()}`)
   }
 );
 
-// 2. Election ID
 const idInput = Inputs.select(["Dummy election 1", "Dummy election 2"], {
   label: tr(dict, lang, "candidates.election")
 });
 
-// 3. Level
 const levelInput = Inputs.select(
-  ["Country", "District 1", "District 2"], 
+  ["Country", "District 1", "District 2"],
   {
     label: tr(dict, lang, "candidates.level"),
-    // Map internal keys to translation keys
     format: k => {
-       const map = {
-         "Country": "candidates.level.country",
-         "District 1": "candidates.level.distr1",
-         "District 2": "candidates.level.distr2"
-       };
-       return tr(dict, lang, map[k] || k);
+      const map = {
+        "Country":    "candidates.level.country",
+        "District 1": "candidates.level.distr1",
+        "District 2": "candidates.level.distr2"
+      };
+      return tr(dict, lang, map[k] || k);
     }
   }
 );
 
-// 4. Search
 const searchInput = Inputs.text({
   label: tr(dict, lang, "candidates.search"),
   placeholder: "..."
 });
 
-// Group inputs to track values
-const uiForm = Inputs.form({
-  type: typeInput, 
-  id: idInput, 
-  level: levelInput, 
-  search: searchInput
-});
-
-// Extract values
+const uiForm = Inputs.form({ type: typeInput, id: idInput, level: levelInput, search: searchInput });
 const filters = Generators.input(uiForm);
-
 ```
 
 ```js
-// 1. FILTER LOGIC
 const filteredData = candidatesData.filter(d => {
-  // Logic: Match Type AND Match ID AND Match Level AND Match Search
-  // (You can adjust logic to be looser if needed, e.g., ignore if input is empty)
-  const matchType = d.Type === filters.type;
-  const matchId   = d.Election === filters.id;
-  // For demo purposes, we loosely match level (or show all if "Country")
-  const matchLevel = filters.level === "Country" ? true : d.Level === filters.level; 
+  const matchType   = d.Type === filters.type;
+  const matchId     = d.Election === filters.id;
+  const matchLevel  = filters.level === "Country" ? true : d.Level === filters.level;
   const matchSearch = filters.search === "" || d.Name.toLowerCase().includes(filters.search.toLowerCase());
-
   return matchType && matchId && matchLevel && matchSearch;
 });
 
-// 2. CREATE TABLE
-// We use Inputs.table which supports selection natively
 const tableInput = Inputs.table(filteredData, {
   columns: ["Name", "Party", "Election", "District", "Tags"],
-  required: false, // Allow deselecting
+  required: false,
   rows: 15,
   maxWidth: "100%"
 });
 
-// 3. CAPTURE SELECTION
-// This variable 'selectedRows' will contain an Array of the selected items
 const selectedRows = Generators.input(tableInput);
 ```
 
@@ -117,26 +90,26 @@ const container = html`
 
 <div class="candidates-grid">
 
-  <div class="card">
-    <h4>${tr(dict, lang, "candidates.filter_title")}</h4>
-    
-    <div style="margin-bottom: 1rem;">${typeInput}</div>
-    <div style="margin-bottom: 1rem;">${idInput}</div>
-    <div style="margin-bottom: 1rem;">${levelInput}</div>
-    <div style="margin-bottom: 1rem;">${searchInput}</div>
+  <div class="card" style="align-self: start;">
+    <h4 style="margin-top: 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);">
+      ${tr(dict, lang, "candidates.filter_title")}
+    </h4>
+    <div class="input-group">${typeInput}</div>
+    <div class="input-group">${idInput}</div>
+    <div class="input-group">${levelInput}</div>
+    <div class="input-group">${searchInput}</div>
   </div>
 
-  <div class="card" style="min-height: 600px;">
-    <h3>${tr(dict, lang, "candidates.title")}</h3>
-    
-    <div style="margin-bottom: 2rem;">
+  <div class="card">
+    <h3 style="margin-top: 0;">${tr(dict, lang, "candidates.title")}</h3>
+
+    <div style="margin-bottom: 1.5rem;">
       ${tableInput}
     </div>
 
     <hr>
 
     <h4 style="margin-top: 1rem;">${tr(dict, lang, "candidates.details_title")}</h4>
-    
     <div id="candidate-profile">
       ${generateProfile(selectedRows)}
     </div>
@@ -147,35 +120,43 @@ const container = html`
 
 display(container);
 ```
+
 ```js
 function generateProfile(selection) {
-  // Inputs.table selection returns an array. Check if empty.
   if (!selection || selection.length === 0) {
-    return html`<p style="color: #777; font-style: italic;">Select a candidate from the table to view details.</p>`;
+    return html`<p style="color: var(--muted); font-style: italic; font-size: 0.9rem;">
+      ${tr(dict, lang, "candidates.select_prompt") || "Select a candidate from the table to view their profile."}
+    </p>`;
   }
 
-  const candidate = selection[0]; // Get the first selected item
+  const c = selection[0];
 
   return html`
-    <div>
-      <h5>${tr(dict, lang, "candidates.profile_name")}: ${candidate.Name}</h5>
-      
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-           <div class="candidate-photo-placeholder">
-             ${tr(dict, lang, "candidates.photo_placeholder") || "Photo"}
-           </div>
-        </div>
-        
-        <div class="sm:col-span-2">
-           <p><strong>${tr(dict, lang, "candidates.party_name") || "Party"}:</strong> ${candidate.Party}</p>
-           <p><strong>District:</strong> ${candidate.District}</p>
-           <p>${tr(dict, lang, "candidates.bio_text") || "Biography text would go here..."}</p>
-        </div>
+    <div style="display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: start;">
+      <div class="candidate-photo-placeholder">
+        ${tr(dict, lang, "candidates.photo_placeholder") || "Photo"}
+      </div>
+      <div>
+        <h4 style="margin-top: 0;">${c.Name}</h4>
+        <table style="border-collapse: collapse; font-size: 0.9rem; width: 100%;">
+          <tr>
+            <td style="color: var(--muted); padding: 0.3rem 1rem 0.3rem 0; white-space: nowrap; font-weight: 700;">${tr(dict, lang, "candidates.party_name") || "Party"}</td>
+            <td style="color: var(--dark);">${c.Party}</td>
+          </tr>
+          <tr>
+            <td style="color: var(--muted); padding: 0.3rem 1rem 0.3rem 0; white-space: nowrap; font-weight: 700;">District</td>
+            <td style="color: var(--dark);">${c.District}</td>
+          </tr>
+          <tr>
+            <td style="color: var(--muted); padding: 0.3rem 1rem 0.3rem 0; white-space: nowrap; font-weight: 700;">Tags</td>
+            <td><span style="background: var(--red-light); color: var(--red); font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 20px;">${c.Tags}</span></td>
+          </tr>
+        </table>
+        <p style="margin-top: 1rem; color: var(--muted); font-size: 0.9rem;">
+          ${tr(dict, lang, "candidates.bio_text") || "Biography text would go here..."}
+        </p>
       </div>
     </div>
   `;
 }
 ```
-
-<style> .input-group { margin-bottom: 1rem; } .input-group label { font-weight: bold; font-size: 0.9rem; display: block; margin-bottom: 0.25rem; } </style>

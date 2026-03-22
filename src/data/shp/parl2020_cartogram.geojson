@@ -1,0 +1,17 @@
+{
+  "type": "FeatureCollection",
+  "_comment": "DUMMY cartogram — circles scaled to electorate size. Replace with pre-generated real cartogram.",
+  "features": [
+    {"type":"Feature","properties":{"id":"tbilisi","name_en":"Tbilisi","name_ka":"თბილისი","radius_km":25},"geometry":{"type":"Point","coordinates":[44.80,41.70]}},
+    {"type":"Feature","properties":{"id":"imereti","name_en":"Imereti","name_ka":"იმერეთი","radius_km":18},"geometry":{"type":"Point","coordinates":[43.00,42.15]}},
+    {"type":"Feature","properties":{"id":"kakheti","name_en":"Kakheti","name_ka":"კახეთი","radius_km":15},"geometry":{"type":"Point","coordinates":[45.90,41.80]}},
+    {"type":"Feature","properties":{"id":"samtskhe","name_en":"Samtskhe-Javakheti","name_ka":"სამცხე-ჯავახეთი","radius_km":10},"geometry":{"type":"Point","coordinates":[43.50,41.40]}},
+    {"type":"Feature","properties":{"id":"kvemo_kartli","name_en":"Kvemo Kartli","name_ka":"ქვემო ქართლი","radius_km":13},"geometry":{"type":"Point","coordinates":[44.70,41.35]}},
+    {"type":"Feature","properties":{"id":"shida_kartli","name_en":"Shida Kartli","name_ka":"შიდა ქართლი","radius_km":12},"geometry":{"type":"Point","coordinates":[44.10,41.95]}},
+    {"type":"Feature","properties":{"id":"mtskheta","name_en":"Mtskheta-Mtianeti","name_ka":"მცხეთა-მთიანეთი","radius_km":9},"geometry":{"type":"Point","coordinates":[44.70,42.25]}},
+    {"type":"Feature","properties":{"id":"racha","name_en":"Racha-Lechkhumi","name_ka":"რაჭა-ლეჩხუმი","radius_km":7},"geometry":{"type":"Point","coordinates":[43.20,42.60]}},
+    {"type":"Feature","properties":{"id":"samegrelo","name_en":"Samegrelo-Zemo Svaneti","name_ka":"სამეგრელო-ზემო სვანეთი","radius_km":14},"geometry":{"type":"Point","coordinates":[42.20,42.55]}},
+    {"type":"Feature","properties":{"id":"guria","name_en":"Guria","name_ka":"გურია","radius_km":8},"geometry":{"type":"Point","coordinates":[42.10,41.85]}},
+    {"type":"Feature","properties":{"id":"adjara","name_en":"Adjara","name_ka":"აჭარა","radius_km":11},"geometry":{"type":"Point","coordinates":[41.80,41.45]}}
+  ]
+}

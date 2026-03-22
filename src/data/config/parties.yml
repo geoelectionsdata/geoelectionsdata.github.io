@@ -1,0 +1,140 @@
+# Party registry — colors are keyed by election ID
+# Use hex colors. "default" is fallback for any election not listed.
+# Hues of the same color are used for choropleth intensity.
+
+parties:
+
+  # --- Post-2012 parties ---
+
+  - id: gd
+    name:
+      en: Georgian Dream
+      ka: ქართული ოცნება
+    colors:
+      parl_2024: "#1565C0"
+      parl_2020: "#1976D2"
+      default:   "#1976D2"
+
+  - id: unm
+    name:
+      en: United National Movement
+      ka: ერთიანი ნაციონალური მოძრაობა
+    colors:
+      default: "#C62828"
+
+  - id: coalition_for_change
+    name:
+      en: Coalition for Change
+      ka: კოალიცია ცვლილებისთვის
+    colors:
+      parl_2024: "#E53935"
+      default:   "#E53935"
+
+  - id: unity
+    name:
+      en: Unity — National Movement
+      ka: ერთობა — ნაციონალური მოძრაობა
+    colors:
+      parl_2024: "#B71C1C"
+      default:   "#B71C1C"
+
+  - id: strong_georgia
+    name:
+      en: Strong Georgia
+      ka: ძლიერი საქართველო
+    colors:
+      parl_2024: "#6A1B9A"
+      default:   "#6A1B9A"
+
+  - id: european_georgia
+    name:
+      en: European Georgia
+      ka: ევროპული საქართველო
+    colors:
+      parl_2020: "#0288D1"
+      default:   "#0288D1"
+
+  - id: girchi
+    name:
+      en: Girchi
+      ka: გირჩი
+    colors:
+      default: "#F57F17"
+
+  - id: labour
+    name:
+      en: Labour Party
+      ka: შრომის პარტია
+    colors:
+      default: "#D32F2F"
+
+  # --- 1992 parties ---
+
+  - id: mkhedrioni_1992
+    name:
+      en: Mkhedrioni / October 11 Bloc
+      ka: მხედრიონი / 11 ოქტომბრის ბლოკი
+    colors:
+      default: "#4E342E"
+
+  - id: peace_1992
+    name:
+      en: Peace Bloc
+      ka: მშვიდობის ბლოკი
+    colors:
+      default: "#37474F"
+
+  - id: other_1992
+    name:
+      en: Other (1992)
+      ka: სხვა (1992)
+    colors:
+      default: "#9E9E9E"
+
+  # --- 1919 parties ---
+
+  - id: social_democrats_1919
+    name:
+      en: Social Democrats
+      ka: სოციალ-დემოკრატები
+    colors:
+      default: "#C62828"
+
+  - id: social_federalists_1919
+    name:
+      en: Social Federalists
+      ka: სოციალ-ფედერალისტები
+    colors:
+      default: "#1B5E20"
+
+  - id: national_democrats_1919
+    name:
+      en: National Democrats
+      ka: ეროვნული დემოკრატები
+    colors:
+      default: "#0D47A1"
+
+  - id: sr_1919
+    name:
+      en: Socialist Revolutionaries
+      ka: სოციალისტ-რევოლუციონერები
+    colors:
+      default: "#E65100"
+
+  # --- SMD independents ---
+
+  - id: independent
+    name:
+      en: Independent
+      ka: დამოუკიდებელი
+    colors:
+      default: "#546E7A"
+
+  # --- Generic fallback ---
+
+  - id: other
+    name:
+      en: Other parties
+      ka: სხვა პარტიები
+    colors:
+      default: "#9E9E9E"

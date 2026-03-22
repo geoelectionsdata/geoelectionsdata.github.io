@@ -1,6 +1,6 @@
 ---
-theme: dashboard
-title: Main Page
+theme: [air, alt, wide]
+title: Data
 toc: false
 ---
 
@@ -12,26 +12,22 @@ const lang = getLang();
 ```
 
 ```js
-// 1. Generate a single Data Card
-// Mimics: make_data_cards R function
 function makeDataCards(typeKey, count = 3) {
-  // Loop 'count' times
   return Array.from({length: count}).map((_, i) => {
-    const title = `${tr(dict, lang, `type.${typeKey}`)} ${tr(dict, lang, "main.card.election") || "Election"} ${i + 1}`;
-    
+    const title = `${tr(dict, lang, `type.${typeKey}`)} — ${tr(dict, lang, "main.card.election") || "Election"} ${i + 1}`;
     return html`
       <div class="data-card">
-        <h5 style="margin:0; font-weight:bold;">${title}</h5>
-        <p style="margin:0; color:#666; font-size:0.9rem;">
-          ${tr(dict, lang, "data.card.description") || "Description..."}
-        </p>
-        
-        <div class="btn-group">
+        <div>
+          <div class="stat-label" style="margin-bottom: 0.3rem;">${tr(dict, lang, `type.${typeKey}`)}</div>
+          <h5>${title}</h5>
+          <p>${tr(dict, lang, "data.card.description") || "Description..."}</p>
+        </div>
+        <div class="btn-group" style="margin-top: 0.75rem;">
           <button class="btn-primary-outline">
-            ${tr(dict, lang, "data.card.election_data") || "Election Data"}
+            ↓ ${tr(dict, lang, "data.card.election_data") || "Election Data"}
           </button>
           <button class="btn-secondary-outline">
-             ${tr(dict, lang, "data.card.candidate_data") || "Candidate Data"}
+            ↓ ${tr(dict, lang, "data.card.candidate_data") || "Candidate Data"}
           </button>
         </div>
       </div>
@@ -39,19 +35,15 @@ function makeDataCards(typeKey, count = 3) {
   });
 }
 
-// 2. Generate an Accordion Panel
-// Wraps the cards in a <details> element
 function generateAccordionPanel(typeKey) {
-  const cards = makeDataCards(typeKey, 3); // Generate 3 dummy cards
-
+  const cards = makeDataCards(typeKey, 3);
   return html`
-    <div class="card" style="margin-bottom: 10px; padding: 0;">
+    <div class="card" style="margin-bottom: 8px; padding: 0;">
       <details name="data-accordion">
-        <summary style="padding: 1rem; cursor: pointer; font-weight: bold; list-style: none;">
+        <summary>
           <span class="acc-icon">▼</span> ${tr(dict, lang, `type.${typeKey}`)}
         </summary>
-        
-        <div style="padding: 1rem; border-top: 1px solid #eee; background: #f8f9fa; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+        <div class="accordion-inner">
           ${cards}
         </div>
       </details>
@@ -62,9 +54,9 @@ function generateAccordionPanel(typeKey) {
 
 ```js
 const container = html`
-<div class="card" style="margin-bottom: 2rem;">
-  <h3>${tr(dict, lang, "data.title")}</h3>
-  <p style="max-width: 800px; color: #555;">
+<div class="card card-featured" style="margin-bottom: 1.5rem;">
+  <h3 style="margin-top: 0;">${tr(dict, lang, "data.title")}</h3>
+  <p style="color: var(--muted); max-width: 720px; margin-bottom: 0;">
     ${tr(dict, lang, "data.intro")}
   </p>
 </div>
@@ -79,9 +71,4 @@ const container = html`
 `;
 
 display(container);
-
 ```
-
-<style> /* Simple scoped styles for the accordion interaction */ details > summary { list-style: none; } details > summary::-webkit-details-marker { display: none; }
-
-details[open] summary .acc-icon { transform: rotate(180deg); display: inline-block; } .acc-icon { display: inline-block; margin-right: 8px; transition: transform 0.2s; } </style>

@@ -1,15 +1,10 @@
 <div class="app-header">
-  
+
   <div class="app-brand">
     <a href="./" data-nav="nav.brand">Elections in Georgia</a>
   </div>
 
-  <div style="display: flex; align-items: center; gap: 1rem;">
-    </div>
-
-</div>
-<div class="header-right"></div>
-  <div style="display: flex; align-items: center; gap: 1rem;">
+  <div style="display: flex; align-items: center; gap: 0.75rem;">
     <nav class="top-nav">
       <a href="./"           data-nav="nav.main">Main</a>
       <a href="./elections"  data-nav="nav.elections">Elections</a>
@@ -18,85 +13,90 @@
       <a href="./analysis"   data-nav="nav.analysis">Analysis</a>
     </nav>
 
-    <button id="lang-toggle" class="lang-btn" aria-label="Switch Language">
-      </button>
+    <button id="lang-toggle" class="lang-btn" aria-label="Switch Language"></button>
 
     <button class="menu-toggle" aria-label="Toggle navigation">
       <svg viewBox="0 0 24 24">
         <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
       </svg>
     </button>
-    </div>
   </div>
+
 </div>
 
 <script>
 (function() {
-  // --- HELPER: Dictionary ---
+  // --- i18n dictionary ---
   const navDict = {
     "en": {
-      "nav.brand": "ELECTIONS IN GEORGIA",
-      "nav.main": "Main",
-      "nav.elections": "Elections",
+      "nav.brand":      "ELECTIONS IN GEORGIA",
+      "nav.main":       "Main",
+      "nav.elections":  "Elections",
       "nav.candidates": "Candidates",
-      "nav.data": "Data",
-      "nav.analysis": "Analysis"
+      "nav.data":       "Data",
+      "nav.analysis":   "Analysis"
     },
     "ka": {
-      "nav.brand": "არჩევნები საქართველოში",
-      "nav.main": "მთავარი",
-      "nav.elections": "არჩევნები",
+      "nav.brand":      "არჩევნები საქართველოში",
+      "nav.main":       "მთავარი",
+      "nav.elections":  "არჩევნები",
       "nav.candidates": "კანდიდატები",
-      "nav.data": "მონაცემები",
-      "nav.analysis": "ანალიზი"
+      "nav.data":       "მონაცემები",
+      "nav.analysis":   "ანალიზი"
     }
   };
 
-  // --- HELPER: Update Text ---
+  // --- Update text ---
   function updateUI(lang) {
-    // 1. Update Menu Text
-    document.querySelectorAll("[data-nav]").forEach(link => {
-      const key = link.getAttribute("data-nav");
-      if (navDict[lang]?.[key]) link.innerText = navDict[lang][key];
+    document.querySelectorAll("[data-nav]").forEach(el => {
+      const key = el.getAttribute("data-nav");
+      if (navDict[lang]?.[key]) el.innerText = navDict[lang][key];
     });
-
-    // 2. Update Toggle Button Text (Show the FLAG of the TARGET language)
     const btn = document.getElementById("lang-toggle");
-    if (btn) {
-      // If current is EN, show GE flag to switch to GE.
-      btn.innerHTML = lang === "en" ? "🇬🇪 ქარ" : "🇬🇧 Eng";
-    }
+    if (btn) btn.innerHTML = lang === "en" ? "🇬🇪 ქარ" : "🇬🇧 Eng";
   }
 
-  // --- INITIALIZATION ---
+  // --- Active nav link ---
+  function setActiveLink() {
+    const path = window.location.pathname;
+    document.querySelectorAll(".top-nav a").forEach(link => {
+      link.classList.remove("active");
+      // Resolve relative href to absolute path for comparison
+      const resolved = new URL(link.getAttribute("href"), window.location.href).pathname;
+      // Normalize: strip trailing slash
+      const norm = p => p.replace(/\/+$/, "") || "/";
+      if (norm(path) === norm(resolved)) {
+        link.classList.add("active");
+      }
+    });
+  }
+
+  // --- Init ---
   const currentLang = localStorage.getItem("app_lang") || "ka";
   updateUI(currentLang);
+  setActiveLink();
 
-  // --- EVENT LISTENERS ---
-  
-  // 1. Language Toggle Click
+  // --- Language toggle ---
   const langBtn = document.getElementById("lang-toggle");
   if (langBtn) {
     langBtn.addEventListener("click", () => {
       const oldLang = localStorage.getItem("app_lang") || "ka";
       const newLang = oldLang === "ka" ? "en" : "ka";
-      
-      // A. Save
       localStorage.setItem("app_lang", newLang);
-      
-      // B. Update Header UI
       updateUI(newLang);
-
-      // C. Notify Observable (The Bridge!)
       window.dispatchEvent(new CustomEvent("lang-change", { detail: newLang }));
     });
   }
 
-  // 2. Mobile Menu Toggle
+  // --- Mobile menu toggle ---
   const toggle = document.querySelector(".menu-toggle");
-  const nav = document.querySelector(".top-nav");
+  const nav    = document.querySelector(".top-nav");
   if (toggle && nav) {
     toggle.addEventListener("click", () => nav.classList.toggle("open"));
+    // Close menu when a link is clicked
+    nav.querySelectorAll("a").forEach(a =>
+      a.addEventListener("click", () => nav.classList.remove("open"))
+    );
   }
 })();
 </script>

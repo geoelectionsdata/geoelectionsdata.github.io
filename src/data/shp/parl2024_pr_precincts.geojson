@@ -1,0 +1,291 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi_w",
+        "district_id": "tbilisi",
+        "name_en": "Tbilisi (West)",
+        "name_ka": "თბილისი (დასავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[44.7, 41.6], [44.8, 41.6], [44.8, 41.8], [44.7, 41.8], [44.7, 41.6]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tbilisi_e",
+        "district_id": "tbilisi",
+        "name_en": "Tbilisi (East)",
+        "name_ka": "თბილისი (აღმოსავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[44.8, 41.6], [44.9, 41.6], [44.9, 41.8], [44.8, 41.8], [44.8, 41.6]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "imereti_w",
+        "district_id": "imereti",
+        "name_en": "Imereti (West)",
+        "name_ka": "იმერეთი (დასავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[42.5, 41.9], [43.0, 41.9], [43.0, 42.4], [42.5, 42.4], [42.5, 41.9]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "imereti_e",
+        "district_id": "imereti",
+        "name_en": "Imereti (East)",
+        "name_ka": "იმერეთი (აღმოსავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[43.0, 41.9], [43.5, 41.9], [43.5, 42.4], [43.0, 42.4], [43.0, 41.9]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kakheti_w",
+        "district_id": "kakheti",
+        "name_en": "Kakheti (West)",
+        "name_ka": "კახეთი (დასავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[45.2, 41.4], [45.9, 41.4], [45.9, 42.2], [45.2, 42.2], [45.2, 41.4]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kakheti_e",
+        "district_id": "kakheti",
+        "name_en": "Kakheti (East)",
+        "name_ka": "კახეთი (აღმოსავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[45.9, 41.4], [46.6, 41.4], [46.6, 42.2], [45.9, 42.2], [45.9, 41.4]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "samtskhe_w",
+        "district_id": "samtskhe",
+        "name_en": "Samtskhe (West)",
+        "name_ka": "სამცხე (დასავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[42.9, 41.1], [43.5, 41.1], [43.5, 41.7], [42.9, 41.7], [42.9, 41.1]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "samtskhe_e",
+        "district_id": "samtskhe",
+        "name_en": "Samtskhe (East)",
+        "name_ka": "სამცხე (აღმოსავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[43.5, 41.1], [44.1, 41.1], [44.1, 41.7], [43.5, 41.7], [43.5, 41.1]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kvemo_kartli_w",
+        "district_id": "kvemo_kartli",
+        "name_en": "Kvemo Kartli (West)",
+        "name_ka": "ქვემო ქართლი (დასავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[44.1, 41.1], [44.7, 41.1], [44.7, 41.7], [44.1, 41.7], [44.1, 41.1]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "kvemo_kartli_e",
+        "district_id": "kvemo_kartli",
+        "name_en": "Kvemo Kartli (East)",
+        "name_ka": "ქვემო ქართლი (აღმოსავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[44.7, 41.1], [45.3, 41.1], [45.3, 41.7], [44.7, 41.7], [44.7, 41.1]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shida_kartli_w",
+        "district_id": "shida_kartli",
+        "name_en": "Shida Kartli (West)",
+        "name_ka": "შიდა ქართლი (დასავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[43.5, 41.7], [44.1, 41.7], [44.1, 42.2], [43.5, 42.2], [43.5, 41.7]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shida_kartli_e",
+        "district_id": "shida_kartli",
+        "name_en": "Shida Kartli (East)",
+        "name_ka": "შიდა ქართლი (აღმოსავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[44.1, 41.7], [44.7, 41.7], [44.7, 42.2], [44.1, 42.2], [44.1, 41.7]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mtskheta_w",
+        "district_id": "mtskheta",
+        "name_en": "Mtskheta (West)",
+        "name_ka": "მცხეთა (დასავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[44.3, 41.9], [44.7, 41.9], [44.7, 42.6], [44.3, 42.6], [44.3, 41.9]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mtskheta_e",
+        "district_id": "mtskheta",
+        "name_en": "Mtskheta (East)",
+        "name_ka": "მცხეთა (აღმოსავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[44.7, 41.9], [45.1, 41.9], [45.1, 42.6], [44.7, 42.6], [44.7, 41.9]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "racha_w",
+        "district_id": "racha",
+        "name_en": "Racha (West)",
+        "name_ka": "რაჭა (დასავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[42.8, 42.4], [43.2, 42.4], [43.2, 42.8], [42.8, 42.8], [42.8, 42.4]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "racha_e",
+        "district_id": "racha",
+        "name_en": "Racha (East)",
+        "name_ka": "რაჭა (აღმოსავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[43.2, 42.4], [43.6, 42.4], [43.6, 42.8], [43.2, 42.8], [43.2, 42.4]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "samegrelo_w",
+        "district_id": "samegrelo",
+        "name_en": "Samegrelo (West)",
+        "name_ka": "სამეგრელო (დასავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[41.6, 42.1], [42.2, 42.1], [42.2, 43.0], [41.6, 43.0], [41.6, 42.1]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "samegrelo_e",
+        "district_id": "samegrelo",
+        "name_en": "Samegrelo (East)",
+        "name_ka": "სამეგრელო (აღმოსავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[42.2, 42.1], [42.8, 42.1], [42.8, 43.0], [42.2, 43.0], [42.2, 42.1]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "guria_w",
+        "district_id": "guria",
+        "name_en": "Guria (West)",
+        "name_ka": "გურია (დასავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[41.7, 41.6], [42.1, 41.6], [42.1, 42.1], [41.7, 42.1], [41.7, 41.6]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "guria_e",
+        "district_id": "guria",
+        "name_en": "Guria (East)",
+        "name_ka": "გურია (აღმოსავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[42.1, 41.6], [42.5, 41.6], [42.5, 42.1], [42.1, 42.1], [42.1, 41.6]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "adjara_w",
+        "district_id": "adjara",
+        "name_en": "Adjara (West)",
+        "name_ka": "აჭარა (დასავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[41.4, 41.2], [41.8, 41.2], [41.8, 41.7], [41.4, 41.7], [41.4, 41.2]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "adjara_e",
+        "district_id": "adjara",
+        "name_en": "Adjara (East)",
+        "name_ka": "აჭარა (აღმოსავლ.)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[41.8, 41.2], [42.2, 41.2], [42.2, 41.7], [41.8, 41.7], [41.8, 41.2]]]
+      }
+    }
+  ]
+}

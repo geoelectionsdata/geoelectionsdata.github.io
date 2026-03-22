@@ -20,6 +20,7 @@
     "d3-dsv": "^3.0.1",
     "d3-time-format": "^4.1.0",
     "file-loader": "^6.2.0",
+    "js-yaml": "^4.1.1",
     "leaflet": "^1.9.4",
     "r-integration": "^2.4.0",
     "style-loader": "^4.0.0",

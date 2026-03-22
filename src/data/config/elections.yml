@@ -1,75 +1,209 @@
-# src/data/config/elections.yml
+# Georgia Elections Configuration
+# sub_type: pr | mixed | messy  (parliamentary only)
+# threshold_status: passed | failed | notrun
 
-- id: "parl_2024"
-  type: "Parliamentary"
-  date: "2024-10-26"
-  name:
-    en: "2024 Parliamentary Elections"
-    ka: "2024 წლის საპარლამენტო არჩევნები"
-  
-  # Sub-elections logic (e.g. if you have multiple votes happening same day)
-  sub_elections:
-    - id: "proportional_2024"
-      name:
-        en: "Proportional List"
-        ka: "პროპორციული სია"
-    # In 2024 it was fully proportional, but for 2020 you might add "majoritarian"
+elections:
 
-  # Data Sources (Paths relative to your R loader script location)
-  files:
-    results: "../../voting/parl_2024_pr.csv"
-    candidates: "../../candidates/parl_2024.csv"
-    
-    # Spatial Data
-    shapes:
-      country: "../../data/shp/country_outline_1990.json"  # The country boundary
-      # The district polygons (High level)
-      districts: "../../data/shp/districts_1990.json"
-      # The precinct points (Low level)
-      precincts: "../../data/shp/precincts_2024.json"
-- id: "parl_1919"
-  type: "Parliamentary"
-  date: "1919-02-19 - 1919-03-17"
-  name:
-    en: "1919 Elections to the Constituent Assembly"
-    ka: "1919 წლის დამფუძნებელი კრების არჩევნები"
-  
-  # Sub-elections logic (e.g. if you have multiple votes happening same day)
-  sub_elections:
-    - id: "proportional_1919"
-      name:
-        en: "Proportional List"
-        ka: "პროპორციული სია"
+  - id: parl_2024
+    type: parliamentary
+    sub_type: pr
+    date: "2024-10-26"
+    name:
+      en: "2024 Parliamentary Elections"
+      ka: "2024 წლის საპარლამენტო არჩევნები"
+    system:
+      pr:
+        enabled: true
+        seats: 150
+        shape_file: "data/shp/parl2024_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+      smd:
+        enabled: false
+        seats: 0
+        shape_file: null
+      compensation:
+        enabled: false
+        shape_file: null
+    sub_elections: []
+    parties:
+      - id: gd
+        threshold_status: passed
+      - id: coalition_for_change
+        threshold_status: passed
+      - id: unity
+        threshold_status: passed
+      - id: strong_georgia
+        threshold_status: passed
+      - id: girchi
+        threshold_status: failed
+      - id: other
+        threshold_status: failed
+    files:
+      pr_results:          "data/results/parl2024_pr.csv"
+      pr_precinct_results: "data/results/parl2024_pr_precincts.csv"
+      smd_results:         null
+      candidates:          "data/candidates/parl2024.csv"
+      cartogram:           "data/shp/parl2024_cartogram.geojson"
+    turnout:
+      available: true
+      type: detailed
+      file: "data/turnout/parl2024_turnout.csv"
+      precinct_file: "data/turnout/parl2024_pr_precincts_turnout.csv"
+      has_snapshots: true
+      has_lists: true
 
-  # Data Sources (Paths relative to your R loader script location)
-  files:
-    results: "../../voting/parl_1919_pr.csv"
-    candidates: "../../candidates/parl_1919.csv"
-    
-    # Spatial Data
-    shapes:
-      country: "../../data/shp/country_outline_1919.json"  # The country boundary
-      # The district polygons (High level)
-      districts: "../../data/shp/districts_1919.json"
-      # The precinct points (Low level)
-      precincts: NA
+  - id: parl_2020
+    type: parliamentary
+    sub_type: mixed
+    date: "2020-10-31"
+    name:
+      en: "2020 Parliamentary Elections"
+      ka: "2020 წლის საპარლამენტო არჩევნები"
+    system:
+      pr:
+        enabled: true
+        seats: 120
+        shape_file: "data/shp/parl2020_pr.geojson"
+      smd:
+        enabled: true
+        seats: 30
+        shape_file: "data/shp/parl2020_smd.geojson"
+      compensation:
+        enabled: false
+        shape_file: null
+    sub_elections:
+      - id: parl_2020_runoff
+        type: runoff
+        date: "2020-11-21"
+        name:
+          en: "2020 SMD Runoff"
+          ka: "2020 - მეორე ტური (მაჟ.)"
+        files:
+          smd_results: "data/results/parl2020_smd_runoff.csv"
+      - id: parl_2020_by_tbilisi
+        type: by_election
+        date: "2021-10-02"
+        name:
+          en: "2021 Tbilisi By-election"
+          ka: "2021 - თბილისი (დამატებითი)"
+        files:
+          smd_results: "data/results/parl2020_by_tbilisi.csv"
+    parties:
+      - id: gd
+        threshold_status: passed
+      - id: unm
+        threshold_status: passed
+      - id: european_georgia
+        threshold_status: passed
+      - id: girchi
+        threshold_status: passed
+      - id: labour
+        threshold_status: passed
+      - id: other
+        threshold_status: failed
+    files:
+      pr_results:  "data/results/parl2020_pr.csv"
+      smd_results: "data/results/parl2020_smd.csv"
+      candidates:  "data/candidates/parl2020.csv"
+      cartogram:   "data/shp/parl2020_cartogram.geojson"
+    turnout:
+      available: true
+      type: basic
+      file: "data/turnout/parl2020_turnout.csv"
+      precinct_file: null
+      has_snapshots: false
+      has_lists: false
 
-- id: "pres_2018"
-  type: "Presidential"
-  date: "2018-10-28"
-  name:
-    en: "2018 Presidential Elections"
-    ka: "2018 წლის საპრეზიდენტო არჩევნები"
-  
-  sub_elections:
-    - id: "round_1"
-      name: {en: "Round 1", ka: "პირველი ტური"}
-    - id: "round_2"
-      name: {en: "Round 2", ka: "მეორე ტური"}
+  - id: parl_1992
+    type: parliamentary
+    sub_type: messy
+    date: "1992-10-11"
+    name:
+      en: "1992 Parliamentary Elections"
+      ka: "1992 წლის საპარლამენტო არჩევნები"
+    system:
+      pr:
+        enabled: true
+        seats: 150
+        shape_file: "data/shp/parl1992_pr.geojson"
+      smd:
+        enabled: true
+        seats: 84
+        shape_file: "data/shp/parl1992_smd.geojson"
+      compensation:
+        enabled: true
+        seats: 32
+        shape_file: "data/shp/parl1992_compensation.geojson"
+    sub_elections: []
+    parties:
+      - id: mkhedrioni_1992
+        threshold_status: passed
+      - id: peace_1992
+        threshold_status: passed
+      - id: other_1992
+        threshold_status: failed
+    files:
+      pr_results:           "data/results/parl1992_pr.csv"
+      smd_results:          "data/results/parl1992_smd.csv"
+      compensation_results: "data/results/parl1992_compensation.csv"
+      candidates:           "data/candidates/parl1992.csv"
+      cartogram:            "data/shp/parl1992_cartogram.geojson"
+    turnout: null
 
-  files:
-    results: "../../data_raw/2018/results_presidential.csv"
-    candidates: "../../data_raw/2018/candidates.csv"
-    shapes:
-      districts: "../../data_raw/shapes/districts_2018.shp" # Shapes might change over years!
-      precincts: "../../data_raw/2018/precincts.csv"
+  - id: parl_1919
+    type: parliamentary
+    sub_type: pr
+    date: "1919-02-14"
+    name:
+      en: "1919 Constituent Assembly Elections"
+      ka: "1919 წლის დამფუძნებელი კრების არჩევნები"
+    system:
+      pr:
+        enabled: true
+        seats: 130
+        shape_file: "data/shp/parl1919_pr.geojson"
+      smd:
+        enabled: false
+        seats: 0
+        shape_file: null
+      compensation:
+        enabled: false
+        shape_file: null
+    sub_elections: []
+    parties:
+      - id: social_democrats_1919
+        threshold_status: passed
+      - id: social_federalists_1919
+        threshold_status: passed
+      - id: national_democrats_1919
+        threshold_status: passed
+      - id: sr_1919
+        threshold_status: passed
+    files:
+      pr_results:  "data/results/parl1919_pr.csv"
+      smd_results: null
+      candidates:  "data/candidates/parl1919.csv"
+      cartogram:   "data/shp/parl1919_cartogram.geojson"
+    turnout: null
+
+  - id: pres_2018
+    type: presidential
+    date: "2018-10-28"
+    name:
+      en: "2018 Presidential Election"
+      ka: "2018 წლის საპრეზიდენტო არჩევნები"
+    sub_elections:
+      - id: pres_2018_r2
+        type: runoff
+        date: "2018-11-28"
+        name:
+          en: "2018 Presidential — Round 2"
+          ka: "2018 საპრეზიდენტო — მეორე ტური"
+        files:
+          results: "data/results/pres2018_r2.csv"
+    files:
+      results:    "data/results/pres2018_r1.csv"
+      candidates: "data/candidates/pres2018.csv"
+      shape_file: "data/shp/pres2018.geojson"
+      cartogram:  "data/shp/pres2018_cartogram.geojson"
+    turnout: null

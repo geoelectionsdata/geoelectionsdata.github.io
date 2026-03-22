@@ -1,17 +1,12 @@
 ---
-theme: dashboard
+theme: [air, alt, wide]
 title: Main Page
 toc: false
 ---
 
 ```js
-
-// 1. IMPORTS
 import L from "npm:leaflet";
-// Import our new shared component
-
 import {getLang, tr} from "./components/state.js";
-// Load Data
 const dict = await FileAttachment("data/config/translations.json").json();
 ```
 
@@ -19,46 +14,39 @@ const dict = await FileAttachment("data/config/translations.json").json();
 const lang = getLang();
 ```
 
-```js 
-// BLOCK 3: MAIN LOGIC (UI + MAP + TRANSLATION)
-// This block depends on 'lang'. When 'lang' changes, it re-runs.
-
-
-
-// 2. Define the Local Translation Helper (Takes 1 argument)
+```js
 function tr(key) {
   return dict[lang]?.[key] || dict["ka"]?.[key] || key;
 }
 
-// 3. Generate HTML with CSS Grid
 const container = html`
 <style>
   .custom-dashboard-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Mobile: Stacked */
+    grid-template-columns: 1fr;
     gap: 1rem;
   }
   @media (min-width: 668px) {
     .custom-dashboard-grid {
-      grid-template-columns: 2fr 1fr; /* Desktop: 66% vs 33% */
+      grid-template-columns: 2fr 1fr;
     }
   }
 </style>
 
 <div class="custom-dashboard-grid">
 
-  <div class="card" style="min-height: 550px; padding: 0; overflow: hidden; display: flex; flex-direction: column;">
-    <h3 style="margin: 1rem;">${tr("main.latest_title")}</h3>
-    <div id="internal-map-div" style="flex-grow: 1; width: 100%; z-index: 0; background: #f8f9fa;"></div>
+  <div class="card" style="min-height: 520px; padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+    <h3 style="margin: 1rem 1.25rem 0.5rem;">${tr("main.latest_title")}</h3>
+    <div id="internal-map-div" style="flex-grow: 1; width: 100%; z-index: 0;"></div>
   </div>
 
-  <div class="card">
-    <h4>${tr("main.overview_title")}</h4>
+  <div class="card card-featured">
+    <h4 style="margin-top:0;">${tr("main.overview_title")}</h4>
     <div id="main-info-body">
       <p>${tr("main.overview.text")}</p>
-      <ul style="padding-left: 1.5rem; margin-top: 10px;">
-        <li><strong>${tr("main.overview.item_turnout")}</strong></li>
-        <li>${tr("main.overview.item_winner")}</li>
+      <ul style="padding-left: 1.5rem; margin-top: 0.75rem; color: var(--muted);">
+        <li style="margin-bottom:0.4rem;"><strong style="color:var(--dark);">${tr("main.overview.item_turnout")}</strong></li>
+        <li style="margin-bottom:0.4rem;">${tr("main.overview.item_winner")}</li>
         <li>${tr("main.overview.item_notes")}</li>
       </ul>
     </div>
@@ -68,7 +56,7 @@ const container = html`
 
 <hr>
 
-<h3>${tr("main.browse_title")}</h3>
+<h3 style="margin-bottom: 0.75rem;">${tr("main.browse_title")}</h3>
 
 <div id="main_accordion">
   ${generateAccordionPanel("parliamentary", "type.parliamentary")}
@@ -79,55 +67,44 @@ const container = html`
 </div>
 `;
 
-// 4. Initialize the Map
+// Initialize map
 const mapDiv = container.querySelector("#internal-map-div");
-
 if (mapDiv && L) {
   const map = L.map(mapDiv).setView([41.7, 44.8], 7);
-
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap'
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19
   }).addTo(map);
-
-  setTimeout(() => {
-    map.invalidateSize();
-  }, 200);
+  setTimeout(() => map.invalidateSize(), 200);
 }
 
-// 5. Accordion Helper
 function generateAccordionPanel(typeKey, titleKey) {
-  const cards = Array.from({length: 3}).map((_, i) => {
-    return html`
-      <div class="election-card" style="border:1px solid #eee; padding:15px; border-radius:5px; background:white; display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <h5>${tr(titleKey)} ${tr("main.card.election") || "Election"} ${i + 1}</h5>
-          <p>${tr("main.card.description") || "Description placeholder..."}</p>
-        </div>
-        <button class="observablehq-input" style="font-size: 0.8rem; align-self: flex-start; margin-top: 10px;">
-          ${tr("main.card.open") || "Open"}
-        </button>
+  const cards = Array.from({length: 3}).map((_, i) => html`
+    <div class="election-card">
+      <div>
+        <h5>${tr(titleKey)} ${tr("main.card.election") || "Election"} ${i + 1}</h5>
+        <p>${tr("main.card.description") || "Description placeholder..."}</p>
       </div>
-    `;
-  });
+      <button class="btn-ghost" style="margin-top: 0.75rem;">
+        ${tr("main.card.open") || "Open"}
+      </button>
+    </div>
+  `);
 
   return html`
-    <div class="card" style="margin-bottom: 10px; padding: 0;">
+    <div class="card" style="margin-bottom: 8px; padding: 0;">
       <details name="election-accordion">
-        <summary style="padding: 1rem; cursor: pointer; font-weight: bold; list-style: none;">
+        <summary>
           <span class="acc-icon">▼</span> ${tr(titleKey)}
         </summary>
-        
-        <div style="padding: 1rem; border-top: 1px solid #eee; background: #f8f9fa; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+        <div class="accordion-inner">
           ${cards}
         </div>
       </details>
     </div>
   `;
 }
-// 6. Display
+
 display(container);
 ```
-
-<style> /* Simple scoped styles for the accordion interaction */ details > summary { list-style: none; } details > summary::-webkit-details-marker { display: none; }
-
-details[open] summary .acc-icon { transform: rotate(180deg); display: inline-block; } .acc-icon { display: inline-block; margin-right: 8px; transition: transform 0.2s; } </style>
