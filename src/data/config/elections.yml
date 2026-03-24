@@ -188,10 +188,42 @@ elections:
 
   - id: pres_2018
     type: presidential
+    sub_type: direct
     date: "2018-10-28"
     name:
       en: "2018 Presidential Election"
       ka: "2018 წლის საპრეზიდენტო არჩევნები"
+    system:
+      pr:
+        enabled: true
+        shape_file: "data/shp/parl2024_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+      smd:
+        enabled: false
+      compensation:
+        enabled: false
+    candidates:
+      - id: zourabichvili
+        name:
+          en: "Salome Zourabichvili"
+          ka: "სალომე ზურაბიშვილი"
+        party: gd
+      - id: vashadze
+        name:
+          en: "Grigol Vashadze"
+          ka: "გრიგოლ ვაშაძე"
+        party: unm
+      - id: bakradze
+        name:
+          en: "David Bakradze"
+          ka: "დავით ბაქრაძე"
+        party: european_georgia
+      - id: other_pres
+        name:
+          en: "Other candidates"
+          ka: "სხვა კანდიდატები"
+        party: null
+        color: "#9E9E9E"
     sub_elections:
       - id: pres_2018_r2
         type: runoff
@@ -200,10 +232,175 @@ elections:
           en: "2018 Presidential — Round 2"
           ka: "2018 საპრეზიდენტო — მეორე ტური"
         files:
-          results: "data/results/pres2018_r2.csv"
+          smd_results:         "data/results/pres2018_r2.csv"
+          pr_precinct_results: "data/results/pres2018_r2_precincts.csv"
     files:
-      results:    "data/results/pres2018_r1.csv"
-      candidates: "data/candidates/pres2018.csv"
-      shape_file: "data/shp/pres2018.geojson"
-      cartogram:  "data/shp/pres2018_cartogram.geojson"
+      pr_results:          "data/results/pres2018_r1.csv"
+      pr_precinct_results: "data/results/pres2018_r1_precincts.csv"
+      cartogram:           "data/shp/parl2024_cartogram.geojson"
+    turnout:
+      available: true
+      type: basic
+      file: "data/turnout/pres2018_turnout.csv"
+      precinct_file: "data/turnout/pres2018_precincts_turnout.csv"
+      has_snapshots: false
+      has_lists: false
+
+  - id: pres_2024_indirect
+    type: presidential
+    sub_type: indirect
+    date: "2024-12-14"
+    name:
+      en: "2024 Presidential Election"
+      ka: "2024 წლის საპრეზიდენტო არჩევნები"
+    candidates:
+      - id: kavelashvili
+        name:
+          en: "Mikheil Kavelashvili"
+          ka: "მიხეილ კაველაშვილი"
+        party: gd
+    electoral_college:
+      total: 300
+      for: 224
+      against: 0
+      abstained: 19
+      absent: 57
+    sub_elections: []
+    files: {}
     turnout: null
+
+  - id: adj_2020
+    type: adjara
+    sub_type: mixed
+    date: "2020-10-31"
+    name:
+      en: "2020 Adjara Supreme Council"
+      ka: "2020 აჭარის უმაღლესი საბჭო"
+    system:
+      pr:
+        enabled: true
+        seats: 15
+        shape_file: "data/shp/parl2024_pr.geojson"
+      smd:
+        enabled: true
+        seats: 11
+        shape_file: "data/shp/parl2024_pr.geojson"
+      compensation:
+        enabled: false
+        shape_file: null
+    sub_elections: []
+    parties:
+      - id: gd
+        threshold_status: passed
+      - id: unm
+        threshold_status: passed
+      - id: european_georgia
+        threshold_status: passed
+      - id: other
+        threshold_status: failed
+    files:
+      pr_results:  "data/results/adj2020_pr.csv"
+      smd_results: "data/results/adj2020_smd.csv"
+      candidates:  null
+      cartogram:   "data/shp/parl2024_cartogram.geojson"
+    turnout:
+      available: true
+      type: basic
+      file: "data/turnout/adj2020_turnout.csv"
+      precinct_file: null
+      has_snapshots: false
+      has_lists: false
+
+  - id: adj_2016
+    type: adjara
+    sub_type: mixed
+    date: "2016-10-08"
+    name:
+      en: "2016 Adjara Supreme Council"
+      ka: "2016 აჭარის უმაღლესი საბჭო"
+    system:
+      pr:
+        enabled: true
+        seats: 15
+        shape_file: "data/shp/parl2024_pr.geojson"
+      smd:
+        enabled: true
+        seats: 11
+        shape_file: "data/shp/parl2024_pr.geojson"
+      compensation:
+        enabled: false
+        shape_file: null
+    sub_elections: []
+    parties:
+      - id: gd
+        threshold_status: passed
+      - id: unm
+        threshold_status: passed
+      - id: girchi
+        threshold_status: passed
+      - id: other
+        threshold_status: failed
+    files:
+      pr_results:  "data/results/adj2016_pr.csv"
+      smd_results: "data/results/adj2016_smd.csv"
+      candidates:  null
+      cartogram:   "data/shp/parl2024_cartogram.geojson"
+    turnout:
+      available: true
+      type: basic
+      file: "data/turnout/adj2016_turnout.csv"
+      precinct_file: null
+      has_snapshots: false
+      has_lists: false
+
+  - id: ref_2024
+    type: plebiscite
+    date: "2024-03-26"
+    name:
+      en: "2024 Constitutional Referendum"
+      ka: "2024 წლის კონსტიტუციური რეფერენდუმი"
+    system:
+      pr:
+        enabled: true
+        shape_file: "data/shp/parl2024_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+      smd:
+        enabled: false
+        seats: 0
+        shape_file: null
+      compensation:
+        enabled: false
+        shape_file: null
+    questions:
+      - id: ref_2024_q1
+        type: question
+        name:
+          en: "Q1: EU Membership"
+          ka: "კ1: ევროკავშირის წევრობა"
+        text:
+          en: "Do you support Georgia's application for European Union membership?"
+          ka: "მხარს უჭერთ საქართველოს ევროკავშირის წევრობის განაცხადს?"
+        files:
+          pr_results:          "data/results/ref2024_q1.csv"
+          pr_precinct_results: "data/results/ref2024_q1_precincts.csv"
+      - id: ref_2024_q2
+        type: question
+        name:
+          en: "Q2: NATO Membership"
+          ka: "კ2: ნატოს წევრობა"
+        text:
+          en: "Do you support Georgia's application for NATO membership?"
+          ka: "მხარს უჭერთ საქართველოს ნატოს წევრობის განაცხადს?"
+        files:
+          pr_results:          "data/results/ref2024_q2.csv"
+          pr_precinct_results: "data/results/ref2024_q2_precincts.csv"
+    sub_elections: []
+    files:
+      cartogram: "data/shp/parl2024_cartogram.geojson"
+    turnout:
+      available: true
+      type: basic
+      file: "data/turnout/ref2024_turnout.csv"
+      precinct_file: "data/turnout/ref2024_precincts_turnout.csv"
+      has_snapshots: false
+      has_lists: false

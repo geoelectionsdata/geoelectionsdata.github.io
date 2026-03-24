@@ -1,0 +1,23 @@
+district_id,party_id,candidate_name,votes,vote_share,threshold_status
+tbilisi,zourabichvili,სალომე ზურაბიშვილი,278000,0.531,notrun
+tbilisi,vashadze,გრიგოლ ვაშაძე,246000,0.469,notrun
+imereti,zourabichvili,სალომე ზურაბიშვილი,148000,0.614,notrun
+imereti,vashadze,გრიგოლ ვაშაძე,93000,0.386,notrun
+kakheti,zourabichvili,სალომე ზურაბიშვილი,110000,0.635,notrun
+kakheti,vashadze,გრიგოლ ვაშაძე,63000,0.365,notrun
+samtskhe,zourabichvili,სალომე ზურაბიშვილი,58000,0.659,notrun
+samtskhe,vashadze,გრიგოლ ვაშაძე,30000,0.341,notrun
+kvemo_kartli,zourabichvili,სალომე ზურაბიშვილი,83000,0.582,notrun
+kvemo_kartli,vashadze,გრიგოლ ვაშაძე,59500,0.418,notrun
+shida_kartli,zourabichvili,სალომე ზურაბიშვილი,72000,0.628,notrun
+shida_kartli,vashadze,გრიგოლ ვაშაძე,42700,0.372,notrun
+mtskheta,zourabichvili,სალომე ზურაბიშვილი,40000,0.632,notrun
+mtskheta,vashadze,გრიგოლ ვაშაძე,23300,0.368,notrun
+racha,zourabichvili,სალომე ზურაბიშვილი,15500,0.651,notrun
+racha,vashadze,გრიგოლ ვაშაძე,8300,0.349,notrun
+samegrelo,zourabichvili,სალომე ზურაბიშვილი,93000,0.577,notrun
+samegrelo,vashadze,გრიგოლ ვაშაძე,68000,0.423,notrun
+guria,zourabichvili,სალომე ზურაბიშვილი,33000,0.607,notrun
+guria,vashadze,გრიგოლ ვაშაძე,21400,0.393,notrun
+adjara,zourabichvili,სალომე ზურაბიშვილი,76000,0.599,notrun
+adjara,vashadze,გრიგოლ ვაშაძე,50900,0.401,notrun

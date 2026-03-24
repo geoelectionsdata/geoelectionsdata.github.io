@@ -130,6 +130,22 @@ parties:
     colors:
       default: "#546E7A"
 
+  # --- Referendum vote options ---
+
+  - id: yes
+    name:
+      en: "Yes"
+      ka: "კი"
+    colors:
+      default: "#2E7D32"
+
+  - id: no
+    name:
+      en: "No"
+      ka: "არა"
+    colors:
+      default: "#C62828"
+
   # --- Generic fallback ---
 
   - id: other

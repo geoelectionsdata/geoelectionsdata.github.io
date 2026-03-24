@@ -1,7 +1,7 @@
-district_id,party_id,votes,vote_share,seats_pr,seats_smd,threshold_status
-tbilisi,gd,48000,0.382,65,20,notrun
-tbilisi,unm,38000,0.302,36,5,notrun
-tbilisi,independent,21000,0.167,0,5,notrun
-tbilisi,european_georgia,9500,0.076,7,0,notrun
-tbilisi,girchi,8500,0.068,6,0,notrun
-tbilisi,other,1500,0.012,0,0,notrun
+district_id,party_id,candidate_name,votes,vote_share,seats_pr,seats_smd,threshold_status
+tbilisi,gd,გიორგი შამუგია,48000,0.382,65,20,notrun
+tbilisi,unm,ნიკა მელია,38000,0.302,36,5,notrun
+tbilisi,independent,სალომე ზურაბიშვილი,21000,0.167,0,5,notrun
+tbilisi,european_georgia,გიგა ბოკერია,9500,0.076,7,0,notrun
+tbilisi,girchi,ზურაბ ჯაფარიძე,8500,0.068,6,0,notrun
+tbilisi,other,,1500,0.012,0,0,notrun

@@ -1,9 +1,9 @@
-district_id,party_id,votes,vote_share,seats_pr,seats_smd,threshold_status
-samegrelo,gd,72000,0.537,65,20,notrun
-samegrelo,unm,62000,0.463,36,5,notrun
-adjara,gd,58000,0.524,65,20,notrun
-adjara,unm,52700,0.476,36,5,notrun
-kvemo_kartli,gd,61000,0.575,65,20,notrun
-kvemo_kartli,unm,45000,0.425,36,5,notrun
-guria,gd,25000,0.556,65,20,notrun
-guria,unm,20000,0.444,36,5,notrun
+district_id,party_id,candidate_name,votes,vote_share,seats_pr,seats_smd,threshold_status
+samegrelo,gd,ლაშა დარჩიაშვილი,72000,0.537,65,20,notrun
+samegrelo,unm,ზუკა ბერიძე,62000,0.463,36,5,notrun
+adjara,gd,გოჩა ენუქიძე,58000,0.524,65,20,notrun
+adjara,unm,ზურაბ ჯაფარიძე,52700,0.476,36,5,notrun
+kvemo_kartli,gd,ზურაბ ტყემალაძე,61000,0.575,65,20,notrun
+kvemo_kartli,unm,სერგო რატიანი,45000,0.425,36,5,notrun
+guria,gd,მიხეილ სარჯველაძე,25000,0.556,65,20,notrun
+guria,unm,ანა დოლიძე,20000,0.444,36,5,notrun

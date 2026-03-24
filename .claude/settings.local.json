@@ -25,7 +25,21 @@
       "Bash(ls -la \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\")",
       "Bash(find 'D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data' -name .observablehq -type d)",
       "Bash(ls -la \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\.observablehq\")",
-      "Bash(find \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\.observablehq\" -type f)"
+      "Bash(find \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\.observablehq\" -type f)",
+      "Bash(ls \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\.observablehq\\\\cache\\\\data\"\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); e=d[0]; print\\(''''id:'''', e[''''id'''']\\); print\\(''''turnout:'''', e.get\\(''''turnout''''\\)\\); print\\(''''precinct_shape_file:'''', e.get\\(''''system'''',{}\\).get\\(''''pr'''',{}\\).get\\(''''precinct_shape_file''''\\)\\)\")",
+      "Bash(curl -s http://127.0.0.1:3001/data/elections.json)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); e=d[0]; print\\(''''turnout.available:'''', e.get\\(''''turnout'''',{}\\).get\\(''''available''''\\)\\); print\\(''''precinct_file:'''', e.get\\(''''system'''',{}\\).get\\(''''pr'''',{}\\).get\\(''''precinct_shape_file''''\\)\\)\")",
+      "Bash(python -c \":*)",
+      "Bash(head -5 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\parl2020_smd.csv\")",
+      "Bash(cat \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\parl2020_smd.csv\")",
+      "Bash(cat \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\parl2020_smd_runoff.csv\")",
+      "Bash(cat \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\parl2020_by_tbilisi.csv\")",
+      "Bash(ls 'D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/.observablehq/cache/data/')",
+      "Bash(start http://127.0.0.1:3001/elections)",
+      "Bash(python -c \"import json; d = json.load\\(open\\(''''src/data/config/translations.json'''', encoding=''''utf-8''''\\)\\); [print\\(k, '''':'''', v\\) for k, v in d.items\\(\\) if ''''plebiscite'''' in k or ''''type.'''' in k or ''''referendum'''' in k]\")",
+      "Bash(del \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\.observablehq\\\\cache\\\\data\\\\elections.json\")",
+      "Bash(python3 -c \":*)"
     ]
   }
 }

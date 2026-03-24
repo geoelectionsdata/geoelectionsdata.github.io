@@ -30,7 +30,9 @@ const typeVal = Generators.input(typeInput);
 
 ```js
 // ── Election ID dropdown — filtered by type ───────────────────────────────
-const filteredElections = elections.filter(e => e.type === typeVal);
+const filteredElections = elections
+  .filter(e => e.type === typeVal)
+  .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 
 const electionInput = Inputs.select(
   filteredElections,
@@ -42,13 +44,19 @@ const electionVal = Generators.input(electionInput);
 
 ```js
 // ── Sub-election dropdown (runoffs etc.) — only if present ────────────────
-const subElections = electionVal?.sub_elections ?? [];
+const isPlebisciteEarly = electionVal?.type === "plebiscite"; // early flag for sub-election setup
+const subElections = isPlebisciteEarly
+  ? (electionVal?.questions ?? [])
+  : (electionVal?.sub_elections ?? []);
 const hasSubElections = subElections.length > 0;
 
-const subElectionInput = Inputs.select(
-  [{id: "__main__", name: {en: "Main election", ka: "მთავარი"}}, ...subElections],
-  { format: e => e.name?.[lang] || e.name?.en || e.id }
-);
+// Plebiscite: questions only (no __main__ option), always start at first question
+const subElectionItems = isPlebisciteEarly
+  ? subElections
+  : [{id: "__main__", name: {en: "Main election", ka: "მთავარი"}}, ...subElections];
+const subElectionInput = Inputs.select(subElectionItems, {
+  format: e => e.name?.[lang] || e.name?.en || e.id
+});
 const subVal = Generators.input(subElectionInput);
 ```
 
@@ -75,6 +83,19 @@ const voteTypeVal = Generators.input(voteTypeInput);
 ```
 
 ```js
+// ── Election type flags ───────────────────────────────────────────────────
+const isPresidential = electionVal?.type === "presidential";
+const isIndirect     = isPresidential && electionVal?.sub_type === "indirect";
+const isPlebiscite   = electionVal?.type === "plebiscite";
+
+// Runoffs/by-elections in parliamentary elections are always SMD — force "smd" and hide the toggle
+const isSubElectionSMD = !isPresidential && !isPlebiscite &&
+  subVal?.id !== "__main__" &&
+  (subVal?.type === "runoff" || subVal?.type === "by_election");
+const effectiveVoteType = isSubElectionSMD ? "smd" : voteTypeVal;
+```
+
+```js
 // ── Map mode ──────────────────────────────────────────────────────────────
 const mapModeInput = Inputs.radio(["geographic", "cartogram"], {
   value: "geographic",
@@ -86,16 +107,11 @@ const mapMode = Generators.input(mapModeInput);
 ```js
 // ── Map granularity (district vs precinct) ────────────────────────────────
 const hasPrecinct = !!(
-  voteTypeVal === "smd"          ? electionVal?.system?.smd?.precinct_shape_file
-  : voteTypeVal === "compensation" ? electionVal?.system?.compensation?.precinct_shape_file
+  effectiveVoteType === "smd"          ? electionVal?.system?.smd?.precinct_shape_file
+  : effectiveVoteType === "compensation" ? electionVal?.system?.compensation?.precinct_shape_file
   : electionVal?.system?.pr?.precinct_shape_file
 );
 
-const mapLevelInput = Inputs.radio(["district", "precinct"], {
-  value: "district",
-  format: k => k === "district" ? t("elections.map_level.district") : t("elections.map_level.precinct")
-});
-const mapLevel = Generators.input(mapLevelInput);
 ```
 
 ```js
@@ -143,12 +159,30 @@ const _allCsv = {
   "data/results/parl2020_smd.csv":             await FileAttachment("data/results/parl2020_smd.csv").csv({typed: true}),
   "data/results/parl2020_smd_runoff.csv":      await FileAttachment("data/results/parl2020_smd_runoff.csv").csv({typed: true}),
   "data/results/parl2020_by_tbilisi.csv":      await FileAttachment("data/results/parl2020_by_tbilisi.csv").csv({typed: true}),
+  "data/results/pres2018_r1.csv":              await FileAttachment("data/results/pres2018_r1.csv").csv({typed: true}),
+  "data/results/pres2018_r2.csv":              await FileAttachment("data/results/pres2018_r2.csv").csv({typed: true}),
+  "data/results/pres2018_r1_precincts.csv":    await FileAttachment("data/results/pres2018_r1_precincts.csv").csv({typed: true}),
+  "data/results/pres2018_r2_precincts.csv":    await FileAttachment("data/results/pres2018_r2_precincts.csv").csv({typed: true}),
+  "data/results/adj2020_pr.csv":               await FileAttachment("data/results/adj2020_pr.csv").csv({typed: true}),
+  "data/results/adj2020_smd.csv":              await FileAttachment("data/results/adj2020_smd.csv").csv({typed: true}),
+  "data/results/adj2016_pr.csv":               await FileAttachment("data/results/adj2016_pr.csv").csv({typed: true}),
+  "data/results/adj2016_smd.csv":              await FileAttachment("data/results/adj2016_smd.csv").csv({typed: true}),
+  "data/results/ref2024_q1.csv":               await FileAttachment("data/results/ref2024_q1.csv").csv({typed: true}),
+  "data/results/ref2024_q2.csv":               await FileAttachment("data/results/ref2024_q2.csv").csv({typed: true}),
+  "data/results/ref2024_q1_precincts.csv":     await FileAttachment("data/results/ref2024_q1_precincts.csv").csv({typed: true}),
+  "data/results/ref2024_q2_precincts.csv":     await FileAttachment("data/results/ref2024_q2_precincts.csv").csv({typed: true}),
 };
 
 const _allTurnout = {
   "data/turnout/parl2024_turnout.csv":                  await FileAttachment("data/turnout/parl2024_turnout.csv").csv({typed: true}),
   "data/turnout/parl2024_pr_precincts_turnout.csv":     await FileAttachment("data/turnout/parl2024_pr_precincts_turnout.csv").csv({typed: true}),
+  "data/turnout/adj2020_turnout.csv":                   await FileAttachment("data/turnout/adj2020_turnout.csv").csv({typed: true}),
+  "data/turnout/adj2016_turnout.csv":                   await FileAttachment("data/turnout/adj2016_turnout.csv").csv({typed: true}),
   "data/turnout/parl2020_turnout.csv":                  await FileAttachment("data/turnout/parl2020_turnout.csv").csv({typed: true}),
+  "data/turnout/pres2018_turnout.csv":                  await FileAttachment("data/turnout/pres2018_turnout.csv").csv({typed: true}),
+  "data/turnout/pres2018_precincts_turnout.csv":        await FileAttachment("data/turnout/pres2018_precincts_turnout.csv").csv({typed: true}),
+  "data/turnout/ref2024_turnout.csv":                   await FileAttachment("data/turnout/ref2024_turnout.csv").csv({typed: true}),
+  "data/turnout/ref2024_precincts_turnout.csv":         await FileAttachment("data/turnout/ref2024_precincts_turnout.csv").csv({typed: true}),
 };
 
 function loadGeoJSON(elec, vt, level) {
@@ -169,18 +203,25 @@ function loadGeoJSON(elec, vt, level) {
 }
 
 function loadResults(elec, vt, sub, level) {
-  let path = null;
-  if (sub?.id !== "__main__" && sub?.files?.smd_results) {
-    path = sub.files.smd_results;
-  } else if (level === "precinct") {
-    path = vt === "smd"
+  const isSubActive = sub?.id !== "__main__";
+  if (isSubActive) {
+    // Check for sub-election precinct file first, then fall back to district
+    if (level === "precinct") {
+      const subPrecinct = sub?.files?.smd_precinct_results ?? sub?.files?.pr_precinct_results;
+      if (subPrecinct) return _allCsv[subPrecinct] ?? [];
+    }
+    const subPath = sub?.files?.smd_results ?? sub?.files?.pr_results ?? sub?.files?.results;
+    if (subPath) return _allCsv[subPath] ?? [];
+  }
+  if (level === "precinct") {
+    const path = vt === "smd"
       ? (elec?.files?.smd_precinct_results ?? elec?.files?.smd_results)
       : (elec?.files?.pr_precinct_results  ?? elec?.files?.pr_results);
-  } else {
-    path = vt === "smd"          ? elec?.files?.smd_results
-         : vt === "compensation" ? elec?.files?.compensation_results
-         : elec?.files?.pr_results;
+    return _allCsv[path] ?? [];
   }
+  const path = vt === "smd"          ? elec?.files?.smd_results
+             : vt === "compensation" ? elec?.files?.compensation_results
+             : elec?.files?.pr_results;
   return _allCsv[path] ?? [];
 }
 
@@ -192,15 +233,25 @@ function loadTurnout(elec, level) {
   return _allTurnout[path] ?? [];
 }
 
-const geoData     = electionVal ? loadGeoJSON(electionVal, voteTypeVal, mapLevel) : null;
-const cartData    = _allGeo[electionVal?.files?.cartogram] ?? null;
-const results     = electionVal ? loadResults(electionVal, voteTypeVal, subVal, mapLevel) : [];
-const turnoutData = electionVal ? loadTurnout(electionVal, mapLevel) : [];
+const geoData          = electionVal ? loadGeoJSON(electionVal, effectiveVoteType, "district") : null;
+const cartData         = _allGeo[electionVal?.files?.cartogram] ?? null;
+const results          = electionVal ? loadResults(electionVal, effectiveVoteType, subVal, "district") : [];
+const turnoutData      = electionVal ? loadTurnout(electionVal, "district") : [];
+const precinctGeoData  = (electionVal && hasPrecinct) ? loadGeoJSON(electionVal, effectiveVoteType, "precinct") : null;
+const precinctResults  = (electionVal && hasPrecinct) ? loadResults(electionVal, effectiveVoteType, subVal, "precinct") : [];
+const precinctTurnout  = (electionVal && hasPrecinct) ? loadTurnout(electionVal, "precinct") : [];
 ```
 
 ```js
 // ── Party lookup helper ────────────────────────────────────────────────────
 function getParty(partyId) {
+  // For presidential elections, candidates are defined on the election itself
+  const candidate = electionVal?.candidates?.find(c => c.id === partyId);
+  if (candidate) {
+    const partyRef = candidate.party ? parties.find(p => p.id === candidate.party) : null;
+    const color = candidate.color ?? partyRef?.colors?.default ?? "#9E9E9E";
+    return {id: partyId, name: candidate.name, colors: {default: color}};
+  }
   return parties.find(p => p.id === partyId) ?? {
     id: partyId,
     name: {en: partyId, ka: partyId},
@@ -233,8 +284,13 @@ const nationalArray = Array.from(nationalResults, ([party_id, v]) => ({
   color: partyColor(party_id, electionVal?.id)
 })).sort((a, b) => b.vote_share - a.vote_share);
 
-// "notrun" = no threshold applies (SMD / by-elections) — show all parties without break
+// "notrun" = no threshold applies (SMD / by-elections / presidential) — show all without break
 const hasThreshold = nationalArray.some(d => d.threshold_status === "passed" || d.threshold_status === "failed");
+
+// Presidential winner: leading candidate in runoff, or first-round winner (>50%)
+const presidentialWinnerId = isPresidential && nationalArray.length > 0
+  ? (subVal?.type === "runoff" || nationalArray[0]?.vote_share > 0.5 ? nationalArray[0]?.party_id : null)
+  : null;
 const passed = hasThreshold
   ? nationalArray.filter(d => d.threshold_status === "passed")
   : nationalArray;
@@ -248,7 +304,7 @@ const failed = hasThreshold
 const turnoutByDistrict = new Map();
 if (turnoutData.length > 0) {
   const relevantRows = turnoutData.filter(r =>
-    !r.vote_type || r.vote_type === voteTypeVal || r.vote_type === "pr"
+    !r.vote_type || r.vote_type === effectiveVoteType || r.vote_type === "pr"
   );
   d3.group(relevantRows, r => r.district_id).forEach((rows, did) => {
     turnoutByDistrict.set(did, rows[0]);
@@ -273,19 +329,21 @@ const mapContainer = html`<div style="width:100%;height:100%;z-index:0;"></div>`
 // LAYOUT
 // ════════════════════════════════════════════════════════════
 // Explicit reactive deps — ensures container re-renders when any of these change
-hasTurnout; hasPrecinct; viewMode; mapLevel; voteTypeOptions; seatFilterOptions; hasSubElections;
+hasTurnout; hasPrecinct; viewMode; voteTypeOptions; seatFilterOptions; hasSubElections; isSubElectionSMD; isPresidential; isIndirect; presidentialWinnerId; isPlebiscite;
 
 const container = html`
 <style>
   .elections-outer {
     display: grid;
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 210px 1fr;
     gap: 1rem;
     align-items: start;
+    max-width: 1200px;
+    width: 100%;
   }
   .elections-main {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: minmax(0, 680px) 280px;
     gap: 1rem;
     align-items: start;
   }
@@ -388,10 +446,10 @@ const container = html`
     </div>
     ${hasSubElections ? html`
     <div class="filter-item">
-      <div class="filter-label">${t("elections.sub_election")}</div>
+      <div class="filter-label">${isPlebiscite ? t("elections.question_label") : t("elections.sub_election")}</div>
       ${subElectionInput}
     </div>` : ""}
-    ${voteTypeOptions.length > 1 ? html`
+    ${voteTypeOptions.length > 1 && !isSubElectionSMD && !isPlebiscite ? html`
     <div class="filter-item">
       <div class="filter-label">${t("elections.vote_type")}</div>
       ${voteTypeInput}
@@ -402,15 +460,13 @@ const container = html`
       <div class="filter-label">${t("elections.view_mode")}</div>
       ${viewModeInput}
     </div>` : ""}
+    ${!isIndirect ? html`
     <div class="filter-item">
       <div class="filter-label">${t("elections.map_mode")}</div>
       ${mapModeInput}
     </div>
-    ${hasPrecinct ? html`<div class="filter-item">
-      <div class="filter-label">${t("elections.map_level")}</div>
-      ${mapLevelInput}
-    </div>` : ""}
-    ${seatFilterOptions.length > 1 ? html`
+` : ""}
+    ${seatFilterOptions.length > 1 && !isPresidential && !isPlebiscite ? html`
     <div class="filter-item">
       <div class="filter-label">${t("elections.seat_filter")}</div>
       ${seatFilterInput}
@@ -420,6 +476,10 @@ const container = html`
   <!-- RIGHT: MAP + RESULTS PANEL + CHARTS -->
   <div>
 
+    ${isIndirect ? html`
+    <!-- INDIRECT PRESIDENTIAL: electoral college dot grid -->
+    ${renderElectoralCollege(electionVal)}
+    ` : html`
     <!-- MAP + DISTRICT RESULTS side by side -->
     <div class="elections-main" style="margin-bottom: 1rem;">
 
@@ -442,19 +502,21 @@ const container = html`
       </div>
 
     </div>
+    `}
 
     ${viewMode === "turnout" ? html`
-    <!-- TURNOUT BOTTOM: national summary + vote type breakdown -->
+    <!-- TURNOUT BOTTOM: national summary + (optional) legislature composition -->
     <div class="elections-bottom">
       <div class="card">
         <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.turnout.title")}</h4>
         ${renderTurnoutSummary(turnoutData, electionVal)}
       </div>
+      ${!isPresidential && !isPlebiscite ? html`
       <div class="card">
         <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.legislature_title")}</h4>
         ${renderDots(nationalArray, seatFilter, electionVal)}
         ${renderSeatLegend(nationalArray, seatFilter, electionVal)}
-      </div>
+      </div>` : ""}
     </div>
     ` : html`
     <!-- RESULTS BOTTOM: bar chart + seat composition -->
@@ -462,16 +524,17 @@ const container = html`
 
       <!-- BAR CHART -->
       <div class="card">
-        <h4 style="margin-top: 0; font-size: 0.85rem;">${t("elections.party_list_title")}</h4>
-        ${renderBarChart(passed, failed, electionVal?.id)}
+        <h4 style="margin-top: 0; font-size: 0.85rem;">${t(isPresidential ? "elections.presidential.results_title" : isPlebiscite ? "elections.plebiscite_results_title" : "elections.party_list_title")}</h4>
+        ${renderBarChart(passed, failed, electionVal?.id, presidentialWinnerId)}
       </div>
 
-      <!-- SEAT COMPOSITION (grouped rectangle tiles) -->
+      <!-- SEAT COMPOSITION — hidden for presidential and plebiscite -->
+      ${!isPresidential && !isPlebiscite ? html`
       <div class="card">
         <h4 style="margin-top: 0; font-size: 0.85rem;">${t("elections.legislature_title")}</h4>
         ${renderDots(nationalArray, seatFilter, electionVal)}
         ${renderSeatLegend(nationalArray, seatFilter, electionVal)}
-      </div>
+      </div>` : ""}
 
     </div>
     `}
@@ -487,7 +550,9 @@ display(container);
 // ── MAP ────────────────────────────────────────────────────────────────────
 (async () => {
   // Declare reactive deps — this cell re-runs when any of these change
-  electionVal; voteTypeVal; mapMode; mapLevel; viewMode; lang; geoData; cartData; results; turnoutData; turnoutByDistrict;
+  electionVal; voteTypeVal; effectiveVoteType; mapMode; viewMode; lang;
+  geoData; cartData; results; turnoutData; turnoutByDistrict;
+  precinctGeoData; precinctResults; precinctTurnout;
 
   // Clean up previous Leaflet instance before this cell re-runs
   invalidation.then(() => { try { map.remove(); } catch(e) {} });
@@ -505,14 +570,13 @@ display(container);
     return;
   }
 
-  // Build district → winner lookup
+  // Build district → winner lookup (from district-level results)
   const winnerByDistrict = new Map();
   const shareByDistrict  = new Map();
   d3.group(results, r => r.district_id).forEach((rows, distId) => {
     const winner = rows.reduce((a, b) => (b.vote_share > a.vote_share ? b : a));
     winnerByDistrict.set(distId, winner);
-    const maxShare = d3.max(rows, r => r.vote_share);
-    shareByDistrict.set(distId, maxShare);
+    shareByDistrict.set(distId, d3.max(rows, r => r.vote_share));
   });
 
   function districtStyle(feature) {
@@ -520,8 +584,7 @@ display(container);
     if (viewMode === "turnout") {
       const td = turnoutByDistrict.get(did);
       if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.5, color: "#fff", weight: 1};
-      const intensity = td.turnout_pct ?? 0;
-      const fillColor = d3.interpolateRgb("#dbeafe", "#1d4ed8")(intensity);
+      const fillColor = d3.interpolateRgb("#dbeafe", "#1d4ed8")(td.turnout_pct ?? 0);
       return {fillColor, fillOpacity: 0.85, color: "#ffffff", weight: 1.5};
     }
     const winner = winnerByDistrict.get(did);
@@ -532,41 +595,32 @@ display(container);
     return {fillColor: lightened, fillOpacity: 0.85, color: "#ffffff", weight: 1.5};
   }
 
+  const DISTRICT_HOLLOW = {fillColor: "transparent", fillOpacity: 0, color: "#999", weight: 1.5};
+  const PRECINCT_ZOOM = 8;
+
   if (mapMode === "cartogram" && activeGeo.features[0]?.geometry?.type === "Point") {
-    // Render as proportional circles
+    // Cartogram — proportional circles, no precinct overlay
     activeGeo.features.forEach(f => {
       const did  = f.properties.id;
       const winner = winnerByDistrict.get(did);
       let fillColor;
       if (viewMode === "turnout") {
         const td = turnoutByDistrict.get(did);
-        const intensity = td?.turnout_pct ?? 0;
-        fillColor = d3.interpolateRgb("#dbeafe", "#1d4ed8")(intensity);
+        fillColor = d3.interpolateRgb("#dbeafe", "#1d4ed8")(td?.turnout_pct ?? 0);
       } else {
         const color = winner ? partyColor(winner.party_id, electionVal?.id) : "#ccc";
-        const intensity = shareByDistrict.get(did) ?? 0.5;
-        fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + intensity * 0.6);
+        fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + (shareByDistrict.get(did) ?? 0.5) * 0.6);
       }
-      const radius = (f.properties.radius_km ?? 10) * 1000; // metres
-
       const circle = L.circle(
         [f.geometry.coordinates[1], f.geometry.coordinates[0]],
-        {
-          radius,
-          fillColor,
-          fillOpacity: 0.85,
-          color: "#fff",
-          weight: 1.5
-        }
+        { radius: (f.properties.radius_km ?? 10) * 1000, fillColor, fillOpacity: 0.85, color: "#fff", weight: 1.5 }
       ).addTo(map);
-
       circle.on("click", () => {
         const panel = document.getElementById("results-panel");
         if (panel) panel.replaceWith(viewMode === "turnout"
           ? renderTurnoutPanel(did, f.properties)
           : renderDistrictPanel(did, f.properties));
       });
-
       circle.bindTooltip(
         `<strong>${lang === "ka" ? f.properties.name_ka : f.properties.name_en}</strong>`,
         {sticky: true, className: "leaflet-tooltip"}
@@ -574,8 +628,8 @@ display(container);
     });
 
   } else {
-    // Choropleth polygons
-    L.geoJSON(activeGeo, {
+    // Choropleth polygons — district layer always present
+    const districtLayer = L.geoJSON(activeGeo, {
       style: districtStyle,
       onEachFeature(feature, layer) {
         const did = feature.properties.id;
@@ -591,6 +645,72 @@ display(container);
         );
       }
     }).addTo(map);
+
+    // ── Precinct layer (zoom-activated) ──────────────────────────────────
+    let precinctLayer = null;
+
+    if (precinctGeoData) {
+      // Build precinct winner + turnout lookups
+      const winnerByPrecinct = new Map();
+      const shareByPrecinct  = new Map();
+      d3.group(precinctResults, r => r.district_id).forEach((rows, did) => {
+        const winner = rows.reduce((a, b) => (b.vote_share > a.vote_share ? b : a));
+        winnerByPrecinct.set(did, winner);
+        shareByPrecinct.set(did, d3.max(rows, r => r.vote_share));
+      });
+
+      const precinctTurnoutLookup = new Map();
+      d3.group(precinctTurnout, r => r.district_id).forEach((rows, did) => {
+        precinctTurnoutLookup.set(did, rows[0]);
+      });
+
+      function precinctStyle(feature) {
+        const did = feature.properties.id;
+        if (viewMode === "turnout") {
+          const td = precinctTurnoutLookup.get(did);
+          if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight: 0.5};
+          return {fillColor: d3.interpolateRgb("#dbeafe", "#1d4ed8")(td.turnout_pct ?? 0), fillOpacity: 0.9, color: "#ffffff", weight: 0.5};
+        }
+        const winner = winnerByPrecinct.get(did);
+        if (!winner) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight: 0.5};
+        const baseColor = partyColor(winner.party_id, electionVal?.id);
+        const intensity = shareByPrecinct.get(did) ?? 0.5;
+        const lightened = d3.color(baseColor) ? d3.interpolateRgb("#f5f5f5", baseColor)(0.4 + intensity * 0.6) : "#ccc";
+        return {fillColor: lightened, fillOpacity: 0.9, color: "#ffffff", weight: 0.5};
+      }
+
+      precinctLayer = L.geoJSON(precinctGeoData, {
+        style: precinctStyle,
+        onEachFeature(feature, layer) {
+          const did = feature.properties.id;
+          layer.on("click", () => {
+            const panel = document.getElementById("results-panel");
+            if (panel) panel.replaceWith(viewMode === "turnout"
+              ? renderTurnoutPanel(did, feature.properties, precinctTurnoutLookup)
+              : renderDistrictPanel(did, feature.properties, precinctResults));
+          });
+          layer.bindTooltip(
+            `<strong>${lang === "ka" ? feature.properties.name_ka : feature.properties.name_en}</strong>`,
+            {sticky: true}
+          );
+        }
+      });
+    }
+
+    // Zoom-based layer switching
+    function updateZoomLayers() {
+      if (!precinctLayer) return;
+      if (map.getZoom() >= PRECINCT_ZOOM) {
+        if (!map.hasLayer(precinctLayer)) precinctLayer.addTo(map);
+        districtLayer.setStyle(DISTRICT_HOLLOW);
+      } else {
+        if (map.hasLayer(precinctLayer)) map.removeLayer(precinctLayer);
+        districtLayer.setStyle(districtStyle);
+      }
+    }
+
+    map.on("zoomend", updateZoomLayers);
+    updateZoomLayers();
   }
 
   setTimeout(() => map.invalidateSize(), 150);
@@ -600,18 +720,20 @@ display(container);
 ```js
 // ── CHART RENDERERS ────────────────────────────────────────────────────────
 
-function renderBarChart(passed, failed, elecId) {
+function renderBarChart(passed, failed, elecId, winnerId = null) {
   const maxVal = d3.max([...passed, ...failed], d => d.vote_share) || 1;
 
   function barRow(d) {
     const pct      = (d.vote_share / maxVal) * 100;
     const shareStr = `${(d.vote_share * 100).toFixed(1)}%`;
     const countStr = d.votes != null ? d.votes.toLocaleString() : "—";
-    const pname = d.party?.name?.[lang] || d.party_id;
+    const pname    = d.party?.name?.[lang] || d.party_id;
+    const isWinner = winnerId && d.party_id === winnerId;
     return html`
       <div class="bar-row">
         <div class="bar-label" title="${pname}">
           <span class="party-dot" style="background:${d.color};"></span>${pname}
+          ${isWinner ? html`<span style="margin-left:4px; font-size:0.68rem; background:${d.color}; color:#fff; border-radius:3px; padding:1px 5px; vertical-align:middle;">✓</span>` : ""}
         </div>
         <div class="bar-track">
           <div class="bar-fill" style="width:${pct}%; background:${d.color};"></div>
@@ -677,25 +799,37 @@ function renderSeatLegend(parties, filter, elec) {
 }
 
 // ── District results panel ────────────────────────────────────────────────
-function renderDistrictPanel(distId, props) {
-  const rows = results.filter(r => r.district_id === distId)
+function renderDistrictPanel(distId, props, data = results) {
+  const rows = data.filter(r => r.district_id === distId)
                       .sort((a, b) => b.vote_share - a.vote_share);
   const pname = lang === "ka" ? props.name_ka : props.name_en || distId;
+  const isSMD = effectiveVoteType === "smd" || isPresidential;
+  const colHeader = isSMD ? t("elections.results.candidate")
+                  : isPlebiscite ? t("elections.results.vote")
+                  : t("elections.results.party");
   const panel = html`<div class="card results-panel" id="results-panel">
     <h4 style="margin-top:0; font-size:0.9rem;">${pname}</h4>
     <table class="dist-table">
       <thead><tr>
-        <th>${t("elections.results.party")}</th>
+        <th>${colHeader}</th>
         <th style="text-align:right;">${t("elections.results.share")}</th>
       </tr></thead>
       <tbody>
         ${rows.map(r => {
-          const color    = partyColor(r.party_id, electionVal?.id);
-          const shareStr = `${(r.vote_share * 100).toFixed(1)}%`;
-          const countStr = r.votes != null ? r.votes.toLocaleString() : "—";
+          const color      = partyColor(r.party_id, electionVal?.id);
+          const shareStr   = `${(r.vote_share * 100).toFixed(1)}%`;
+          const countStr   = r.votes != null ? r.votes.toLocaleString() : "—";
+          const partyName  = getParty(r.party_id).name?.[lang] || r.party_id;
           return html`<tr>
-            <td><span class="party-dot" style="background:${color};"></span>${getParty(r.party_id).name?.[lang] || r.party_id}${r.threshold_status === "failed" ? html`<span style="color:var(--muted);font-size:0.72rem;"> ✗</span>` : ""}</td>
-            <td style="text-align:right; white-space:nowrap;">
+            <td style="vertical-align:middle;">
+              <span class="party-dot" style="background:${color}; vertical-align:middle;"></span>
+              ${isSMD && r.candidate_name
+                ? html`<strong style="font-size:0.82rem;">${r.candidate_name}</strong>
+                       <div style="font-size:0.72rem; color:var(--muted); margin-left:15px;">${partyName}</div>`
+                : html`${partyName}${r.threshold_status === "failed" ? html`<span style="color:var(--muted);font-size:0.72rem;"> ✗</span>` : ""}`
+              }
+            </td>
+            <td style="text-align:right; white-space:nowrap; vertical-align:middle;">
               <span style="font-weight:700;">${shareStr}</span>
               <span style="color:var(--muted); font-size:0.75rem; margin-left:4px;">(${countStr})</span>
             </td>
@@ -708,9 +842,9 @@ function renderDistrictPanel(distId, props) {
 }
 
 // ── Turnout panel ─────────────────────────────────────────────────────────
-function renderTurnoutPanel(distId, props) {
+function renderTurnoutPanel(distId, props, turnoutLookup = turnoutByDistrict) {
   const pname = lang === "ka" ? props.name_ka : props.name_en || distId;
-  const td = turnoutByDistrict.get(distId);
+  const td = turnoutLookup.get(distId);
   const turnoutCfg = electionVal?.turnout ?? {};
 
   if (!td) {
@@ -790,6 +924,60 @@ function renderTurnoutSummary(data, elec) {
           </div>` : ""}
       </div>
     `)}
+  </div>`;
+}
+
+// ── Electoral college (indirect presidential) ─────────────────────────────
+function renderElectoralCollege(elec) {
+  const ec = elec?.electoral_college;
+  if (!ec) return html`<p style="color:var(--muted);">${t("elections.electoral_college.no_data")}</p>`;
+
+  const candidate = elec.candidates?.[0];
+  const candidateName = candidate?.name?.[lang] || candidate?.name?.en || "—";
+  const partyRef = candidate?.party ? parties.find(p => p.id === candidate.party) : null;
+  const winColor = candidate?.color ?? partyRef?.colors?.default ?? "#1565C0";
+  const absent = ec.absent ?? (ec.total - ec.for - ec.against - (ec.abstained ?? 0));
+
+  // Build dot sequence: for → against → abstained → absent
+  const dots = [
+    ...Array(ec.for).fill("for"),
+    ...Array(ec.against).fill("against"),
+    ...Array(ec.abstained ?? 0).fill("abstained"),
+    ...Array(absent).fill("absent"),
+  ];
+  const dotColors = { for: winColor, against: "#C62828", abstained: "#9E9E9E", absent: "#E8E8E8" };
+
+  // Square grid: cols ≈ √total, pad with transparent dots to fill last row
+  const COLS = Math.round(Math.sqrt(ec.total));
+  const totalSlots = COLS * Math.ceil(ec.total / COLS);
+  const allDots = [...dots, ...Array(totalSlots - dots.length).fill("empty")];
+
+  const legend = [
+    {key: "for",        label: t("elections.electoral_college.for"),        n: ec.for,            color: winColor},
+    {key: "against",    label: t("elections.electoral_college.against"),    n: ec.against,        color: "#C62828"},
+    {key: "abstained",  label: t("elections.electoral_college.abstained"),  n: ec.abstained ?? 0, color: "#9E9E9E"},
+    {key: "absent",     label: t("elections.electoral_college.absent"),     n: absent,            color: "#E8E8E8"},
+  ].filter(d => d.n > 0);
+
+  return html`<div style="margin-bottom:1rem;">
+    <div class="card" style="padding:1.25rem;">
+      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+        <span style="width:14px; height:14px; border-radius:50%; background:${winColor}; display:inline-block; flex-shrink:0;"></span>
+        <span style="font-size:1rem; font-weight:700;">${candidateName}</span>
+        <span style="font-size:0.8rem; background:${winColor}; color:#fff; border-radius:4px; padding:2px 8px;">${t("elections.electoral_college.elected")}</span>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(${COLS}, 9px); gap:2px; margin-bottom:1rem;">
+        ${allDots.map(k => html`<div style="width:9px;height:9px;border-radius:1px;background:${k === 'empty' ? 'transparent' : dotColors[k]};"></div>`)}
+      </div>
+      <div style="display:flex; flex-wrap:wrap; gap:0.75rem 1.5rem; font-size:0.82rem;">
+        ${legend.map(d => html`<div style="display:flex;align-items:center;gap:5px;">
+          <span style="width:10px;height:10px;border-radius:2px;background:${d.color};display:inline-block;border:1px solid #ccc;"></span>
+          <span style="color:var(--muted);">${d.label}</span>
+          <strong>${d.n}</strong>
+        </div>`)}
+        <div style="color:var(--muted);font-size:0.75rem;align-self:center;">(${t("elections.electoral_college.total")}: ${ec.total})</div>
+      </div>
+    </div>
   </div>`;
 }
 
