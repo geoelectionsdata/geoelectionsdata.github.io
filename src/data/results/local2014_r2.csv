@@ -1,0 +1,4 @@
+district_id,party_id,candidate_name,votes,vote_share,seats_pr,seats_smd,threshold_status
+tbilisi,gd,დავით ნარმანია,238100,0.521,0,11,notrun
+tbilisi,unm,ნიკოლოზ რურუა,200600,0.439,0,0,notrun
+tbilisi,other,ირაკლი ალასანია,18400,0.040,0,0,notrun

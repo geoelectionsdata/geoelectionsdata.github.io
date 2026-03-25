@@ -43,6 +43,19 @@ const electionVal = Generators.input(electionInput);
 ```
 
 ```js
+// ── Ballot type toggle — local elections only: Mayor vs Sakrebulo ─────────
+const isLocal    = electionVal?.type === "local";
+const hasCouncil = isLocal && !!(electionVal?.files?.council_pr_results);
+
+const ballotTypeInput = Inputs.radio(
+  hasCouncil ? ["mayor", "council"] : ["mayor"],
+  { value: "mayor",
+    format: k => k === "mayor" ? t("elections.local.mayor") : t("elections.local.council") }
+);
+const ballotTypeVal = Generators.input(ballotTypeInput);
+```
+
+```js
 // ── Sub-election dropdown (runoffs etc.) — only if present ────────────────
 const isPlebisciteEarly = electionVal?.type === "plebiscite"; // early flag for sub-election setup
 const subElections = isPlebisciteEarly
@@ -54,22 +67,36 @@ const hasSubElections = subElections.length > 0;
 const subElectionItems = isPlebisciteEarly
   ? subElections
   : [{id: "__main__", name: {en: "Main election", ka: "მთავარი"}}, ...subElections];
-const subElectionInput = Inputs.select(subElectionItems, {
-  format: e => e.name?.[lang] || e.name?.en || e.id
-});
+// Local elections: rounds shown as a radio below the HR — use radio input
+// Other elections (parliament, plebiscite): keep dropdown in top section
+const subElectionInput = (isLocal && hasSubElections)
+  ? Inputs.radio(subElectionItems, {
+      value: subElectionItems[0],
+      format: (item, idx) => idx === 0
+        ? t("elections.local.round1")
+        : t("elections.local.round2")
+    })
+  : Inputs.select(subElectionItems, {
+      format: e => e.name?.[lang] || e.name?.en || e.id
+    });
 const subVal = Generators.input(subElectionInput);
 ```
 
 ```js
 // ── Vote type toggle — derived from sub_type ─────────────────────────────
 const subType  = electionVal?.sub_type ?? "pr";  // pr | mixed | messy
+const hasPR    = electionVal?.system?.pr?.enabled !== false;
 const hasSMD   = electionVal?.system?.smd?.enabled;
 const hasComp  = electionVal?.system?.compensation?.enabled;
 
-const voteTypeOptions = ["pr",
-  ...(hasSMD  ? ["smd"]  : []),
-  ...(hasComp ? ["compensation"] : [])
-];
+// Council ballot type in local elections always exposes PR and SMD for the council vote
+const voteTypeOptions = (isLocal && ballotTypeVal === "council")
+  ? ["pr", "smd"]
+  : [
+    ...(hasPR   ? ["pr"]           : []),
+    ...(hasSMD  ? ["smd"]          : []),
+    ...(hasComp ? ["compensation"] : [])
+  ];
 
 const voteTypeInput = Inputs.radio(voteTypeOptions, {
   value: "pr",
@@ -84,9 +111,10 @@ const voteTypeVal = Generators.input(voteTypeInput);
 
 ```js
 // ── Election type flags ───────────────────────────────────────────────────
-const isPresidential = electionVal?.type === "presidential";
-const isIndirect     = isPresidential && electionVal?.sub_type === "indirect";
-const isPlebiscite   = electionVal?.type === "plebiscite";
+const isPresidential  = electionVal?.type === "presidential";
+const isIndirect      = isPresidential && electionVal?.sub_type === "indirect";
+const isPlebiscite    = electionVal?.type === "plebiscite";
+const isCouncilMode   = isLocal && ballotTypeVal === "council";
 
 // Runoffs/by-elections in parliamentary elections are always SMD — force "smd" and hide the toggle
 const isSubElectionSMD = !isPresidential && !isPlebiscite &&
@@ -128,7 +156,7 @@ const viewMode = Generators.input(viewModeInput);
 ```js
 // ── Seat filter (combined / pr / smd) ─────────────────────────────────────
 const seatFilterOptions = ["all",
-  ...(hasSMD ? ["pr", "smd"] : [])
+  ...(hasPR && hasSMD || (isLocal && ballotTypeVal === "council") ? ["pr", "smd"] : [])
 ];
 const seatFilterInput = Inputs.radio(seatFilterOptions, {
   value: "all",
@@ -163,10 +191,25 @@ const _allCsv = {
   "data/results/pres2018_r2.csv":              await FileAttachment("data/results/pres2018_r2.csv").csv({typed: true}),
   "data/results/pres2018_r1_precincts.csv":    await FileAttachment("data/results/pres2018_r1_precincts.csv").csv({typed: true}),
   "data/results/pres2018_r2_precincts.csv":    await FileAttachment("data/results/pres2018_r2_precincts.csv").csv({typed: true}),
+  "data/results/local2021_smd.csv":             await FileAttachment("data/results/local2021_smd.csv").csv({typed: true}),
+  "data/results/local2021_r2.csv":              await FileAttachment("data/results/local2021_r2.csv").csv({typed: true}),
+  "data/results/local2017_smd.csv":             await FileAttachment("data/results/local2017_smd.csv").csv({typed: true}),
+  "data/results/local2017_r2.csv":              await FileAttachment("data/results/local2017_r2.csv").csv({typed: true}),
+  "data/results/local2014_smd.csv":             await FileAttachment("data/results/local2014_smd.csv").csv({typed: true}),
+  "data/results/local2014_r2.csv":              await FileAttachment("data/results/local2014_r2.csv").csv({typed: true}),
+  "data/results/local2010_smd.csv":             await FileAttachment("data/results/local2010_smd.csv").csv({typed: true}),
   "data/results/adj2020_pr.csv":               await FileAttachment("data/results/adj2020_pr.csv").csv({typed: true}),
   "data/results/adj2020_smd.csv":              await FileAttachment("data/results/adj2020_smd.csv").csv({typed: true}),
   "data/results/adj2016_pr.csv":               await FileAttachment("data/results/adj2016_pr.csv").csv({typed: true}),
   "data/results/adj2016_smd.csv":              await FileAttachment("data/results/adj2016_smd.csv").csv({typed: true}),
+  "data/results/local2021_council_pr.csv":      await FileAttachment("data/results/local2021_council_pr.csv").csv({typed: true}),
+  "data/results/local2021_council_smd.csv":     await FileAttachment("data/results/local2021_council_smd.csv").csv({typed: true}),
+  "data/results/local2017_council_pr.csv":      await FileAttachment("data/results/local2017_council_pr.csv").csv({typed: true}),
+  "data/results/local2017_council_smd.csv":     await FileAttachment("data/results/local2017_council_smd.csv").csv({typed: true}),
+  "data/results/local2014_council_pr.csv":      await FileAttachment("data/results/local2014_council_pr.csv").csv({typed: true}),
+  "data/results/local2014_council_smd.csv":     await FileAttachment("data/results/local2014_council_smd.csv").csv({typed: true}),
+  "data/results/local2010_council_pr.csv":      await FileAttachment("data/results/local2010_council_pr.csv").csv({typed: true}),
+  "data/results/local2010_council_smd.csv":     await FileAttachment("data/results/local2010_council_smd.csv").csv({typed: true}),
   "data/results/ref2024_q1.csv":               await FileAttachment("data/results/ref2024_q1.csv").csv({typed: true}),
   "data/results/ref2024_q2.csv":               await FileAttachment("data/results/ref2024_q2.csv").csv({typed: true}),
   "data/results/ref2024_q1_precincts.csv":     await FileAttachment("data/results/ref2024_q1_precincts.csv").csv({typed: true}),
@@ -176,6 +219,10 @@ const _allCsv = {
 const _allTurnout = {
   "data/turnout/parl2024_turnout.csv":                  await FileAttachment("data/turnout/parl2024_turnout.csv").csv({typed: true}),
   "data/turnout/parl2024_pr_precincts_turnout.csv":     await FileAttachment("data/turnout/parl2024_pr_precincts_turnout.csv").csv({typed: true}),
+  "data/turnout/local2021_turnout.csv":                  await FileAttachment("data/turnout/local2021_turnout.csv").csv({typed: true}),
+  "data/turnout/local2017_turnout.csv":                  await FileAttachment("data/turnout/local2017_turnout.csv").csv({typed: true}),
+  "data/turnout/local2014_turnout.csv":                  await FileAttachment("data/turnout/local2014_turnout.csv").csv({typed: true}),
+  "data/turnout/local2010_turnout.csv":                  await FileAttachment("data/turnout/local2010_turnout.csv").csv({typed: true}),
   "data/turnout/adj2020_turnout.csv":                   await FileAttachment("data/turnout/adj2020_turnout.csv").csv({typed: true}),
   "data/turnout/adj2016_turnout.csv":                   await FileAttachment("data/turnout/adj2016_turnout.csv").csv({typed: true}),
   "data/turnout/parl2020_turnout.csv":                  await FileAttachment("data/turnout/parl2020_turnout.csv").csv({typed: true}),
@@ -197,12 +244,19 @@ function loadGeoJSON(elec, vt, level) {
   } else {
     path = vt === "smd"          ? elec?.system?.smd?.shape_file
          : vt === "compensation" ? elec?.system?.compensation?.shape_file
-         : elec?.system?.pr?.shape_file;
+         : (elec?.system?.pr?.shape_file ?? elec?.system?.smd?.shape_file); // fallback for PR-disabled elections
   }
   return _allGeo[path] ?? null;
 }
 
-function loadResults(elec, vt, sub, level) {
+function loadResults(elec, vt, sub, level, ballotType) {
+  // Council ballot type: load council-specific files (ignores sub-elections)
+  if (ballotType === "council") {
+    const path = vt === "smd"
+      ? elec?.files?.council_smd_results
+      : elec?.files?.council_pr_results;
+    return _allCsv[path] ?? [];
+  }
   const isSubActive = sub?.id !== "__main__";
   if (isSubActive) {
     // Check for sub-election precinct file first, then fall back to district
@@ -233,12 +287,14 @@ function loadTurnout(elec, level) {
   return _allTurnout[path] ?? [];
 }
 
-const geoData          = electionVal ? loadGeoJSON(electionVal, effectiveVoteType, "district") : null;
+// For local council mode, always use SMD shapefile (PR shapefile is null for local elections)
+const _geoVt           = (isLocal && ballotTypeVal === "council") ? "smd" : effectiveVoteType;
+const geoData          = electionVal ? loadGeoJSON(electionVal, _geoVt, "district") : null;
 const cartData         = _allGeo[electionVal?.files?.cartogram] ?? null;
-const results          = electionVal ? loadResults(electionVal, effectiveVoteType, subVal, "district") : [];
+const results          = electionVal ? loadResults(electionVal, effectiveVoteType, subVal, "district", ballotTypeVal) : [];
 const turnoutData      = electionVal ? loadTurnout(electionVal, "district") : [];
 const precinctGeoData  = (electionVal && hasPrecinct) ? loadGeoJSON(electionVal, effectiveVoteType, "precinct") : null;
-const precinctResults  = (electionVal && hasPrecinct) ? loadResults(electionVal, effectiveVoteType, subVal, "precinct") : [];
+const precinctResults  = (electionVal && hasPrecinct) ? loadResults(electionVal, effectiveVoteType, subVal, "precinct", ballotTypeVal) : [];
 const precinctTurnout  = (electionVal && hasPrecinct) ? loadTurnout(electionVal, "precinct") : [];
 ```
 
@@ -270,8 +326,8 @@ const nationalResults = d3.rollup(
   rows => ({
     votes:      d3.sum(rows, r => r.votes),
     vote_share: d3.mean(rows, r => r.vote_share),
-    seats_pr:   rows[0]?.seats_pr  ?? 0,
-    seats_smd:  rows[0]?.seats_smd ?? 0,
+    seats_pr:   isCouncilMode ? d3.sum(rows, r => r.seats_pr)  : (rows[0]?.seats_pr  ?? 0),
+    seats_smd:  isCouncilMode ? d3.sum(rows, r => r.seats_smd) : (rows[0]?.seats_smd ?? 0),
     seats_comp: rows[0]?.seats_comp ?? 0,
     threshold_status: rows[0]?.threshold_status ?? "notrun"
   }),
@@ -329,7 +385,7 @@ const mapContainer = html`<div style="width:100%;height:100%;z-index:0;"></div>`
 // LAYOUT
 // ════════════════════════════════════════════════════════════
 // Explicit reactive deps — ensures container re-renders when any of these change
-hasTurnout; hasPrecinct; viewMode; voteTypeOptions; seatFilterOptions; hasSubElections; isSubElectionSMD; isPresidential; isIndirect; presidentialWinnerId; isPlebiscite;
+hasTurnout; hasPrecinct; viewMode; voteTypeOptions; seatFilterOptions; hasSubElections; isSubElectionSMD; isPresidential; isIndirect; presidentialWinnerId; isPlebiscite; isLocal; hasCouncil; ballotTypeVal; isCouncilMode;
 
 const container = html`
 <style>
@@ -444,7 +500,12 @@ const container = html`
       <div class="filter-label">${t("elections.choice")}</div>
       ${electionInput}
     </div>
-    ${hasSubElections ? html`
+    ${isLocal && hasCouncil ? html`
+    <div class="filter-item">
+      <div class="filter-label">${t("elections.local.ballot_type")}</div>
+      ${ballotTypeInput}
+    </div>` : ""}
+    ${hasSubElections && !isLocal ? html`
     <div class="filter-item">
       <div class="filter-label">${isPlebiscite ? t("elections.question_label") : t("elections.sub_election")}</div>
       ${subElectionInput}
@@ -459,6 +520,11 @@ const container = html`
     ${hasTurnout ? html`<div class="filter-item">
       <div class="filter-label">${t("elections.view_mode")}</div>
       ${viewModeInput}
+    </div>` : ""}
+    ${isLocal && !isCouncilMode && hasSubElections && viewMode === "results" ? html`
+    <div class="filter-item">
+      <div class="filter-label">${t("elections.local.round")}</div>
+      ${subElectionInput}
     </div>` : ""}
     ${!isIndirect ? html`
     <div class="filter-item">
@@ -513,9 +579,15 @@ const container = html`
       </div>
       ${!isPresidential && !isPlebiscite ? html`
       <div class="card">
+        ${isCouncilMode ? html`
+        <div id="council-seat-chart">
+          <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.local.council_seats_title")}</h4>
+          ${renderCouncilDots(nationalArray, electionVal, seatFilter)}
+          ${renderSeatLegend(nationalArray, seatFilter, electionVal)}
+        </div>` : html`
         <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.legislature_title")}</h4>
         ${renderDots(nationalArray, seatFilter, electionVal)}
-        ${renderSeatLegend(nationalArray, seatFilter, electionVal)}
+        ${renderSeatLegend(nationalArray, seatFilter, electionVal)}`}
       </div>` : ""}
     </div>
     ` : html`
@@ -528,12 +600,18 @@ const container = html`
         ${renderBarChart(passed, failed, electionVal?.id, presidentialWinnerId)}
       </div>
 
-      <!-- SEAT COMPOSITION — hidden for presidential and plebiscite -->
+      <!-- SEAT COMPOSITION — hidden for presidential and plebiscite; council uses scaled grid -->
       ${!isPresidential && !isPlebiscite ? html`
       <div class="card">
+        ${isCouncilMode ? html`
+        <div id="council-seat-chart">
+          <h4 style="margin-top: 0; font-size: 0.85rem;">${t("elections.local.council_seats_title")}</h4>
+          ${renderCouncilDots(nationalArray, electionVal, seatFilter)}
+          ${renderSeatLegend(nationalArray, seatFilter, electionVal)}
+        </div>` : html`
         <h4 style="margin-top: 0; font-size: 0.85rem;">${t("elections.legislature_title")}</h4>
         ${renderDots(nationalArray, seatFilter, electionVal)}
-        ${renderSeatLegend(nationalArray, seatFilter, electionVal)}
+        ${renderSeatLegend(nationalArray, seatFilter, electionVal)}`}
       </div>` : ""}
 
     </div>
@@ -550,7 +628,7 @@ display(container);
 // ── MAP ────────────────────────────────────────────────────────────────────
 (async () => {
   // Declare reactive deps — this cell re-runs when any of these change
-  electionVal; voteTypeVal; effectiveVoteType; mapMode; viewMode; lang;
+  electionVal; voteTypeVal; effectiveVoteType; mapMode; viewMode; lang; isCouncilMode;
   geoData; cartData; results; turnoutData; turnoutByDistrict;
   precinctGeoData; precinctResults; precinctTurnout;
 
@@ -620,6 +698,7 @@ display(container);
         if (panel) panel.replaceWith(viewMode === "turnout"
           ? renderTurnoutPanel(did, f.properties)
           : renderDistrictPanel(did, f.properties));
+        if (isCouncilMode) updateCouncilSeats(did, f.properties);
       });
       circle.bindTooltip(
         `<strong>${lang === "ka" ? f.properties.name_ka : f.properties.name_en}</strong>`,
@@ -638,6 +717,7 @@ display(container);
           if (panel) panel.replaceWith(viewMode === "turnout"
             ? renderTurnoutPanel(did, feature.properties)
             : renderDistrictPanel(did, feature.properties));
+          if (isCouncilMode) updateCouncilSeats(did, feature.properties);
         });
         layer.bindTooltip(
           `<strong>${lang === "ka" ? feature.properties.name_ka : feature.properties.name_en}</strong>`,
@@ -780,6 +860,72 @@ function renderDots(parties, filter, elec) {
       </div>`;
     })}
   </div>`;
+}
+
+// ── Council seat grid — square dot grid for sakrebulo composition ─────────
+function renderCouncilDots(nationalArray, elec, filter) {
+  const totalPR  = elec?.council?.total_pr_seats  ?? 200;
+  const totalSMD = elec?.council?.total_smd_seats ?? 200;
+  const total    = totalPR + totalSMD;
+  const COLS     = Math.round(Math.sqrt(total));
+  const ROWS     = Math.ceil(total / COLS);
+  const totalSlots = COLS * ROWS;
+
+  const all = partiesForFilter(nationalArray, filter, elec);
+  if (d3.sum(all, d => seatsFor(d, filter)) === 0)
+    return html`<p style="color:var(--muted); font-size:0.85rem; text-align:center;">No seat data</p>`;
+
+  // Build flat array of coloured dots (ordered by party)
+  const dots = [];
+  for (const d of all) {
+    const n = seatsFor(d, filter);
+    for (let i = 0; i < n; i++) dots.push(d.color);
+  }
+  // Pad to fill the grid
+  while (dots.length < totalSlots) dots.push(null);
+
+  return html`<div style="display:grid;grid-template-columns:repeat(${COLS},9px);gap:2px;margin-top:0.5rem;">
+    ${dots.map(c => html`<div style="width:9px;height:9px;border-radius:1px;background:${c ?? "transparent"};opacity:${c ? 1 : 0};"></div>`)}
+  </div>
+  <div style="font-size:0.72rem;color:var(--muted);margin-top:4px;">${total} ${t("elections.seats_label")}</div>`;
+}
+
+// ── Update council seat chart imperatively on district click ──────────────
+function updateCouncilSeats(distId, props) {
+  const chart = document.getElementById("council-seat-chart");
+  if (!chart) return;
+
+  const distRows = results.filter(r => r.district_id === distId);
+  const distArray = Array.from(
+    d3.rollup(distRows, rows => ({
+      votes:      d3.sum(rows, r => r.votes),
+      vote_share: d3.mean(rows, r => r.vote_share),
+      seats_pr:   rows[0]?.seats_pr  ?? 0,
+      seats_smd:  rows[0]?.seats_smd ?? 0,
+      threshold_status: rows[0]?.threshold_status ?? "notrun"
+    }), d => d.party_id),
+    ([party_id, v]) => ({
+      party_id, ...v,
+      party: getParty(party_id),
+      color: partyColor(party_id, electionVal?.id)
+    })
+  ).sort((a, b) => b.vote_share - a.vote_share);
+
+  const distElec = {...electionVal, council: {
+    total_pr_seats:  d3.sum(distArray, d => d.seats_pr),
+    total_smd_seats: d3.sum(distArray, d => d.seats_smd)
+  }};
+
+  const name = props ? (lang === "ka" ? props.name_ka : props.name_en) : null;
+  const title = name
+    ? `${name} — ${t("elections.local.council_seats_title")}`
+    : t("elections.local.council_seats_title");
+
+  chart.replaceWith(html`<div id="council-seat-chart">
+    <h4 style="margin-top:0; font-size:0.85rem;">${title}</h4>
+    ${renderCouncilDots(distArray, distElec, seatFilter)}
+    ${renderSeatLegend(distArray, seatFilter, distElec)}
+  </div>`);
 }
 
 // ── Legend ───────────────────────────────────────────────────────────────

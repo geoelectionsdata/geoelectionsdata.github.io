@@ -257,7 +257,7 @@ elections:
       - id: kavelashvili
         name:
           en: "Mikheil Kavelashvili"
-          ka: "მიხეილ კაველაშვილი"
+          ka: "მიხეილ ყაველაშვილი"
         party: gd
     electoral_college:
       total: 300
@@ -268,6 +268,200 @@ elections:
     sub_elections: []
     files: {}
     turnout: null
+
+  - id: local_2021
+    type: local
+    date: "2021-10-02"
+    name:
+      en: "2021 Local Elections"
+      ka: "2021 ადგილობრივი არჩევნები"
+    system:
+      pr:
+        enabled: false
+        seats: 0
+        shape_file: null
+      smd:
+        enabled: true
+        seats: 11
+        shape_file: "data/shp/parl2024_pr.geojson"
+      compensation:
+        enabled: false
+        shape_file: null
+    sub_elections:
+      - id: local_2021_r2
+        type: runoff
+        date: "2021-10-30"
+        name:
+          en: "2021 Mayoral Runoffs"
+          ka: "2021 - მეორე ტური"
+        files:
+          smd_results: "data/results/local2021_r2.csv"
+    parties:
+      - id: gd
+        threshold_status: notrun
+      - id: unm
+        threshold_status: notrun
+      - id: european_georgia
+        threshold_status: notrun
+      - id: other
+        threshold_status: notrun
+    council:
+      total_pr_seats:  200
+      total_smd_seats: 200
+    files:
+      smd_results:          "data/results/local2021_smd.csv"
+      council_pr_results:   "data/results/local2021_council_pr.csv"
+      council_smd_results:  "data/results/local2021_council_smd.csv"
+      cartogram:            "data/shp/parl2024_cartogram.geojson"
+    turnout:
+      available: true
+      type: basic
+      file: "data/turnout/local2021_turnout.csv"
+      precinct_file: null
+      has_snapshots: false
+      has_lists: false
+
+  - id: local_2017
+    type: local
+    date: "2017-10-21"
+    name:
+      en: "2017 Local Elections"
+      ka: "2017 ადგილობრივი არჩევნები"
+    system:
+      pr:
+        enabled: false
+        seats: 0
+        shape_file: null
+      smd:
+        enabled: true
+        seats: 11
+        shape_file: "data/shp/parl2024_pr.geojson"
+      compensation:
+        enabled: false
+        shape_file: null
+    sub_elections:
+      - id: local_2017_r2
+        type: runoff
+        date: "2017-11-12"
+        name:
+          en: "2017 Mayoral Runoffs"
+          ka: "2017 - მეორე ტური"
+        files:
+          smd_results: "data/results/local2017_r2.csv"
+    parties:
+      - id: gd
+        threshold_status: notrun
+      - id: unm
+        threshold_status: notrun
+      - id: european_georgia
+        threshold_status: notrun
+      - id: other
+        threshold_status: notrun
+    council:
+      total_pr_seats:  200
+      total_smd_seats: 200
+    files:
+      smd_results:          "data/results/local2017_smd.csv"
+      council_pr_results:   "data/results/local2017_council_pr.csv"
+      council_smd_results:  "data/results/local2017_council_smd.csv"
+      cartogram:            "data/shp/parl2024_cartogram.geojson"
+    turnout:
+      available: true
+      type: basic
+      file: "data/turnout/local2017_turnout.csv"
+      precinct_file: null
+      has_snapshots: false
+      has_lists: false
+
+  - id: local_2014
+    type: local
+    date: "2014-06-15"
+    name:
+      en: "2014 Local Elections"
+      ka: "2014 ადგილობრივი არჩევნები"
+    system:
+      pr:
+        enabled: false
+        seats: 0
+        shape_file: null
+      smd:
+        enabled: true
+        seats: 11
+        shape_file: "data/shp/parl2024_pr.geojson"
+      compensation:
+        enabled: false
+        shape_file: null
+    sub_elections:
+      - id: local_2014_r2
+        type: runoff
+        date: "2014-07-12"
+        name:
+          en: "2014 Tbilisi Mayoral Runoff"
+          ka: "2014 - თბილისი (მეორე ტური)"
+        files:
+          smd_results: "data/results/local2014_r2.csv"
+    parties:
+      - id: gd
+        threshold_status: notrun
+      - id: unm
+        threshold_status: notrun
+      - id: other
+        threshold_status: notrun
+    council:
+      total_pr_seats:  200
+      total_smd_seats: 200
+    files:
+      smd_results:          "data/results/local2014_smd.csv"
+      council_pr_results:   "data/results/local2014_council_pr.csv"
+      council_smd_results:  "data/results/local2014_council_smd.csv"
+      cartogram:            "data/shp/parl2024_cartogram.geojson"
+    turnout:
+      available: true
+      type: basic
+      file: "data/turnout/local2014_turnout.csv"
+      precinct_file: null
+      has_snapshots: false
+      has_lists: false
+
+  - id: local_2010
+    type: local
+    date: "2010-05-30"
+    name:
+      en: "2010 Tbilisi Mayoral Election"
+      ka: "2010 თბილისის მერის არჩევნები"
+    system:
+      pr:
+        enabled: false
+        seats: 0
+        shape_file: null
+      smd:
+        enabled: true
+        seats: 1
+        shape_file: "data/shp/parl2024_pr.geojson"
+      compensation:
+        enabled: false
+        shape_file: null
+    sub_elections: []
+    parties:
+      - id: unm
+        threshold_status: notrun
+      - id: other
+        threshold_status: notrun
+    council:
+      total_pr_seats:  25
+      total_smd_seats: 25
+    files:
+      smd_results:          "data/results/local2010_smd.csv"
+      council_pr_results:   "data/results/local2010_council_pr.csv"
+      council_smd_results:  "data/results/local2010_council_smd.csv"
+      cartogram:            "data/shp/parl2024_cartogram.geojson"
+    turnout:
+      available: true
+      type: basic
+      file: "data/turnout/local2010_turnout.csv"
+      precinct_file: null
+      has_snapshots: false
+      has_lists: false
 
   - id: adj_2020
     type: adjara
