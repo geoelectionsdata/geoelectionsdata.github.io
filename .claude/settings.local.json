@@ -46,7 +46,13 @@
       "Bash(curl -s http://localhost:3001/)",
       "Bash(node -e \"const t = require\\(''''./src/data/config/translations.json''''\\); console.log\\(JSON.stringify\\(Object.keys\\(t\\), null, 2\\)\\)\")",
       "Bash(cat 'D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/config/translations.json')",
-      "Bash(ls 'D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/.observablehq/cache/')"
+      "Bash(ls 'D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/.observablehq/cache/')",
+      "Bash(ls \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp\")",
+      "Bash(mv \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\public\\\\data\\\\results\"/*.csv \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results/\")",
+      "Bash(mv \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\public\\\\data\\\\turnout\"/*.csv \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\turnout/\")",
+      "Bash(mv \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\public\\\\data\\\\shp\"/*.geojson \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp/\")",
+      "Bash(ls \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/\")",
+      "Bash(node scripts/generate-registry.js)"
     ]
   }
 }
