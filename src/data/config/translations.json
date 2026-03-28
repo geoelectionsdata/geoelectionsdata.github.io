@@ -116,6 +116,7 @@
 
     "elections.map_level": "Map level",
     "elections.map_level.district": "Districts",
+    "elections.map_level.council_district": "Council districts",
     "elections.map_level.precinct": "Precincts",
     "elections.view_mode": "View",
     "elections.view_mode.results": "Results",
@@ -273,6 +274,7 @@
 
     "elections.map_level": "რუკის დონე",
     "elections.map_level.district": "ოლქები",
+    "elections.map_level.council_district": "საკრებულო ოლქები",
     "elections.map_level.precinct": "საარჩევნო უბნები",
     "elections.view_mode": "დათვალიერება",
     "elections.view_mode.results": "შედეგები",

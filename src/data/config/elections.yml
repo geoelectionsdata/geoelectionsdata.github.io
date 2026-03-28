@@ -64,10 +64,12 @@ elections:
         enabled: true
         seats: 120
         shape_file: "data/shp/parl2020_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
       smd:
         enabled: true
         seats: 30
         shape_file: "data/shp/parl2020_smd.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
       compensation:
         enabled: false
         shape_file: null
@@ -102,15 +104,17 @@ elections:
       - id: other
         threshold_status: failed
     files:
-      pr_results:  "data/results/parl2020_pr.csv"
-      smd_results: "data/results/parl2020_smd.csv"
-      candidates:  "data/candidates/parl2020.csv"
-      cartogram:   "data/shp/parl2020_cartogram.geojson"
+      pr_results:          "data/results/parl2020_pr.csv"
+      pr_precinct_results: "data/results/parl2020_pr_precincts.csv"
+      smd_results:         "data/results/parl2020_smd.csv"
+      smd_precinct_results: "data/results/parl2020_smd_precincts.csv"
+      candidates:          "data/candidates/parl2020.csv"
+      cartogram:           "data/shp/parl2020_cartogram.geojson"
     turnout:
       available: true
       type: basic
       file: "data/turnout/parl2020_turnout.csv"
-      precinct_file: null
+      precinct_file: "data/turnout/parl2020_pr_precincts_turnout.csv"
       has_snapshots: false
       has_lists: false
 
@@ -284,6 +288,7 @@ elections:
         enabled: true
         seats: 11
         shape_file: "data/shp/parl2024_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
       compensation:
         enabled: false
         shape_file: null
@@ -308,16 +313,20 @@ elections:
     council:
       total_pr_seats:  200
       total_smd_seats: 200
+      shape_file: "data/shp/local_sakrebulo_districts.geojson"
     files:
-      smd_results:          "data/results/local2021_smd.csv"
-      council_pr_results:   "data/results/local2021_council_pr.csv"
-      council_smd_results:  "data/results/local2021_council_smd.csv"
-      cartogram:            "data/shp/parl2024_cartogram.geojson"
+      smd_results:                   "data/results/local2021_smd.csv"
+      smd_precinct_results:          "data/results/local2021_smd_precincts.csv"
+      council_pr_results:            "data/results/local2021_council_pr.csv"
+      council_smd_results:           "data/results/local2021_council_smd.csv"
+      council_pr_precinct_results:   "data/results/local2021_council_pr_precincts.csv"
+      council_smd_precinct_results:  "data/results/local2021_council_smd_precincts.csv"
+      cartogram:                     "data/shp/parl2024_cartogram.geojson"
     turnout:
       available: true
       type: basic
       file: "data/turnout/local2021_turnout.csv"
-      precinct_file: null
+      precinct_file: "data/turnout/local2021_precincts_turnout.csv"
       has_snapshots: false
       has_lists: false
 
@@ -336,6 +345,7 @@ elections:
         enabled: true
         seats: 11
         shape_file: "data/shp/parl2024_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
       compensation:
         enabled: false
         shape_file: null
@@ -360,16 +370,20 @@ elections:
     council:
       total_pr_seats:  200
       total_smd_seats: 200
+      shape_file: "data/shp/local_sakrebulo_districts.geojson"
     files:
-      smd_results:          "data/results/local2017_smd.csv"
-      council_pr_results:   "data/results/local2017_council_pr.csv"
-      council_smd_results:  "data/results/local2017_council_smd.csv"
-      cartogram:            "data/shp/parl2024_cartogram.geojson"
+      smd_results:                   "data/results/local2017_smd.csv"
+      smd_precinct_results:          "data/results/local2017_smd_precincts.csv"
+      council_pr_results:            "data/results/local2017_council_pr.csv"
+      council_smd_results:           "data/results/local2017_council_smd.csv"
+      council_pr_precinct_results:   "data/results/local2017_council_pr_precincts.csv"
+      council_smd_precinct_results:  "data/results/local2017_council_smd_precincts.csv"
+      cartogram:                     "data/shp/parl2024_cartogram.geojson"
     turnout:
       available: true
       type: basic
       file: "data/turnout/local2017_turnout.csv"
-      precinct_file: null
+      precinct_file: "data/turnout/local2017_precincts_turnout.csv"
       has_snapshots: false
       has_lists: false
 
@@ -388,6 +402,7 @@ elections:
         enabled: true
         seats: 11
         shape_file: "data/shp/parl2024_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
       compensation:
         enabled: false
         shape_file: null
@@ -410,16 +425,20 @@ elections:
     council:
       total_pr_seats:  200
       total_smd_seats: 200
+      shape_file: "data/shp/local_sakrebulo_districts.geojson"
     files:
-      smd_results:          "data/results/local2014_smd.csv"
-      council_pr_results:   "data/results/local2014_council_pr.csv"
-      council_smd_results:  "data/results/local2014_council_smd.csv"
-      cartogram:            "data/shp/parl2024_cartogram.geojson"
+      smd_results:                   "data/results/local2014_smd.csv"
+      smd_precinct_results:          "data/results/local2014_smd_precincts.csv"
+      council_pr_results:            "data/results/local2014_council_pr.csv"
+      council_smd_results:           "data/results/local2014_council_smd.csv"
+      council_pr_precinct_results:   "data/results/local2014_council_pr_precincts.csv"
+      council_smd_precinct_results:  "data/results/local2014_council_smd_precincts.csv"
+      cartogram:                     "data/shp/parl2024_cartogram.geojson"
     turnout:
       available: true
       type: basic
       file: "data/turnout/local2014_turnout.csv"
-      precinct_file: null
+      precinct_file: "data/turnout/local2014_precincts_turnout.csv"
       has_snapshots: false
       has_lists: false
 
@@ -438,6 +457,7 @@ elections:
         enabled: true
         seats: 1
         shape_file: "data/shp/parl2024_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
       compensation:
         enabled: false
         shape_file: null
@@ -450,16 +470,20 @@ elections:
     council:
       total_pr_seats:  25
       total_smd_seats: 25
+      shape_file: "data/shp/local_sakrebulo_districts.geojson"
     files:
-      smd_results:          "data/results/local2010_smd.csv"
-      council_pr_results:   "data/results/local2010_council_pr.csv"
-      council_smd_results:  "data/results/local2010_council_smd.csv"
-      cartogram:            "data/shp/parl2024_cartogram.geojson"
+      smd_results:                   "data/results/local2010_smd.csv"
+      smd_precinct_results:          "data/results/local2010_smd_precincts.csv"
+      council_pr_results:            "data/results/local2010_council_pr.csv"
+      council_smd_results:           "data/results/local2010_council_smd.csv"
+      council_pr_precinct_results:   "data/results/local2010_council_pr_precincts.csv"
+      council_smd_precinct_results:  "data/results/local2010_council_smd_precincts.csv"
+      cartogram:                     "data/shp/parl2024_cartogram.geojson"
     turnout:
       available: true
       type: basic
       file: "data/turnout/local2010_turnout.csv"
-      precinct_file: null
+      precinct_file: "data/turnout/local2010_precincts_turnout.csv"
       has_snapshots: false
       has_lists: false
 
@@ -475,10 +499,12 @@ elections:
         enabled: true
         seats: 15
         shape_file: "data/shp/parl2024_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
       smd:
         enabled: true
         seats: 11
         shape_file: "data/shp/parl2024_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
       compensation:
         enabled: false
         shape_file: null
@@ -493,15 +519,17 @@ elections:
       - id: other
         threshold_status: failed
     files:
-      pr_results:  "data/results/adj2020_pr.csv"
-      smd_results: "data/results/adj2020_smd.csv"
-      candidates:  null
-      cartogram:   "data/shp/parl2024_cartogram.geojson"
+      pr_results:           "data/results/adj2020_pr.csv"
+      pr_precinct_results:  "data/results/adj2020_pr_precincts.csv"
+      smd_results:          "data/results/adj2020_smd.csv"
+      smd_precinct_results: "data/results/adj2020_smd_precincts.csv"
+      candidates:           null
+      cartogram:            "data/shp/parl2024_cartogram.geojson"
     turnout:
       available: true
       type: basic
       file: "data/turnout/adj2020_turnout.csv"
-      precinct_file: null
+      precinct_file: "data/turnout/adj2020_precincts_turnout.csv"
       has_snapshots: false
       has_lists: false
 
@@ -517,10 +545,12 @@ elections:
         enabled: true
         seats: 15
         shape_file: "data/shp/parl2024_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
       smd:
         enabled: true
         seats: 11
         shape_file: "data/shp/parl2024_pr.geojson"
+        precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
       compensation:
         enabled: false
         shape_file: null
@@ -535,15 +565,17 @@ elections:
       - id: other
         threshold_status: failed
     files:
-      pr_results:  "data/results/adj2016_pr.csv"
-      smd_results: "data/results/adj2016_smd.csv"
-      candidates:  null
-      cartogram:   "data/shp/parl2024_cartogram.geojson"
+      pr_results:           "data/results/adj2016_pr.csv"
+      pr_precinct_results:  "data/results/adj2016_pr_precincts.csv"
+      smd_results:          "data/results/adj2016_smd.csv"
+      smd_precinct_results: "data/results/adj2016_smd_precincts.csv"
+      candidates:           null
+      cartogram:            "data/shp/parl2024_cartogram.geojson"
     turnout:
       available: true
       type: basic
       file: "data/turnout/adj2016_turnout.csv"
-      precinct_file: null
+      precinct_file: "data/turnout/adj2016_precincts_turnout.csv"
       has_snapshots: false
       has_lists: false
 

@@ -89,17 +89,14 @@ const hasPR    = electionVal?.system?.pr?.enabled !== false;
 const hasSMD   = electionVal?.system?.smd?.enabled;
 const hasComp  = electionVal?.system?.compensation?.enabled;
 
-// Council ballot type in local elections always exposes PR and SMD for the council vote
-const voteTypeOptions = (isLocal && ballotTypeVal === "council")
-  ? ["pr", "smd"]
-  : [
-    ...(hasPR   ? ["pr"]           : []),
-    ...(hasSMD  ? ["smd"]          : []),
-    ...(hasComp ? ["compensation"] : [])
-  ];
+const voteTypeOptions = [
+  ...(hasPR   ? ["pr"]           : []),
+  ...(hasSMD  ? ["smd"]          : []),
+  ...(hasComp ? ["compensation"] : [])
+];
 
 const voteTypeInput = Inputs.radio(voteTypeOptions, {
-  value: "pr",
+  value: voteTypeOptions[0] ?? "pr",
   format: k => ({
     pr:           t("elections.vote_type.party_list"),
     smd:          t("elections.vote_type.smd"),
@@ -133,12 +130,14 @@ const mapMode = Generators.input(mapModeInput);
 ```
 
 ```js
-// ── Map granularity (district vs precinct) ────────────────────────────────
+// ── Map granularity (district / council-district / precinct) ─────────────
 const hasPrecinct = !!(
   effectiveVoteType === "smd"          ? electionVal?.system?.smd?.precinct_shape_file
   : effectiveVoteType === "compensation" ? electionVal?.system?.compensation?.precinct_shape_file
   : electionVal?.system?.pr?.precinct_shape_file
 );
+// Council mode only: intermediate sakrebulo-district layer
+const hasCouncilDistricts = isCouncilMode && !!(electionVal?.council?.shape_file);
 
 ```
 
@@ -179,6 +178,7 @@ const _allGeo = {
   "data/shp/parl2020_pr.geojson":                   await FileAttachment("data/shp/parl2020_pr.geojson").json(),
   "data/shp/parl2020_smd.geojson":                  await FileAttachment("data/shp/parl2020_smd.geojson").json(),
   "data/shp/parl2020_cartogram.geojson":            await FileAttachment("data/shp/parl2020_cartogram.geojson").json(),
+  "data/shp/local_sakrebulo_districts.geojson":     await FileAttachment("data/shp/local_sakrebulo_districts.geojson").json(),
 };
 const _allCsv = {
   "data/results/parl2024_pr.csv":              await FileAttachment("data/results/parl2024_pr.csv").csv({typed: true}),
@@ -198,34 +198,59 @@ const _allCsv = {
   "data/results/local2014_smd.csv":             await FileAttachment("data/results/local2014_smd.csv").csv({typed: true}),
   "data/results/local2014_r2.csv":              await FileAttachment("data/results/local2014_r2.csv").csv({typed: true}),
   "data/results/local2010_smd.csv":             await FileAttachment("data/results/local2010_smd.csv").csv({typed: true}),
-  "data/results/adj2020_pr.csv":               await FileAttachment("data/results/adj2020_pr.csv").csv({typed: true}),
-  "data/results/adj2020_smd.csv":              await FileAttachment("data/results/adj2020_smd.csv").csv({typed: true}),
-  "data/results/adj2016_pr.csv":               await FileAttachment("data/results/adj2016_pr.csv").csv({typed: true}),
-  "data/results/adj2016_smd.csv":              await FileAttachment("data/results/adj2016_smd.csv").csv({typed: true}),
-  "data/results/local2021_council_pr.csv":      await FileAttachment("data/results/local2021_council_pr.csv").csv({typed: true}),
-  "data/results/local2021_council_smd.csv":     await FileAttachment("data/results/local2021_council_smd.csv").csv({typed: true}),
-  "data/results/local2017_council_pr.csv":      await FileAttachment("data/results/local2017_council_pr.csv").csv({typed: true}),
-  "data/results/local2017_council_smd.csv":     await FileAttachment("data/results/local2017_council_smd.csv").csv({typed: true}),
-  "data/results/local2014_council_pr.csv":      await FileAttachment("data/results/local2014_council_pr.csv").csv({typed: true}),
-  "data/results/local2014_council_smd.csv":     await FileAttachment("data/results/local2014_council_smd.csv").csv({typed: true}),
-  "data/results/local2010_council_pr.csv":      await FileAttachment("data/results/local2010_council_pr.csv").csv({typed: true}),
-  "data/results/local2010_council_smd.csv":     await FileAttachment("data/results/local2010_council_smd.csv").csv({typed: true}),
-  "data/results/ref2024_q1.csv":               await FileAttachment("data/results/ref2024_q1.csv").csv({typed: true}),
-  "data/results/ref2024_q2.csv":               await FileAttachment("data/results/ref2024_q2.csv").csv({typed: true}),
-  "data/results/ref2024_q1_precincts.csv":     await FileAttachment("data/results/ref2024_q1_precincts.csv").csv({typed: true}),
-  "data/results/ref2024_q2_precincts.csv":     await FileAttachment("data/results/ref2024_q2_precincts.csv").csv({typed: true}),
+  "data/results/adj2020_pr.csv":                       await FileAttachment("data/results/adj2020_pr.csv").csv({typed: true}),
+  "data/results/adj2020_pr_precincts.csv":             await FileAttachment("data/results/adj2020_pr_precincts.csv").csv({typed: true}),
+  "data/results/adj2020_smd.csv":                      await FileAttachment("data/results/adj2020_smd.csv").csv({typed: true}),
+  "data/results/adj2020_smd_precincts.csv":            await FileAttachment("data/results/adj2020_smd_precincts.csv").csv({typed: true}),
+  "data/results/adj2016_pr.csv":                       await FileAttachment("data/results/adj2016_pr.csv").csv({typed: true}),
+  "data/results/adj2016_pr_precincts.csv":             await FileAttachment("data/results/adj2016_pr_precincts.csv").csv({typed: true}),
+  "data/results/adj2016_smd.csv":                      await FileAttachment("data/results/adj2016_smd.csv").csv({typed: true}),
+  "data/results/adj2016_smd_precincts.csv":            await FileAttachment("data/results/adj2016_smd_precincts.csv").csv({typed: true}),
+  "data/results/local2021_smd_precincts.csv":          await FileAttachment("data/results/local2021_smd_precincts.csv").csv({typed: true}),
+  "data/results/local2021_council_pr.csv":             await FileAttachment("data/results/local2021_council_pr.csv").csv({typed: true}),
+  "data/results/local2021_council_smd.csv":            await FileAttachment("data/results/local2021_council_smd.csv").csv({typed: true}),
+  "data/results/local2021_council_pr_precincts.csv":   await FileAttachment("data/results/local2021_council_pr_precincts.csv").csv({typed: true}),
+  "data/results/local2021_council_smd_precincts.csv":  await FileAttachment("data/results/local2021_council_smd_precincts.csv").csv({typed: true}),
+  "data/results/local2017_smd_precincts.csv":          await FileAttachment("data/results/local2017_smd_precincts.csv").csv({typed: true}),
+  "data/results/local2017_council_pr.csv":             await FileAttachment("data/results/local2017_council_pr.csv").csv({typed: true}),
+  "data/results/local2017_council_smd.csv":            await FileAttachment("data/results/local2017_council_smd.csv").csv({typed: true}),
+  "data/results/local2017_council_pr_precincts.csv":   await FileAttachment("data/results/local2017_council_pr_precincts.csv").csv({typed: true}),
+  "data/results/local2017_council_smd_precincts.csv":  await FileAttachment("data/results/local2017_council_smd_precincts.csv").csv({typed: true}),
+  "data/results/local2014_smd_precincts.csv":          await FileAttachment("data/results/local2014_smd_precincts.csv").csv({typed: true}),
+  "data/results/local2014_council_pr.csv":             await FileAttachment("data/results/local2014_council_pr.csv").csv({typed: true}),
+  "data/results/local2014_council_smd.csv":            await FileAttachment("data/results/local2014_council_smd.csv").csv({typed: true}),
+  "data/results/local2014_council_pr_precincts.csv":   await FileAttachment("data/results/local2014_council_pr_precincts.csv").csv({typed: true}),
+  "data/results/local2014_council_smd_precincts.csv":  await FileAttachment("data/results/local2014_council_smd_precincts.csv").csv({typed: true}),
+  "data/results/local2010_smd_precincts.csv":          await FileAttachment("data/results/local2010_smd_precincts.csv").csv({typed: true}),
+  "data/results/local2010_council_pr.csv":             await FileAttachment("data/results/local2010_council_pr.csv").csv({typed: true}),
+  "data/results/local2010_council_smd.csv":            await FileAttachment("data/results/local2010_council_smd.csv").csv({typed: true}),
+  "data/results/local2010_council_pr_precincts.csv":   await FileAttachment("data/results/local2010_council_pr_precincts.csv").csv({typed: true}),
+  "data/results/local2010_council_smd_precincts.csv":  await FileAttachment("data/results/local2010_council_smd_precincts.csv").csv({typed: true}),
+  "data/results/parl2020_pr_precincts.csv":            await FileAttachment("data/results/parl2020_pr_precincts.csv").csv({typed: true}),
+  "data/results/parl2020_smd_precincts.csv":           await FileAttachment("data/results/parl2020_smd_precincts.csv").csv({typed: true}),
+  "data/results/ref2024_q1.csv":                       await FileAttachment("data/results/ref2024_q1.csv").csv({typed: true}),
+  "data/results/ref2024_q2.csv":                       await FileAttachment("data/results/ref2024_q2.csv").csv({typed: true}),
+  "data/results/ref2024_q1_precincts.csv":             await FileAttachment("data/results/ref2024_q1_precincts.csv").csv({typed: true}),
+  "data/results/ref2024_q2_precincts.csv":             await FileAttachment("data/results/ref2024_q2_precincts.csv").csv({typed: true}),
 };
 
 const _allTurnout = {
   "data/turnout/parl2024_turnout.csv":                  await FileAttachment("data/turnout/parl2024_turnout.csv").csv({typed: true}),
   "data/turnout/parl2024_pr_precincts_turnout.csv":     await FileAttachment("data/turnout/parl2024_pr_precincts_turnout.csv").csv({typed: true}),
-  "data/turnout/local2021_turnout.csv":                  await FileAttachment("data/turnout/local2021_turnout.csv").csv({typed: true}),
-  "data/turnout/local2017_turnout.csv":                  await FileAttachment("data/turnout/local2017_turnout.csv").csv({typed: true}),
-  "data/turnout/local2014_turnout.csv":                  await FileAttachment("data/turnout/local2014_turnout.csv").csv({typed: true}),
-  "data/turnout/local2010_turnout.csv":                  await FileAttachment("data/turnout/local2010_turnout.csv").csv({typed: true}),
-  "data/turnout/adj2020_turnout.csv":                   await FileAttachment("data/turnout/adj2020_turnout.csv").csv({typed: true}),
-  "data/turnout/adj2016_turnout.csv":                   await FileAttachment("data/turnout/adj2016_turnout.csv").csv({typed: true}),
   "data/turnout/parl2020_turnout.csv":                  await FileAttachment("data/turnout/parl2020_turnout.csv").csv({typed: true}),
+  "data/turnout/parl2020_pr_precincts_turnout.csv":     await FileAttachment("data/turnout/parl2020_pr_precincts_turnout.csv").csv({typed: true}),
+  "data/turnout/local2021_turnout.csv":                 await FileAttachment("data/turnout/local2021_turnout.csv").csv({typed: true}),
+  "data/turnout/local2021_precincts_turnout.csv":       await FileAttachment("data/turnout/local2021_precincts_turnout.csv").csv({typed: true}),
+  "data/turnout/local2017_turnout.csv":                 await FileAttachment("data/turnout/local2017_turnout.csv").csv({typed: true}),
+  "data/turnout/local2017_precincts_turnout.csv":       await FileAttachment("data/turnout/local2017_precincts_turnout.csv").csv({typed: true}),
+  "data/turnout/local2014_turnout.csv":                 await FileAttachment("data/turnout/local2014_turnout.csv").csv({typed: true}),
+  "data/turnout/local2014_precincts_turnout.csv":       await FileAttachment("data/turnout/local2014_precincts_turnout.csv").csv({typed: true}),
+  "data/turnout/local2010_turnout.csv":                 await FileAttachment("data/turnout/local2010_turnout.csv").csv({typed: true}),
+  "data/turnout/local2010_precincts_turnout.csv":       await FileAttachment("data/turnout/local2010_precincts_turnout.csv").csv({typed: true}),
+  "data/turnout/adj2020_turnout.csv":                   await FileAttachment("data/turnout/adj2020_turnout.csv").csv({typed: true}),
+  "data/turnout/adj2020_precincts_turnout.csv":         await FileAttachment("data/turnout/adj2020_precincts_turnout.csv").csv({typed: true}),
+  "data/turnout/adj2016_turnout.csv":                   await FileAttachment("data/turnout/adj2016_turnout.csv").csv({typed: true}),
+  "data/turnout/adj2016_precincts_turnout.csv":         await FileAttachment("data/turnout/adj2016_precincts_turnout.csv").csv({typed: true}),
   "data/turnout/pres2018_turnout.csv":                  await FileAttachment("data/turnout/pres2018_turnout.csv").csv({typed: true}),
   "data/turnout/pres2018_precincts_turnout.csv":        await FileAttachment("data/turnout/pres2018_precincts_turnout.csv").csv({typed: true}),
   "data/turnout/ref2024_turnout.csv":                   await FileAttachment("data/turnout/ref2024_turnout.csv").csv({typed: true}),
@@ -234,7 +259,9 @@ const _allTurnout = {
 
 function loadGeoJSON(elec, vt, level) {
   let path;
-  if (level === "precinct") {
+  if (level === "council_district") {
+    path = elec?.council?.shape_file;
+  } else if (level === "precinct") {
     const ppath = vt === "smd"          ? elec?.system?.smd?.precinct_shape_file
                 : vt === "compensation" ? elec?.system?.compensation?.precinct_shape_file
                 : elec?.system?.pr?.precinct_shape_file;
@@ -252,6 +279,12 @@ function loadGeoJSON(elec, vt, level) {
 function loadResults(elec, vt, sub, level, ballotType) {
   // Council ballot type: load council-specific files (ignores sub-elections)
   if (ballotType === "council") {
+    if (level === "council_district") {
+      const path = vt === "smd"
+        ? (elec?.files?.council_smd_precinct_results ?? elec?.files?.council_smd_results)
+        : (elec?.files?.council_pr_precinct_results  ?? elec?.files?.council_pr_results);
+      return _allCsv[path] ?? [];
+    }
     const path = vt === "smd"
       ? elec?.files?.council_smd_results
       : elec?.files?.council_pr_results;
@@ -293,6 +326,10 @@ const geoData          = electionVal ? loadGeoJSON(electionVal, _geoVt, "distric
 const cartData         = _allGeo[electionVal?.files?.cartogram] ?? null;
 const results          = electionVal ? loadResults(electionVal, effectiveVoteType, subVal, "district", ballotTypeVal) : [];
 const turnoutData      = electionVal ? loadTurnout(electionVal, "district") : [];
+// Council-district intermediate layer (sakrebulo districts, council mode only)
+const councilDistrictGeoData = (electionVal && hasCouncilDistricts) ? loadGeoJSON(electionVal, _geoVt, "council_district") : null;
+const councilDistrictResults = (electionVal && hasCouncilDistricts) ? loadResults(electionVal, effectiveVoteType, subVal, "council_district", ballotTypeVal) : [];
+// Precinct layer
 const precinctGeoData  = (electionVal && hasPrecinct) ? loadGeoJSON(electionVal, effectiveVoteType, "precinct") : null;
 const precinctResults  = (electionVal && hasPrecinct) ? loadResults(electionVal, effectiveVoteType, subVal, "precinct", ballotTypeVal) : [];
 const precinctTurnout  = (electionVal && hasPrecinct) ? loadTurnout(electionVal, "precinct") : [];
@@ -385,7 +422,7 @@ const mapContainer = html`<div style="width:100%;height:100%;z-index:0;"></div>`
 // LAYOUT
 // ════════════════════════════════════════════════════════════
 // Explicit reactive deps — ensures container re-renders when any of these change
-hasTurnout; hasPrecinct; viewMode; voteTypeOptions; seatFilterOptions; hasSubElections; isSubElectionSMD; isPresidential; isIndirect; presidentialWinnerId; isPlebiscite; isLocal; hasCouncil; ballotTypeVal; isCouncilMode;
+hasTurnout; hasPrecinct; hasCouncilDistricts; viewMode; voteTypeOptions; seatFilterOptions; hasSubElections; isSubElectionSMD; isPresidential; isIndirect; presidentialWinnerId; isPlebiscite; isLocal; hasCouncil; ballotTypeVal; isCouncilMode;
 
 const container = html`
 <style>
@@ -453,6 +490,37 @@ const container = html`
     border-color: #6b9bd2;
     box-shadow: 0 0 0 3px rgba(107,155,210,0.18);
   }
+
+  /* Map level control */
+  .leaflet-level-control {
+    background: white;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    min-width: 110px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    line-height: 1.4;
+  }
+  .level-control-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    margin-bottom: 4px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+  .level-control-item {
+    padding: 2px 0;
+    color: #aaa;
+  }
+  .level-control-item.lc-clickable {
+    cursor: pointer;
+  }
+  .level-control-item.lc-clickable:hover { color: #333; }
+  .level-control-item.lc-active { color: #333; font-weight: 600; }
 
   /* Bar chart */
   .bar-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 0.82rem; }
@@ -630,6 +698,7 @@ display(container);
   // Declare reactive deps — this cell re-runs when any of these change
   electionVal; voteTypeVal; effectiveVoteType; mapMode; viewMode; lang; isCouncilMode;
   geoData; cartData; results; turnoutData; turnoutByDistrict;
+  councilDistrictGeoData; councilDistrictResults;
   precinctGeoData; precinctResults; precinctTurnout;
 
   // Clean up previous Leaflet instance before this cell re-runs
@@ -673,8 +742,8 @@ display(container);
     return {fillColor: lightened, fillOpacity: 0.85, color: "#ffffff", weight: 1.5};
   }
 
-  const DISTRICT_HOLLOW = {fillColor: "transparent", fillOpacity: 0, color: "#999", weight: 1.5};
-  const PRECINCT_ZOOM = 8;
+  const DISTRICT_HOLLOW  = {fillColor: "transparent", fillOpacity: 0, color: "#999", weight: 1.5};
+  const SAKREBULO_HOLLOW = {fillColor: "transparent", fillOpacity: 0, color: "#bbb", weight: 0.8};
 
   if (mapMode === "cartogram" && activeGeo.features[0]?.geometry?.type === "Point") {
     // Cartogram — proportional circles, no precinct overlay
@@ -726,47 +795,78 @@ display(container);
       }
     }).addTo(map);
 
+    // ── Helper: build winner/share/turnout lookups from a results array ──
+    function buildLookups(resultsArr, turnoutArr) {
+      const winnerMap  = new Map();
+      const shareMap   = new Map();
+      const turnoutMap = new Map();
+      d3.group(resultsArr, r => r.district_id).forEach((rows, did) => {
+        const winner = rows.reduce((a, b) => (b.vote_share > a.vote_share ? b : a));
+        winnerMap.set(did, winner);
+        shareMap.set(did, d3.max(rows, r => r.vote_share));
+      });
+      d3.group(turnoutArr, r => r.district_id).forEach((rows, did) => {
+        turnoutMap.set(did, rows[0]);
+      });
+      return {winnerMap, shareMap, turnoutMap};
+    }
+
+    function makeLayerStyle(winnerMap, shareMap, turnoutMap, weight = 0.5) {
+      return function(feature) {
+        const did = feature.properties.id;
+        if (viewMode === "turnout") {
+          const td = turnoutMap.get(did);
+          if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight};
+          return {fillColor: d3.interpolateRgb("#dbeafe", "#1d4ed8")(td.turnout_pct ?? 0), fillOpacity: 0.9, color: "#ffffff", weight};
+        }
+        const winner = winnerMap.get(did);
+        if (!winner) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight};
+        const baseColor = partyColor(winner.party_id, electionVal?.id);
+        const intensity = shareMap.get(did) ?? 0.5;
+        const lightened = d3.color(baseColor) ? d3.interpolateRgb("#f5f5f5", baseColor)(0.4 + intensity * 0.6) : "#ccc";
+        return {fillColor: lightened, fillOpacity: 0.9, color: "#ffffff", weight};
+      };
+    }
+
+    // ── Council-district layer (zoom-activated, council mode only) ────────
+    let councilDistrictLayer = null;
+
+    if (councilDistrictGeoData) {
+      const {winnerMap, shareMap, turnoutMap} = buildLookups(councilDistrictResults, []);
+      const cdStyle = makeLayerStyle(winnerMap, shareMap, turnoutMap, 0.8);
+
+      councilDistrictLayer = L.geoJSON(councilDistrictGeoData, {
+        style: cdStyle,
+        onEachFeature(feature, layer) {
+          const did = feature.properties.id;
+          layer.on("click", () => {
+            const panel = document.getElementById("results-panel");
+            if (panel) panel.replaceWith(renderDistrictPanel(did, feature.properties, councilDistrictResults));
+            if (isCouncilMode) updateCouncilSeats(did, feature.properties);
+          });
+          layer.bindTooltip(
+            `<strong>${lang === "ka" ? feature.properties.name_ka : feature.properties.name_en}</strong>`,
+            {sticky: true}
+          );
+        }
+      });
+    }
+
     // ── Precinct layer (zoom-activated) ──────────────────────────────────
     let precinctLayer = null;
 
     if (precinctGeoData) {
-      // Build precinct winner + turnout lookups
-      const winnerByPrecinct = new Map();
-      const shareByPrecinct  = new Map();
-      d3.group(precinctResults, r => r.district_id).forEach((rows, did) => {
-        const winner = rows.reduce((a, b) => (b.vote_share > a.vote_share ? b : a));
-        winnerByPrecinct.set(did, winner);
-        shareByPrecinct.set(did, d3.max(rows, r => r.vote_share));
-      });
-
-      const precinctTurnoutLookup = new Map();
-      d3.group(precinctTurnout, r => r.district_id).forEach((rows, did) => {
-        precinctTurnoutLookup.set(did, rows[0]);
-      });
-
-      function precinctStyle(feature) {
-        const did = feature.properties.id;
-        if (viewMode === "turnout") {
-          const td = precinctTurnoutLookup.get(did);
-          if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight: 0.5};
-          return {fillColor: d3.interpolateRgb("#dbeafe", "#1d4ed8")(td.turnout_pct ?? 0), fillOpacity: 0.9, color: "#ffffff", weight: 0.5};
-        }
-        const winner = winnerByPrecinct.get(did);
-        if (!winner) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight: 0.5};
-        const baseColor = partyColor(winner.party_id, electionVal?.id);
-        const intensity = shareByPrecinct.get(did) ?? 0.5;
-        const lightened = d3.color(baseColor) ? d3.interpolateRgb("#f5f5f5", baseColor)(0.4 + intensity * 0.6) : "#ccc";
-        return {fillColor: lightened, fillOpacity: 0.9, color: "#ffffff", weight: 0.5};
-      }
+      const {winnerMap, shareMap, turnoutMap} = buildLookups(precinctResults, precinctTurnout);
+      const pStyle = makeLayerStyle(winnerMap, shareMap, turnoutMap, 0.5);
 
       precinctLayer = L.geoJSON(precinctGeoData, {
-        style: precinctStyle,
+        style: pStyle,
         onEachFeature(feature, layer) {
           const did = feature.properties.id;
           layer.on("click", () => {
             const panel = document.getElementById("results-panel");
             if (panel) panel.replaceWith(viewMode === "turnout"
-              ? renderTurnoutPanel(did, feature.properties, precinctTurnoutLookup)
+              ? renderTurnoutPanel(did, feature.properties, turnoutMap)
               : renderDistrictPanel(did, feature.properties, precinctResults));
           });
           layer.bindTooltip(
@@ -777,20 +877,57 @@ display(container);
       });
     }
 
-    // Zoom-based layer switching
-    function updateZoomLayers() {
-      if (!precinctLayer) return;
-      if (map.getZoom() >= PRECINCT_ZOOM) {
-        if (!map.hasLayer(precinctLayer)) precinctLayer.addTo(map);
-        districtLayer.setStyle(DISTRICT_HOLLOW);
-      } else {
-        if (map.hasLayer(precinctLayer)) map.removeLayer(precinctLayer);
+    // ── Manual level switcher control ─────────────────────────────────────
+    const availableLevels = [
+      { id: "district",        label: t("elections.map_level.district") },
+      ...(councilDistrictLayer ? [{ id: "council_district", label: t("elections.map_level.council_district") }] : []),
+      ...(precinctLayer        ? [{ id: "precinct",         label: t("elections.map_level.precinct") }] : []),
+    ];
+    const multiLevel = availableLevels.length > 1;
+    let currentLevel = "district";
+
+    function applyLevel(levelId, controlDiv) {
+      currentLevel = levelId;
+      if (levelId === "district") {
         districtLayer.setStyle(districtStyle);
+        if (councilDistrictLayer && map.hasLayer(councilDistrictLayer)) map.removeLayer(councilDistrictLayer);
+        if (precinctLayer        && map.hasLayer(precinctLayer))        map.removeLayer(precinctLayer);
+      } else if (levelId === "council_district" && councilDistrictLayer) {
+        districtLayer.setStyle(DISTRICT_HOLLOW);
+        if (!map.hasLayer(councilDistrictLayer)) councilDistrictLayer.addTo(map);
+        if (precinctLayer && map.hasLayer(precinctLayer)) map.removeLayer(precinctLayer);
+      } else if (levelId === "precinct" && precinctLayer) {
+        districtLayer.setStyle(DISTRICT_HOLLOW);
+        if (councilDistrictLayer && map.hasLayer(councilDistrictLayer)) map.removeLayer(councilDistrictLayer);
+        if (!map.hasLayer(precinctLayer)) precinctLayer.addTo(map);
+      }
+      if (controlDiv) {
+        controlDiv.querySelectorAll(".level-control-item").forEach(el => {
+          el.classList.toggle("lc-active", el.dataset.level === currentLevel);
+        });
       }
     }
 
-    map.on("zoomend", updateZoomLayers);
-    updateZoomLayers();
+    const LevelControl = L.Control.extend({
+      onAdd() {
+        const div = L.DomUtil.create("div", "leaflet-level-control");
+        L.DomEvent.disableClickPropagation(div);
+        const title = L.DomUtil.create("div", "level-control-title", div);
+        title.textContent = t("elections.map_level");
+        availableLevels.forEach(lvl => {
+          const item = L.DomUtil.create("div", "level-control-item", div);
+          item.dataset.level = lvl.id;
+          item.textContent = lvl.label;
+          if (lvl.id === "district") item.classList.add("lc-active");
+          if (multiLevel) {
+            item.classList.add("lc-clickable");
+            L.DomEvent.on(item, "click", () => applyLevel(lvl.id, div));
+          }
+        });
+        return div;
+      }
+    });
+    new LevelControl({ position: "topright" }).addTo(map);
   }
 
   setTimeout(() => map.invalidateSize(), 150);

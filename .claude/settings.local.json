@@ -39,7 +39,14 @@
       "Bash(start http://127.0.0.1:3001/elections)",
       "Bash(python -c \"import json; d = json.load\\(open\\(''''src/data/config/translations.json'''', encoding=''''utf-8''''\\)\\); [print\\(k, '''':'''', v\\) for k, v in d.items\\(\\) if ''''plebiscite'''' in k or ''''type.'''' in k or ''''referendum'''' in k]\")",
       "Bash(del \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\.observablehq\\\\cache\\\\data\\\\elections.json\")",
-      "Bash(python3 -c \":*)"
+      "Bash(python3 -c \":*)",
+      "Bash(node -e \":*)",
+      "Bash(cat \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/package.json\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{url_effective}\" http://localhost:3001/)",
+      "Bash(curl -s http://localhost:3001/)",
+      "Bash(node -e \"const t = require\\(''''./src/data/config/translations.json''''\\); console.log\\(JSON.stringify\\(Object.keys\\(t\\), null, 2\\)\\)\")",
+      "Bash(cat 'D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/config/translations.json')",
+      "Bash(ls 'D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/.observablehq/cache/')"
     ]
   }
 }
