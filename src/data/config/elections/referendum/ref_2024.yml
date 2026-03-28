@@ -1,0 +1,51 @@
+id: ref_2024
+type: plebiscite
+date: "2024-03-26"
+name:
+  en: "2024 Constitutional Referendum"
+  ka: "2024 წლის კონსტიტუციური რეფერენდუმი"
+system:
+  pr:
+    enabled: true
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+  smd:
+    enabled: false
+    seats: 0
+    shape_file: null
+  compensation:
+    enabled: false
+    shape_file: null
+questions:
+  - id: ref_2024_q1
+    type: question
+    name:
+      en: "Q1: EU Membership"
+      ka: "კ1: ევროკავშირის წევრობა"
+    text:
+      en: "Do you support Georgia's application for European Union membership?"
+      ka: "მხარს უჭერთ საქართველოს ევროკავშირის წევრობის განაცხადს?"
+    files:
+      pr_results:          "data/results/ref2024_q1.csv"
+      pr_precinct_results: "data/results/ref2024_q1_precincts.csv"
+  - id: ref_2024_q2
+    type: question
+    name:
+      en: "Q2: NATO Membership"
+      ka: "კ2: ნატოს წევრობა"
+    text:
+      en: "Do you support Georgia's application for NATO membership?"
+      ka: "მხარს უჭერთ საქართველოს ნატოს წევრობის განაცხადს?"
+    files:
+      pr_results:          "data/results/ref2024_q2.csv"
+      pr_precinct_results: "data/results/ref2024_q2_precincts.csv"
+sub_elections: []
+files:
+  cartogram: "data/shp/parl2024_cartogram.geojson"
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/ref2024_turnout.csv"
+  precinct_file: "data/turnout/ref2024_precincts_turnout.csv"
+  has_snapshots: false
+  has_lists: false

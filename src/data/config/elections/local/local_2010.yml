@@ -1,0 +1,44 @@
+id: local_2010
+type: local
+date: "2010-05-30"
+name:
+  en: "2010 Tbilisi Mayoral Election"
+  ka: "2010 თბილისის მერის არჩევნები"
+system:
+  pr:
+    enabled: false
+    seats: 0
+    shape_file: null
+  smd:
+    enabled: true
+    seats: 1
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+sub_elections: []
+parties:
+  - id: unm
+    threshold_status: notrun
+  - id: other
+    threshold_status: notrun
+council:
+  total_pr_seats:  25
+  total_smd_seats: 25
+  shape_file: "data/shp/local_sakrebulo_districts.geojson"
+files:
+  smd_results:                  "data/results/local2010_smd.csv"
+  smd_precinct_results:         "data/results/local2010_smd_precincts.csv"
+  council_pr_results:           "data/results/local2010_council_pr.csv"
+  council_smd_results:          "data/results/local2010_council_smd.csv"
+  council_pr_precinct_results:  "data/results/local2010_council_pr_precincts.csv"
+  council_smd_precinct_results: "data/results/local2010_council_smd_precincts.csv"
+  cartogram:                    "data/shp/parl2024_cartogram.geojson"
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/local2010_turnout.csv"
+  precinct_file: "data/turnout/local2010_precincts_turnout.csv"
+  has_snapshots: false
+  has_lists: false

@@ -1,0 +1,47 @@
+id: parl_2024
+type: parliamentary
+sub_type: pr
+date: "2024-10-26"
+name:
+  en: "2024 Parliamentary Elections"
+  ka: "2024 წლის საპარლამენტო არჩევნები"
+system:
+  pr:
+    enabled: true
+    seats: 150
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+  smd:
+    enabled: false
+    seats: 0
+    shape_file: null
+  compensation:
+    enabled: false
+    shape_file: null
+sub_elections: []
+parties:
+  - id: gd
+    threshold_status: passed
+  - id: coalition_for_change
+    threshold_status: passed
+  - id: unity
+    threshold_status: passed
+  - id: strong_georgia
+    threshold_status: passed
+  - id: girchi
+    threshold_status: failed
+  - id: other
+    threshold_status: failed
+files:
+  pr_results:          "data/results/parl2024_pr.csv"
+  pr_precinct_results: "data/results/parl2024_pr_precincts.csv"
+  smd_results:         null
+  candidates:          "data/candidates/parl2024.csv"
+  cartogram:           "data/shp/parl2024_cartogram.geojson"
+turnout:
+  available: true
+  type: detailed
+  file: "data/turnout/parl2024_turnout.csv"
+  precinct_file: "data/turnout/parl2024_pr_precincts_turnout.csv"
+  has_snapshots: true
+  has_lists: true

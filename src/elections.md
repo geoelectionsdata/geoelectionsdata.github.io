@@ -169,8 +169,7 @@ const seatFilter = Generators.input(seatFilterInput);
 ```
 
 ```js
-// ── Pre-load all known data files (Observable Framework requires static FileAttachment paths)
-// Add new entries here as more elections are added.
+// ── Pre-load GeoJSON files (small fixed set, kept as static FileAttachment)
 const _allGeo = {
   "data/shp/parl2024_pr.geojson":                  await FileAttachment("data/shp/parl2024_pr.geojson").json(),
   "data/shp/parl2024_cartogram.geojson":            await FileAttachment("data/shp/parl2024_cartogram.geojson").json(),
@@ -180,82 +179,97 @@ const _allGeo = {
   "data/shp/parl2020_cartogram.geojson":            await FileAttachment("data/shp/parl2020_cartogram.geojson").json(),
   "data/shp/local_sakrebulo_districts.geojson":     await FileAttachment("data/shp/local_sakrebulo_districts.geojson").json(),
 };
-const _allCsv = {
-  "data/results/parl2024_pr.csv":              await FileAttachment("data/results/parl2024_pr.csv").csv({typed: true}),
-  "data/results/parl2024_pr_precincts.csv":    await FileAttachment("data/results/parl2024_pr_precincts.csv").csv({typed: true}),
-  "data/results/parl2020_pr.csv":              await FileAttachment("data/results/parl2020_pr.csv").csv({typed: true}),
-  "data/results/parl2020_smd.csv":             await FileAttachment("data/results/parl2020_smd.csv").csv({typed: true}),
-  "data/results/parl2020_smd_runoff.csv":      await FileAttachment("data/results/parl2020_smd_runoff.csv").csv({typed: true}),
-  "data/results/parl2020_by_tbilisi.csv":      await FileAttachment("data/results/parl2020_by_tbilisi.csv").csv({typed: true}),
-  "data/results/pres2018_r1.csv":              await FileAttachment("data/results/pres2018_r1.csv").csv({typed: true}),
-  "data/results/pres2018_r2.csv":              await FileAttachment("data/results/pres2018_r2.csv").csv({typed: true}),
-  "data/results/pres2018_r1_precincts.csv":    await FileAttachment("data/results/pres2018_r1_precincts.csv").csv({typed: true}),
-  "data/results/pres2018_r2_precincts.csv":    await FileAttachment("data/results/pres2018_r2_precincts.csv").csv({typed: true}),
-  "data/results/local2021_smd.csv":             await FileAttachment("data/results/local2021_smd.csv").csv({typed: true}),
-  "data/results/local2021_r2.csv":              await FileAttachment("data/results/local2021_r2.csv").csv({typed: true}),
-  "data/results/local2017_smd.csv":             await FileAttachment("data/results/local2017_smd.csv").csv({typed: true}),
-  "data/results/local2017_r2.csv":              await FileAttachment("data/results/local2017_r2.csv").csv({typed: true}),
-  "data/results/local2014_smd.csv":             await FileAttachment("data/results/local2014_smd.csv").csv({typed: true}),
-  "data/results/local2014_r2.csv":              await FileAttachment("data/results/local2014_r2.csv").csv({typed: true}),
-  "data/results/local2010_smd.csv":             await FileAttachment("data/results/local2010_smd.csv").csv({typed: true}),
-  "data/results/adj2020_pr.csv":                       await FileAttachment("data/results/adj2020_pr.csv").csv({typed: true}),
-  "data/results/adj2020_pr_precincts.csv":             await FileAttachment("data/results/adj2020_pr_precincts.csv").csv({typed: true}),
-  "data/results/adj2020_smd.csv":                      await FileAttachment("data/results/adj2020_smd.csv").csv({typed: true}),
-  "data/results/adj2020_smd_precincts.csv":            await FileAttachment("data/results/adj2020_smd_precincts.csv").csv({typed: true}),
-  "data/results/adj2016_pr.csv":                       await FileAttachment("data/results/adj2016_pr.csv").csv({typed: true}),
-  "data/results/adj2016_pr_precincts.csv":             await FileAttachment("data/results/adj2016_pr_precincts.csv").csv({typed: true}),
-  "data/results/adj2016_smd.csv":                      await FileAttachment("data/results/adj2016_smd.csv").csv({typed: true}),
-  "data/results/adj2016_smd_precincts.csv":            await FileAttachment("data/results/adj2016_smd_precincts.csv").csv({typed: true}),
-  "data/results/local2021_smd_precincts.csv":          await FileAttachment("data/results/local2021_smd_precincts.csv").csv({typed: true}),
-  "data/results/local2021_council_pr.csv":             await FileAttachment("data/results/local2021_council_pr.csv").csv({typed: true}),
-  "data/results/local2021_council_smd.csv":            await FileAttachment("data/results/local2021_council_smd.csv").csv({typed: true}),
-  "data/results/local2021_council_pr_precincts.csv":   await FileAttachment("data/results/local2021_council_pr_precincts.csv").csv({typed: true}),
-  "data/results/local2021_council_smd_precincts.csv":  await FileAttachment("data/results/local2021_council_smd_precincts.csv").csv({typed: true}),
-  "data/results/local2017_smd_precincts.csv":          await FileAttachment("data/results/local2017_smd_precincts.csv").csv({typed: true}),
-  "data/results/local2017_council_pr.csv":             await FileAttachment("data/results/local2017_council_pr.csv").csv({typed: true}),
-  "data/results/local2017_council_smd.csv":            await FileAttachment("data/results/local2017_council_smd.csv").csv({typed: true}),
-  "data/results/local2017_council_pr_precincts.csv":   await FileAttachment("data/results/local2017_council_pr_precincts.csv").csv({typed: true}),
-  "data/results/local2017_council_smd_precincts.csv":  await FileAttachment("data/results/local2017_council_smd_precincts.csv").csv({typed: true}),
-  "data/results/local2014_smd_precincts.csv":          await FileAttachment("data/results/local2014_smd_precincts.csv").csv({typed: true}),
-  "data/results/local2014_council_pr.csv":             await FileAttachment("data/results/local2014_council_pr.csv").csv({typed: true}),
-  "data/results/local2014_council_smd.csv":            await FileAttachment("data/results/local2014_council_smd.csv").csv({typed: true}),
-  "data/results/local2014_council_pr_precincts.csv":   await FileAttachment("data/results/local2014_council_pr_precincts.csv").csv({typed: true}),
-  "data/results/local2014_council_smd_precincts.csv":  await FileAttachment("data/results/local2014_council_smd_precincts.csv").csv({typed: true}),
-  "data/results/local2010_smd_precincts.csv":          await FileAttachment("data/results/local2010_smd_precincts.csv").csv({typed: true}),
-  "data/results/local2010_council_pr.csv":             await FileAttachment("data/results/local2010_council_pr.csv").csv({typed: true}),
-  "data/results/local2010_council_smd.csv":            await FileAttachment("data/results/local2010_council_smd.csv").csv({typed: true}),
-  "data/results/local2010_council_pr_precincts.csv":   await FileAttachment("data/results/local2010_council_pr_precincts.csv").csv({typed: true}),
-  "data/results/local2010_council_smd_precincts.csv":  await FileAttachment("data/results/local2010_council_smd_precincts.csv").csv({typed: true}),
-  "data/results/parl2020_pr_precincts.csv":            await FileAttachment("data/results/parl2020_pr_precincts.csv").csv({typed: true}),
-  "data/results/parl2020_smd_precincts.csv":           await FileAttachment("data/results/parl2020_smd_precincts.csv").csv({typed: true}),
-  "data/results/ref2024_q1.csv":                       await FileAttachment("data/results/ref2024_q1.csv").csv({typed: true}),
-  "data/results/ref2024_q2.csv":                       await FileAttachment("data/results/ref2024_q2.csv").csv({typed: true}),
-  "data/results/ref2024_q1_precincts.csv":             await FileAttachment("data/results/ref2024_q1_precincts.csv").csv({typed: true}),
-  "data/results/ref2024_q2_precincts.csv":             await FileAttachment("data/results/ref2024_q2_precincts.csv").csv({typed: true}),
+
+// ── Register all CSV files with Observable Framework and capture their /_file/ URLs.
+// Awaiting .url() is ~free (no data loaded). The actual CSV is fetched on demand
+// via loadCSV() when an election is selected, keeping startup fast at any scale.
+const _csvUrls = {
+  "data/results/parl2024_pr.csv":              await FileAttachment("data/results/parl2024_pr.csv").url(),
+  "data/results/parl2024_pr_precincts.csv":    await FileAttachment("data/results/parl2024_pr_precincts.csv").url(),
+  "data/results/parl2020_pr.csv":              await FileAttachment("data/results/parl2020_pr.csv").url(),
+  "data/results/parl2020_smd.csv":             await FileAttachment("data/results/parl2020_smd.csv").url(),
+  "data/results/parl2020_smd_runoff.csv":      await FileAttachment("data/results/parl2020_smd_runoff.csv").url(),
+  "data/results/parl2020_by_tbilisi.csv":      await FileAttachment("data/results/parl2020_by_tbilisi.csv").url(),
+  "data/results/parl2020_pr_precincts.csv":    await FileAttachment("data/results/parl2020_pr_precincts.csv").url(),
+  "data/results/parl2020_smd_precincts.csv":   await FileAttachment("data/results/parl2020_smd_precincts.csv").url(),
+  "data/results/pres2018_r1.csv":              await FileAttachment("data/results/pres2018_r1.csv").url(),
+  "data/results/pres2018_r2.csv":              await FileAttachment("data/results/pres2018_r2.csv").url(),
+  "data/results/pres2018_r1_precincts.csv":    await FileAttachment("data/results/pres2018_r1_precincts.csv").url(),
+  "data/results/pres2018_r2_precincts.csv":    await FileAttachment("data/results/pres2018_r2_precincts.csv").url(),
+  "data/results/local2021_smd.csv":            await FileAttachment("data/results/local2021_smd.csv").url(),
+  "data/results/local2021_r2.csv":             await FileAttachment("data/results/local2021_r2.csv").url(),
+  "data/results/local2021_smd_precincts.csv":  await FileAttachment("data/results/local2021_smd_precincts.csv").url(),
+  "data/results/local2021_council_pr.csv":              await FileAttachment("data/results/local2021_council_pr.csv").url(),
+  "data/results/local2021_council_smd.csv":             await FileAttachment("data/results/local2021_council_smd.csv").url(),
+  "data/results/local2021_council_pr_precincts.csv":    await FileAttachment("data/results/local2021_council_pr_precincts.csv").url(),
+  "data/results/local2021_council_smd_precincts.csv":   await FileAttachment("data/results/local2021_council_smd_precincts.csv").url(),
+  "data/results/local2017_smd.csv":            await FileAttachment("data/results/local2017_smd.csv").url(),
+  "data/results/local2017_r2.csv":             await FileAttachment("data/results/local2017_r2.csv").url(),
+  "data/results/local2017_smd_precincts.csv":  await FileAttachment("data/results/local2017_smd_precincts.csv").url(),
+  "data/results/local2017_council_pr.csv":              await FileAttachment("data/results/local2017_council_pr.csv").url(),
+  "data/results/local2017_council_smd.csv":             await FileAttachment("data/results/local2017_council_smd.csv").url(),
+  "data/results/local2017_council_pr_precincts.csv":    await FileAttachment("data/results/local2017_council_pr_precincts.csv").url(),
+  "data/results/local2017_council_smd_precincts.csv":   await FileAttachment("data/results/local2017_council_smd_precincts.csv").url(),
+  "data/results/local2014_smd.csv":            await FileAttachment("data/results/local2014_smd.csv").url(),
+  "data/results/local2014_r2.csv":             await FileAttachment("data/results/local2014_r2.csv").url(),
+  "data/results/local2014_smd_precincts.csv":  await FileAttachment("data/results/local2014_smd_precincts.csv").url(),
+  "data/results/local2014_council_pr.csv":              await FileAttachment("data/results/local2014_council_pr.csv").url(),
+  "data/results/local2014_council_smd.csv":             await FileAttachment("data/results/local2014_council_smd.csv").url(),
+  "data/results/local2014_council_pr_precincts.csv":    await FileAttachment("data/results/local2014_council_pr_precincts.csv").url(),
+  "data/results/local2014_council_smd_precincts.csv":   await FileAttachment("data/results/local2014_council_smd_precincts.csv").url(),
+  "data/results/local2010_smd.csv":            await FileAttachment("data/results/local2010_smd.csv").url(),
+  "data/results/local2010_smd_precincts.csv":  await FileAttachment("data/results/local2010_smd_precincts.csv").url(),
+  "data/results/local2010_council_pr.csv":              await FileAttachment("data/results/local2010_council_pr.csv").url(),
+  "data/results/local2010_council_smd.csv":             await FileAttachment("data/results/local2010_council_smd.csv").url(),
+  "data/results/local2010_council_pr_precincts.csv":    await FileAttachment("data/results/local2010_council_pr_precincts.csv").url(),
+  "data/results/local2010_council_smd_precincts.csv":   await FileAttachment("data/results/local2010_council_smd_precincts.csv").url(),
+  "data/results/adj2020_pr.csv":               await FileAttachment("data/results/adj2020_pr.csv").url(),
+  "data/results/adj2020_pr_precincts.csv":     await FileAttachment("data/results/adj2020_pr_precincts.csv").url(),
+  "data/results/adj2020_smd.csv":              await FileAttachment("data/results/adj2020_smd.csv").url(),
+  "data/results/adj2020_smd_precincts.csv":    await FileAttachment("data/results/adj2020_smd_precincts.csv").url(),
+  "data/results/adj2016_pr.csv":               await FileAttachment("data/results/adj2016_pr.csv").url(),
+  "data/results/adj2016_pr_precincts.csv":     await FileAttachment("data/results/adj2016_pr_precincts.csv").url(),
+  "data/results/adj2016_smd.csv":              await FileAttachment("data/results/adj2016_smd.csv").url(),
+  "data/results/adj2016_smd_precincts.csv":    await FileAttachment("data/results/adj2016_smd_precincts.csv").url(),
+  "data/results/ref2024_q1.csv":               await FileAttachment("data/results/ref2024_q1.csv").url(),
+  "data/results/ref2024_q2.csv":               await FileAttachment("data/results/ref2024_q2.csv").url(),
+  "data/results/ref2024_q1_precincts.csv":     await FileAttachment("data/results/ref2024_q1_precincts.csv").url(),
+  "data/results/ref2024_q2_precincts.csv":     await FileAttachment("data/results/ref2024_q2_precincts.csv").url(),
 };
 
-const _allTurnout = {
-  "data/turnout/parl2024_turnout.csv":                  await FileAttachment("data/turnout/parl2024_turnout.csv").csv({typed: true}),
-  "data/turnout/parl2024_pr_precincts_turnout.csv":     await FileAttachment("data/turnout/parl2024_pr_precincts_turnout.csv").csv({typed: true}),
-  "data/turnout/parl2020_turnout.csv":                  await FileAttachment("data/turnout/parl2020_turnout.csv").csv({typed: true}),
-  "data/turnout/parl2020_pr_precincts_turnout.csv":     await FileAttachment("data/turnout/parl2020_pr_precincts_turnout.csv").csv({typed: true}),
-  "data/turnout/local2021_turnout.csv":                 await FileAttachment("data/turnout/local2021_turnout.csv").csv({typed: true}),
-  "data/turnout/local2021_precincts_turnout.csv":       await FileAttachment("data/turnout/local2021_precincts_turnout.csv").csv({typed: true}),
-  "data/turnout/local2017_turnout.csv":                 await FileAttachment("data/turnout/local2017_turnout.csv").csv({typed: true}),
-  "data/turnout/local2017_precincts_turnout.csv":       await FileAttachment("data/turnout/local2017_precincts_turnout.csv").csv({typed: true}),
-  "data/turnout/local2014_turnout.csv":                 await FileAttachment("data/turnout/local2014_turnout.csv").csv({typed: true}),
-  "data/turnout/local2014_precincts_turnout.csv":       await FileAttachment("data/turnout/local2014_precincts_turnout.csv").csv({typed: true}),
-  "data/turnout/local2010_turnout.csv":                 await FileAttachment("data/turnout/local2010_turnout.csv").csv({typed: true}),
-  "data/turnout/local2010_precincts_turnout.csv":       await FileAttachment("data/turnout/local2010_precincts_turnout.csv").csv({typed: true}),
-  "data/turnout/adj2020_turnout.csv":                   await FileAttachment("data/turnout/adj2020_turnout.csv").csv({typed: true}),
-  "data/turnout/adj2020_precincts_turnout.csv":         await FileAttachment("data/turnout/adj2020_precincts_turnout.csv").csv({typed: true}),
-  "data/turnout/adj2016_turnout.csv":                   await FileAttachment("data/turnout/adj2016_turnout.csv").csv({typed: true}),
-  "data/turnout/adj2016_precincts_turnout.csv":         await FileAttachment("data/turnout/adj2016_precincts_turnout.csv").csv({typed: true}),
-  "data/turnout/pres2018_turnout.csv":                  await FileAttachment("data/turnout/pres2018_turnout.csv").csv({typed: true}),
-  "data/turnout/pres2018_precincts_turnout.csv":        await FileAttachment("data/turnout/pres2018_precincts_turnout.csv").csv({typed: true}),
-  "data/turnout/ref2024_turnout.csv":                   await FileAttachment("data/turnout/ref2024_turnout.csv").csv({typed: true}),
-  "data/turnout/ref2024_precincts_turnout.csv":         await FileAttachment("data/turnout/ref2024_precincts_turnout.csv").csv({typed: true}),
+const _turnoutUrls = {
+  "data/turnout/parl2024_turnout.csv":               await FileAttachment("data/turnout/parl2024_turnout.csv").url(),
+  "data/turnout/parl2024_pr_precincts_turnout.csv":  await FileAttachment("data/turnout/parl2024_pr_precincts_turnout.csv").url(),
+  "data/turnout/parl2020_turnout.csv":               await FileAttachment("data/turnout/parl2020_turnout.csv").url(),
+  "data/turnout/parl2020_pr_precincts_turnout.csv":  await FileAttachment("data/turnout/parl2020_pr_precincts_turnout.csv").url(),
+  "data/turnout/local2021_turnout.csv":              await FileAttachment("data/turnout/local2021_turnout.csv").url(),
+  "data/turnout/local2021_precincts_turnout.csv":    await FileAttachment("data/turnout/local2021_precincts_turnout.csv").url(),
+  "data/turnout/local2017_turnout.csv":              await FileAttachment("data/turnout/local2017_turnout.csv").url(),
+  "data/turnout/local2017_precincts_turnout.csv":    await FileAttachment("data/turnout/local2017_precincts_turnout.csv").url(),
+  "data/turnout/local2014_turnout.csv":              await FileAttachment("data/turnout/local2014_turnout.csv").url(),
+  "data/turnout/local2014_precincts_turnout.csv":    await FileAttachment("data/turnout/local2014_precincts_turnout.csv").url(),
+  "data/turnout/local2010_turnout.csv":              await FileAttachment("data/turnout/local2010_turnout.csv").url(),
+  "data/turnout/local2010_precincts_turnout.csv":    await FileAttachment("data/turnout/local2010_precincts_turnout.csv").url(),
+  "data/turnout/adj2020_turnout.csv":                await FileAttachment("data/turnout/adj2020_turnout.csv").url(),
+  "data/turnout/adj2020_precincts_turnout.csv":      await FileAttachment("data/turnout/adj2020_precincts_turnout.csv").url(),
+  "data/turnout/adj2016_turnout.csv":                await FileAttachment("data/turnout/adj2016_turnout.csv").url(),
+  "data/turnout/adj2016_precincts_turnout.csv":      await FileAttachment("data/turnout/adj2016_precincts_turnout.csv").url(),
+  "data/turnout/pres2018_turnout.csv":               await FileAttachment("data/turnout/pres2018_turnout.csv").url(),
+  "data/turnout/pres2018_precincts_turnout.csv":     await FileAttachment("data/turnout/pres2018_precincts_turnout.csv").url(),
+  "data/turnout/ref2024_turnout.csv":                await FileAttachment("data/turnout/ref2024_turnout.csv").url(),
+  "data/turnout/ref2024_precincts_turnout.csv":      await FileAttachment("data/turnout/ref2024_precincts_turnout.csv").url(),
 };
+
+// Fetch a CSV on demand using its registered /_file/ URL
+async function loadCSV(urlMap, path) {
+  const url = urlMap[path];
+  if (!url) return [];
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    return d3.csvParse(await res.text(), d3.autoType);
+  } catch { return []; }
+}
 
 function loadGeoJSON(elec, vt, level) {
   let path;
@@ -276,63 +290,71 @@ function loadGeoJSON(elec, vt, level) {
   return _allGeo[path] ?? null;
 }
 
-function loadResults(elec, vt, sub, level, ballotType) {
+async function loadResults(elec, vt, sub, level, ballotType) {
   // Council ballot type: load council-specific files (ignores sub-elections)
   if (ballotType === "council") {
     if (level === "council_district") {
       const path = vt === "smd"
         ? (elec?.files?.council_smd_precinct_results ?? elec?.files?.council_smd_results)
         : (elec?.files?.council_pr_precinct_results  ?? elec?.files?.council_pr_results);
-      return _allCsv[path] ?? [];
+      return loadCSV(_csvUrls, path);
     }
     const path = vt === "smd"
       ? elec?.files?.council_smd_results
       : elec?.files?.council_pr_results;
-    return _allCsv[path] ?? [];
+    return loadCSV(_csvUrls, path);
   }
   const isSubActive = sub?.id !== "__main__";
   if (isSubActive) {
     // Check for sub-election precinct file first, then fall back to district
     if (level === "precinct") {
       const subPrecinct = sub?.files?.smd_precinct_results ?? sub?.files?.pr_precinct_results;
-      if (subPrecinct) return _allCsv[subPrecinct] ?? [];
+      if (subPrecinct) return loadCSV(_csvUrls, subPrecinct);
     }
     const subPath = sub?.files?.smd_results ?? sub?.files?.pr_results ?? sub?.files?.results;
-    if (subPath) return _allCsv[subPath] ?? [];
+    if (subPath) return loadCSV(_csvUrls, subPath);
   }
   if (level === "precinct") {
     const path = vt === "smd"
       ? (elec?.files?.smd_precinct_results ?? elec?.files?.smd_results)
       : (elec?.files?.pr_precinct_results  ?? elec?.files?.pr_results);
-    return _allCsv[path] ?? [];
+    return loadCSV(_csvUrls, path);
   }
   const path = vt === "smd"          ? elec?.files?.smd_results
              : vt === "compensation" ? elec?.files?.compensation_results
              : elec?.files?.pr_results;
-  return _allCsv[path] ?? [];
+  return loadCSV(_csvUrls, path);
 }
 
-function loadTurnout(elec, level) {
+async function loadTurnout(elec, level) {
   if (!elec?.turnout?.available) return [];
   const path = (level === "precinct" && elec.turnout.precinct_file)
     ? elec.turnout.precinct_file
     : elec.turnout.file;
-  return _allTurnout[path] ?? [];
+  return loadCSV(_turnoutUrls, path);
 }
 
 // For local council mode, always use SMD shapefile (PR shapefile is null for local elections)
-const _geoVt           = (isLocal && ballotTypeVal === "council") ? "smd" : effectiveVoteType;
-const geoData          = electionVal ? loadGeoJSON(electionVal, _geoVt, "district") : null;
-const cartData         = _allGeo[electionVal?.files?.cartogram] ?? null;
-const results          = electionVal ? loadResults(electionVal, effectiveVoteType, subVal, "district", ballotTypeVal) : [];
-const turnoutData      = electionVal ? loadTurnout(electionVal, "district") : [];
+const _geoVt = (isLocal && ballotTypeVal === "council") ? "smd" : effectiveVoteType;
+const geoData  = electionVal ? loadGeoJSON(electionVal, _geoVt, "district") : null;
+const cartData = _allGeo[electionVal?.files?.cartogram] ?? null;
+
+// Kick off all CSV fetches in parallel, then await together
+const _resultsP     = electionVal ? loadResults(electionVal, effectiveVoteType, subVal, "district", ballotTypeVal)         : Promise.resolve([]);
+const _turnoutP     = electionVal ? loadTurnout(electionVal, "district")                                                   : Promise.resolve([]);
+const _cdResultsP   = (electionVal && hasCouncilDistricts) ? loadResults(electionVal, effectiveVoteType, subVal, "council_district", ballotTypeVal) : Promise.resolve([]);
+const _precResultsP = (electionVal && hasPrecinct) ? loadResults(electionVal, effectiveVoteType, subVal, "precinct", ballotTypeVal)                 : Promise.resolve([]);
+const _precTurnoutP = (electionVal && hasPrecinct) ? loadTurnout(electionVal, "precinct")                                                          : Promise.resolve([]);
+
+const results              = await _resultsP;
+const turnoutData          = await _turnoutP;
 // Council-district intermediate layer (sakrebulo districts, council mode only)
 const councilDistrictGeoData = (electionVal && hasCouncilDistricts) ? loadGeoJSON(electionVal, _geoVt, "council_district") : null;
-const councilDistrictResults = (electionVal && hasCouncilDistricts) ? loadResults(electionVal, effectiveVoteType, subVal, "council_district", ballotTypeVal) : [];
+const councilDistrictResults = await _cdResultsP;
 // Precinct layer
 const precinctGeoData  = (electionVal && hasPrecinct) ? loadGeoJSON(electionVal, effectiveVoteType, "precinct") : null;
-const precinctResults  = (electionVal && hasPrecinct) ? loadResults(electionVal, effectiveVoteType, subVal, "precinct", ballotTypeVal) : [];
-const precinctTurnout  = (electionVal && hasPrecinct) ? loadTurnout(electionVal, "precinct") : [];
+const precinctResults  = await _precResultsP;
+const precinctTurnout  = await _precTurnoutP;
 ```
 
 ```js

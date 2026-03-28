@@ -1,0 +1,45 @@
+id: adj_2016
+type: adjara
+sub_type: mixed
+date: "2016-10-08"
+name:
+  en: "2016 Adjara Supreme Council"
+  ka: "2016 აჭარის უმაღლესი საბჭო"
+system:
+  pr:
+    enabled: true
+    seats: 15
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+  smd:
+    enabled: true
+    seats: 11
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+sub_elections: []
+parties:
+  - id: gd
+    threshold_status: passed
+  - id: unm
+    threshold_status: passed
+  - id: girchi
+    threshold_status: passed
+  - id: other
+    threshold_status: failed
+files:
+  pr_results:           "data/results/adj2016_pr.csv"
+  pr_precinct_results:  "data/results/adj2016_pr_precincts.csv"
+  smd_results:          "data/results/adj2016_smd.csv"
+  smd_precinct_results: "data/results/adj2016_smd_precincts.csv"
+  candidates:           null
+  cartogram:            "data/shp/parl2024_cartogram.geojson"
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/adj2016_turnout.csv"
+  precinct_file: "data/turnout/adj2016_precincts_turnout.csv"
+  has_snapshots: false
+  has_lists: false

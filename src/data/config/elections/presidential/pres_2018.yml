@@ -1,0 +1,59 @@
+id: pres_2018
+type: presidential
+sub_type: direct
+date: "2018-10-28"
+name:
+  en: "2018 Presidential Election"
+  ka: "2018 წლის საპრეზიდენტო არჩევნები"
+system:
+  pr:
+    enabled: true
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+  smd:
+    enabled: false
+  compensation:
+    enabled: false
+candidates:
+  - id: zourabichvili
+    name:
+      en: "Salome Zourabichvili"
+      ka: "სალომე ზურაბიშვილი"
+    party: gd
+  - id: vashadze
+    name:
+      en: "Grigol Vashadze"
+      ka: "გრიგოლ ვაშაძე"
+    party: unm
+  - id: bakradze
+    name:
+      en: "David Bakradze"
+      ka: "დავით ბაქრაძე"
+    party: european_georgia
+  - id: other_pres
+    name:
+      en: "Other candidates"
+      ka: "სხვა კანდიდატები"
+    party: null
+    color: "#9E9E9E"
+sub_elections:
+  - id: pres_2018_r2
+    type: runoff
+    date: "2018-11-28"
+    name:
+      en: "2018 Presidential — Round 2"
+      ka: "2018 საპრეზიდენტო — მეორე ტური"
+    files:
+      smd_results:         "data/results/pres2018_r2.csv"
+      pr_precinct_results: "data/results/pres2018_r2_precincts.csv"
+files:
+  pr_results:          "data/results/pres2018_r1.csv"
+  pr_precinct_results: "data/results/pres2018_r1_precincts.csv"
+  cartogram:           "data/shp/parl2024_cartogram.geojson"
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/pres2018_turnout.csv"
+  precinct_file: "data/turnout/pres2018_precincts_turnout.csv"
+  has_snapshots: false
+  has_lists: false

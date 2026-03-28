@@ -1,0 +1,56 @@
+id: local_2017
+type: local
+date: "2017-10-21"
+name:
+  en: "2017 Local Elections"
+  ka: "2017 ადგილობრივი არჩევნები"
+system:
+  pr:
+    enabled: false
+    seats: 0
+    shape_file: null
+  smd:
+    enabled: true
+    seats: 11
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+sub_elections:
+  - id: local_2017_r2
+    type: runoff
+    date: "2017-11-12"
+    name:
+      en: "2017 Mayoral Runoffs"
+      ka: "2017 - მეორე ტური"
+    files:
+      smd_results: "data/results/local2017_r2.csv"
+parties:
+  - id: gd
+    threshold_status: notrun
+  - id: unm
+    threshold_status: notrun
+  - id: european_georgia
+    threshold_status: notrun
+  - id: other
+    threshold_status: notrun
+council:
+  total_pr_seats:  200
+  total_smd_seats: 200
+  shape_file: "data/shp/local_sakrebulo_districts.geojson"
+files:
+  smd_results:                  "data/results/local2017_smd.csv"
+  smd_precinct_results:         "data/results/local2017_smd_precincts.csv"
+  council_pr_results:           "data/results/local2017_council_pr.csv"
+  council_smd_results:          "data/results/local2017_council_smd.csv"
+  council_pr_precinct_results:  "data/results/local2017_council_pr_precincts.csv"
+  council_smd_precinct_results: "data/results/local2017_council_smd_precincts.csv"
+  cartogram:                    "data/shp/parl2024_cartogram.geojson"
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/local2017_turnout.csv"
+  precinct_file: "data/turnout/local2017_precincts_turnout.csv"
+  has_snapshots: false
+  has_lists: false

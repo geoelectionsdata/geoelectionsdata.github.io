@@ -1,0 +1,65 @@
+id: parl_2020
+type: parliamentary
+sub_type: mixed
+date: "2020-10-31"
+name:
+  en: "2020 Parliamentary Elections"
+  ka: "2020 წლის საპარლამენტო არჩევნები"
+system:
+  pr:
+    enabled: true
+    seats: 120
+    shape_file: "data/shp/parl2020_pr.geojson"
+    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+  smd:
+    enabled: true
+    seats: 30
+    shape_file: "data/shp/parl2020_smd.geojson"
+    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+sub_elections:
+  - id: parl_2020_runoff
+    type: runoff
+    date: "2020-11-21"
+    name:
+      en: "2020 SMD Runoff"
+      ka: "2020 - მეორე ტური (მაჟ.)"
+    files:
+      smd_results: "data/results/parl2020_smd_runoff.csv"
+  - id: parl_2020_by_tbilisi
+    type: by_election
+    date: "2021-10-02"
+    name:
+      en: "2021 Tbilisi By-election"
+      ka: "2021 - თბილისი (დამატებითი)"
+    files:
+      smd_results: "data/results/parl2020_by_tbilisi.csv"
+parties:
+  - id: gd
+    threshold_status: passed
+  - id: unm
+    threshold_status: passed
+  - id: european_georgia
+    threshold_status: passed
+  - id: girchi
+    threshold_status: passed
+  - id: labour
+    threshold_status: passed
+  - id: other
+    threshold_status: failed
+files:
+  pr_results:           "data/results/parl2020_pr.csv"
+  pr_precinct_results:  "data/results/parl2020_pr_precincts.csv"
+  smd_results:          "data/results/parl2020_smd.csv"
+  smd_precinct_results: "data/results/parl2020_smd_precincts.csv"
+  candidates:           "data/candidates/parl2020.csv"
+  cartogram:            "data/shp/parl2020_cartogram.geojson"
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/parl2020_turnout.csv"
+  precinct_file: "data/turnout/parl2020_pr_precincts_turnout.csv"
+  has_snapshots: false
+  has_lists: false

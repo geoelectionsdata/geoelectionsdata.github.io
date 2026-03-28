@@ -1,0 +1,35 @@
+id: parl_1919
+type: parliamentary
+sub_type: pr
+date: "1919-02-14"
+name:
+  en: "1919 Constituent Assembly Elections"
+  ka: "1919 წლის დამფუძნებელი კრების არჩევნები"
+system:
+  pr:
+    enabled: true
+    seats: 130
+    shape_file: "data/shp/parl1919_pr.geojson"
+  smd:
+    enabled: false
+    seats: 0
+    shape_file: null
+  compensation:
+    enabled: false
+    shape_file: null
+sub_elections: []
+parties:
+  - id: social_democrats_1919
+    threshold_status: passed
+  - id: social_federalists_1919
+    threshold_status: passed
+  - id: national_democrats_1919
+    threshold_status: passed
+  - id: sr_1919
+    threshold_status: passed
+files:
+  pr_results:  "data/results/parl1919_pr.csv"
+  smd_results: null
+  candidates:  "data/candidates/parl1919.csv"
+  cartogram:   "data/shp/parl1919_cartogram.geojson"
+turnout: null

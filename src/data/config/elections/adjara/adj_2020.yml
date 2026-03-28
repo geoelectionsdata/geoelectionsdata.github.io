@@ -1,0 +1,45 @@
+id: adj_2020
+type: adjara
+sub_type: mixed
+date: "2020-10-31"
+name:
+  en: "2020 Adjara Supreme Council"
+  ka: "2020 აჭარის უმაღლესი საბჭო"
+system:
+  pr:
+    enabled: true
+    seats: 15
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+  smd:
+    enabled: true
+    seats: 11
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+sub_elections: []
+parties:
+  - id: gd
+    threshold_status: passed
+  - id: unm
+    threshold_status: passed
+  - id: european_georgia
+    threshold_status: passed
+  - id: other
+    threshold_status: failed
+files:
+  pr_results:           "data/results/adj2020_pr.csv"
+  pr_precinct_results:  "data/results/adj2020_pr_precincts.csv"
+  smd_results:          "data/results/adj2020_smd.csv"
+  smd_precinct_results: "data/results/adj2020_smd_precincts.csv"
+  candidates:           null
+  cartogram:            "data/shp/parl2024_cartogram.geojson"
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/adj2020_turnout.csv"
+  precinct_file: "data/turnout/adj2020_precincts_turnout.csv"
+  has_snapshots: false
+  has_lists: false

@@ -1,0 +1,22 @@
+id: pres_2024_indirect
+type: presidential
+sub_type: indirect
+date: "2024-12-14"
+name:
+  en: "2024 Presidential Election"
+  ka: "2024 წლის საპრეზიდენტო არჩევნები"
+candidates:
+  - id: kavelashvili
+    name:
+      en: "Mikheil Kavelashvili"
+      ka: "მიხეილ ყაველაშვილი"
+    party: gd
+electoral_college:
+  total: 300
+  for: 224
+  against: 0
+  abstained: 19
+  absent: 57
+sub_elections: []
+files: {}
+turnout: null
