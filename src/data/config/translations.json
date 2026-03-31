@@ -138,9 +138,11 @@
     "elections.electoral_college.against": "Against",
     "elections.electoral_college.abstained": "Abstained",
     "elections.electoral_college.absent": "Did not vote",
+    "elections.electoral_college.invalid": "Invalid / spoiled",
     "elections.electoral_college.elected": "Elected",
     "elections.electoral_college.total": "Total members",
     "elections.electoral_college.no_data": "No electoral college data available",
+    "elections.results.national": "National",
 
     "elections.local.ballot_type": "Ballot",
     "elections.local.mayor": "Mayor",
@@ -296,9 +298,11 @@
     "elections.electoral_college.against": "წინააღმდეგი",
     "elections.electoral_college.abstained": "თავი შეიკავა",
     "elections.electoral_college.absent": "არ მონაწილეობდა",
+    "elections.electoral_college.invalid": "ბათილი",
     "elections.electoral_college.elected": "არჩეულია",
     "elections.electoral_college.total": "სულ წევრი",
     "elections.electoral_college.no_data": "ამომრჩეველთა კოლეგიის მონაცემები არ არის",
+    "elections.results.national": "ეროვნული",
 
     "elections.local.ballot_type": "ბიულეტენი",
     "elections.local.mayor": "მერი",

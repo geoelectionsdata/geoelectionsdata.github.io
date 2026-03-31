@@ -52,7 +52,30 @@
       "Bash(mv \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\public\\\\data\\\\turnout\"/*.csv \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\turnout/\")",
       "Bash(mv \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\public\\\\data\\\\shp\"/*.geojson \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp/\")",
       "Bash(ls \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/\")",
-      "Bash(node scripts/generate-registry.js)"
+      "Bash(node scripts/generate-registry.js)",
+      "Bash(node src/data/geo-registry.json.js)",
+      "Bash(node -e \"const d=require\\(''''fs''''\\).readFileSync\\(''''/dev/stdin'''',''''utf8''''\\); const o=JSON.parse\\(d\\); console.log\\(''''geo keys:'''', Object.keys\\(o\\).join\\(''''\\\\n''''\\)\\)\")",
+      "Bash(node src/data/csv-registry.json.js)",
+      "Bash(node -e \"process.stdin.resume\\(\\); let d=''''''''; process.stdin.on\\(''''data'''',c=>d+=c\\); process.stdin.on\\(''''end'''',\\(\\)=>{ const o=JSON.parse\\(d\\); console.log\\(''''csv keys \\(''''+Object.keys\\(o\\).length+''''\\)''''\\); console.log\\(Object.keys\\(o\\).slice\\(0,5\\).join\\(''''\\\\n''''\\)\\); }\\);\")",
+      "Bash(python3:*)",
+      "Bash(wc -l \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp\\\\parl2024_pr.geojson\")",
+      "Bash(chcp 65001)",
+      "Bash(PYTHONIOENCODING=utf-8 python3 << 'EOF':*)",
+      "Bash(ls \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\scripts\"\")",
+      "Bash(head -c 8000 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp\\\\parl2024_pr.geojson\")",
+      "Bash(head -c 12000 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp\\\\parl2024_pr_precincts.geojson\")",
+      "Bash(head -100 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp\\\\parl2024_pr.geojson\")",
+      "Bash(head -200 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp\\\\parl2024_pr.geojson\")",
+      "Bash(head -4 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\parl2024_pr.csv\")",
+      "Bash(ls -la 'D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\config')",
+      "Bash(head -c 5000 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp\\\\parl2024_pr.geojson\")",
+      "Bash(head -c 8000 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp\\\\parl2024_pr_precincts.geojson\")",
+      "Bash(head -c 500 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp\\\\parl2024_pr_precincts.geojson\")",
+      "Bash(head -5 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\parl2024_pr.csv\")",
+      "Bash(Rscript scripts/process_parl2024.R)",
+      "Bash(Rscript -e \":*)",
+      "Bash(head -3 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\parl2024_pr_precincts.csv\")",
+      "Bash(Rscript -e \"library\\(sf\\); cat\\(''''sf available\\\\n''''\\)\")"
     ]
   }
 }

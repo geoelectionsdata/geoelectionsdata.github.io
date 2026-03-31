@@ -9,6 +9,8 @@ system:
   pr:
     enabled: true
     seats: 150
+    threshold_pct: 5.0
+    method: dhondt
     shape_file: "data/shp/parl2024_pr.geojson"
     precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
   smd:
@@ -18,30 +20,155 @@ system:
   compensation:
     enabled: false
     shape_file: null
+notes:
+  en: |
+    2024 parliamentary elections were held on October 26. Preceded by a heated campaign and an increased anti-Western rhetoric of the ruling Georgian Dream party, it featured a 5% electoral threshold for political parties. First time in history, voting machines were used in national elections, leading to allegations of vote rigging. As a result, oppositional political parties refused to recognize its results, and some refused to take up mandates. OSCE ODIHR's <a href="https://odihr.osce.org/odihr/elections/georgia/584029">observation mission final report</a> indicated repeated problems regarding vote secrecy, procedural inconsistencies, intimidation and pressure on voters.
+  ka: |
+    2024 წლის საპარლამენტო არჩევნები 26 ოქტომბერს ჩატარდა. მას წინ უძღოდა დაძაბული კამპანია და მმართველი „ქართული ოცნების" მხრიდან გააქტიურებული ანტიდასავლური რიტორიკა. დაწესდა 5%-იანი საარჩევნო ბარიერი. პირველად ისტორიაში, საყოველთაო არჩევნებში ამომრჩევლებს ხმის მიცემა ელექტრონული აპარატებით შეეძლოთ, თუმცა ამასთან დაკავშირებით, წარმოიშვა ბრალდებები გაყალბების შესახებ. შედეგად, ოპოზიციურმა პოლიტიკურმა პარტიებმა არ აღიარეს არჩევნების შედეგები და უმრავლესობამ საპარლამენტო მანდატებზე უარი თქვეს. ეუთო-ს <a href="https://odihr.osce.org/odihr/elections/georgia/584029">სადამკვირვებლო მისიის საბოლოო ანგარიში</a> მიუთითებს ხმის მიცემის ფარულობის მრავალჯერად დარღვევებზე, პროცედურულ არათანმიმდევრულობაზე და ამომრჩევლებზე ზეწოლაზე.
 sub_elections: []
+
+# threshold_status is official — not calculated from vote_share.
+# alias overrides the canonical party name from parties.yml for this election.
+# color overrides the canonical party color from parties.yml for this election.
 parties:
   - id: gd
+    alias:
+      en: Georgian Dream
+      ka: ქართული ოცნება
+    color: "#1565C0"
     threshold_status: passed
+
   - id: coalition_for_change
+    alias:
+      en: Coalition for Change
+      ka: კოალიცია ცვლილებისთვის
+    color: "#E53935"
     threshold_status: passed
+
   - id: unity
+    alias:
+      en: Unity — National Movement
+      ka: ერთობა — ნაციონალური მოძრაობა
+    color: "#B71C1C"
     threshold_status: passed
+
   - id: strong_georgia
+    alias:
+      en: Strong Georgia
+      ka: ძლიერი საქართველო
+    color: "#6A1B9A"
     threshold_status: passed
+
+  - id: gakharia
+    alias:
+      en: For Georgia
+      ka: გახარია საქართველოსთვის
+    color: "#00897B"
+    threshold_status: passed
+
   - id: girchi
+    alias:
+      en: Girchi
+      ka: გირჩი
+    color: "#F57F17"
     threshold_status: failed
-  - id: other
+
+  - id: european_democrats
+    alias:
+      en: European Democrats
+      ka: ევროპელი დემოკრატები
+    color: "#0288D1"
     threshold_status: failed
+
+  - id: labour
+    alias:
+      en: Labour Party
+      ka: საქართველოს ლეიბორისტული პარტია
+    color: "#D32F2F"
+    threshold_status: failed
+
+  - id: change_georgia
+    alias:
+      en: Change Georgia
+      ka: შეცვალე საქართველო
+    color: "#E65100"
+    threshold_status: failed
+
+  - id: patriots
+    alias:
+      en: Alliance of Patriots
+      ka: საქართველოს პატრიოტთა ალიანსი
+    color: "#880E4F"
+    threshold_status: failed
+
+  - id: our_georgia
+    alias:
+      en: Our United Georgia
+      ka: ჩვენი გაერთიანებული საქართველო
+    color: "#2E7D32"
+    threshold_status: failed
+
+  - id: georgia_party
+    alias:
+      en: Georgia
+      ka: საქართველო
+    color: "#283593"
+    threshold_status: failed
+
+  - id: free_georgia
+    alias:
+      en: Free Georgia
+      ka: თავისუფალი საქართველო
+    color: "#00695C"
+    threshold_status: failed
+
+  - id: chven
+    alias:
+      en: We
+      ka: ჩვენ
+    color: "#AD1457"
+    threshold_status: failed
+
+  - id: left_alliance
+    alias:
+      en: Left Alliance
+      ka: მემარცხენე ალიანსი
+    color: "#4E342E"
+    threshold_status: failed
+
+  - id: tribuna
+    alias:
+      en: Tribuna
+      ka: ტრიბუნა
+    color: "#4A148C"
+    threshold_status: failed
+
+  - id: georgian_unity
+    alias:
+      en: Georgian Unity
+      ka: ქართველ ერთობა
+    color: "#5D4037"
+    threshold_status: failed
+
+  - id: unity_development
+    alias:
+      en: Party of Unity and Development
+      ka: საქართველოს ერთობისა და განვითარების პარტია
+    color: "#546E7A"
+    threshold_status: failed
+
 files:
   pr_results:          "data/results/parl2024_pr.csv"
   pr_precinct_results: "data/results/parl2024_pr_precincts.csv"
   smd_results:         null
   candidates:          "data/candidates/parl2024.csv"
   cartogram:           "data/shp/parl2024_cartogram.geojson"
+
+# Turnout is embedded in the results CSV; no separate turnout files needed.
 turnout:
   available: true
   type: detailed
-  file: "data/turnout/parl2024_turnout.csv"
-  precinct_file: "data/turnout/parl2024_pr_precincts_turnout.csv"
+  file: null
+  precinct_file: null
   has_snapshots: true
   has_lists: true

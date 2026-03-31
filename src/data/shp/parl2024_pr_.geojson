@@ -1,0 +1,17 @@
+{
+  "type": "FeatureCollection",
+  "_comment": "DUMMY — replace with real electoral district shapefile for 2024 PR",
+  "features": [
+    {"type":"Feature","properties":{"id":"tbilisi","name_en":"Tbilisi","name_ka":"თბილისი"},"geometry":{"type":"Polygon","coordinates":[[[44.7,41.6],[44.9,41.6],[44.9,41.8],[44.7,41.8],[44.7,41.6]]]}},
+    {"type":"Feature","properties":{"id":"imereti","name_en":"Imereti","name_ka":"იმერეთი"},"geometry":{"type":"Polygon","coordinates":[[[42.5,41.9],[43.5,41.9],[43.5,42.4],[42.5,42.4],[42.5,41.9]]]}},
+    {"type":"Feature","properties":{"id":"kakheti","name_en":"Kakheti","name_ka":"კახეთი"},"geometry":{"type":"Polygon","coordinates":[[[45.2,41.4],[46.6,41.4],[46.6,42.2],[45.2,42.2],[45.2,41.4]]]}},
+    {"type":"Feature","properties":{"id":"samtskhe","name_en":"Samtskhe-Javakheti","name_ka":"სამცხე-ჯავახეთი"},"geometry":{"type":"Polygon","coordinates":[[[42.9,41.1],[44.1,41.1],[44.1,41.7],[42.9,41.7],[42.9,41.1]]]}},
+    {"type":"Feature","properties":{"id":"kvemo_kartli","name_en":"Kvemo Kartli","name_ka":"ქვემო ქართლი"},"geometry":{"type":"Polygon","coordinates":[[[44.1,41.1],[45.3,41.1],[45.3,41.7],[44.1,41.7],[44.1,41.1]]]}},
+    {"type":"Feature","properties":{"id":"shida_kartli","name_en":"Shida Kartli","name_ka":"შიდა ქართლი"},"geometry":{"type":"Polygon","coordinates":[[[43.5,41.7],[44.7,41.7],[44.7,42.2],[43.5,42.2],[43.5,41.7]]]}},
+    {"type":"Feature","properties":{"id":"mtskheta","name_en":"Mtskheta-Mtianeti","name_ka":"მცხეთა-მთიანეთი"},"geometry":{"type":"Polygon","coordinates":[[[44.3,41.9],[45.1,41.9],[45.1,42.6],[44.3,42.6],[44.3,41.9]]]}},
+    {"type":"Feature","properties":{"id":"racha","name_en":"Racha-Lechkhumi","name_ka":"რაჭა-ლეჩხუმი"},"geometry":{"type":"Polygon","coordinates":[[[42.8,42.4],[43.6,42.4],[43.6,42.8],[42.8,42.8],[42.8,42.4]]]}},
+    {"type":"Feature","properties":{"id":"samegrelo","name_en":"Samegrelo-Zemo Svaneti","name_ka":"სამეგრელო-ზემო სვანეთი"},"geometry":{"type":"Polygon","coordinates":[[[41.6,42.1],[42.8,42.1],[42.8,43.0],[41.6,43.0],[41.6,42.1]]]}},
+    {"type":"Feature","properties":{"id":"guria","name_en":"Guria","name_ka":"გურია"},"geometry":{"type":"Polygon","coordinates":[[[41.7,41.6],[42.5,41.6],[42.5,42.1],[41.7,42.1],[41.7,41.6]]]}},
+    {"type":"Feature","properties":{"id":"adjara","name_en":"Adjara","name_ka":"აჭარა"},"geometry":{"type":"Polygon","coordinates":[[[41.4,41.2],[42.2,41.2],[42.2,41.7],[41.4,41.7],[41.4,41.2]]]}}
+  ]
+}

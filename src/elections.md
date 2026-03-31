@@ -169,105 +169,14 @@ const seatFilter = Generators.input(seatFilterInput);
 ```
 
 ```js
-// AUTO-GENERATED:START — do not edit manually, run: node scripts/generate-registry.js
-// ── GeoJSON: pre-loaded via FileAttachment (Observable Framework's /_file/ system)
-// ── CSVs: URL-only registration — data fetched on demand when election is selected
-const _allGeo = {
-  "data/shp/local_sakrebulo_districts.geojson": await FileAttachment("data/shp/local_sakrebulo_districts.geojson").json(),
-  "data/shp/parl2020_cartogram.geojson":        await FileAttachment("data/shp/parl2020_cartogram.geojson").json(),
-  "data/shp/parl2020_pr.geojson":               await FileAttachment("data/shp/parl2020_pr.geojson").json(),
-  "data/shp/parl2020_smd.geojson":              await FileAttachment("data/shp/parl2020_smd.geojson").json(),
-  "data/shp/parl2024_cartogram.geojson":        await FileAttachment("data/shp/parl2024_cartogram.geojson").json(),
-  "data/shp/parl2024_pr.geojson":               await FileAttachment("data/shp/parl2024_pr.geojson").json(),
-  "data/shp/parl2024_pr_precincts.geojson":     await FileAttachment("data/shp/parl2024_pr_precincts.geojson").json(),
-};
+// Data registries — auto-assembled from election YAMLs by data loaders.
+// To add a new election: create the YAML + data files, then restart dev server. No changes needed here.
+const _allGeo     = await FileAttachment("data/geo-registry.json").json();
+const _allCsv     = await FileAttachment("data/csv-registry.json").json();
+const _allTurnout = await FileAttachment("data/turnout-registry.json").json();
 
-const _csvUrls = {
-  "data/results/adj2016_pr.csv":                      await FileAttachment("data/results/adj2016_pr.csv").url(),
-  "data/results/adj2016_pr_precincts.csv":            await FileAttachment("data/results/adj2016_pr_precincts.csv").url(),
-  "data/results/adj2016_smd.csv":                     await FileAttachment("data/results/adj2016_smd.csv").url(),
-  "data/results/adj2016_smd_precincts.csv":           await FileAttachment("data/results/adj2016_smd_precincts.csv").url(),
-  "data/results/adj2020_pr.csv":                      await FileAttachment("data/results/adj2020_pr.csv").url(),
-  "data/results/adj2020_pr_precincts.csv":            await FileAttachment("data/results/adj2020_pr_precincts.csv").url(),
-  "data/results/adj2020_smd.csv":                     await FileAttachment("data/results/adj2020_smd.csv").url(),
-  "data/results/adj2020_smd_precincts.csv":           await FileAttachment("data/results/adj2020_smd_precincts.csv").url(),
-  "data/results/local2010_council_pr.csv":            await FileAttachment("data/results/local2010_council_pr.csv").url(),
-  "data/results/local2010_council_pr_precincts.csv":  await FileAttachment("data/results/local2010_council_pr_precincts.csv").url(),
-  "data/results/local2010_council_smd.csv":           await FileAttachment("data/results/local2010_council_smd.csv").url(),
-  "data/results/local2010_council_smd_precincts.csv": await FileAttachment("data/results/local2010_council_smd_precincts.csv").url(),
-  "data/results/local2010_smd.csv":                   await FileAttachment("data/results/local2010_smd.csv").url(),
-  "data/results/local2010_smd_precincts.csv":         await FileAttachment("data/results/local2010_smd_precincts.csv").url(),
-  "data/results/local2014_council_pr.csv":            await FileAttachment("data/results/local2014_council_pr.csv").url(),
-  "data/results/local2014_council_pr_precincts.csv":  await FileAttachment("data/results/local2014_council_pr_precincts.csv").url(),
-  "data/results/local2014_council_smd.csv":           await FileAttachment("data/results/local2014_council_smd.csv").url(),
-  "data/results/local2014_council_smd_precincts.csv": await FileAttachment("data/results/local2014_council_smd_precincts.csv").url(),
-  "data/results/local2014_r2.csv":                    await FileAttachment("data/results/local2014_r2.csv").url(),
-  "data/results/local2014_smd.csv":                   await FileAttachment("data/results/local2014_smd.csv").url(),
-  "data/results/local2014_smd_precincts.csv":         await FileAttachment("data/results/local2014_smd_precincts.csv").url(),
-  "data/results/local2017_council_pr.csv":            await FileAttachment("data/results/local2017_council_pr.csv").url(),
-  "data/results/local2017_council_pr_precincts.csv":  await FileAttachment("data/results/local2017_council_pr_precincts.csv").url(),
-  "data/results/local2017_council_smd.csv":           await FileAttachment("data/results/local2017_council_smd.csv").url(),
-  "data/results/local2017_council_smd_precincts.csv": await FileAttachment("data/results/local2017_council_smd_precincts.csv").url(),
-  "data/results/local2017_r2.csv":                    await FileAttachment("data/results/local2017_r2.csv").url(),
-  "data/results/local2017_smd.csv":                   await FileAttachment("data/results/local2017_smd.csv").url(),
-  "data/results/local2017_smd_precincts.csv":         await FileAttachment("data/results/local2017_smd_precincts.csv").url(),
-  "data/results/local2021_council_pr.csv":            await FileAttachment("data/results/local2021_council_pr.csv").url(),
-  "data/results/local2021_council_pr_precincts.csv":  await FileAttachment("data/results/local2021_council_pr_precincts.csv").url(),
-  "data/results/local2021_council_smd.csv":           await FileAttachment("data/results/local2021_council_smd.csv").url(),
-  "data/results/local2021_council_smd_precincts.csv": await FileAttachment("data/results/local2021_council_smd_precincts.csv").url(),
-  "data/results/local2021_r2.csv":                    await FileAttachment("data/results/local2021_r2.csv").url(),
-  "data/results/local2021_smd.csv":                   await FileAttachment("data/results/local2021_smd.csv").url(),
-  "data/results/local2021_smd_precincts.csv":         await FileAttachment("data/results/local2021_smd_precincts.csv").url(),
-  "data/results/parl2020_by_tbilisi.csv":             await FileAttachment("data/results/parl2020_by_tbilisi.csv").url(),
-  "data/results/parl2020_pr.csv":                     await FileAttachment("data/results/parl2020_pr.csv").url(),
-  "data/results/parl2020_pr_precincts.csv":           await FileAttachment("data/results/parl2020_pr_precincts.csv").url(),
-  "data/results/parl2020_smd.csv":                    await FileAttachment("data/results/parl2020_smd.csv").url(),
-  "data/results/parl2020_smd_precincts.csv":          await FileAttachment("data/results/parl2020_smd_precincts.csv").url(),
-  "data/results/parl2020_smd_runoff.csv":             await FileAttachment("data/results/parl2020_smd_runoff.csv").url(),
-  "data/results/parl2024_pr.csv":                     await FileAttachment("data/results/parl2024_pr.csv").url(),
-  "data/results/parl2024_pr_precincts.csv":           await FileAttachment("data/results/parl2024_pr_precincts.csv").url(),
-  "data/results/pres2018_r1.csv":                     await FileAttachment("data/results/pres2018_r1.csv").url(),
-  "data/results/pres2018_r1_precincts.csv":           await FileAttachment("data/results/pres2018_r1_precincts.csv").url(),
-  "data/results/pres2018_r2.csv":                     await FileAttachment("data/results/pres2018_r2.csv").url(),
-  "data/results/pres2018_r2_precincts.csv":           await FileAttachment("data/results/pres2018_r2_precincts.csv").url(),
-  "data/results/ref2024_q1.csv":                      await FileAttachment("data/results/ref2024_q1.csv").url(),
-  "data/results/ref2024_q1_precincts.csv":            await FileAttachment("data/results/ref2024_q1_precincts.csv").url(),
-  "data/results/ref2024_q2.csv":                      await FileAttachment("data/results/ref2024_q2.csv").url(),
-  "data/results/ref2024_q2_precincts.csv":            await FileAttachment("data/results/ref2024_q2_precincts.csv").url(),
-};
-
-const _turnoutUrls = {
-  "data/turnout/adj2016_precincts_turnout.csv":     await FileAttachment("data/turnout/adj2016_precincts_turnout.csv").url(),
-  "data/turnout/adj2016_turnout.csv":               await FileAttachment("data/turnout/adj2016_turnout.csv").url(),
-  "data/turnout/adj2020_precincts_turnout.csv":     await FileAttachment("data/turnout/adj2020_precincts_turnout.csv").url(),
-  "data/turnout/adj2020_turnout.csv":               await FileAttachment("data/turnout/adj2020_turnout.csv").url(),
-  "data/turnout/local2010_precincts_turnout.csv":   await FileAttachment("data/turnout/local2010_precincts_turnout.csv").url(),
-  "data/turnout/local2010_turnout.csv":             await FileAttachment("data/turnout/local2010_turnout.csv").url(),
-  "data/turnout/local2014_precincts_turnout.csv":   await FileAttachment("data/turnout/local2014_precincts_turnout.csv").url(),
-  "data/turnout/local2014_turnout.csv":             await FileAttachment("data/turnout/local2014_turnout.csv").url(),
-  "data/turnout/local2017_precincts_turnout.csv":   await FileAttachment("data/turnout/local2017_precincts_turnout.csv").url(),
-  "data/turnout/local2017_turnout.csv":             await FileAttachment("data/turnout/local2017_turnout.csv").url(),
-  "data/turnout/local2021_precincts_turnout.csv":   await FileAttachment("data/turnout/local2021_precincts_turnout.csv").url(),
-  "data/turnout/local2021_turnout.csv":             await FileAttachment("data/turnout/local2021_turnout.csv").url(),
-  "data/turnout/parl2020_pr_precincts_turnout.csv": await FileAttachment("data/turnout/parl2020_pr_precincts_turnout.csv").url(),
-  "data/turnout/parl2020_turnout.csv":              await FileAttachment("data/turnout/parl2020_turnout.csv").url(),
-  "data/turnout/parl2024_pr_precincts_turnout.csv": await FileAttachment("data/turnout/parl2024_pr_precincts_turnout.csv").url(),
-  "data/turnout/parl2024_turnout.csv":              await FileAttachment("data/turnout/parl2024_turnout.csv").url(),
-  "data/turnout/pres2018_precincts_turnout.csv":    await FileAttachment("data/turnout/pres2018_precincts_turnout.csv").url(),
-  "data/turnout/pres2018_turnout.csv":              await FileAttachment("data/turnout/pres2018_turnout.csv").url(),
-  "data/turnout/ref2024_precincts_turnout.csv":     await FileAttachment("data/turnout/ref2024_precincts_turnout.csv").url(),
-  "data/turnout/ref2024_turnout.csv":               await FileAttachment("data/turnout/ref2024_turnout.csv").url(),
-};
-// AUTO-GENERATED:END
-
-async function loadCSV(urlMap, path) {
-  const url = urlMap[path];
-  if (!url) return [];
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return [];
-    return d3.csvParse(await res.text(), d3.autoType);
-  } catch { return []; }
+function lookupCSV(dataMap, path) {
+  return dataMap?.[path] ?? [];
 }
 
 function loadGeoJSON(elec, vt, level) {
@@ -289,47 +198,47 @@ function loadGeoJSON(elec, vt, level) {
   return _allGeo[path] ?? null;
 }
 
-async function loadResults(elec, vt, sub, level, ballotType) {
+function loadResults(elec, vt, sub, level, ballotType) {
   // Council ballot type: load council-specific files (ignores sub-elections)
   if (ballotType === "council") {
     if (level === "council_district") {
       const path = vt === "smd"
         ? (elec?.files?.council_smd_precinct_results ?? elec?.files?.council_smd_results)
         : (elec?.files?.council_pr_precinct_results  ?? elec?.files?.council_pr_results);
-      return loadCSV(_csvUrls, path);
+      return lookupCSV(_allCsv,path);
     }
     const path = vt === "smd"
       ? elec?.files?.council_smd_results
       : elec?.files?.council_pr_results;
-    return loadCSV(_csvUrls, path);
+    return lookupCSV(_allCsv,path);
   }
   const isSubActive = sub?.id !== "__main__";
   if (isSubActive) {
     if (level === "precinct") {
       const subPrecinct = sub?.files?.smd_precinct_results ?? sub?.files?.pr_precinct_results;
-      if (subPrecinct) return loadCSV(_csvUrls, subPrecinct);
+      if (subPrecinct) return lookupCSV(_allCsv,subPrecinct);
     }
     const subPath = sub?.files?.smd_results ?? sub?.files?.pr_results ?? sub?.files?.results;
-    if (subPath) return loadCSV(_csvUrls, subPath);
+    if (subPath) return lookupCSV(_allCsv,subPath);
   }
   if (level === "precinct") {
     const path = vt === "smd"
       ? (elec?.files?.smd_precinct_results ?? elec?.files?.smd_results)
       : (elec?.files?.pr_precinct_results  ?? elec?.files?.pr_results);
-    return loadCSV(_csvUrls, path);
+    return lookupCSV(_allCsv,path);
   }
   const path = vt === "smd"          ? elec?.files?.smd_results
              : vt === "compensation" ? elec?.files?.compensation_results
              : elec?.files?.pr_results;
-  return loadCSV(_csvUrls, path);
+  return lookupCSV(_allCsv,path);
 }
 
-async function loadTurnout(elec, level) {
+function loadTurnout(elec, level) {
   if (!elec?.turnout?.available) return [];
   const path = (level === "precinct" && elec.turnout.precinct_file)
     ? elec.turnout.precinct_file
     : elec.turnout.file;
-  return loadCSV(_turnoutUrls, path);
+  return lookupCSV(_allTurnout,path);
 }
 
 // For local council mode, always use SMD shapefile (PR shapefile is null for local elections)
@@ -337,22 +246,16 @@ const _geoVt = (isLocal && ballotTypeVal === "council") ? "smd" : effectiveVoteT
 const geoData  = electionVal ? loadGeoJSON(electionVal, _geoVt, "district") : null;
 const cartData = _allGeo[electionVal?.files?.cartogram] ?? null;
 
-// Kick off all CSV fetches in parallel, then await together
-const _resultsP     = electionVal ? loadResults(electionVal, effectiveVoteType, subVal, "district", ballotTypeVal)         : Promise.resolve([]);
-const _turnoutP     = electionVal ? loadTurnout(electionVal, "district")                                                   : Promise.resolve([]);
-const _cdResultsP   = (electionVal && hasCouncilDistricts) ? loadResults(electionVal, effectiveVoteType, subVal, "council_district", ballotTypeVal) : Promise.resolve([]);
-const _precResultsP = (electionVal && hasPrecinct) ? loadResults(electionVal, effectiveVoteType, subVal, "precinct", ballotTypeVal)                 : Promise.resolve([]);
-const _precTurnoutP = (electionVal && hasPrecinct) ? loadTurnout(electionVal, "precinct")                                                          : Promise.resolve([]);
-
-const results              = await _resultsP;
-const turnoutData          = await _turnoutP;
+// All CSV data is pre-loaded in the registries — lookups are synchronous
+const results              = electionVal ? loadResults(electionVal, effectiveVoteType, subVal, "district", ballotTypeVal)         : [];
+const turnoutData          = electionVal ? loadTurnout(electionVal, "district")                                                   : [];
 // Council-district intermediate layer (sakrebulo districts, council mode only)
 const councilDistrictGeoData = (electionVal && hasCouncilDistricts) ? loadGeoJSON(electionVal, _geoVt, "council_district") : null;
-const councilDistrictResults = await _cdResultsP;
+const councilDistrictResults = (electionVal && hasCouncilDistricts) ? loadResults(electionVal, effectiveVoteType, subVal, "council_district", ballotTypeVal) : [];
 // Precinct layer
 const precinctGeoData  = (electionVal && hasPrecinct) ? loadGeoJSON(electionVal, effectiveVoteType, "precinct") : null;
-const precinctResults  = await _precResultsP;
-const precinctTurnout  = await _precTurnoutP;
+const precinctResults  = (electionVal && hasPrecinct) ? loadResults(electionVal, effectiveVoteType, subVal, "precinct", ballotTypeVal)                 : [];
+const precinctTurnout  = (electionVal && hasPrecinct) ? loadTurnout(electionVal, "precinct")                                                          : [];
 ```
 
 ```js
@@ -362,40 +265,98 @@ function getParty(partyId) {
   const candidate = electionVal?.candidates?.find(c => c.id === partyId);
   if (candidate) {
     const partyRef = candidate.party ? parties.find(p => p.id === candidate.party) : null;
-    const color = candidate.color ?? partyRef?.colors?.default ?? "#9E9E9E";
-    return {id: partyId, name: candidate.name, colors: {default: color}};
+    const color = candidate.color ?? partyRef?.color ?? partyRef?.colors?.default ?? "#9E9E9E";
+    return {id: partyId, name: candidate.name, color, colors: {default: color}};
   }
-  return parties.find(p => p.id === partyId) ?? {
-    id: partyId,
-    name: {en: partyId, ka: partyId},
-    colors: {default: "#9E9E9E"}
+  const base = parties.find(p => p.id === partyId) ?? {
+    id: partyId, name: {en: partyId, ka: partyId}, color: "#9E9E9E"
   };
+  // Apply election-specific alias and color override from election YAML
+  const elecParty = electionVal?.parties?.find(p => p.id === partyId);
+  if (elecParty?.alias || elecParty?.color) {
+    return {
+      ...base,
+      name:  elecParty.alias ?? base.name,
+      color: elecParty.color ?? base.color ?? base.colors?.default
+    };
+  }
+  return base;
 }
 
 function partyColor(partyId, elecId) {
   const p = getParty(partyId);
-  return p.colors?.[elecId] ?? p.colors?.default ?? "#9E9E9E";
+  // Support both new single-field (color) and legacy per-election dict (colors)
+  return p.color ?? p.colors?.[elecId] ?? p.colors?.default ?? "#9E9E9E";
 }
 
-// National aggregates per party
-const nationalResults = d3.rollup(
-  results,
-  rows => ({
-    votes:      d3.sum(rows, r => r.votes),
-    vote_share: d3.mean(rows, r => r.vote_share),
-    seats_pr:   isCouncilMode ? d3.sum(rows, r => r.seats_pr)  : (rows[0]?.seats_pr  ?? 0),
-    seats_smd:  isCouncilMode ? d3.sum(rows, r => r.seats_smd) : (rows[0]?.seats_smd ?? 0),
-    seats_comp: rows[0]?.seats_comp ?? 0,
-    threshold_status: rows[0]?.threshold_status ?? "notrun"
-  }),
-  d => d.party_id
+// ── Election YAML party metadata (threshold_status, alias, color) ──────────
+const elecPartyMeta = new Map(
+  (electionVal?.parties ?? []).map(p => [p.id, p])
 );
 
-const nationalArray = Array.from(nationalResults, ([party_id, v]) => ({
-  party_id, ...v,
-  party: getParty(party_id),
-  color: partyColor(party_id, electionVal?.id)
-})).sort((a, b) => b.vote_share - a.vote_share);
+// ── D'Hondt seat allocation ────────────────────────────────────────────────
+function dhondtSeats(votesMap, totalSeats) {
+  if (!totalSeats || votesMap.size === 0) return new Map();
+  const qs = [];
+  for (const [id, votes] of votesMap) {
+    for (let s = 1; s <= totalSeats; s++) qs.push({id, q: votes / s});
+  }
+  qs.sort((a, b) => b.q - a.q);
+  const seats = new Map();
+  for (const {id} of qs.slice(0, totalSeats)) seats.set(id, (seats.get(id) ?? 0) + 1);
+  return seats;
+}
+
+// Separate national summary rows (district_id="national") from district rows
+// New combined CSV format includes "national" rows with accurate national vote totals.
+const _nationalRows  = results.filter(r => String(r.district_id) === "national");
+const _districtRows  = results.filter(r => String(r.district_id) !== "national");
+const _hasNatRows    = _nationalRows.length > 0;
+
+// National aggregates per party
+const nationalResults = _hasNatRows
+  // New format: use pre-computed national rows from CSV (accurate vote_share)
+  ? d3.rollup(_nationalRows, rows => ({
+      votes:      rows[0].votes,
+      vote_share: rows[0].vote_share,
+      seats_pr:   0,  // calculated below via D'Hondt
+      seats_smd:  rows[0]?.seats_smd  ?? 0,
+      seats_comp: rows[0]?.seats_comp ?? 0,
+      threshold_status: "notrun"  // overridden below from YAML
+    }), d => d.party_id)
+  // Legacy format: aggregate district rows
+  : d3.rollup(_districtRows, rows => ({
+      votes:      d3.sum(rows, r => r.votes),
+      vote_share: d3.mean(rows, r => r.vote_share),
+      seats_pr:   isCouncilMode ? d3.sum(rows, r => r.seats_pr)  : (rows[0]?.seats_pr  ?? 0),
+      seats_smd:  isCouncilMode ? d3.sum(rows, r => r.seats_smd) : (rows[0]?.seats_smd ?? 0),
+      seats_comp: rows[0]?.seats_comp ?? 0,
+      threshold_status: rows[0]?.threshold_status ?? "notrun"
+    }), d => d.party_id);
+
+// Compute D'Hondt PR seats if method is defined in election YAML
+const _prCfg = electionVal?.system?.pr;
+const _seatsByParty = (_prCfg?.method === "dhondt" && _prCfg?.seats)
+  ? dhondtSeats(
+      new Map([...nationalResults.entries()]
+        .filter(([pid]) => elecPartyMeta.get(pid)?.threshold_status === "passed")
+        .map(([pid, d]) => [pid, d.votes])
+      ),
+      _prCfg.seats
+    )
+  : new Map();
+
+const nationalArray = Array.from(nationalResults, ([party_id, v]) => {
+  const meta = elecPartyMeta.get(party_id);
+  const threshold_status = meta?.threshold_status ?? v.threshold_status ?? "notrun";
+  const seats_pr = _seatsByParty.size > 0 ? (_seatsByParty.get(party_id) ?? 0) : (v.seats_pr ?? 0);
+  return {
+    party_id, ...v,
+    seats_pr, threshold_status,
+    party: getParty(party_id),
+    color: partyColor(party_id, electionVal?.id)
+  };
+}).sort((a, b) => b.vote_share - a.vote_share);
 
 // "notrun" = no threshold applies (SMD / by-elections / presidential) — show all without break
 const hasThreshold = nationalArray.some(d => d.threshold_status === "passed" || d.threshold_status === "failed");
@@ -415,11 +376,40 @@ const failed = hasThreshold
 ```js
 // ── Turnout by district/precinct lookup (top-level so renderTurnoutPanel can access it) ──
 const turnoutByDistrict = new Map();
-if (turnoutData.length > 0) {
+const _hasInlineTurnout = results.length > 0 && results[0]?.registered != null;
+if (_hasInlineTurnout) {
+  // New combined CSV: turnout columns are denormalized into every party row.
+  // Take the first row per district_id (all rows for the same district have identical turnout).
+  const _seenDids = new Set();
+  for (const r of results) {
+    const did = String(r.district_id);
+    if (!_seenDids.has(did)) {
+      _seenDids.add(did);
+      turnoutByDistrict.set(did, {...r, vote_type: r.vote_type ?? effectiveVoteType ?? "pr"});
+    }
+  }
+  // Synthesize "national" entry from district totals if not already in CSV
+  if (!turnoutByDistrict.has("national")) {
+    const distEntries = [...turnoutByDistrict.values()];
+    const reg   = d3.sum(distEntries, d => d.registered  ?? 0);
+    const voted = d3.sum(distEntries, d => d.voted        ?? 0);
+    turnoutByDistrict.set("national", {
+      district_id:  "national",
+      vote_type:    effectiveVoteType ?? "pr",
+      registered:   reg,
+      voted,
+      voted_noon:   d3.sum(distEntries, d => d.voted_noon   ?? 0),
+      voted_5pm:    d3.sum(distEntries, d => d.voted_5pm    ?? 0),
+      main_list:    d3.sum(distEntries, d => d.main_list    ?? 0),
+      special_list: d3.sum(distEntries, d => d.special_list ?? 0),
+      turnout_pct:  reg > 0 ? voted / reg : 0
+    });
+  }
+} else if (turnoutData.length > 0) {
   const relevantRows = turnoutData.filter(r =>
     !r.vote_type || r.vote_type === effectiveVoteType || r.vote_type === "pr"
   );
-  d3.group(relevantRows, r => r.district_id).forEach((rows, did) => {
+  d3.group(relevantRows, r => String(r.district_id)).forEach((rows, did) => {
     turnoutByDistrict.set(did, rows[0]);
   });
 }
@@ -438,11 +428,19 @@ const mapContainer = html`<div style="width:100%;height:100%;z-index:0;"></div>`
 ```
 
 ```js
+// Module-level map control handle — .current set by the map IIFE, called by bar chart clicks
+const _mapCtrl = {current: null};
+function selectPartyOnMap(partyId) { _mapCtrl.current?.setPartyFilter(partyId); }
+```
+
+```js
 // ════════════════════════════════════════════════════════════
 // LAYOUT
 // ════════════════════════════════════════════════════════════
 // Explicit reactive deps — ensures container re-renders when any of these change
 hasTurnout; hasPrecinct; hasCouncilDistricts; viewMode; voteTypeOptions; seatFilterOptions; hasSubElections; isSubElectionSMD; isPresidential; isIndirect; presidentialWinnerId; isPlebiscite; isLocal; hasCouncil; ballotTypeVal; isCouncilMode;
+// Forward refs: renderer functions defined later; listing them ensures this cell waits for them
+renderNationalPanel; renderElectionInfo; renderBarChart; renderDots; renderCouncilDots; selectPartyOnMap;
 
 const container = html`
 <style>
@@ -466,7 +464,11 @@ const container = html`
     gap: 1rem;
     align-items: start;
   }
-  .results-panel { min-height: 200px; }
+  @media (max-width: 900px) { .elections-bottom { grid-template-columns: 1fr; } }
+  .results-panel { min-height: 200px; overflow-y: auto; }
+  .election-info { font-size: 0.85rem; line-height: 1.65; }
+  .election-info .info-date { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .election-info a { color: var(--theme-foreground-focus); }
   @media (max-width: 900px) {
     .elections-outer  { grid-template-columns: 1fr; }
     .elections-main   { grid-template-columns: 1fr; }
@@ -542,6 +544,7 @@ const container = html`
   .level-control-item.lc-clickable:hover { color: #333; }
   .level-control-item.lc-active { color: #333; font-weight: 600; }
 
+
   /* Bar chart */
   .bar-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 0.82rem; }
   .bar-label { width: 140px; white-space: normal; line-height: 1.3; flex-shrink: 0; }
@@ -550,18 +553,30 @@ const container = html`
   .bar-value { width: 80px; text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.25; margin-top: 1px; }
   .bar-value-main { font-size: 0.78rem; color: var(--muted); }
   .bar-value-sub  { font-size: 0.70rem; color: var(--muted); opacity: 0.7; }
-  /* Threshold section header */
-  .threshold-row { margin: 8px 0 !important; align-items: center !important; }
-  .threshold-label {
+  /* Expandable below-threshold section */
+  .below-threshold-details { margin-top: 6px; }
+  .below-threshold-details[open] { margin-top: 8px; }
+  .below-threshold-summary {
+    display: flex; align-items: center; gap: 6px;
     font-style: italic; text-transform: uppercase;
-    font-size: 0.70rem; color: var(--muted); white-space: nowrap;
+    font-size: 0.70rem; color: var(--muted);
+    cursor: pointer; list-style: none;
+    border-top: 2px dashed #bbb; padding-top: 6px;
+    user-select: none;
   }
-  .threshold-track {
-    height: 1px !important;
-    background: none !important;
-    border-top: 2px dashed #bbb;
-    margin-top: 0 !important;
+  .below-threshold-summary::-webkit-details-marker { display: none; }
+  .below-threshold-summary::before {
+    content: "▸"; font-style: normal; font-size: 0.65rem;
+    transition: transform 0.15s;
   }
+  .below-threshold-details[open] .below-threshold-summary::before { content: "▾"; }
+  .below-threshold-count {
+    background: var(--muted); color: #fff;
+    font-size: 0.65rem; font-style: normal;
+    border-radius: 10px; padding: 1px 6px; line-height: 1.4;
+  }
+  .below-threshold-details .bar-row { margin-top: 6px; }
+  .below-threshold-details .dist-table { margin-top: 4px; }
 
   /* District results table */
   .dist-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
@@ -634,37 +649,27 @@ const container = html`
     <!-- INDIRECT PRESIDENTIAL: electoral college dot grid -->
     ${renderElectoralCollege(electionVal)}
     ` : html`
-    <!-- MAP + DISTRICT RESULTS side by side -->
-    <div class="elections-main" style="margin-bottom: 1rem;">
+    <!-- MAP + INFO PANEL side by side -->
+    <div class="elections-main" style="margin-bottom: 0.75rem;">
 
       <!-- MAP — mapContainer is a stable node embedded here so Leaflet survives re-renders -->
       <div class="card" style="padding: 0; height: 380px; overflow: hidden; position: relative;">
         ${mapContainer}
-        <div style="position: absolute; bottom: 8px; left: 8px; background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 10px; font-size: 0.75rem; color: var(--muted); z-index: 500; pointer-events: none;">
-          ${t("elections.map.click_hint")}
-        </div>
       </div>
 
-      <!-- DISTRICT RESULTS PANEL — updated by map click via renderDistrictPanel() -->
-      <div class="card results-panel" id="results-panel">
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 180px; color: var(--muted); text-align: center; gap: 0.5rem;">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-          </svg>
-          <span style="font-size: 0.85rem;">${t("elections.map.click_hint")}</span>
-        </div>
-      </div>
+      <!-- INFO PANEL — shows national results by default; updated by map click -->
+      ${renderNationalPanel()}
 
     </div>
     `}
 
-    ${viewMode === "turnout" ? html`
-    <!-- TURNOUT BOTTOM: national summary + (optional) legislature composition -->
-    <div class="elections-bottom">
-      <div class="card">
-        <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.turnout.title")}</h4>
-        ${renderTurnoutSummary(turnoutData, electionVal)}
-      </div>
+    <!-- BOTTOM: election info (notes) + seat distribution -->
+    <div class="${(!isPresidential && !isPlebiscite) ? "elections-bottom" : ""}">
+
+      <!-- LEFT: election notes/blurb from YAML -->
+      ${renderElectionInfo(electionVal)}
+
+      <!-- RIGHT: seat distribution (hidden for presidential / plebiscite) -->
       ${!isPresidential && !isPlebiscite ? html`
       <div class="card">
         ${isCouncilMode ? html`
@@ -677,33 +682,8 @@ const container = html`
         ${renderDots(nationalArray, seatFilter, electionVal)}
         ${renderSeatLegend(nationalArray, seatFilter, electionVal)}`}
       </div>` : ""}
-    </div>
-    ` : html`
-    <!-- RESULTS BOTTOM: bar chart + seat composition -->
-    <div class="elections-bottom">
-
-      <!-- BAR CHART -->
-      <div class="card">
-        <h4 style="margin-top: 0; font-size: 0.85rem;">${t(isPresidential ? "elections.presidential.results_title" : isPlebiscite ? "elections.plebiscite_results_title" : "elections.party_list_title")}</h4>
-        ${renderBarChart(passed, failed, electionVal?.id, presidentialWinnerId)}
-      </div>
-
-      <!-- SEAT COMPOSITION — hidden for presidential and plebiscite; council uses scaled grid -->
-      ${!isPresidential && !isPlebiscite ? html`
-      <div class="card">
-        ${isCouncilMode ? html`
-        <div id="council-seat-chart">
-          <h4 style="margin-top: 0; font-size: 0.85rem;">${t("elections.local.council_seats_title")}</h4>
-          ${renderCouncilDots(nationalArray, electionVal, seatFilter)}
-          ${renderSeatLegend(nationalArray, seatFilter, electionVal)}
-        </div>` : html`
-        <h4 style="margin-top: 0; font-size: 0.85rem;">${t("elections.legislature_title")}</h4>
-        ${renderDots(nationalArray, seatFilter, electionVal)}
-        ${renderSeatLegend(nationalArray, seatFilter, electionVal)}`}
-      </div>` : ""}
 
     </div>
-    `}
 
   </div>
 </div>
@@ -740,14 +720,14 @@ display(container);
   // Build district → winner lookup (from district-level results)
   const winnerByDistrict = new Map();
   const shareByDistrict  = new Map();
-  d3.group(results, r => r.district_id).forEach((rows, distId) => {
+  d3.group(_districtRows, r => String(r.district_id)).forEach((rows, distId) => {
     const winner = rows.reduce((a, b) => (b.vote_share > a.vote_share ? b : a));
     winnerByDistrict.set(distId, winner);
     shareByDistrict.set(distId, d3.max(rows, r => r.vote_share));
   });
 
   function districtStyle(feature) {
-    const did = feature.properties.id;
+    const did = String(feature.properties.id);
     if (viewMode === "turnout") {
       const td = turnoutByDistrict.get(did);
       if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.5, color: "#fff", weight: 1};
@@ -762,13 +742,17 @@ display(container);
     return {fillColor: lightened, fillOpacity: 0.85, color: "#ffffff", weight: 1.5};
   }
 
+  // Stringify GeoJSON integer ids once — both winnerByDistrict and turnoutByDistrict
+  // are keyed by string (from CSV), but GeoJSON feature.properties.id is an integer.
+  function geoId(feature) { return String(feature.properties.id); }
+
   const DISTRICT_HOLLOW  = {fillColor: "transparent", fillOpacity: 0, color: "#999", weight: 1.5};
   const SAKREBULO_HOLLOW = {fillColor: "transparent", fillOpacity: 0, color: "#bbb", weight: 0.8};
 
   if (mapMode === "cartogram" && activeGeo.features[0]?.geometry?.type === "Point") {
     // Cartogram — proportional circles, no precinct overlay
     activeGeo.features.forEach(f => {
-      const did  = f.properties.id;
+      const did  = String(f.properties.id);
       const winner = winnerByDistrict.get(did);
       let fillColor;
       if (viewMode === "turnout") {
@@ -787,6 +771,7 @@ display(container);
         if (panel) panel.replaceWith(viewMode === "turnout"
           ? renderTurnoutPanel(did, f.properties)
           : renderDistrictPanel(did, f.properties));
+
         if (isCouncilMode) updateCouncilSeats(did, f.properties);
       });
       circle.bindTooltip(
@@ -800,7 +785,7 @@ display(container);
     const districtLayer = L.geoJSON(activeGeo, {
       style: districtStyle,
       onEachFeature(feature, layer) {
-        const did = feature.properties.id;
+        const did = geoId(feature);
         layer.on("click", () => {
           const panel = document.getElementById("results-panel");
           if (panel) panel.replaceWith(viewMode === "turnout"
@@ -820,12 +805,12 @@ display(container);
       const winnerMap  = new Map();
       const shareMap   = new Map();
       const turnoutMap = new Map();
-      d3.group(resultsArr, r => r.district_id).forEach((rows, did) => {
+      d3.group(resultsArr, r => String(r.district_id)).forEach((rows, did) => {
         const winner = rows.reduce((a, b) => (b.vote_share > a.vote_share ? b : a));
         winnerMap.set(did, winner);
         shareMap.set(did, d3.max(rows, r => r.vote_share));
       });
-      d3.group(turnoutArr, r => r.district_id).forEach((rows, did) => {
+      d3.group(turnoutArr, r => String(r.district_id)).forEach((rows, did) => {
         turnoutMap.set(did, rows[0]);
       });
       return {winnerMap, shareMap, turnoutMap};
@@ -833,7 +818,7 @@ display(container);
 
     function makeLayerStyle(winnerMap, shareMap, turnoutMap, weight = 0.5) {
       return function(feature) {
-        const did = feature.properties.id;
+        const did = String(feature.properties.id);
         if (viewMode === "turnout") {
           const td = turnoutMap.get(did);
           if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight};
@@ -858,7 +843,7 @@ display(container);
       councilDistrictLayer = L.geoJSON(councilDistrictGeoData, {
         style: cdStyle,
         onEachFeature(feature, layer) {
-          const did = feature.properties.id;
+          const did = geoId(feature);
           layer.on("click", () => {
             const panel = document.getElementById("results-panel");
             if (panel) panel.replaceWith(renderDistrictPanel(did, feature.properties, councilDistrictResults));
@@ -873,28 +858,79 @@ display(container);
     }
 
     // ── Precinct layer (zoom-activated) ──────────────────────────────────
+    // Precincts may be Point features (polling station coordinates) rather than
+    // polygons. In that case each point is coloured by its parent CEC district
+    // winner (feature.properties.district_id) and rendered as a small circle.
     let precinctLayer = null;
 
     if (precinctGeoData) {
-      const {winnerMap, shareMap, turnoutMap} = buildLookups(precinctResults, precinctTurnout);
-      const pStyle = makeLayerStyle(winnerMap, shareMap, turnoutMap, 0.5);
+      const isPoints = precinctGeoData.features?.[0]?.geometry?.type === "Point";
 
-      precinctLayer = L.geoJSON(precinctGeoData, {
-        style: pStyle,
-        onEachFeature(feature, layer) {
-          const did = feature.properties.id;
-          layer.on("click", () => {
-            const panel = document.getElementById("results-panel");
-            if (panel) panel.replaceWith(viewMode === "turnout"
-              ? renderTurnoutPanel(did, feature.properties, turnoutMap)
-              : renderDistrictPanel(did, feature.properties, precinctResults));
-          });
-          layer.bindTooltip(
-            `<strong>${lang === "ka" ? feature.properties.name_ka : feature.properties.name_en}</strong>`,
-            {sticky: true}
-          );
-        }
-      });
+      if (isPoints) {
+        // Point precincts — CircleMarker, graduated color by parent district winner share
+        precinctLayer = L.geoJSON(precinctGeoData, {
+          pointToLayer(feature, latlng) {
+            const parentDid = String(feature.properties.district_id);
+            let fillColor;
+            if (viewMode === "turnout") {
+              const td = turnoutByDistrict.get(parentDid);
+              fillColor = d3.interpolateRgb("#dbeafe", "#1d4ed8")(td?.turnout_pct ?? 0);
+            } else {
+              const winner = winnerByDistrict.get(parentDid);
+              if (winner) {
+                const color = partyColor(winner.party_id, electionVal?.id);
+                const intensity = shareByDistrict.get(parentDid) ?? 0.5;
+                fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + intensity * 0.6);
+              } else {
+                fillColor = "#cccccc";
+              }
+            }
+            return L.circleMarker(latlng, {
+              radius: 4, fillColor, fillOpacity: 0.85, color: "none", weight: 0
+            });
+          },
+          onEachFeature(feature, layer) {
+            const parentDid = String(feature.properties.district_id);
+            const stationId = String(feature.properties.id);
+            layer.on("click", () => {
+              const panel = document.getElementById("results-panel");
+              if (panel) {
+                if (viewMode === "turnout") {
+                  panel.replaceWith(renderTurnoutPanel(parentDid, feature.properties));
+                } else {
+                  // Show per-station results; pre-filter by precinct_id
+                  const stationRows = precinctResults.filter(r => String(r.precinct_id) === stationId);
+                  panel.replaceWith(renderDistrictPanel("__precinct__", feature.properties, stationRows));
+                }
+              }
+            });
+            layer.bindTooltip(
+              `<strong>${feature.properties.name_ka ?? stationId}</strong>`,
+              {sticky: true}
+            );
+          }
+        });
+      } else {
+        // Polygon precincts — choropleth as usual
+        const {winnerMap, shareMap, turnoutMap} = buildLookups(precinctResults, precinctTurnout);
+        const pStyle = makeLayerStyle(winnerMap, shareMap, turnoutMap, 0.5);
+        precinctLayer = L.geoJSON(precinctGeoData, {
+          style: pStyle,
+          onEachFeature(feature, layer) {
+            const did = geoId(feature);
+            layer.on("click", () => {
+              const panel = document.getElementById("results-panel");
+              if (panel) panel.replaceWith(viewMode === "turnout"
+                ? renderTurnoutPanel(did, feature.properties, turnoutMap)
+                : renderDistrictPanel(did, feature.properties, precinctResults));
+            });
+            layer.bindTooltip(
+              `<strong>${lang === "ka" ? feature.properties.name_ka : feature.properties.name_en}</strong>`,
+              {sticky: true}
+            );
+          }
+        });
+      }
     }
 
     // ── Manual level switcher control ─────────────────────────────────────
@@ -934,6 +970,7 @@ display(container);
         L.DomEvent.disableClickPropagation(div);
         const title = L.DomUtil.create("div", "level-control-title", div);
         title.textContent = t("elections.map_level");
+
         availableLevels.forEach(lvl => {
           const item = L.DomUtil.create("div", "level-control-item", div);
           item.dataset.level = lvl.id;
@@ -948,6 +985,56 @@ display(container);
       }
     });
     new LevelControl({ position: "topright" }).addTo(map);
+
+    // ── Party filter: build per-district party-share lookup ─────────────────
+    const _shareByPartyByDistrict = new Map();
+    for (const r of _districtRows) {
+      const did = String(r.district_id);
+      if (!_shareByPartyByDistrict.has(did)) _shareByPartyByDistrict.set(did, new Map());
+      _shareByPartyByDistrict.get(did).set(r.party_id, r.vote_share);
+    }
+
+    // Expose imperative map controls for bar chart clicks (toggles party filter)
+    _mapCtrl.current = {
+      currentPartyId: null,
+      setPartyFilter(partyId) {
+        const newId = this.currentPartyId === partyId ? null : partyId;
+        this.currentPartyId = newId;
+
+        if (newId) {
+          const partyStyle = (feature) => {
+            const did = String(feature.properties.id);
+            const share = _shareByPartyByDistrict.get(did)?.get(newId) ?? 0;
+            const color = partyColor(newId, electionVal?.id);
+            return {
+              fillColor: d3.interpolateRgb("#f5f5f5", color)(Math.min(1, share * 2.2)),
+              fillOpacity: 0.9, color: "#ffffff", weight: 1
+            };
+          };
+          districtLayer.setStyle(partyStyle);
+        } else {
+          districtLayer.setStyle(districtStyle);
+        }
+
+        // Also update any visible precinct dots
+        if (precinctLayer) {
+          precinctLayer.eachLayer(l => {
+            const did = String(l.feature?.properties?.district_id);
+            let fillColor;
+            if (newId) {
+              const share = _shareByPartyByDistrict.get(did)?.get(newId) ?? 0;
+              const color = partyColor(newId, electionVal?.id);
+              fillColor = d3.interpolateRgb("#f5f5f5", color)(Math.min(1, share * 2.2));
+            } else {
+              const winner = winnerByDistrict.get(did);
+              const color = winner ? partyColor(winner.party_id, electionVal?.id) : "#ccc";
+              fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + (shareByDistrict.get(did) ?? 0.5) * 0.6);
+            }
+            l.setStyle({fillColor, fillOpacity: 0.85});
+          });
+        }
+      }
+    };
   }
 
   setTimeout(() => map.invalidateSize(), 150);
@@ -956,6 +1043,34 @@ display(container);
 
 ```js
 // ── CHART RENDERERS ────────────────────────────────────────────────────────
+
+// Renders national vote results into the info panel (default state — bar chart or turnout)
+function renderNationalPanel() {
+  const resultTitle = t(isPresidential ? "elections.presidential.results_title"
+                      : isPlebiscite   ? "elections.plebiscite_results_title"
+                      :                  "elections.party_list_title");
+  return html`<div class="card results-panel" id="results-panel">
+    <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:0.75rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
+      ${t("elections.results.national")}
+    </div>
+    ${viewMode === "turnout" ? html`
+      ${renderTurnoutSummary(
+        turnoutData.length > 0 ? turnoutData
+          : turnoutByDistrict.has("national") ? [turnoutByDistrict.get("national")] : [],
+        electionVal
+      )}
+    ` : html`
+      <div style="font-size:0.8rem; font-weight:600; color:var(--muted); margin-bottom:0.5rem;">${resultTitle}</div>
+      ${renderBarChart(passed, failed, electionVal?.id, presidentialWinnerId)}
+    `}
+  </div>`;
+}
+
+// Resets the info panel to national results (called by "National" controls)
+function showNationalPanel() {
+  const panel = document.getElementById("results-panel");
+  if (panel) panel.replaceWith(renderNationalPanel());
+}
 
 function renderBarChart(passed, failed, elecId, winnerId = null) {
   const maxVal = d3.max([...passed, ...failed], d => d.vote_share) || 1;
@@ -966,8 +1081,8 @@ function renderBarChart(passed, failed, elecId, winnerId = null) {
     const countStr = d.votes != null ? d.votes.toLocaleString() : "—";
     const pname    = d.party?.name?.[lang] || d.party_id;
     const isWinner = winnerId && d.party_id === winnerId;
-    return html`
-      <div class="bar-row">
+    const el = html`
+      <div class="bar-row" style="cursor:pointer;" title="${t("elections.chart.click_filter") || "Click to filter map"}">
         <div class="bar-label" title="${pname}">
           <span class="party-dot" style="background:${d.color};"></span>${pname}
           ${isWinner ? html`<span style="margin-left:4px; font-size:0.68rem; background:${d.color}; color:#fff; border-radius:3px; padding:1px 5px; vertical-align:middle;">✓</span>` : ""}
@@ -981,17 +1096,20 @@ function renderBarChart(passed, failed, elecId, winnerId = null) {
         </div>
       </div>
     `;
+    el.addEventListener("click", () => selectPartyOnMap(d.party_id));
+    return el;
   }
 
   return html`
     ${passed.map(barRow)}
     ${failed.length > 0 ? html`
-      <div class="bar-row threshold-row">
-        <div class="bar-label threshold-label">${t("elections.chart.threshold_line")}</div>
-        <div class="bar-track threshold-track"></div>
-        <div class="bar-value"></div>
-      </div>
-      ${failed.map(barRow)}
+      <details class="below-threshold-details">
+        <summary class="below-threshold-summary">
+          ${t("elections.chart.threshold_line")}
+          <span class="below-threshold-count">${failed.length}</span>
+        </summary>
+        ${failed.map(barRow)}
+      </details>
     ` : ""}
   `;
 }
@@ -1052,7 +1170,7 @@ function updateCouncilSeats(distId, props) {
   const chart = document.getElementById("council-seat-chart");
   if (!chart) return;
 
-  const distRows = results.filter(r => r.district_id === distId);
+  const distRows = results.filter(r => String(r.district_id) === distId);
   const distArray = Array.from(
     d3.rollup(distRows, rows => ({
       votes:      d3.sum(rows, r => r.votes),
@@ -1101,45 +1219,76 @@ function renderSeatLegend(parties, filter, elec) {
   </div>`;
 }
 
+// ── Shared back-to-national header for district / turnout panels ──────────
+function panelBackHeader(districtName) {
+  const btn = html`<button style="background:none;border:none;cursor:pointer;font-size:0.75rem;color:var(--theme-foreground-focus);padding:0;display:inline-flex;align-items:center;gap:3px;line-height:1;">← ${t("elections.results.national")}</button>`;
+  btn.addEventListener("click", showNationalPanel);
+  return html`<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);">
+    ${btn}
+    <span style="color:var(--border);">|</span>
+    <span style="font-size:0.85rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${districtName}</span>
+  </div>`;
+}
+
 // ── District results panel ────────────────────────────────────────────────
 function renderDistrictPanel(distId, props, data = results) {
-  const rows = data.filter(r => r.district_id === distId)
-                      .sort((a, b) => b.vote_share - a.vote_share);
+  // "__precinct__" sentinel: data is already pre-filtered to the desired rows
+  const rows = (distId === "__precinct__"
+    ? [...data]
+    : data.filter(r => String(r.district_id) === distId)
+  ).sort((a, b) => b.vote_share - a.vote_share);
   const pname = lang === "ka" ? props.name_ka : props.name_en || distId;
   const isSMD = effectiveVoteType === "smd" || isPresidential;
   const colHeader = isSMD ? t("elections.results.candidate")
                   : isPlebiscite ? t("elections.results.vote")
                   : t("elections.results.party");
+  const SHOW_N    = 5;
+  const topRows   = rows.slice(0, SHOW_N);
+  const moreRows  = rows.slice(SHOW_N);
+
+  function distRow(r) {
+    const color     = partyColor(r.party_id, electionVal?.id);
+    const shareStr  = `${(r.vote_share * 100).toFixed(1)}%`;
+    const countStr  = r.votes != null ? r.votes.toLocaleString() : "—";
+    const partyName = getParty(r.party_id).name?.[lang] || r.party_id;
+    return html`<tr>
+      <td style="vertical-align:middle;">
+        <span class="party-dot" style="background:${color}; vertical-align:middle;"></span>
+        ${isSMD && r.candidate_name
+          ? html`<strong style="font-size:0.82rem;">${r.candidate_name}</strong>
+                 <div style="font-size:0.72rem; color:var(--muted); margin-left:15px;">${partyName}</div>`
+          : html`${partyName}${r.threshold_status === "failed" ? html`<span style="color:var(--muted);font-size:0.72rem;"> ✗</span>` : ""}`
+        }
+      </td>
+      <td style="text-align:right; white-space:nowrap; vertical-align:middle;">
+        <span style="font-weight:700;">${shareStr}</span>
+        <span style="color:var(--muted); font-size:0.75rem; margin-left:4px;">(${countStr})</span>
+      </td>
+    </tr>`;
+  }
+
   const panel = html`<div class="card results-panel" id="results-panel">
-    <h4 style="margin-top:0; font-size:0.9rem;">${pname}</h4>
+    ${panelBackHeader(pname)}
     <table class="dist-table">
       <thead><tr>
         <th>${colHeader}</th>
         <th style="text-align:right;">${t("elections.results.share")}</th>
       </tr></thead>
       <tbody>
-        ${rows.map(r => {
-          const color      = partyColor(r.party_id, electionVal?.id);
-          const shareStr   = `${(r.vote_share * 100).toFixed(1)}%`;
-          const countStr   = r.votes != null ? r.votes.toLocaleString() : "—";
-          const partyName  = getParty(r.party_id).name?.[lang] || r.party_id;
-          return html`<tr>
-            <td style="vertical-align:middle;">
-              <span class="party-dot" style="background:${color}; vertical-align:middle;"></span>
-              ${isSMD && r.candidate_name
-                ? html`<strong style="font-size:0.82rem;">${r.candidate_name}</strong>
-                       <div style="font-size:0.72rem; color:var(--muted); margin-left:15px;">${partyName}</div>`
-                : html`${partyName}${r.threshold_status === "failed" ? html`<span style="color:var(--muted);font-size:0.72rem;"> ✗</span>` : ""}`
-              }
-            </td>
-            <td style="text-align:right; white-space:nowrap; vertical-align:middle;">
-              <span style="font-weight:700;">${shareStr}</span>
-              <span style="color:var(--muted); font-size:0.75rem; margin-left:4px;">(${countStr})</span>
-            </td>
-          </tr>`;
-        })}
+        ${topRows.map(distRow)}
       </tbody>
     </table>
+    ${moreRows.length > 0 ? html`
+      <details class="below-threshold-details">
+        <summary class="below-threshold-summary">
+          ${t("elections.chart.threshold_line")}
+          <span class="below-threshold-count">${moreRows.length}</span>
+        </summary>
+        <table class="dist-table">
+          <tbody>${moreRows.map(distRow)}</tbody>
+        </table>
+      </details>
+    ` : ""}
   </div>`;
   return panel;
 }
@@ -1152,7 +1301,7 @@ function renderTurnoutPanel(distId, props, turnoutLookup = turnoutByDistrict) {
 
   if (!td) {
     return html`<div class="card results-panel" id="results-panel">
-      <h4 style="margin-top:0; font-size:0.9rem;">${pname}</h4>
+      ${panelBackHeader(pname)}
       <p style="color:var(--muted); font-size:0.85rem;">${t("elections.turnout.no_data")}</p>
     </div>`;
   }
@@ -1169,7 +1318,7 @@ function renderTurnoutPanel(distId, props, turnoutLookup = turnoutByDistrict) {
   }
 
   return html`<div class="card results-panel" id="results-panel">
-    <h4 style="margin-top:0; font-size:0.9rem;">${pname}</h4>
+    ${panelBackHeader(pname)}
     ${statRow(t("elections.turnout.pct"), pct)}
     ${statRow(t("elections.turnout.voted"), voted)}
     ${statRow(t("elections.turnout.registered"), registered)}
@@ -1230,6 +1379,18 @@ function renderTurnoutSummary(data, elec) {
   </div>`;
 }
 
+// ── Election info / blurb (shown below the map) ──
+// The notes field in YAML may contain HTML: <b>, <a href="...">, <em>, etc.
+function renderElectionInfo(elec) {
+  const notesRaw = elec?.notes?.[lang] ?? elec?.notes?.en ?? null;
+  if (!notesRaw) return "";
+
+  const notesNode = document.createElement("div");
+  notesNode.innerHTML = notesRaw;
+
+  return html`<div class="card election-blurb">${notesNode}</div>`;
+}
+
 // ── Electoral college (indirect presidential) ─────────────────────────────
 function renderElectoralCollege(elec) {
   const ec = elec?.electoral_college;
@@ -1239,16 +1400,20 @@ function renderElectoralCollege(elec) {
   const candidateName = candidate?.name?.[lang] || candidate?.name?.en || "—";
   const partyRef = candidate?.party ? parties.find(p => p.id === candidate.party) : null;
   const winColor = candidate?.color ?? partyRef?.colors?.default ?? "#1565C0";
-  const absent = ec.absent ?? (ec.total - ec.for - ec.against - (ec.abstained ?? 0));
+  const invalid  = ec.invalid  ?? 0;
+  const abstained = ec.abstained ?? 0;
+  // Absent: use YAML value if present; otherwise fill remaining to reach total
+  const absent   = ec.absent  ?? Math.max(0, ec.total - ec.for - ec.against - abstained - invalid);
 
-  // Build dot sequence: for → against → abstained → absent
+  // Build dot sequence: for → against → abstained → invalid → absent
   const dots = [
     ...Array(ec.for).fill("for"),
     ...Array(ec.against).fill("against"),
-    ...Array(ec.abstained ?? 0).fill("abstained"),
+    ...Array(abstained).fill("abstained"),
+    ...Array(invalid).fill("invalid"),
     ...Array(absent).fill("absent"),
   ];
-  const dotColors = { for: winColor, against: "#C62828", abstained: "#9E9E9E", absent: "#E8E8E8" };
+  const dotColors = { for: winColor, against: "#C62828", abstained: "#9E9E9E", invalid: "#FF8F00", absent: "#E8E8E8" };
 
   // Square grid: cols ≈ √total, pad with transparent dots to fill last row
   const COLS = Math.round(Math.sqrt(ec.total));
@@ -1258,7 +1423,8 @@ function renderElectoralCollege(elec) {
   const legend = [
     {key: "for",        label: t("elections.electoral_college.for"),        n: ec.for,            color: winColor},
     {key: "against",    label: t("elections.electoral_college.against"),    n: ec.against,        color: "#C62828"},
-    {key: "abstained",  label: t("elections.electoral_college.abstained"),  n: ec.abstained ?? 0, color: "#9E9E9E"},
+    {key: "abstained",  label: t("elections.electoral_college.abstained"),  n: abstained,         color: "#9E9E9E"},
+    {key: "invalid",    label: t("elections.electoral_college.invalid"),    n: invalid,           color: "#FF8F00"},
     {key: "absent",     label: t("elections.electoral_college.absent"),     n: absent,            color: "#E8E8E8"},
   ].filter(d => d.n > 0);
 

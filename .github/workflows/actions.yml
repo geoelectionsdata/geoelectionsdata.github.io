@@ -20,7 +20,31 @@ jobs:
     steps:
       - name: Checkout repo content
         uses: actions/checkout@v4
-        
+
+      # ── R setup ────────────────────────────────────────────────────────────
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "4.4"
+          use-public-rspm: true   # fast pre-built binaries
+
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: r-${{ runner.os }}-${{ hashFiles('scripts/*.R') }}
+          restore-keys: r-${{ runner.os }}-
+
+      - name: Install R packages
+        run: |
+          Rscript -e "install.packages(c('readxl', 'dplyr', 'tidyr', 'stringr'),
+                                        repos = 'https://cloud.r-project.org')"
+
+      # ── Process raw election data ───────────────────────────────────────────
+      - name: Process 2024 parliamentary data
+        run: Rscript scripts/process_parl2024.R
+
+      # ── Node / Observable build ────────────────────────────────────────────
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -31,12 +55,10 @@ jobs:
       - name: Install Node dependencies
         run: yarn --frozen-lockfile
 
-      - name: Generate FileAttachment registry
-        run: yarn registry
-
       - name: Build project
         run: yarn build
 
+      # ── Deploy ─────────────────────────────────────────────────────────────
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v3
 

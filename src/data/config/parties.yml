@@ -1,156 +1,237 @@
-# Party registry — colors are keyed by election ID
-# Use hex colors. "default" is fallback for any election not listed.
-# Hues of the same color are used for choropleth intensity.
+# Party registry
+# Each party has a canonical id, name, default color, and type.
+# Election-specific aliases and color overrides are defined in election YAMLs.
 
 parties:
 
-  # --- Post-2012 parties ---
+  # ── 2024 parliamentary election parties ──────────────────────────────────
+
+  - id: unity_development
+    name:
+      en: Party of Unity and Development
+      ka: საქართველოს ერთობისა და განვითარების პარტია
+    color: "#546E7A"
+    type: party
+
+  - id: european_democrats
+    name:
+      en: European Democrats
+      ka: ევროპელი დემოკრატები
+    color: "#0288D1"
+    type: party
+
+  - id: patriots
+    name:
+      en: Alliance of Patriots of Georgia
+      ka: საქართველოს პატრიოტთა ალიანსი
+    color: "#880E4F"
+    type: party
+
+  - id: our_georgia
+    name:
+      en: Our United Georgia
+      ka: ჩვენი გაერთიანებული საქართველო
+    color: "#2E7D32"
+    type: party
+
+  - id: change_georgia
+    name:
+      en: Change Georgia
+      ka: შეცვალე საქართველო
+    color: "#E65100"
+    type: party
+
+  - id: georgia_party
+    name:
+      en: Georgia
+      ka: საქართველო
+    color: "#283593"
+    type: party
+
+  - id: free_georgia
+    name:
+      en: Free Georgia
+      ka: თავისუფალი საქართველო
+    color: "#00695C"
+    type: party
+
+  - id: tribuna
+    name:
+      en: Tribuna
+      ka: ტრიბუნა
+    color: "#4A148C"
+    type: party
+
+  - id: chven
+    name:
+      en: We
+      ka: ჩვენ
+    color: "#AD1457"
+    type: party
+
+  - id: gakharia
+    name:
+      en: For Georgia
+      ka: გახარია საქართველოსთვის
+    color: "#00897B"
+    type: party
+
+  - id: left_alliance
+    name:
+      en: Left Alliance
+      ka: მემარცხენე ალიანსი
+    color: "#4E342E"
+    type: party
+
+  - id: georgian_unity
+    name:
+      en: Georgian Unity
+      ka: ქართველ ერთობა
+    color: "#5D4037"
+    type: party
+
+  # ── Post-2012 parties ─────────────────────────────────────────────────────
 
   - id: gd
     name:
       en: Georgian Dream
       ka: ქართული ოცნება
-    colors:
-      parl_2024: "#1565C0"
-      parl_2020: "#1976D2"
-      default:   "#1976D2"
+    color: "#1565C0"
+    type: party
 
   - id: unm
     name:
       en: United National Movement
       ka: ერთიანი ნაციონალური მოძრაობა
-    colors:
-      default: "#C62828"
+    color: "#C62828"
+    type: party
 
   - id: coalition_for_change
     name:
       en: Coalition for Change
       ka: კოალიცია ცვლილებისთვის
-    colors:
-      parl_2024: "#E53935"
-      default:   "#E53935"
+    color: "#E53935"
+    type: alliance
 
   - id: unity
+    # Electoral bloc of UNM and allies in 2024; aliased in election YAML
     name:
       en: Unity — National Movement
       ka: ერთობა — ნაციონალური მოძრაობა
-    colors:
-      parl_2024: "#B71C1C"
-      default:   "#B71C1C"
+    color: "#B71C1C"
+    type: bloc
 
   - id: strong_georgia
     name:
       en: Strong Georgia
       ka: ძლიერი საქართველო
-    colors:
-      parl_2024: "#6A1B9A"
-      default:   "#6A1B9A"
+    color: "#6A1B9A"
+    type: bloc
 
   - id: european_georgia
     name:
       en: European Georgia
       ka: ევროპული საქართველო
-    colors:
-      parl_2020: "#0288D1"
-      default:   "#0288D1"
+    color: "#0288D1"
+    type: party
 
   - id: girchi
     name:
       en: Girchi
       ka: გირჩი
-    colors:
-      default: "#F57F17"
+    color: "#F57F17"
+    type: party
 
   - id: labour
     name:
       en: Labour Party
       ka: შრომის პარტია
-    colors:
-      default: "#D32F2F"
+    color: "#D32F2F"
+    type: party
 
-  # --- 1992 parties ---
+  # ── 1992 parties ─────────────────────────────────────────────────────────
 
   - id: mkhedrioni_1992
     name:
       en: Mkhedrioni / October 11 Bloc
       ka: მხედრიონი / 11 ოქტომბრის ბლოკი
-    colors:
-      default: "#4E342E"
+    color: "#4E342E"
+    type: bloc
 
   - id: peace_1992
     name:
       en: Peace Bloc
       ka: მშვიდობის ბლოკი
-    colors:
-      default: "#37474F"
+    color: "#37474F"
+    type: bloc
 
   - id: other_1992
     name:
       en: Other (1992)
       ka: სხვა (1992)
-    colors:
-      default: "#9E9E9E"
+    color: "#9E9E9E"
+    type: other
 
-  # --- 1919 parties ---
+  # ── 1919 parties ─────────────────────────────────────────────────────────
 
   - id: social_democrats_1919
     name:
       en: Social Democrats
       ka: სოციალ-დემოკრატები
-    colors:
-      default: "#C62828"
+    color: "#C62828"
+    type: party
 
   - id: social_federalists_1919
     name:
       en: Social Federalists
       ka: სოციალ-ფედერალისტები
-    colors:
-      default: "#1B5E20"
+    color: "#1B5E20"
+    type: party
 
   - id: national_democrats_1919
     name:
       en: National Democrats
       ka: ეროვნული დემოკრატები
-    colors:
-      default: "#0D47A1"
+    color: "#0D47A1"
+    type: party
 
   - id: sr_1919
     name:
       en: Socialist Revolutionaries
       ka: სოციალისტ-რევოლუციონერები
-    colors:
-      default: "#E65100"
+    color: "#E65100"
+    type: party
 
-  # --- SMD independents ---
+  # ── SMD independents ──────────────────────────────────────────────────────
 
   - id: independent
     name:
       en: Independent
       ka: დამოუკიდებელი
-    colors:
-      default: "#546E7A"
+    color: "#546E7A"
+    type: independent
 
-  # --- Referendum vote options ---
+  # ── Referendum vote options ───────────────────────────────────────────────
 
   - id: yes
     name:
       en: "Yes"
       ka: "კი"
-    colors:
-      default: "#2E7D32"
+    color: "#2E7D32"
+    type: option
 
   - id: no
     name:
       en: "No"
       ka: "არა"
-    colors:
-      default: "#C62828"
+    color: "#C62828"
+    type: option
 
-  # --- Generic fallback ---
+  # ── Generic fallback ──────────────────────────────────────────────────────
 
   - id: other
     name:
       en: Other parties
       ka: სხვა პარტიები
-    colors:
-      default: "#9E9E9E"
+    color: "#9E9E9E"
+    type: other
