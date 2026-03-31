@@ -35,43 +35,55 @@ parties:
     alias:
       en: Georgian Dream
       ka: ქართული ოცნება
-    color: "#1565C0"
+    color: "#21509e"
     threshold_status: passed
+    seats_pr: 89
+    seats_smd: 0
 
   - id: coalition_for_change
     alias:
       en: Coalition for Change
       ka: კოალიცია ცვლილებისთვის
-    color: "#E53935"
+    color: "#377149"
     threshold_status: passed
+    seats_pr: 19
+    seats_smd: 0
 
   - id: unity
     alias:
       en: Unity — National Movement
       ka: ერთობა — ნაციონალური მოძრაობა
-    color: "#B71C1C"
+    color: "#d13529"
     threshold_status: passed
+    seats_pr: 16
+    seats_smd: 0
 
   - id: strong_georgia
     alias:
       en: Strong Georgia
       ka: ძლიერი საქართველო
-    color: "#6A1B9A"
+    color: "#fcaf13"
     threshold_status: passed
+    seats_pr: 14
+    seats_smd: 0
 
   - id: gakharia
     alias:
       en: For Georgia
       ka: გახარია საქართველოსთვის
-    color: "#00897B"
+    color: "#4b2775"
     threshold_status: passed
+    seats_pr: 12
+    seats_smd: 0
 
   - id: girchi
     alias:
       en: Girchi
       ka: გირჩი
-    color: "#F57F17"
+    color: "#00a749"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: european_democrats
     alias:
@@ -79,6 +91,8 @@ parties:
       ka: ევროპელი დემოკრატები
     color: "#0288D1"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: labour
     alias:
@@ -86,6 +100,8 @@ parties:
       ka: საქართველოს ლეიბორისტული პარტია
     color: "#D32F2F"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: change_georgia
     alias:
@@ -93,13 +109,17 @@ parties:
       ka: შეცვალე საქართველო
     color: "#E65100"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: patriots
     alias:
       en: Alliance of Patriots
       ka: საქართველოს პატრიოტთა ალიანსი
-    color: "#880E4F"
+    color: "#e1ab2c"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: our_georgia
     alias:
@@ -107,6 +127,8 @@ parties:
       ka: ჩვენი გაერთიანებული საქართველო
     color: "#2E7D32"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: georgia_party
     alias:
@@ -114,6 +136,8 @@ parties:
       ka: საქართველო
     color: "#283593"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: free_georgia
     alias:
@@ -121,6 +145,8 @@ parties:
       ka: თავისუფალი საქართველო
     color: "#00695C"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: chven
     alias:
@@ -128,6 +154,8 @@ parties:
       ka: ჩვენ
     color: "#AD1457"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: left_alliance
     alias:
@@ -135,6 +163,8 @@ parties:
       ka: მემარცხენე ალიანსი
     color: "#4E342E"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: tribuna
     alias:
@@ -142,6 +172,8 @@ parties:
       ka: ტრიბუნა
     color: "#4A148C"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: georgian_unity
     alias:
@@ -149,6 +181,8 @@ parties:
       ka: ქართველ ერთობა
     color: "#5D4037"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
   - id: unity_development
     alias:
@@ -156,6 +190,8 @@ parties:
       ka: საქართველოს ერთობისა და განვითარების პარტია
     color: "#546E7A"
     threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
 
 files:
   pr_results:          "data/results/parl2024_pr.csv"

@@ -121,15 +121,21 @@ district_votes <- long %>%
 district_turnout <- stations %>%
   group_by(district_id = as.character(district_num)) %>%
   summarise(
-    registered   = sum(registered,               na.rm = TRUE),
-    voted        = sum(voted_total,               na.rm = TRUE),
-    voted_noon   = sum(voted_noon,                na.rm = TRUE),
-    voted_5pm    = sum(voted_5pm,                 na.rm = TRUE),
-    main_list    = sum(registered_main,           na.rm = TRUE),
-    special_list = sum(coalesce(registered_special, 0), na.rm = TRUE),
+    registered      = sum(registered,                      na.rm = TRUE),
+    voted           = sum(voted_total,                     na.rm = TRUE),
+    voted_noon      = sum(voted_noon,                      na.rm = TRUE),
+    voted_5pm       = sum(voted_5pm,                       na.rm = TRUE),
+    main_list       = sum(registered_main,                 na.rm = TRUE),
+    special_list    = sum(coalesce(registered_special, 0), na.rm = TRUE),
+    invalid_ballots = sum(invalid_ballots,                 na.rm = TRUE),
     .groups = "drop"
   ) %>%
-  mutate(turnout_pct = round(voted / registered, 6))
+  mutate(
+    turnout_pct = round(voted / registered, 6),
+    noon_pct    = round(voted_noon / registered, 6),
+    five_pct    = round(voted_5pm / registered, 6),
+    invalid_pct = round(invalid_ballots / voted, 6)
+  )
 
 district_out <- district_votes %>%
   left_join(district_turnout, by = "district_id") %>%
@@ -140,14 +146,20 @@ district_out <- district_votes %>%
 # ─────────────────────────────────────────────────────────────────────────────
 national_totals <- stations %>%
   summarise(
-    registered   = sum(registered,               na.rm = TRUE),
-    voted        = sum(voted_total,               na.rm = TRUE),
-    voted_noon   = sum(voted_noon,                na.rm = TRUE),
-    voted_5pm    = sum(voted_5pm,                 na.rm = TRUE),
-    main_list    = sum(registered_main,           na.rm = TRUE),
-    special_list = sum(coalesce(registered_special, 0), na.rm = TRUE)
+    registered      = sum(registered,                      na.rm = TRUE),
+    voted           = sum(voted_total,                     na.rm = TRUE),
+    voted_noon      = sum(voted_noon,                      na.rm = TRUE),
+    voted_5pm       = sum(voted_5pm,                       na.rm = TRUE),
+    main_list       = sum(registered_main,                 na.rm = TRUE),
+    special_list    = sum(coalesce(registered_special, 0), na.rm = TRUE),
+    invalid_ballots = sum(coalesce(invalid_ballots, 0),    na.rm = TRUE)
   ) %>%
-  mutate(turnout_pct = round(voted / registered, 6))
+  mutate(
+    turnout_pct = round(voted / registered, 6),
+    noon_pct    = round(voted_noon / registered, 6),
+    five_pct    = round(voted_5pm / registered, 6),
+    invalid_pct = round(invalid_ballots / voted, 6)
+  )
 
 national_out <- long %>%
   group_by(party_id) %>%
@@ -161,16 +173,22 @@ national_out <- long %>%
     voted_5pm    = national_totals$voted_5pm,
     main_list    = national_totals$main_list,
     special_list = national_totals$special_list,
-    turnout_pct  = national_totals$turnout_pct
+    turnout_pct     = national_totals$turnout_pct,
+    noon_pct        = national_totals$noon_pct,
+    five_pct        = national_totals$five_pct,
+    invalid_ballots = national_totals$invalid_ballots,
+    invalid_pct     = national_totals$invalid_pct
   ) %>%
   arrange(desc(votes)) %>%
   select(district_id, party_id, votes, vote_share,
-         registered, voted, voted_noon, voted_5pm, main_list, special_list, turnout_pct)
+         registered, voted, voted_noon, voted_5pm, main_list, special_list,
+         turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
 
 district_out_all <- bind_rows(
   district_out %>%
     select(district_id, party_id, votes, vote_share,
-           registered, voted, voted_noon, voted_5pm, main_list, special_list, turnout_pct),
+           registered, voted, voted_noon, voted_5pm, main_list, special_list,
+           turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct),
   national_out
 )
 
@@ -193,17 +211,24 @@ precinct_votes <- long %>%
 
 precinct_turnout <- stations %>%
   transmute(
-    precinct_id  = precinct_id,
-    registered   = registered,
-    voted        = voted_total,
-    turnout_pct  = round(voted_total / registered, 6)
+    precinct_id     = precinct_id,
+    registered      = registered,
+    voted           = voted_total,
+    voted_noon      = voted_noon,
+    voted_5pm       = voted_5pm,
+    invalid_ballots = invalid_ballots,
+    turnout_pct     = round(voted_total / registered, 6),
+    noon_pct        = round(voted_noon / registered, 6),
+    five_pct        = round(voted_5pm / registered, 6),
+    invalid_pct     = round(coalesce(invalid_ballots, 0) / voted_total, 6)
   )
 
 precinct_out <- precinct_votes %>%
   left_join(precinct_turnout, by = "precinct_id") %>%
   arrange(precinct_id, desc(votes)) %>%
   select(precinct_id, district_id, party_id, votes, vote_share,
-         registered, voted, turnout_pct)
+         registered, voted, voted_noon, voted_5pm,
+         turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 6. WRITE OUTPUTS

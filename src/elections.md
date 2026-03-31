@@ -153,6 +153,12 @@ const viewMode = Generators.input(viewModeInput);
 ```
 
 ```js
+// ── Turnout metric — controlled imperatively via _mapCtrl (like party filter) ─
+const _turnoutMetrics = ["final", "noon", "5pm", "invalid"];
+const _turnoutMetricCtrl = {value: "final"};  // mutated by setTurnoutMetric
+```
+
+```js
 // ── Seat filter (combined / pr / smd) ─────────────────────────────────────
 const seatFilterOptions = ["all",
   ...(hasPR && hasSMD || (isLocal && ballotTypeVal === "council") ? ["pr", "smd"] : [])
@@ -171,9 +177,10 @@ const seatFilter = Generators.input(seatFilterInput);
 ```js
 // Data registries — auto-assembled from election YAMLs by data loaders.
 // To add a new election: create the YAML + data files, then restart dev server. No changes needed here.
-const _allGeo     = await FileAttachment("data/geo-registry.json").json();
-const _allCsv     = await FileAttachment("data/csv-registry.json").json();
-const _allTurnout = await FileAttachment("data/turnout-registry.json").json();
+const _allGeo          = await FileAttachment("data/geo-registry.json").json();
+const _allCsv          = await FileAttachment("data/csv-registry.json").json();
+const _allTurnout      = await FileAttachment("data/turnout-registry.json").json();
+const _occupiedGeo     = await FileAttachment("data/shp/occupied_territories.geojson").json();
 
 function lookupCSV(dataMap, path) {
   return dataMap?.[path] ?? [];
@@ -349,10 +356,16 @@ const _seatsByParty = (_prCfg?.method === "dhondt" && _prCfg?.seats)
 const nationalArray = Array.from(nationalResults, ([party_id, v]) => {
   const meta = elecPartyMeta.get(party_id);
   const threshold_status = meta?.threshold_status ?? v.threshold_status ?? "notrun";
-  const seats_pr = _seatsByParty.size > 0 ? (_seatsByParty.get(party_id) ?? 0) : (v.seats_pr ?? 0);
+  // YAML-declared seats take precedence; fall back to D'Hondt calculation
+  const yamlSeatsPr = meta?.seats_pr;
+  const seats_pr = (yamlSeatsPr != null)
+    ? yamlSeatsPr
+    : _seatsByParty.size > 0 ? (_seatsByParty.get(party_id) ?? 0) : (v.seats_pr ?? 0);
+  const seats_smd  = meta?.seats_smd  ?? v.seats_smd  ?? 0;
+  const seats_comp = meta?.seats_compensation ?? v.seats_comp ?? 0;
   return {
     party_id, ...v,
-    seats_pr, threshold_status,
+    seats_pr, seats_smd, seats_comp, threshold_status,
     party: getParty(party_id),
     color: partyColor(party_id, electionVal?.id)
   };
@@ -375,6 +388,26 @@ const failed = hasThreshold
 
 ```js
 // ── Turnout by district/precinct lookup (top-level so renderTurnoutPanel can access it) ──
+// Helper: pick the right fraction from a turnout data row based on selected metric
+// Returns the raw fraction for a given turnout metric
+function turnoutValue(td, metric) {
+  if (!td) return 0;
+  if (metric === "noon")    return td.noon_pct    ?? (td.voted_noon != null && td.registered > 0 ? td.voted_noon / td.registered : 0);
+  if (metric === "5pm")     return td.five_pct    ?? (td.voted_5pm  != null && td.registered > 0 ? td.voted_5pm  / td.registered : 0);
+  if (metric === "invalid") return td.invalid_pct ?? 0;
+  return td.turnout_pct ?? 0;  // "final" default
+}
+// Normalizes turnoutValue to [0,1] relative to the expected max for the metric,
+// so the full color ramp is used even for small fractions (e.g. 5% invalid → 1.0 at max)
+function turnoutNorm(td, metric) {
+  const v = turnoutValue(td, metric);
+  const max = metric === "invalid" ? 0.05
+            : metric === "noon"    ? 0.30
+            : metric === "5pm"     ? 0.60
+            : 1.0;
+  return Math.min(1, v / max);
+}
+
 const turnoutByDistrict = new Map();
 const _hasInlineTurnout = results.length > 0 && results[0]?.registered != null;
 if (_hasInlineTurnout) {
@@ -402,7 +435,11 @@ if (_hasInlineTurnout) {
       voted_5pm:    d3.sum(distEntries, d => d.voted_5pm    ?? 0),
       main_list:    d3.sum(distEntries, d => d.main_list    ?? 0),
       special_list: d3.sum(distEntries, d => d.special_list ?? 0),
-      turnout_pct:  reg > 0 ? voted / reg : 0
+      turnout_pct:  reg > 0 ? voted / reg : 0,
+      invalid_ballots: d3.sum(distEntries, d => d.invalid_ballots ?? 0),
+      invalid_pct:  voted > 0 ? d3.sum(distEntries, d => d.invalid_ballots ?? 0) / voted : 0,
+      noon_pct:     reg > 0 ? d3.sum(distEntries, d => d.voted_noon ?? 0) / reg : 0,
+      five_pct:     reg > 0 ? d3.sum(distEntries, d => d.voted_5pm  ?? 0) / reg : 0
     });
   }
 } else if (turnoutData.length > 0) {
@@ -413,6 +450,11 @@ if (_hasInlineTurnout) {
     turnoutByDistrict.set(did, rows[0]);
   });
 }
+
+const hasTurnoutMetrics = hasTurnout && !!(
+  turnoutByDistrict.size > 0 &&
+  [...turnoutByDistrict.values()][0]?.voted_noon != null
+);
 ```
 
 ```js
@@ -440,7 +482,7 @@ function selectPartyOnMap(partyId) { _mapCtrl.current?.setPartyFilter(partyId); 
 // Explicit reactive deps — ensures container re-renders when any of these change
 hasTurnout; hasPrecinct; hasCouncilDistricts; viewMode; voteTypeOptions; seatFilterOptions; hasSubElections; isSubElectionSMD; isPresidential; isIndirect; presidentialWinnerId; isPlebiscite; isLocal; hasCouncil; ballotTypeVal; isCouncilMode;
 // Forward refs: renderer functions defined later; listing them ensures this cell waits for them
-renderNationalPanel; renderElectionInfo; renderBarChart; renderDots; renderCouncilDots; selectPartyOnMap;
+renderNationalPanel; renderElectionInfo; renderBarChart; renderDots; renderCouncilDots; selectPartyOnMap; renderPrecinctPanel;
 
 const container = html`
 <style>
@@ -588,6 +630,32 @@ const container = html`
   /* Seat tiles — rectangles grouped by party */
   .seat-block { display: flex; flex-wrap: wrap; gap: 2px; }
   .seat-tile  { width: 9px; height: 9px; border-radius: 1px; }
+
+  /* Active bar row (party filter) */
+  .bar-row-active { background: rgba(0,0,0,0.06); border-radius: 3px; }
+
+  /* Turnout metric rows — clickable to switch the map metric */
+  .turnout-metric-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 5px 4px; margin: 0 -4px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.82rem; cursor: pointer;
+    border-radius: 3px; transition: background 0.1s;
+  }
+  .turnout-metric-row:hover { background: rgba(0,0,0,0.04); }
+  .metric-row-active { background: rgba(0,0,0,0.07) !important; }
+  .metric-row-active .metric-row-label { font-weight: 700; color: var(--theme-foreground); }
+
+  /* Map legend control */
+  .map-legend {
+    background: rgba(255,255,255,0.93);
+    padding: 7px 10px;
+    border-radius: 5px;
+    font-size: 0.68rem;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.18);
+    pointer-events: none;
+    max-width: 240px;
+  }
 </style>
 
 <div class="elections-outer">
@@ -669,10 +737,16 @@ const container = html`
       <!-- LEFT: election notes/blurb from YAML -->
       ${renderElectionInfo(electionVal)}
 
-      <!-- RIGHT: seat distribution (hidden for presidential / plebiscite) -->
+      <!-- RIGHT: seat distribution (or turnout summary in turnout mode) -->
       ${!isPresidential && !isPlebiscite ? html`
       <div class="card">
-        ${isCouncilMode ? html`
+        ${viewMode === "turnout" ? html`
+        <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.results.national")}</h4>
+        ${renderTurnoutSummary(
+          turnoutData.length > 0 ? turnoutData
+            : turnoutByDistrict.has("national") ? [turnoutByDistrict.get("national")] : [],
+          electionVal
+        )}` : isCouncilMode ? html`
         <div id="council-seat-chart">
           <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.local.council_seats_title")}</h4>
           ${renderCouncilDots(nationalArray, electionVal, seatFilter)}
@@ -730,23 +804,23 @@ display(container);
     const did = String(feature.properties.id);
     if (viewMode === "turnout") {
       const td = turnoutByDistrict.get(did);
-      if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.5, color: "#fff", weight: 1};
-      const fillColor = d3.interpolateRgb("#dbeafe", "#1d4ed8")(td.turnout_pct ?? 0);
-      return {fillColor, fillOpacity: 0.85, color: "#ffffff", weight: 1.5};
+      if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.75, color: "#bbb", weight: 0.5};
+      const fillColor = d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value));
+      return {fillColor, fillOpacity: 0.85, color: "#ffffff", weight: 0.5};
     }
     const winner = winnerByDistrict.get(did);
-    if (!winner) return {fillColor: "#e0e0e0", fillOpacity: 0.5, color: "#fff", weight: 1};
+    if (!winner) return {fillColor: "#e0e0e0", fillOpacity: 0.75, color: "#bbb", weight: 0.5};
     const baseColor = partyColor(winner.party_id, electionVal?.id);
     const intensity = shareByDistrict.get(did) ?? 0.5;
     const lightened = d3.color(baseColor) ? d3.interpolateRgb("#f5f5f5", baseColor)(0.4 + intensity * 0.6) : "#ccc";
-    return {fillColor: lightened, fillOpacity: 0.85, color: "#ffffff", weight: 1.5};
+    return {fillColor: lightened, fillOpacity: 0.85, color: "#ffffff", weight: 0.5};
   }
 
   // Stringify GeoJSON integer ids once — both winnerByDistrict and turnoutByDistrict
   // are keyed by string (from CSV), but GeoJSON feature.properties.id is an integer.
   function geoId(feature) { return String(feature.properties.id); }
 
-  const DISTRICT_HOLLOW  = {fillColor: "transparent", fillOpacity: 0, color: "#999", weight: 1.5};
+  const DISTRICT_HOLLOW  = {fillColor: "transparent", fillOpacity: 0, color: "#999", weight: 0.5};
   const SAKREBULO_HOLLOW = {fillColor: "transparent", fillOpacity: 0, color: "#bbb", weight: 0.8};
 
   if (mapMode === "cartogram" && activeGeo.features[0]?.geometry?.type === "Point") {
@@ -757,14 +831,14 @@ display(container);
       let fillColor;
       if (viewMode === "turnout") {
         const td = turnoutByDistrict.get(did);
-        fillColor = d3.interpolateRgb("#dbeafe", "#1d4ed8")(td?.turnout_pct ?? 0);
+        fillColor = d3.interpolateRgb("#fee2e2", "#b91c1c")(Math.min(1, turnoutValue(td, _turnoutMetricCtrl.value)));
       } else {
         const color = winner ? partyColor(winner.party_id, electionVal?.id) : "#ccc";
         fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + (shareByDistrict.get(did) ?? 0.5) * 0.6);
       }
       const circle = L.circle(
         [f.geometry.coordinates[1], f.geometry.coordinates[0]],
-        { radius: (f.properties.radius_km ?? 10) * 1000, fillColor, fillOpacity: 0.85, color: "#fff", weight: 1.5 }
+        { radius: (f.properties.radius_km ?? 10) * 1000, fillColor, fillOpacity: 0.85, color: "#fff", weight: 0.5 }
       ).addTo(map);
       circle.on("click", () => {
         const panel = document.getElementById("results-panel");
@@ -822,7 +896,7 @@ display(container);
         if (viewMode === "turnout") {
           const td = turnoutMap.get(did);
           if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight};
-          return {fillColor: d3.interpolateRgb("#dbeafe", "#1d4ed8")(td.turnout_pct ?? 0), fillOpacity: 0.9, color: "#ffffff", weight};
+          return {fillColor: d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value)), fillOpacity: 0.9, color: "#ffffff", weight};
         }
         const winner = winnerMap.get(did);
         if (!winner) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight};
@@ -835,10 +909,12 @@ display(container);
 
     // ── Council-district layer (zoom-activated, council mode only) ────────
     let councilDistrictLayer = null;
+    let _councilDistrictStyleFn = null;
 
     if (councilDistrictGeoData) {
       const {winnerMap, shareMap, turnoutMap} = buildLookups(councilDistrictResults, []);
       const cdStyle = makeLayerStyle(winnerMap, shareMap, turnoutMap, 0.8);
+      _councilDistrictStyleFn = cdStyle;
 
       councilDistrictLayer = L.geoJSON(councilDistrictGeoData, {
         style: cdStyle,
@@ -857,6 +933,16 @@ display(container);
       });
     }
 
+    // ── Per-station turnout lookup (precincts have inline turnout columns) ──
+    const _precinctTurnoutByStation = new Map();
+    if (precinctResults.length > 0 && precinctResults[0]?.registered != null) {
+      const _seenPids = new Set();
+      for (const r of precinctResults) {
+        const pid = String(r.precinct_id);
+        if (!_seenPids.has(pid)) { _seenPids.add(pid); _precinctTurnoutByStation.set(pid, r); }
+      }
+    }
+
     // ── Precinct layer (zoom-activated) ──────────────────────────────────
     // Precincts may be Point features (polling station coordinates) rather than
     // polygons. In that case each point is coloured by its parent CEC district
@@ -873,8 +959,9 @@ display(container);
             const parentDid = String(feature.properties.district_id);
             let fillColor;
             if (viewMode === "turnout") {
-              const td = turnoutByDistrict.get(parentDid);
-              fillColor = d3.interpolateRgb("#dbeafe", "#1d4ed8")(td?.turnout_pct ?? 0);
+              const stationId = String(feature.properties.id);
+              const td = _precinctTurnoutByStation.get(stationId) ?? turnoutByDistrict.get(parentDid);
+              fillColor = d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value));
             } else {
               const winner = winnerByDistrict.get(parentDid);
               if (winner) {
@@ -890,22 +977,30 @@ display(container);
             });
           },
           onEachFeature(feature, layer) {
-            const parentDid = String(feature.properties.district_id);
-            const stationId = String(feature.properties.id);
+            const parentDid  = String(feature.properties.district_id);
+            const stationId  = String(feature.properties.id);
+            const stationNum = Number(feature.properties.id) % 1000;
+            const distFeat   = activeGeo?.features?.find(f => String(f.properties.id) === parentDid);
+            const distNameEn = distFeat?.properties?.name_en ?? parentDid;
+            const distNameKa = distFeat?.properties?.name_ka ?? parentDid;
+            const titleKa    = `${distNameKa} N${stationNum}`;
+            const titleEn    = `${distNameEn} N${stationNum}`;
+
             layer.on("click", () => {
               const panel = document.getElementById("results-panel");
-              if (panel) {
-                if (viewMode === "turnout") {
-                  panel.replaceWith(renderTurnoutPanel(parentDid, feature.properties));
-                } else {
-                  // Show per-station results; pre-filter by precinct_id
-                  const stationRows = precinctResults.filter(r => String(r.precinct_id) === stationId);
-                  panel.replaceWith(renderDistrictPanel("__precinct__", feature.properties, stationRows));
-                }
-              }
+              if (!panel) return;
+              const enhancedProps = {
+                ...feature.properties,
+                name_en:    titleEn,
+                name_ka:    titleKa,
+                address_ka: feature.properties.name_ka
+              };
+              const stationTd   = _precinctTurnoutByStation.get(stationId);
+              const stationRows = precinctResults.filter(r => String(r.precinct_id) === stationId);
+              panel.replaceWith(renderPrecinctPanel(enhancedProps, stationTd, stationRows));
             });
             layer.bindTooltip(
-              `<strong>${feature.properties.name_ka ?? stationId}</strong>`,
+              `<strong>${lang === "ka" ? titleKa : titleEn}</strong>`,
               {sticky: true}
             );
           }
@@ -956,6 +1051,8 @@ display(container);
         districtLayer.setStyle(DISTRICT_HOLLOW);
         if (councilDistrictLayer && map.hasLayer(councilDistrictLayer)) map.removeLayer(councilDistrictLayer);
         if (!map.hasLayer(precinctLayer)) precinctLayer.addTo(map);
+        // Re-style dots to match current party filter (dots are styled at creation, may be stale)
+        if (_mapCtrl.current) _mapCtrl.current.updatePrecinctDots(_mapCtrl.current.currentPartyId);
       }
       if (controlDiv) {
         controlDiv.querySelectorAll(".level-control-item").forEach(el => {
@@ -986,7 +1083,7 @@ display(container);
     });
     new LevelControl({ position: "topright" }).addTo(map);
 
-    // ── Party filter: build per-district party-share lookup ─────────────────
+    // ── Party filter: lookups for district and precinct vote shares ──────────
     const _shareByPartyByDistrict = new Map();
     for (const r of _districtRows) {
       const did = String(r.district_id);
@@ -994,45 +1091,173 @@ display(container);
       _shareByPartyByDistrict.get(did).set(r.party_id, r.vote_share);
     }
 
+    const _shareByPartyByPrecinct = new Map();
+    for (const r of precinctResults) {
+      const pid = String(r.precinct_id);
+      if (!_shareByPartyByPrecinct.has(pid)) _shareByPartyByPrecinct.set(pid, new Map());
+      _shareByPartyByPrecinct.get(pid).set(r.party_id, r.vote_share);
+    }
+
+    // ── Map legend control (bottom-left) ────────────────────────────────────
+    function buildLegendHTML(activePartyId, legendMinVal, legendMaxVal) {
+      if (viewMode === "turnout" || activePartyId) {
+        const fromColor  = activePartyId ? "#f5f5f5" : "#fee2e2";
+        const toColor    = activePartyId ? partyColor(activePartyId, electionVal?.id) : "#b91c1c";
+        const stops      = [0, 0.25, 0.5, 0.75, 1.0];
+        const stopColors = stops.map(s => d3.interpolateRgb(fromColor, toColor)(s));
+        const gradCss    = `linear-gradient(to right, ${stopColors.join(", ")})`;
+
+        let minLabel, maxLabel;
+        if (activePartyId) {
+          // Show actual min/max vote-share values for this party across districts
+          const minPct = legendMinVal != null ? `${(legendMinVal * 100).toFixed(1)}%` : "0%";
+          const maxPct = legendMaxVal != null ? `${(legendMaxVal * 100).toFixed(1)}%` : "—";
+          minLabel = minPct;
+          maxLabel = maxPct;
+        } else {
+          // Turnout metric: show 0 and realistic ceiling
+          minLabel = "0%";
+          maxLabel = _turnoutMetricCtrl.value === "invalid" ? "5%"
+                   : _turnoutMetricCtrl.value === "noon"    ? "30%"
+                   : _turnoutMetricCtrl.value === "5pm"     ? "60%"
+                   : "100%";
+        }
+        const labels = ["", "", "", "", ""];
+        labels[0] = minLabel;
+        labels[4] = maxLabel;
+
+        const metricLabel = !activePartyId && viewMode === "turnout"
+          ? `<div style="font-size:0.62rem;color:#555;font-weight:600;margin-bottom:3px;">${t("elections.turnout.metric." + _turnoutMetricCtrl.value) || _turnoutMetricCtrl.value}</div>`
+          : "";
+        return `<div style="min-width:140px;">${metricLabel}
+          <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:#555;margin-bottom:2px;">
+            ${labels.map(l => `<span>${l}</span>`).join("")}
+          </div>
+          <div style="height:10px;border-radius:2px;background:${gradCss};"></div>
+        </div>`;
+      } else {
+        return `<div style="display:flex;flex-wrap:wrap;gap:3px 8px;">
+          ${passed.map(p => {
+            const name = p.party?.name?.[lang] || p.party_id;
+            return `<div style="display:flex;align-items:center;gap:3px;">
+              <span style="width:9px;height:9px;border-radius:2px;background:${p.color};display:inline-block;flex-shrink:0;"></span>
+              <span style="font-size:0.65rem;color:#333;white-space:nowrap;">${name}</span>
+            </div>`;
+          }).join("")}
+        </div>`;
+      }
+    }
+
+    const LegendControl = L.Control.extend({
+      onAdd() {
+        const div = L.DomUtil.create("div", "map-legend");
+        L.DomEvent.disableClickPropagation(div);
+        div.innerHTML = buildLegendHTML(null);
+        return div;
+      }
+    });
+    const _legendCtrl = new LegendControl({ position: "bottomleft" }).addTo(map);
+
     // Expose imperative map controls for bar chart clicks (toggles party filter)
     _mapCtrl.current = {
       currentPartyId: null,
+      currentTurnoutMetric: "final",
+      legendDiv: _legendCtrl.getContainer(),
+
+      setTurnoutMetric(metric) {
+        this.currentTurnoutMetric = metric;
+        _turnoutMetricCtrl.value  = metric;
+        // Highlight active metric rows in the displayed panel
+        document.querySelectorAll(".turnout-metric-row[data-metric]").forEach(row => {
+          row.classList.toggle("metric-row-active", row.dataset.metric === metric);
+        });
+        // Restyle the active map layer
+        if (currentLevel === "district") {
+          districtLayer.setStyle(districtStyle);
+        } else if (currentLevel === "council_district" && councilDistrictLayer && _councilDistrictStyleFn) {
+          councilDistrictLayer.setStyle(_councilDistrictStyleFn);
+        }
+        // Update precinct dots
+        this.updatePrecinctDots(this.currentPartyId);
+        // Update legend
+        if (this.legendDiv) this.legendDiv.innerHTML = buildLegendHTML(null);
+      },
+
       setPartyFilter(partyId) {
+        // Radio behaviour: clicking the active party deselects; clicking a new one replaces
         const newId = this.currentPartyId === partyId ? null : partyId;
         this.currentPartyId = newId;
 
-        if (newId) {
-          const partyStyle = (feature) => {
-            const did = String(feature.properties.id);
+        // Visual feedback: exactly one bar row highlighted (or none)
+        document.querySelectorAll(".bar-row[data-party-id]").forEach(row => {
+          row.classList.toggle("bar-row-active", newId != null && row.dataset.partyId === newId);
+        });
+
+        // Only restyle the district layer when it's actually the active layer.
+        // At precinct/council_district level the district layer must stay hollow.
+        const districtIsActive = currentLevel === "district";
+
+        // Compute min/max share for this party across all districts (for legend + scaling)
+        const allDistrictShares = newId
+          ? [..._shareByPartyByDistrict.values()].map(m => m.get(newId) ?? 0).filter(v => v > 0)
+          : [];
+        const minShare = allDistrictShares.length ? d3.min(allDistrictShares) : 0;
+        const maxShare = allDistrictShares.length ? d3.max(allDistrictShares) : 1;
+        const range    = (maxShare - minShare) || 1;
+
+        if (newId && districtIsActive) {
+          const color = partyColor(newId, electionVal?.id);
+          districtLayer.setStyle(feature => {
+            const did   = String(feature.properties.id);
             const share = _shareByPartyByDistrict.get(did)?.get(newId) ?? 0;
-            const color = partyColor(newId, electionVal?.id);
+            // Normalize within actual min–max range so contrast is always visible
             return {
-              fillColor: d3.interpolateRgb("#f5f5f5", color)(Math.min(1, share * 2.2)),
-              fillOpacity: 0.9, color: "#ffffff", weight: 1
+              fillColor:   d3.interpolateRgb("#f5f5f5", color)(0.15 + ((share - minShare) / range) * 0.85),
+              fillOpacity: 0.9, color: "#ffffff", weight: 0.5
             };
-          };
-          districtLayer.setStyle(partyStyle);
-        } else {
+          });
+        } else if (districtIsActive) {
           districtLayer.setStyle(districtStyle);
         }
+        // If not at district level, leave the district layer hollow (do not touch it)
 
-        // Also update any visible precinct dots
-        if (precinctLayer) {
-          precinctLayer.eachLayer(l => {
-            const did = String(l.feature?.properties?.district_id);
-            let fillColor;
-            if (newId) {
-              const share = _shareByPartyByDistrict.get(did)?.get(newId) ?? 0;
-              const color = partyColor(newId, electionVal?.id);
-              fillColor = d3.interpolateRgb("#f5f5f5", color)(Math.min(1, share * 2.2));
-            } else {
-              const winner = winnerByDistrict.get(did);
-              const color = winner ? partyColor(winner.party_id, electionVal?.id) : "#ccc";
-              fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + (shareByDistrict.get(did) ?? 0.5) * 0.6);
-            }
-            l.setStyle({fillColor, fillOpacity: 0.85});
-          });
+        // Always fully re-style precinct dots from scratch (prevents stale colours)
+        this.updatePrecinctDots(newId, minShare, maxShare);
+
+        // Update legend — pass actual min/max so labels show real percentages
+        if (this.legendDiv) this.legendDiv.innerHTML = buildLegendHTML(newId, newId ? minShare : null, newId ? maxShare : null);
+      },
+
+      updatePrecinctDots(activePartyId, distMinShare, distMaxShare) {
+        if (!precinctLayer) return;
+        let minS = 0, maxS = 1, range = 1;
+        if (activePartyId) {
+          // Use precinct-level min/max if available, else fall back to district-level values
+          const precinctShares = [..._shareByPartyByPrecinct.values()]
+            .map(m => m.get(activePartyId) ?? 0).filter(v => v > 0);
+          minS  = precinctShares.length ? d3.min(precinctShares) : (distMinShare ?? 0);
+          maxS  = precinctShares.length ? d3.max(precinctShares) : (distMaxShare ?? 1);
+          range = (maxS - minS) || 1;
         }
+        precinctLayer.eachLayer(l => {
+          const pid       = String(l.feature?.properties?.id);
+          const parentDid = String(l.feature?.properties?.district_id);
+          let fillColor;
+          if (activePartyId) {
+            const share = _shareByPartyByPrecinct.get(pid)?.get(activePartyId)
+                       ?? _shareByPartyByDistrict.get(parentDid)?.get(activePartyId) ?? 0;
+            const color = partyColor(activePartyId, electionVal?.id);
+            fillColor = d3.interpolateRgb("#f5f5f5", color)(0.15 + ((share - minS) / range) * 0.85);
+          } else if (viewMode === "turnout") {
+            const td = _precinctTurnoutByStation.get(pid) ?? turnoutByDistrict.get(parentDid);
+            fillColor = d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value));
+          } else {
+            const winner = winnerByDistrict.get(parentDid);
+            const color  = winner ? partyColor(winner.party_id, electionVal?.id) : "#ccc";
+            fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + (shareByDistrict.get(parentDid) ?? 0.5) * 0.6);
+          }
+          l.setStyle({fillColor, fillOpacity: 0.85});
+        });
       }
     };
   }
@@ -1044,25 +1269,21 @@ display(container);
 ```js
 // ── CHART RENDERERS ────────────────────────────────────────────────────────
 
-// Renders national vote results into the info panel (default state — bar chart or turnout)
+// Renders national vote results into the info panel (default state — bar chart or turnout metrics)
 function renderNationalPanel() {
   const resultTitle = t(isPresidential ? "elections.presidential.results_title"
                       : isPlebiscite   ? "elections.plebiscite_results_title"
                       :                  "elections.party_list_title");
+  if (viewMode === "turnout") {
+    // Turnout mode: show clickable metric rows for national data (same layout as district panels)
+    return renderTurnoutPanel("national", {name_en: "National", name_ka: "ეროვნული"});
+  }
   return html`<div class="card results-panel" id="results-panel">
     <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:0.75rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
       ${t("elections.results.national")}
     </div>
-    ${viewMode === "turnout" ? html`
-      ${renderTurnoutSummary(
-        turnoutData.length > 0 ? turnoutData
-          : turnoutByDistrict.has("national") ? [turnoutByDistrict.get("national")] : [],
-        electionVal
-      )}
-    ` : html`
-      <div style="font-size:0.8rem; font-weight:600; color:var(--muted); margin-bottom:0.5rem;">${resultTitle}</div>
-      ${renderBarChart(passed, failed, electionVal?.id, presidentialWinnerId)}
-    `}
+    <div style="font-size:0.8rem; font-weight:600; color:var(--muted); margin-bottom:0.5rem;">${resultTitle}</div>
+    ${renderBarChart(passed, failed, electionVal?.id, presidentialWinnerId)}
   </div>`;
 }
 
@@ -1082,7 +1303,7 @@ function renderBarChart(passed, failed, elecId, winnerId = null) {
     const pname    = d.party?.name?.[lang] || d.party_id;
     const isWinner = winnerId && d.party_id === winnerId;
     const el = html`
-      <div class="bar-row" style="cursor:pointer;" title="${t("elections.chart.click_filter") || "Click to filter map"}">
+      <div class="bar-row" data-party-id="${d.party_id}" style="cursor:pointer;" title="${t("elections.chart.click_filter") || "Click to filter map"}">
         <div class="bar-label" title="${pname}">
           <span class="party-dot" style="background:${d.color};"></span>${pname}
           ${isWinner ? html`<span style="margin-left:4px; font-size:0.68rem; background:${d.color}; color:#fff; border-radius:3px; padding:1px 5px; vertical-align:middle;">✓</span>` : ""}
@@ -1269,6 +1490,11 @@ function renderDistrictPanel(distId, props, data = results) {
 
   const panel = html`<div class="card results-panel" id="results-panel">
     ${panelBackHeader(pname)}
+    ${distId === "__precinct__" && props?.address_ka ? html`
+      <div style="font-size:0.75rem; color:var(--muted); padding:0 0 8px 0;">
+        <span style="font-weight:600;">${t("elections.results.address") || "Address"}:</span>
+        ${props.address_ka}
+      </div>` : ""}
     <table class="dist-table">
       <thead><tr>
         <th>${colHeader}</th>
@@ -1296,36 +1522,115 @@ function renderDistrictPanel(distId, props, data = results) {
 // ── Turnout panel ─────────────────────────────────────────────────────────
 function renderTurnoutPanel(distId, props, turnoutLookup = turnoutByDistrict) {
   const pname = lang === "ka" ? props.name_ka : props.name_en || distId;
-  const td = turnoutLookup.get(distId);
+  const isNational = distId === "national";
+  const td = turnoutLookup instanceof Map ? turnoutLookup.get(distId) : turnoutByDistrict.get(distId);
   const turnoutCfg = electionVal?.turnout ?? {};
 
   if (!td) {
     return html`<div class="card results-panel" id="results-panel">
-      ${panelBackHeader(pname)}
+      ${isNational ? "" : panelBackHeader(pname)}
       <p style="color:var(--muted); font-size:0.85rem;">${t("elections.turnout.no_data")}</p>
     </div>`;
   }
 
-  const pct = td.turnout_pct != null ? `${(td.turnout_pct * 100).toFixed(1)}%` : "—";
-  const voted = td.voted != null ? td.voted.toLocaleString() : "—";
-  const registered = td.registered != null ? td.registered.toLocaleString() : "—";
+  const activeMet = _mapCtrl.current?.currentTurnoutMetric ?? "final";
 
+  // Metric rows — clickable, switches the map coloring
+  function metricRow(metric, label, value, sub) {
+    if (!value) return "";
+    const isActive = activeMet === metric;
+    const el = html`<div class="turnout-metric-row${isActive ? " metric-row-active" : ""}" data-metric="${metric}">
+      <span class="metric-row-label" style="color:var(--muted);">${label}</span>
+      <span style="font-weight:700;">${value}${sub ? html`<span style="font-weight:400;color:var(--muted);font-size:0.74rem;margin-left:4px;">${sub}</span>` : ""}</span>
+    </div>`;
+    el.addEventListener("click", () => _mapCtrl.current?.setTurnoutMetric(metric));
+    return el;
+  }
+
+  // Static rows (non-metric info)
   function statRow(label, value, sub) {
-    return html`<div style="display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; border-bottom:1px solid var(--border); font-size:0.82rem;">
+    return html`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--border);font-size:0.82rem;">
       <span style="color:var(--muted);">${label}</span>
-      <span style="font-weight:700;">${value}${sub ? html`<span style="font-weight:400; color:var(--muted); font-size:0.75rem; margin-left:4px;">${sub}</span>` : ""}</span>
+      <span style="font-weight:700;">${value}${sub ? html`<span style="font-weight:400;color:var(--muted);font-size:0.75rem;margin-left:4px;">${sub}</span>` : ""}</span>
     </div>`;
   }
 
+  const pct      = td.turnout_pct  != null ? `${(td.turnout_pct  * 100).toFixed(1)}%` : null;
+  const noonPct  = td.noon_pct  != null ? `${(td.noon_pct  * 100).toFixed(1)}%`
+                 : (td.voted_noon != null && td.registered > 0) ? `${(td.voted_noon / td.registered * 100).toFixed(1)}%` : null;
+  const fivePct  = td.five_pct  != null ? `${(td.five_pct  * 100).toFixed(1)}%`
+                 : (td.voted_5pm  != null && td.registered > 0) ? `${(td.voted_5pm  / td.registered * 100).toFixed(1)}%` : null;
+  const invPct   = td.invalid_pct != null ? `${(td.invalid_pct * 100).toFixed(1)}%`
+                 : (td.invalid_ballots != null && td.voted > 0) ? `${(td.invalid_ballots / td.voted * 100).toFixed(1)}%` : null;
+
+  return html`<div class="card results-panel" id="results-panel">
+    ${isNational
+      ? html`<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);">${t("elections.results.national")}</div>`
+      : panelBackHeader(pname)}
+    ${metricRow("final", t("elections.turnout.pct"), pct)}
+    ${statRow(t("elections.turnout.voted"),      td.voted      != null ? td.voted.toLocaleString()      : "—")}
+    ${statRow(t("elections.turnout.registered"), td.registered != null ? td.registered.toLocaleString() : "—")}
+    ${turnoutCfg.has_snapshots && noonPct ? metricRow("noon", t("elections.turnout.noon"), noonPct, td.voted_noon != null ? `(${td.voted_noon.toLocaleString()})` : null) : ""}
+    ${turnoutCfg.has_snapshots && fivePct ? metricRow("5pm",  t("elections.turnout.5pm"),  fivePct,  td.voted_5pm  != null ? `(${td.voted_5pm.toLocaleString()})` : null)  : ""}
+    ${turnoutCfg.has_lists && td.main_list    != null ? statRow(t("elections.turnout.main_list"),    td.main_list.toLocaleString())    : ""}
+    ${turnoutCfg.has_lists && td.special_list != null ? statRow(t("elections.turnout.special_list"), td.special_list.toLocaleString()) : ""}
+    ${invPct ? metricRow("invalid", t("elections.turnout.invalid_pct") || "Invalid ballots", invPct, td.invalid_ballots != null ? `(${td.invalid_ballots.toLocaleString()})` : null) : ""}
+  </div>`;
+}
+
+// ── Precinct info panel (unified: turnout + vote results) ─────────────────
+// Shows full station turnout breakdown (always). Metric rows are clickable to switch map coloring.
+function renderPrecinctPanel(props, td, stationRows) {
+  const pname = lang === "ka" ? props.name_ka : props.name_en;
+  const turnoutCfg = electionVal?.turnout ?? {};
+  const activeMet = _mapCtrl.current?.currentTurnoutMetric ?? "final";
+
+  // Clickable metric row — clicking switches the map to that metric
+  function metricRow(metric, label, value, sub) {
+    if (!value) return "";
+    const isActive = activeMet === metric;
+    const el = html`<div class="turnout-metric-row${isActive ? " metric-row-active" : ""}" data-metric="${metric}">
+      <span class="metric-row-label" style="color:var(--muted);">${label}</span>
+      <span style="font-weight:700;">${value}${sub ? html`<span style="font-weight:400;color:var(--muted);font-size:0.74rem;margin-left:4px;">${sub}</span>` : ""}</span>
+    </div>`;
+    el.addEventListener("click", () => _mapCtrl.current?.setTurnoutMetric(metric));
+    return el;
+  }
+
+  // Static (non-metric) info row
+  function statRow(label, value, sub) {
+    return html`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.81rem;">
+      <span style="color:var(--muted);">${label}</span>
+      <span style="font-weight:700;">${value}${sub ? html`<span style="font-weight:400;color:var(--muted);font-size:0.74rem;margin-left:4px;">${sub}</span>` : ""}</span>
+    </div>`;
+  }
+
+  const _pct     = td?.turnout_pct  != null ? `${(td.turnout_pct  * 100).toFixed(1)}%` : null;
+  const _noonPct = td?.noon_pct  != null ? `${(td.noon_pct  * 100).toFixed(1)}%`
+                 : (td?.voted_noon != null && td?.registered > 0) ? `${(td.voted_noon / td.registered * 100).toFixed(1)}%` : null;
+  const _fivePct = td?.five_pct  != null ? `${(td.five_pct  * 100).toFixed(1)}%`
+                 : (td?.voted_5pm  != null && td?.registered > 0) ? `${(td.voted_5pm  / td.registered * 100).toFixed(1)}%` : null;
+  const _invPct  = td?.invalid_pct != null ? `${(td.invalid_pct * 100).toFixed(1)}%`
+                 : (td?.invalid_ballots != null && td?.voted > 0) ? `${(td.invalid_ballots / td.voted * 100).toFixed(1)}%` : null;
+
+  const turnoutBlock = td ? html`
+    ${metricRow("final", t("elections.turnout.pct"),  _pct)}
+    ${statRow(t("elections.turnout.voted"),      td.voted      != null ? td.voted.toLocaleString()      : "—")}
+    ${statRow(t("elections.turnout.registered"), td.registered != null ? td.registered.toLocaleString() : "—")}
+    ${turnoutCfg.has_snapshots && _noonPct ? metricRow("noon",    t("elections.turnout.noon"), _noonPct, td.voted_noon != null ? `(${td.voted_noon.toLocaleString()})` : null) : ""}
+    ${turnoutCfg.has_snapshots && _fivePct ? metricRow("5pm",     t("elections.turnout.5pm"),  _fivePct, td.voted_5pm  != null ? `(${td.voted_5pm.toLocaleString()})` : null)  : ""}
+    ${turnoutCfg.has_lists && td.main_list    != null ? statRow(t("elections.turnout.main_list"),    td.main_list.toLocaleString())    : ""}
+    ${turnoutCfg.has_lists && td.special_list != null ? statRow(t("elections.turnout.special_list"), td.special_list.toLocaleString()) : ""}
+    ${_invPct ? metricRow("invalid", t("elections.turnout.invalid_pct") || "Invalid ballots", _invPct, td.invalid_ballots != null ? `(${td.invalid_ballots.toLocaleString()})` : null) : ""}
+  ` : "";
+
   return html`<div class="card results-panel" id="results-panel">
     ${panelBackHeader(pname)}
-    ${statRow(t("elections.turnout.pct"), pct)}
-    ${statRow(t("elections.turnout.voted"), voted)}
-    ${statRow(t("elections.turnout.registered"), registered)}
-    ${turnoutCfg.has_snapshots && td.voted_noon != null ? statRow(t("elections.turnout.noon"), td.voted_noon.toLocaleString(), `(${(td.voted_noon/td.voted*100).toFixed(0)}%)`) : ""}
-    ${turnoutCfg.has_snapshots && td.voted_5pm != null ? statRow(t("elections.turnout.5pm"), td.voted_5pm.toLocaleString(), `(${(td.voted_5pm/td.voted*100).toFixed(0)}%)`) : ""}
-    ${turnoutCfg.has_lists && td.main_list != null ? statRow(t("elections.turnout.main_list"), td.main_list.toLocaleString()) : ""}
-    ${turnoutCfg.has_lists && td.special_list != null ? statRow(t("elections.turnout.special_list"), td.special_list.toLocaleString()) : ""}
+    ${props.address_ka ? html`
+      <div style="font-size:0.74rem;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:4px;">
+        <span style="font-weight:600;">${t("elections.results.address") || "Address"}:</span> ${props.address_ka}
+      </div>` : ""}
+    ${turnoutBlock}
   </div>`;
 }
 
@@ -1364,9 +1669,16 @@ function renderTurnoutSummary(data, elec) {
         </div>
         ${turnoutCfg.has_snapshots && row.voted_noon != null ? html`
           <div style="font-size:0.78rem; color:var(--muted); margin-bottom:4px;">
-            ${t("elections.turnout.noon")}: <strong>${row.voted_noon.toLocaleString()}</strong>
+            ${t("elections.turnout.noon")}: <strong>${row.noon_pct != null ? `${(row.noon_pct*100).toFixed(1)}%` : `${(row.voted_noon/row.registered*100).toFixed(1)}%`}</strong>
+            <span style="opacity:0.7;"> (${row.voted_noon.toLocaleString()})</span>
             &nbsp;·&nbsp;
-            ${t("elections.turnout.5pm")}: <strong>${row.voted_5pm.toLocaleString()}</strong>
+            ${t("elections.turnout.5pm")}: <strong>${row.five_pct != null ? `${(row.five_pct*100).toFixed(1)}%` : `${(row.voted_5pm/row.registered*100).toFixed(1)}%`}</strong>
+            <span style="opacity:0.7;"> (${row.voted_5pm.toLocaleString()})</span>
+          </div>` : ""}
+        ${row.invalid_ballots != null ? html`
+          <div style="font-size:0.78rem; color:var(--muted); margin-bottom:4px;">
+            ${t("elections.turnout.invalid_pct") || "Invalid"}: <strong>${row.invalid_pct != null ? `${(row.invalid_pct*100).toFixed(1)}%` : "—"}</strong>
+            <span style="opacity:0.7;"> (${row.invalid_ballots.toLocaleString()})</span>
           </div>` : ""}
         ${turnoutCfg.has_lists && row.main_list != null ? html`
           <div style="font-size:0.78rem; color:var(--muted);">

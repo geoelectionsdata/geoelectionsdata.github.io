@@ -75,7 +75,10 @@
       "Bash(Rscript scripts/process_parl2024.R)",
       "Bash(Rscript -e \":*)",
       "Bash(head -3 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\parl2024_pr_precincts.csv\")",
-      "Bash(Rscript -e \"library\\(sf\\); cat\\(''''sf available\\\\n''''\\)\")"
+      "Bash(Rscript -e \"library\\(sf\\); cat\\(''''sf available\\\\n''''\\)\")",
+      "Bash(head -3 \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/results/parl2024_pr.csv\")",
+      "Bash(head -3 \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/results/parl2024_pr_precincts.csv\")",
+      "Bash(head -2 \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/results/parl2024_pr_precincts.csv\")"
     ]
   }
 }

@@ -132,6 +132,13 @@
     "elections.turnout.pr": "Party list (PR)",
     "elections.turnout.smd": "Single-member (SMD)",
     "elections.turnout.no_data": "No turnout data available for this election",
+    "elections.turnout.metric": "Show metric",
+    "elections.turnout.metric.final": "Final turnout",
+    "elections.turnout.metric.noon": "By noon",
+    "elections.turnout.metric.5pm": "By 5 PM",
+    "elections.turnout.metric.invalid": "Invalid ballots",
+    "elections.turnout.invalid_pct": "Invalid ballots",
+    "elections.turnout.invalid_count": "Invalid (count)",
 
     "elections.presidential.results_title": "Candidate results",
     "elections.electoral_college.for": "For",
@@ -143,6 +150,7 @@
     "elections.electoral_college.total": "Total members",
     "elections.electoral_college.no_data": "No electoral college data available",
     "elections.results.national": "National",
+    "elections.results.address": "Address",
 
     "elections.local.ballot_type": "Ballot",
     "elections.local.mayor": "Mayor",
@@ -292,6 +300,13 @@
     "elections.turnout.pr": "პროპორციული",
     "elections.turnout.smd": "მაჟორიტარული",
     "elections.turnout.no_data": "ამ არჩევნებისთვის აქტივობის მონაცემები არ არის",
+    "elections.turnout.metric": "მაჩვენებლები",
+    "elections.turnout.metric.final": "საბოლოო მონაწილეობა",
+    "elections.turnout.metric.noon": "12:00-თვის",
+    "elections.turnout.metric.5pm": "17:00-თვის",
+    "elections.turnout.metric.invalid": "ბათილი ბიულეტენები",
+    "elections.turnout.invalid_pct": "ბათილი ბიულეტენები",
+    "elections.turnout.invalid_count": "ბათილი (რაოდენობა)",
 
     "elections.presidential.results_title": "კანდიდატების შედეგები",
     "elections.electoral_college.for": "მხარდამჭერი",
@@ -303,6 +318,7 @@
     "elections.electoral_college.total": "სულ წევრი",
     "elections.electoral_college.no_data": "ამომრჩეველთა კოლეგიის მონაცემები არ არის",
     "elections.results.national": "ეროვნული",
+    "elections.results.address": "მისამართი",
 
     "elections.local.ballot_type": "ბიულეტენი",
     "elections.local.mayor": "მერი",
