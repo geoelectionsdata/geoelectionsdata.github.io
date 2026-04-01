@@ -78,7 +78,12 @@
       "Bash(Rscript -e \"library\\(sf\\); cat\\(''''sf available\\\\n''''\\)\")",
       "Bash(head -3 \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/results/parl2024_pr.csv\")",
       "Bash(head -3 \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/results/parl2024_pr_precincts.csv\")",
-      "Bash(head -2 \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/results/parl2024_pr_precincts.csv\")"
+      "Bash(head -2 \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/results/parl2024_pr_precincts.csv\")",
+      "Bash(cd /d/Dropbox \\\\\\(Personal\\\\\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data)",
+      "Bash(ls \"/d/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/raw/\")",
+      "Bash(python \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\scripts\\\\transform_parl1919.py\")",
+      "Bash(PYTHONIOENCODING=utf-8 python3 -c \":*)",
+      "Bash(PYTHONIOENCODING=utf-8 python3 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\generate_parl1919_turnout.py\")"
     ]
   }
 }

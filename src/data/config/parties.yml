@@ -190,99 +190,100 @@ parties:
 
   - id: sr_1919
     name:
-      en: Socialist-Revolutionary Party of Goergia
+      en: Socialist-Revolutionary Party of Georgia
       ka: საქართველოს სოციალისტ-რევოლუციონერთა პარტია
-    color: "#0D47A1"
+    color: "#AD1457"
     type: party
 
   - id: dashnaks
     name:
       en: Dashnaktsutyun
-      ka: „დაშნაკცუთიუნ“
-    color: "#E65100"
+      ka: „დაშნაკცუთიუნ"
+    color: "#BF360C"
     type: party
-    
+
   - id: federalists_1919
     name:
-      en: Socialist-Federalist Party of Georgi
+      en: Socialist-Federalist Party of Georgia
       ka: საქართველოს სოციალისტ-ფედერალისტთა პარტია
-    color: "#E65100"
+    color: "#00838F"
     type: party
 
   - id: muslim_1919
     name:
       en: National Council of Muslims
       ka: მუსლიმთა ეროვნული საბჭო
-    color: "#E65100"
+    color: "#2E7D32"
     type: party
 
   - id: raddem_1919
     name:
       en: Radical-Democratic Party of Georgia
       ka: საქართველოს რადიკალ-დემოკრატთა პარტია
-    color: "#E65100"
+    color: "#F9A825"
     type: party
 
   - id: natparty_1919
     name:
       en: National Party of Georgia
       ka: საქართველოს ეროვნული პარტია
-    color: "#E65100"
+    color: "#4527A0"
     type: party
 
   - id: left_federalists_1919
     name:
       en: Leftist Socialist-Federalist Toilers Party
       ka: მემარცხენე სოციალისტ-ფედერალისტთა მაშვრალთა პარტია
-    color: "#E65100"
-    
+    color: "#00695C"
+    type: party
+
   - id: rustaveli_1919
     name:
       en: Shota Rustaveli Group
       ka: შოთა რუსთაველის ჯგუფი
-    color: "#E65100"
+    color: "#6D4C41"
     type: party
-    
+
   - id: indie_1919
     name:
       en: Union of Independents (Non-partisans)
       ka: დამოუკიდებელთა (უპარტიო) კავშირი
-    color: "#E65100"
+    color: "#546E7A"
     type: party
-    
+
   - id: borchalo_1919
     name:
       en: Group of Muslims of the Borchalo District
       ka: ბორჩალოს მაზრის მცხოვრებ მუსულმანთა ჯგუფი
-    color: "#E65100"
+    color: "#558B2F"
     type: party
-    
+
   - id: sdwpr_1919
     name:
       en: Social Democratic Workers Party of Russia
       ka: რუსეთის სოციალ-დემოკრატთა მუშათა პარტია
-    color: "#E65100"
+    color: "#880E4F"
     type: party
-    
+
   - id: aesth_1919
     name:
       en: Aesthetic League of Patriots
       ka: ესთეტიური ლიგა პატრიოტებისა
-    color: "#E65100"
+    color: "#7B1FA2"
     type: party
-    
+
   - id: hellenic_1919
     name:
       en: Democratic Group of the Georgian Greeks
       ka: საქართველოს ელინთა დემოკრატიული ჯგუფი
-    color: "#E65100"
+    color: "#1565C0"
     type: party
-    
+
   - id: abkh_1919
     name:
-      en: National Party of Georgia
+      en: Abkhazia National Party
       ka: აფხაზეთის ნაციონალური პარტია
-    color: "#E65100"
+    color: "#33691E"
     type: party
 
   # ── SMD independents ──────────────────────────────────────────────────────

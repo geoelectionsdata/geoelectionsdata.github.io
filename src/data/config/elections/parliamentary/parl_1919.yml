@@ -1,7 +1,7 @@
 id: parl_1919
 type: parliamentary
 sub_type: pr
-date: "1919-02-14"
+date: "1919-02-14 - 1919-02-16"
 name:
   en: "1919 Constituent Assembly Elections"
   ka: "1919 წლის დამფუძნებელი კრების არჩევნები"
@@ -9,7 +9,9 @@ system:
   pr:
     enabled: true
     seats: 130
+    threshold_pct: 1.0
     shape_file: "data/shp/parl1919_pr.geojson"
+    precinct_shape_file: null
   smd:
     enabled: false
     seats: 0
@@ -17,19 +19,124 @@ system:
   compensation:
     enabled: false
     shape_file: null
+notes:
+  en: |
+    In 1919, Democratic Republic of Georgia elected its first parliament, Constituent Assembly.
+  ka: |
+    1919 წელს, საქართველოს დემოკრატიულმა რესპუბლიკამ აირჩია თავისი პირველი პარლამენტი, დამფუძნებელი კრება    
 sub_elections: []
 parties:
   - id: social_democrats_1919
+    alias:
+      en: Social Democratic Workers Party of Georgia
+      ka: საქართველოს სოციალ-დემოკრატიული მუშათა პარტია
     threshold_status: passed
-  - id: social_federalists_1919
-    threshold_status: passed
+    seats_pr: 102
   - id: national_democrats_1919
+    alias:
+      en: National-Democratic Party of Georgia
+      ka: საქართველოს ეროვნულ-დემოკრატიული პარტია
     threshold_status: passed
+    seats_pr: 9
   - id: sr_1919
+    alias:
+      en: Socialist-Revolutionary Party of Goergia
+      ka: საქართველოს სოციალისტ-რევოლუციონერთა პარტია
     threshold_status: passed
+    seats_pr: 5
+  - id: dashnaks
+    alias:
+      en: Dashnaktsutyun
+      ka: „დაშნაკცუთიუნ“
+    threshold_status: passed
+    seats_pr: 3
+  - id: federalists_1919
+    alias:
+      en: Socialist-Federalist Party of Georgi
+      ka: საქართველოს სოციალისტ-ფედერალისტთა პარტია
+    threshold_status: passed
+    seats_pr: 9
+
+  - id: muslim_1919
+    alias:
+      en: National Council of Muslims
+      ka: მუსლიმთა ეროვნული საბჭო
+    threshold_status: failed
+    seats_pr: 0
+  - id: raddem_1919
+    alias:
+      en: Radical-Democratic Party of Georgia
+      ka: საქართველოს რადიკალ-დემოკრატთა პარტია
+    threshold_status: failed
+    seats_pr: 0
+  - id: natparty_1919
+    alias:
+      en: National Party of Georgia
+      ka: საქართველოს ეროვნული პარტია
+    threshold_status: failed
+    seats_pr: 0
+  - id: left_federalists_1919
+    alias:
+      en: Leftist Socialist-Federalist Toilers Party
+      ka: მემარცხენე სოციალისტ-ფედერალისტთა მაშვრალთა პარტია
+    threshold_status: failed
+    seats_pr: 0
+    
+  - id: rustaveli_1919
+    alias:
+      en: Shota Rustaveli Group
+      ka: შოთა რუსთაველის ჯგუფი
+    threshold_status: failed
+    seats_pr: 0
+    
+  - id: indie_1919
+    alias:
+      en: Union of Independents (Non-partisans)
+      ka: დამოუკიდებელთა (უპარტიო) კავშირი
+    threshold_status: failed
+    seats_pr: 0
+    
+  - id: borchalo_1919
+    alias:
+      en: Group of Muslims of the Borchalo District
+      ka: ბორჩალოს მაზრის მცხოვრებ მუსულმანთა ჯგუფი
+    threshold_status: failed
+    seats_pr: 0
+    
+  - id: sdwpr_1919
+    alias:
+      en: Social Democratic Workers Party of Russia
+      ka: რუსეთის სოციალ-დემოკრატთა მუშათა პარტია
+    threshold_status: failed
+    seats_pr: 0
+    
+  - id: aesth_1919
+    alias:
+      en: Aesthetic League of Patriots
+      ka: ესთეტიური ლიგა პატრიოტებისა
+    threshold_status: failed
+    seats_pr: 0
+    
+  - id: hellenic_1919
+    alias:
+      en: Democratic Group of the Georgian Greeks
+      ka: საქართველოს ელინთა დემოკრატიული ჯგუფი
+    threshold_status: failed
+    seats_pr: 0
+  - id: abkh_1919
+    alias:
+      en: National Party of Georgia
+      ka: აფხაზეთის ნაციონალური პარტია
+    threshold_status: failed
+    seats_pr: 0
 files:
   pr_results:  "data/results/parl1919_pr.csv"
   smd_results: null
   candidates:  "data/candidates/parl1919.csv"
   cartogram:   "data/shp/parl1919_cartogram.geojson"
-turnout: null
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/parl1919_turnout.csv"
+  has_snapshots: false
+  has_lists: false

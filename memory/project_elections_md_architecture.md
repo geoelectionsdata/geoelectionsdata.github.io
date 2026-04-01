@@ -206,9 +206,188 @@ function getParty(partyId) {
 }
 ```
 
+## elections.md — URL deep-link support
+
+`_typeCtrl` and `_electionCtrl` are bootstrapped from URL params on page load:
+
+```js
+const _urlParams    = new URLSearchParams(window.location.search);
+const _typeCtrl     = {value: _urlParams.get("type") ?? "parliamentary"};
+const _electionCtrl = {value: _urlParams.get("election") ?? null};
+```
+
+Event listeners call `history.replaceState` to keep the URL in sync:
+```js
+typeInput.addEventListener("input", () => {
+  _typeCtrl.value = typeInput.value;
+  const _p = new URLSearchParams(window.location.search);
+  _p.set("type", typeInput.value); _p.delete("election");
+  history.replaceState(null, "", "?" + _p.toString());
+});
+electionInput.addEventListener("input", () => {
+  _electionCtrl.value = electionInput.value?.id ?? null;
+  const _p = new URLSearchParams(window.location.search);
+  if (electionInput.value?.id) _p.set("election", electionInput.value.id);
+  history.replaceState(null, "", "?" + _p.toString());
+});
+```
+
+Links to a specific election from any page: `elections?type=parliamentary&election=parl_2024`
+
+---
+
+## index.md — Main page architecture
+
+**File:** `src/index.md`
+
+### Cell order
+
+1. **Static imports** — L, d3, getLang, tr; FileAttachments: dict, elections, parties, `_allGeo` (geo-registry.json), `_allCsv` (csv-registry.json)
+2. **`lang`** — reactive Generator (own cell)
+3. **`t`** — translation fn, depends on lang+dict
+4. **Featured election** — picks from national elections (parliamentary/presidential, non-indirect, has geo+results), rotates daily via `Math.floor(Date.now() / 86400000) % n`. Builds `_winnerMap` (district → winner row). Defines `featPartyColor()`, `featPartyName()`.
+5. **`mapContainer`** — stable fixed-height div (`height: 440px`), no reactive deps, created once
+6. **Layout cell** — depends on `lang`; re-renders text but moves (not copies) `mapContainer` back in. Renders: 60/40 grid (3fr 2fr), map card (left) + info card (right), browse section (election cards by type). Calls `display(layout)`.
+7. **Map IIFE** — has `lang;` dep to guarantee it runs AFTER the layout cell calls `display()`. Initializes Leaflet, adds tile layer, adds GeoJSON choropleth colored by district winner. `interactive: false`. `setTimeout(() => map.invalidateSize(), 100)`.
+
+### Key design decisions
+
+- **Fixed map height**: `mapContainer` uses `height: 440px` (not `height: 100%`). `height: 100%` inside a flex item resolves to 0. Fixed height is required for Leaflet to have concrete dimensions.
+- **`lang;` in map IIFE**: Ensures map IIFE runs after layout cell (which also depends on `lang`) has called `display()`. Without this, the map may initialize before the container is in the DOM.
+- **Browse section**: Cards (not accordions). Each election type has a heading + row of compact cards. Cards link to `elections?type=X&election=Y`. Cards with no results data are shown at 50% opacity.
+- **Info card**: `max-height: 480px; overflow-y: auto` so long notes blurbs scroll rather than stretching the layout.
+- **Election name lookup**: `featPartyName(p)` checks `p.alias?.[lang]` first (used in historical YAMLs like 1919), falls back to `parties.json` name.
+
+### Notes / blurb rendering — always use innerHTML
+
+Notes fields in YAMLs may contain HTML (`<a href="...">, <b>, <em>`). Never embed them via `html\`...\`` template literals — that escapes tags as text. Always create an element and set `innerHTML`:
+
+```js
+// WRONG — shows <a href="..."> as literal text
+html`<p>${featNotes}</p>`
+
+// CORRECT
+const _n = document.createElement("p");
+_n.className = "idx-info-notes";
+_n.innerHTML = featNotes;
+// then embed _n in the template: ${_n}
+```
+
+Inline IIFE pattern used in index.md:
+```js
+${(() => { if (!featNotes) return ""; const _n = document.createElement("p"); _n.className = "idx-info-notes"; _n.innerHTML = featNotes; return _n; })()}
+```
+
+`renderElectionInfo()` in elections.md uses the same pattern (`notesNode.innerHTML = notesRaw`).
+
+---
+
+### Browse section pattern
+
+Collapsible `<details>` per type — starts collapsed, shows count pill and `▸` chevron:
+
+```js
+function renderBrowseSection(typeKey) {
+  const list = (_byType.get(typeKey) ?? []).sort(...);
+  return html`<details class="idx-browse-section">
+    <summary class="idx-browse-summary">
+      <span class="idx-browse-type-label">${t(`type.${typeKey}`)}</span>
+      <span class="idx-browse-count">${list.length}</span>
+      <span class="idx-browse-chevron">▸</span>
+    </summary>
+    <div class="idx-elec-cards">
+      ${list.map(e => html`<a href="elections?type=${e.type}&election=${e.id}" class="idx-elec-card">
+        <div class="idx-elec-card-year">${year}</div>
+        <div class="idx-elec-card-name">${name}</div>
+      </a>`)}
+    </div>
+  </details>`;
+}
+```
+
+### Layout notes
+- **Grid overflow fix**: `min-width: 0` on all grid children prevents items overflowing their columns
+- **Page width**: `.idx-page-wrap { max-width: 1150px }` wraps all content
+- **Split**: `7fr 3fr` (70/30) at `min-width: 700px`
+
+---
+
 ## Container dep line (must include all conditional variables)
 
 ```js
 hasTurnout; hasPrecinct; viewMode; mapLevel; voteTypeOptions; seatFilterOptions;
 hasSubElections; isSubElectionSMD; isPresidential; isIndirect; isPlebiscite; presidentialWinnerId;
+isCouncilMode; lang;
 ```
+
+## Language reactivity — cell split pattern
+
+`lang` and `t` must each be in their own separate cells. If combined with async `FileAttachment` loads, Observable Framework won't cascade `t` as "changed" to downstream cells:
+
+```js
+// Cell 1 — static imports (runs once)
+import L from "npm:leaflet";
+import * as d3 from "npm:d3";
+import {getLang, tr} from "./components/state.js";
+const dict      = await FileAttachment("data/config/translations.json").json();
+const elections = await FileAttachment("data/elections.json").json();
+const parties   = await FileAttachment("data/parties.json").json();
+
+// Cell 2 — lang alone (reactive Generator, cascades on language switch)
+const lang = getLang();
+
+// Cell 3 — t depends on lang and dict
+const t = k => tr(dict, lang, k);
+```
+
+Also add `lang;` to:
+- The container dep line
+- The chart renderers cell top (forces re-creation of all renderer functions)
+- The map IIFE dep line
+
+## `_viewModeCtrl` — standalone no-dep cell
+
+Must be in its **own cell with no dependencies**. If placed in the same cell as `hasTurnout` (which depends on `electionVal`), any language switch causes `hasTurnout` cell to re-run, resetting `_viewModeCtrl` to `{value: "results"}` and losing the user's view mode selection.
+
+```js
+// Standalone cell — runs exactly once on page load
+const _viewModeCtrl = {value: "results"};
+```
+
+The `viewModeInput` cell reads `_viewModeCtrl.value` as its initial value and writes back on user input:
+
+```js
+viewModeInput.addEventListener("input", () => { _viewModeCtrl.value = viewModeInput.value; });
+```
+
+## Imperative turnout metric switching — `_turnoutMetricCtrl`
+
+No sidebar radio for turnout metric. Metric switching is imperative (no full re-render):
+
+```js
+// Standalone cell
+const _turnoutMetrics = ["final", "noon", "5pm", "invalid"];
+const _turnoutMetricCtrl = {value: "final"};
+```
+
+`setTurnoutMetric(metric)` on `_mapCtrl.current` updates `_turnoutMetricCtrl.value`, toggles `.metric-row-active` CSS on `.turnout-metric-row[data-metric]` elements, and calls `districtLayer.setStyle(districtStyle)` imperatively — analogous to `setPartyFilter`.
+
+Inside `pointToLayer` (precinct dots), always read `_turnoutMetricCtrl.value` (not any reactive `turnoutMetricVal`).
+
+## Turnout UI layout
+
+- **Top-right panel (national):** `renderNationalPanel()` — in turnout mode calls `renderTurnoutPanel("national", ...)` showing clickable metric rows
+- **Bottom-right card (seat allocation area):** shows `renderTurnoutSummary()` in turnout mode instead of seat chart
+- **`renderTurnoutPanel`** supports `distId === "national"` (no back button); metric rows are clickable → call `_mapCtrl.current?.setTurnoutMetric(metric)`
+- **`renderTurnoutSummary`** layout: no vote_type label; noon and 5pm each on separate `<div>` lines; main_list and special_list each on separate `<div>` lines
+
+## Map centering
+
+```js
+const map = L.map(mapContainer, {zoomControl: true}).setView([42.1, 43.0], 7);
+```
+Shows full Georgia with Sukhumi visible on the left coast.
+
+## Occupied territories
+
+Abkhazia and South Ossetia are handled at the district level within the existing choropleth (no separate GeoJSON overlay layer needed). The `_occupiedGeo` FileAttachment is present but the overlay approach was abandoned.

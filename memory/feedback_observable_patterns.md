@@ -142,6 +142,116 @@ Adjara Supreme Council mixed elections work exactly like parliamentary mixed ele
 
 ---
 
+## Imperative state pattern — `{value: "x"}` controller objects
+
+For state that must persist across reactive re-renders (e.g., language switches), use a module-level mutable object in a **no-dependency standalone cell**:
+
+```js
+const _turnoutMetricCtrl = {value: "final"};  // current turnout metric
+const _viewModeCtrl      = {value: "results"}; // current view mode
+```
+
+**Why standalone cell:** If placed in any cell with reactive deps (e.g., `hasTurnout` which deps on `electionVal`), a language switch cascade will re-run that cell and reset the object, losing the user's selection.
+
+**Pattern:** The UI input reads `.value` as its initial value; on user interaction, writes back to `.value`. The imperative map controller (`_mapCtrl.current`) reads `.value` when it needs to recolor, NOT a reactive variable.
+
+---
+
+## `setTurnoutMetric` imperative pattern
+
+Analogous to `setPartyFilter`. Called from clickable metric rows in the turnout panel:
+
+```js
+setTurnoutMetric(metric) {
+  this.currentTurnoutMetric = metric;
+  _turnoutMetricCtrl.value  = metric;
+  document.querySelectorAll(".turnout-metric-row[data-metric]").forEach(row => {
+    row.classList.toggle("metric-row-active", row.dataset.metric === metric);
+  });
+  districtLayer.setStyle(districtStyle);          // recolor map imperatively
+  this.updatePrecinctDots(this.currentPartyId);   // recolor dots
+  if (this.legendDiv) this.legendDiv.innerHTML = buildLegendHTML(null);
+}
+```
+
+CSS for clickable metric rows:
+```css
+.turnout-metric-row { cursor: pointer; border-radius: 3px; transition: background 0.1s; }
+.turnout-metric-row:hover { background: rgba(0,0,0,0.04); }
+.metric-row-active { background: rgba(0,0,0,0.07) !important; }
+.metric-row-active .metric-row-label { font-weight: 700; }
+```
+
+---
+
+## Leaflet map container height — `height:100%` resolves to 0 in flex
+
+If `mapContainer` is placed inside a flex item with `flex:1`, `height:100%` on the container resolves to 0px — Leaflet initializes with zero height, rendering a blank tile square.
+
+**Fix:** Give `mapContainer` a fixed height:
+```js
+const mapContainer = html`<div style="width:100%;height:440px;z-index:0;"></div>`;
+```
+
+Do NOT use `height:100%` unless the parent has an explicit CSS `height` (not just `flex:1` or `min-height`).
+
+---
+
+## Map IIFE must run after layout `display()` — use `lang;` dep
+
+The map IIFE depends on `mapContainer` (stable, no deps). The layout cell depends on `lang`. If the map IIFE has no dependency on `lang`, Observable Framework may run it before or concurrently with the layout cell — before `display(layout)` adds `mapContainer` to the DOM.
+
+**Fix:** Add `lang;` at the top of the map IIFE cell. This ensures it runs after the layout cell (which also depends on `lang`) has already called `display()`.
+
+```js
+// Map IIFE — lang dep ensures this runs after layout display()
+lang;
+{
+  const map = L.map(mapContainer, {...}).setView([...]);
+  // ...
+}
+```
+
+This is why elections.md's map IIFE has a long explicit dep line including `lang` — it's not just for reactive re-runs, it enforces execution order.
+
+---
+
+## Inline turnout — missing `turnout_pct` bug
+
+When a results CSV includes `registered` and `voted` columns (triggering `_hasInlineTurnout = true`), the code copies each row into `turnoutByDistrict`. If the CSV does **not** include a pre-computed `turnout_pct` column, `turnoutValue()` returns `0` for every district (0% turnout everywhere).
+
+**Fix applied in elections.md** — after building `_td` from the row, derive missing pct fields:
+
+```js
+const _td = {...r, vote_type: r.vote_type ?? effectiveVoteType ?? "pr"};
+if (_td.turnout_pct == null && _td.registered > 0) _td.turnout_pct = _td.voted / _td.registered;
+if (_td.invalid_pct == null && _td.voted > 0 && _td.invalid_ballots != null) _td.invalid_pct = _td.invalid_ballots / _td.voted;
+if (_td.noon_pct    == null && _td.registered > 0 && _td.voted_noon != null) _td.noon_pct    = _td.voted_noon / _td.registered;
+if (_td.five_pct    == null && _td.registered > 0 && _td.voted_5pm  != null) _td.five_pct    = _td.voted_5pm  / _td.registered;
+turnoutByDistrict.set(did, _td);
+```
+
+**Rule:** Results CSVs may omit `turnout_pct` (older elections, historical data). Always derive it at load time if missing.
+
+---
+
+## Adding a historical election (checklist)
+
+1. Create YAML in `src/data/config/elections/parliamentary/` with party IDs, seat counts, `threshold_status`, file paths
+2. Add parties to `src/data/config/parties.yml` with distinct colors and `type: party`
+3. Write results CSV to `src/data/results/` — format: `district_id, party_id, votes, vote_share[, registered, voted, invalid_ballots]`
+   - `vote_share` = party_votes / valid_votes (not total votes)
+   - Each Excel row maps 1-to-1 to a GeoJSON feature by `properties.id`
+   - Urban and Mazra rows are separate geographic units if GeoJSON has them separately
+4. Write turnout CSV to `src/data/turnout/` — format: `district_id, vote_type, registered, voted, turnout_pct`
+   - First row: `district_id = "national"` (aggregate)
+   - `vote_type = "pr"` for PR elections
+   - `has_snapshots: false`, `has_lists: false` when no noon/5pm/list data available
+5. Set YAML `turnout.available: true`, `type: basic`, point to turnout file
+6. Clear caches: `elections.json`, `csv-registry.json`, `turnout-registry.json`
+
+---
+
 ## Sub-election precinct data routing
 
 `loadResults()` checks sub-election precinct files BEFORE falling back to district files. Order:

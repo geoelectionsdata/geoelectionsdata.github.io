@@ -13,8 +13,23 @@ import {getLang, tr} from "./components/state.js";
 const dict     = await FileAttachment("data/config/translations.json").json();
 const elections = await FileAttachment("data/elections.json").json();
 const parties   = await FileAttachment("data/parties.json").json();
-const lang      = getLang();
+```
+
+```js
+// ── Language — reactive (re-runs the whole chain when user switches) ───────
+const lang = getLang();
+```
+
+```js
+// ── t() translation helper — re-creates when lang or dict changes ──────────
 const t = k => tr(dict, lang, k);
+```
+
+```js
+// ── Stable selection state — no deps, runs once, survives language re-renders ──
+const _urlParams    = new URLSearchParams(window.location.search);
+const _typeCtrl     = {value: _urlParams.get("type") ?? "parliamentary"};
+const _electionCtrl = {value: _urlParams.get("election") ?? null};
 ```
 
 ```js
@@ -23,8 +38,14 @@ const parlElections = elections.filter(e => e.type === "parliamentary");
 
 const typeInput = Inputs.select(
   ["parliamentary", "presidential", "local", "adjara", "plebiscite"],
-  { format: k => t(`type.${k}`) }
+  { format: k => t(`type.${k}`), value: _typeCtrl.value }
 );
+typeInput.addEventListener("input", () => {
+  _typeCtrl.value = typeInput.value;
+  const _p = new URLSearchParams(window.location.search);
+  _p.set("type", typeInput.value); _p.delete("election");
+  history.replaceState(null, "", "?" + _p.toString());
+});
 const typeVal = Generators.input(typeInput);
 ```
 
@@ -34,11 +55,18 @@ const filteredElections = elections
   .filter(e => e.type === typeVal)
   .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 
+const _restoredElec = filteredElections.find(e => e.id === _electionCtrl.value) ?? filteredElections[0];
 const electionInput = Inputs.select(
   filteredElections,
   { format: e => e.name?.[lang] || e.name?.en || e.id,
-    value: filteredElections[0] }
+    value: _restoredElec }
 );
+electionInput.addEventListener("input", () => {
+  _electionCtrl.value = electionInput.value?.id ?? null;
+  const _p = new URLSearchParams(window.location.search);
+  if (electionInput.value?.id) _p.set("election", electionInput.value.id);
+  history.replaceState(null, "", "?" + _p.toString());
+});
 const electionVal = Generators.input(electionInput);
 ```
 
@@ -142,13 +170,20 @@ const hasCouncilDistricts = isCouncilMode && !!(electionVal?.council?.shape_file
 ```
 
 ```js
+// ── Stable state objects — each in its own no-dep cell so they run ONCE and survive re-renders ──
+const _viewModeCtrl    = {value: "results"};  // persists view mode across language switches
+```
+
+```js
 // ── View mode: Results vs Turnout ─────────────────────────────────────────
 const hasTurnout = !!(electionVal?.turnout?.available);
 
+// Rebuild viewModeInput on lang change — restore previous selection from _viewModeCtrl
 const viewModeInput = Inputs.radio(["results", "turnout"], {
-  value: "results",
+  value: _viewModeCtrl.value,
   format: k => k === "results" ? t("elections.view_mode.results") : t("elections.view_mode.turnout")
 });
+viewModeInput.addEventListener("input", () => { _viewModeCtrl.value = viewModeInput.value; });
 const viewMode = Generators.input(viewModeInput);
 ```
 
@@ -418,7 +453,12 @@ if (_hasInlineTurnout) {
     const did = String(r.district_id);
     if (!_seenDids.has(did)) {
       _seenDids.add(did);
-      turnoutByDistrict.set(did, {...r, vote_type: r.vote_type ?? effectiveVoteType ?? "pr"});
+      const _td = {...r, vote_type: r.vote_type ?? effectiveVoteType ?? "pr"};
+      if (_td.turnout_pct == null && _td.registered > 0) _td.turnout_pct = _td.voted / _td.registered;
+      if (_td.invalid_pct == null && _td.voted > 0 && _td.invalid_ballots != null) _td.invalid_pct = _td.invalid_ballots / _td.voted;
+      if (_td.noon_pct    == null && _td.registered > 0 && _td.voted_noon != null) _td.noon_pct    = _td.voted_noon / _td.registered;
+      if (_td.five_pct    == null && _td.registered > 0 && _td.voted_5pm  != null) _td.five_pct    = _td.voted_5pm  / _td.registered;
+      turnoutByDistrict.set(did, _td);
     }
   }
   // Synthesize "national" entry from district totals if not already in CSV
@@ -480,7 +520,7 @@ function selectPartyOnMap(partyId) { _mapCtrl.current?.setPartyFilter(partyId); 
 // LAYOUT
 // ════════════════════════════════════════════════════════════
 // Explicit reactive deps — ensures container re-renders when any of these change
-hasTurnout; hasPrecinct; hasCouncilDistricts; viewMode; voteTypeOptions; seatFilterOptions; hasSubElections; isSubElectionSMD; isPresidential; isIndirect; presidentialWinnerId; isPlebiscite; isLocal; hasCouncil; ballotTypeVal; isCouncilMode;
+hasTurnout; hasPrecinct; hasCouncilDistricts; viewMode; voteTypeOptions; seatFilterOptions; hasSubElections; isSubElectionSMD; isPresidential; isIndirect; presidentialWinnerId; isPlebiscite; isLocal; hasCouncil; ballotTypeVal; isCouncilMode; lang;
 // Forward refs: renderer functions defined later; listing them ensures this cell waits for them
 renderNationalPanel; renderElectionInfo; renderBarChart; renderDots; renderCouncilDots; selectPartyOnMap; renderPrecinctPanel;
 
@@ -778,7 +818,7 @@ display(container);
   // Clean up previous Leaflet instance before this cell re-runs
   invalidation.then(() => { try { map.remove(); } catch(e) {} });
 
-  const map = L.map(mapContainer, {zoomControl: true}).setView([41.9, 43.5], 7);
+  const map = L.map(mapContainer, {zoomControl: true}).setView([42.1, 43.0], 7);
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -1136,7 +1176,7 @@ display(container);
           <div style="height:10px;border-radius:2px;background:${gradCss};"></div>
         </div>`;
       } else {
-        return `<div style="display:flex;flex-wrap:wrap;gap:3px 8px;">
+        return `<div style="display:flex;flex-direction:column;gap:3px;">
           ${passed.map(p => {
             const name = p.party?.name?.[lang] || p.party_id;
             return `<div style="display:flex;align-items:center;gap:3px;">
@@ -1268,6 +1308,8 @@ display(container);
 
 ```js
 // ── CHART RENDERERS ────────────────────────────────────────────────────────
+// Declare lang as a dep so all renderer functions re-create when language changes
+lang;
 
 // Renders national vote results into the info panel (default state — bar chart or turnout metrics)
 function renderNationalPanel() {
@@ -1652,7 +1694,6 @@ function renderTurnoutSummary(data, elec) {
   return html`<div>
     ${nationalRows.map(row => html`
       <div style="margin-bottom:1rem;">
-        ${nationalRows.length > 1 ? html`<div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">${voteTypeLabel(row.vote_type)}</div>` : ""}
         <div style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-bottom:0.75rem;">
           <div style="text-align:center;">
             <div style="font-size:1.6rem; font-weight:800; color:var(--theme-foreground);">${row.turnout_pct != null ? `${(row.turnout_pct*100).toFixed(1)}%` : "—"}</div>
@@ -1668,22 +1709,24 @@ function renderTurnoutSummary(data, elec) {
           </div>
         </div>
         ${turnoutCfg.has_snapshots && row.voted_noon != null ? html`
-          <div style="font-size:0.78rem; color:var(--muted); margin-bottom:4px;">
+          <div style="font-size:0.78rem; color:var(--muted); margin-bottom:3px;">
             ${t("elections.turnout.noon")}: <strong>${row.noon_pct != null ? `${(row.noon_pct*100).toFixed(1)}%` : `${(row.voted_noon/row.registered*100).toFixed(1)}%`}</strong>
             <span style="opacity:0.7;"> (${row.voted_noon.toLocaleString()})</span>
-            &nbsp;·&nbsp;
+          </div>
+          <div style="font-size:0.78rem; color:var(--muted); margin-bottom:3px;">
             ${t("elections.turnout.5pm")}: <strong>${row.five_pct != null ? `${(row.five_pct*100).toFixed(1)}%` : `${(row.voted_5pm/row.registered*100).toFixed(1)}%`}</strong>
             <span style="opacity:0.7;"> (${row.voted_5pm.toLocaleString()})</span>
           </div>` : ""}
         ${row.invalid_ballots != null ? html`
-          <div style="font-size:0.78rem; color:var(--muted); margin-bottom:4px;">
+          <div style="font-size:0.78rem; color:var(--muted); margin-bottom:3px;">
             ${t("elections.turnout.invalid_pct") || "Invalid"}: <strong>${row.invalid_pct != null ? `${(row.invalid_pct*100).toFixed(1)}%` : "—"}</strong>
             <span style="opacity:0.7;"> (${row.invalid_ballots.toLocaleString()})</span>
           </div>` : ""}
         ${turnoutCfg.has_lists && row.main_list != null ? html`
-          <div style="font-size:0.78rem; color:var(--muted);">
+          <div style="font-size:0.78rem; color:var(--muted); margin-bottom:3px;">
             ${t("elections.turnout.main_list")}: <strong>${row.main_list.toLocaleString()}</strong>
-            &nbsp;·&nbsp;
+          </div>
+          <div style="font-size:0.78rem; color:var(--muted);">
             ${t("elections.turnout.special_list")}: <strong>${row.special_list.toLocaleString()}</strong>
           </div>` : ""}
       </div>
