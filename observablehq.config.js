@@ -17,9 +17,9 @@ export default {
   pages: [
     {name: "Main", path: "/index"},
     {name: "Elections", path: "/elections"},
-    {name: "Candidates", path: "/candidates"},
-    {name: "Data", path: "/data"},
-    {name: "Analysis", path: "/analysis"}
+    // {name: "Candidates", path: "/candidates"},
+    {name: "Data", path: "/data"}
+    // {name: "Analysis", path: "/analysis"}
   ],
   theme: "air", // "air", "cotton", "ink", or "near-midnight"
   pager: false, // Turn off next/prev buttons for a dashboard feel

@@ -137,6 +137,6 @@ files:
 turnout:
   available: true
   type: basic
-  file: "data/turnout/parl1919_turnout.csv"
+  file: null
   has_snapshots: false
   has_lists: false

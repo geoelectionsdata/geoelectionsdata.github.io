@@ -331,9 +331,10 @@ function partyColor(partyId, elecId) {
   return p.color ?? p.colors?.[elecId] ?? p.colors?.default ?? "#9E9E9E";
 }
 
-// ── Election YAML party metadata (threshold_status, alias, color) ──────────
+// ── Election YAML party/candidate metadata (threshold_status, alias, color) ──
+// Parliamentary elections use a "parties" key; presidential elections use "candidates".
 const elecPartyMeta = new Map(
-  (electionVal?.parties ?? []).map(p => [p.id, p])
+  [...(electionVal?.parties ?? []), ...(electionVal?.candidates ?? [])].map(p => [p.id, p])
 );
 
 // ── D'Hondt seat allocation ────────────────────────────────────────────────
@@ -513,6 +514,10 @@ const mapContainer = html`<div style="width:100%;height:100%;z-index:0;"></div>`
 // Module-level map control handle — .current set by the map IIFE, called by bar chart clicks
 const _mapCtrl = {current: null};
 function selectPartyOnMap(partyId) { _mapCtrl.current?.setPartyFilter(partyId); }
+
+// Persistent map view state — survives reactive re-renders so zoom/pan is preserved
+// when switching view mode (results ↔ turnout) without changing the election.
+const _mapState = { center: [42.1, 43.0], zoom: 7, elecId: null };
 ```
 
 ```js
@@ -674,6 +679,12 @@ const container = html`
   /* Active bar row (party filter) */
   .bar-row-active { background: rgba(0,0,0,0.06); border-radius: 3px; }
 
+  /* Clickable district/precinct table rows */
+  .dist-table-row { cursor: pointer; transition: background 0.1s; }
+  .dist-table-row:hover td { background: rgba(0,0,0,0.04); }
+  .dist-table-row-active td { background: rgba(0,0,0,0.07); }
+  .dist-table-row-active td:first-child { font-weight: 700; }
+
   /* Turnout metric rows — clickable to switch the map metric */
   .turnout-metric-row {
     display: flex; justify-content: space-between; align-items: baseline;
@@ -815,10 +826,22 @@ display(container);
   councilDistrictGeoData; councilDistrictResults;
   precinctGeoData; precinctResults; precinctTurnout;
 
-  // Clean up previous Leaflet instance before this cell re-runs
-  invalidation.then(() => { try { map.remove(); } catch(e) {} });
+  // Restore saved view if we're staying on the same election (e.g. switching viewMode)
+  const _sameElec  = _mapState.elecId === electionVal?.id;
+  const _initCenter = _sameElec ? _mapState.center : [42.1, 43.0];
+  const _initZoom   = _sameElec ? _mapState.zoom   : 7;
 
-  const map = L.map(mapContainer, {zoomControl: true}).setView([42.1, 43.0], 7);
+  // Clean up previous Leaflet instance; save current view first so we can restore it
+  invalidation.then(() => {
+    try {
+      _mapState.center = map.getCenter();
+      _mapState.zoom   = map.getZoom();
+      _mapState.elecId = electionVal?.id;
+      map.remove();
+    } catch(e) {}
+  });
+
+  const map = L.map(mapContainer, {zoomControl: true}).setView(_initCenter, _initZoom);
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -999,7 +1022,7 @@ display(container);
             const parentDid = String(feature.properties.district_id);
             let fillColor;
             if (viewMode === "turnout") {
-              const stationId = String(feature.properties.id);
+              const stationId = String(feature.properties.precinct_id ?? feature.properties.id);
               const td = _precinctTurnoutByStation.get(stationId) ?? turnoutByDistrict.get(parentDid);
               fillColor = d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value));
             } else {
@@ -1018,8 +1041,9 @@ display(container);
           },
           onEachFeature(feature, layer) {
             const parentDid  = String(feature.properties.district_id);
-            const stationId  = String(feature.properties.id);
-            const stationNum = Number(feature.properties.id) % 1000;
+            const _rawStId   = feature.properties.precinct_id ?? feature.properties.id;
+            const stationId  = String(_rawStId);
+            const stationNum = Number(_rawStId) % 1000;
             const distFeat   = activeGeo?.features?.find(f => String(f.properties.id) === parentDid);
             const distNameEn = distFeat?.properties?.name_en ?? parentDid;
             const distNameKa = distFeat?.properties?.name_ka ?? parentDid;
@@ -1035,9 +1059,12 @@ display(container);
                 name_ka:    titleKa,
                 address_ka: feature.properties.name_ka
               };
-              const stationTd   = _precinctTurnoutByStation.get(stationId);
-              const stationRows = precinctResults.filter(r => String(r.precinct_id) === stationId);
-              panel.replaceWith(renderPrecinctPanel(enhancedProps, stationTd, stationRows));
+              if (viewMode === "turnout") {
+                panel.replaceWith(renderTurnoutPanel(stationId, enhancedProps, _precinctTurnoutByStation));
+              } else {
+                const stationRows = precinctResults.filter(r => String(r.precinct_id) === stationId);
+                panel.replaceWith(renderDistrictPanel("__precinct__", enhancedProps, stationRows));
+              }
             });
             layer.bindTooltip(
               `<strong>${lang === "ka" ? titleKa : titleEn}</strong>`,
@@ -1176,8 +1203,10 @@ display(container);
           <div style="height:10px;border-radius:2px;background:${gradCss};"></div>
         </div>`;
       } else {
+        const _mapWinnerIds  = new Set([...winnerByDistrict.values()].map(w => w.party_id));
+        const _legendParties = passed.filter(p => _mapWinnerIds.has(p.party_id));
         return `<div style="display:flex;flex-direction:column;gap:3px;">
-          ${passed.map(p => {
+          ${_legendParties.map(p => {
             const name = p.party?.name?.[lang] || p.party_id;
             return `<div style="display:flex;align-items:center;gap:3px;">
               <span style="width:9px;height:9px;border-radius:2px;background:${p.color};display:inline-block;flex-shrink:0;"></span>
@@ -1197,6 +1226,32 @@ display(container);
       }
     });
     const _legendCtrl = new LegendControl({ position: "bottomleft" }).addTo(map);
+
+    // ── Zoom-to-country button (below +/−) ───────────────────────────────────
+    const ZoomHomeControl = L.Control.extend({
+      onAdd(map) {
+        const container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
+        const btn = L.DomUtil.create("a", "", container);
+        btn.href  = "#";
+        const _label = lang === "ka" ? "საქართველოს მასშტაბი" : "Zoom to Georgia";
+        btn.title = _label;
+        btn.setAttribute("role", "button");
+        btn.setAttribute("aria-label", _label);
+        btn.style.cssText = "display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#444;";
+        // Simplified outline of Georgia as SVG icon
+        btn.innerHTML = `<svg viewBox="0 0 32 18" width="18" height="10" fill="none"
+            stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M2,9 L3,5 L6,3 L10,2 L16,2 L21,3 L26,5 L30,8 L29,11 L25,14 L20,15 L14,15 L8,14 L4,12 Z"/>
+        </svg>`;
+        L.DomEvent.on(btn, "click", e => {
+          L.DomEvent.preventDefault(e);
+          map.setView([42.1, 43.0], 7);
+        });
+        L.DomEvent.disableClickPropagation(container);
+        return container;
+      }
+    });
+    new ZoomHomeControl({ position: "topleft" }).addTo(map);
 
     // Expose imperative map controls for bar chart clicks (toggles party filter)
     _mapCtrl.current = {
@@ -1228,9 +1283,12 @@ display(container);
         const newId = this.currentPartyId === partyId ? null : partyId;
         this.currentPartyId = newId;
 
-        // Visual feedback: exactly one bar row highlighted (or none)
+        // Visual feedback: highlight matching rows in bar chart and district/precinct tables
         document.querySelectorAll(".bar-row[data-party-id]").forEach(row => {
           row.classList.toggle("bar-row-active", newId != null && row.dataset.partyId === newId);
+        });
+        document.querySelectorAll(".dist-table-row[data-party-id]").forEach(row => {
+          row.classList.toggle("dist-table-row-active", newId != null && row.dataset.partyId === newId);
         });
 
         // Only restyle the district layer when it's actually the active layer.
@@ -1280,7 +1338,7 @@ display(container);
           range = (maxS - minS) || 1;
         }
         precinctLayer.eachLayer(l => {
-          const pid       = String(l.feature?.properties?.id);
+          const pid       = String(l.feature?.properties?.precinct_id ?? l.feature?.properties?.id);
           const parentDid = String(l.feature?.properties?.district_id);
           let fillColor;
           if (activePartyId) {
@@ -1368,7 +1426,7 @@ function renderBarChart(passed, failed, elecId, winnerId = null) {
     ${failed.length > 0 ? html`
       <details class="below-threshold-details">
         <summary class="below-threshold-summary">
-          ${t("elections.chart.threshold_line")}
+          ${t("elections.chart.see_more")}
           <span class="below-threshold-count">${failed.length}</span>
         </summary>
         ${failed.map(barRow)}
@@ -1514,7 +1572,7 @@ function renderDistrictPanel(distId, props, data = results) {
     const shareStr  = `${(r.vote_share * 100).toFixed(1)}%`;
     const countStr  = r.votes != null ? r.votes.toLocaleString() : "—";
     const partyName = getParty(r.party_id).name?.[lang] || r.party_id;
-    return html`<tr>
+    const el = html`<tr class="dist-table-row" data-party-id="${r.party_id}" title="${t("elections.chart.click_filter") || "Click to filter map"}">
       <td style="vertical-align:middle;">
         <span class="party-dot" style="background:${color}; vertical-align:middle;"></span>
         ${isSMD && r.candidate_name
@@ -1528,6 +1586,8 @@ function renderDistrictPanel(distId, props, data = results) {
         <span style="color:var(--muted); font-size:0.75rem; margin-left:4px;">(${countStr})</span>
       </td>
     </tr>`;
+    el.addEventListener("click", () => selectPartyOnMap(r.party_id));
+    return el;
   }
 
   const panel = html`<div class="card results-panel" id="results-panel">
@@ -1549,7 +1609,7 @@ function renderDistrictPanel(distId, props, data = results) {
     ${moreRows.length > 0 ? html`
       <details class="below-threshold-details">
         <summary class="below-threshold-summary">
-          ${t("elections.chart.threshold_line")}
+          ${t("elections.chart.see_more")}
           <span class="below-threshold-count">${moreRows.length}</span>
         </summary>
         <table class="dist-table">
@@ -1620,14 +1680,60 @@ function renderTurnoutPanel(distId, props, turnoutLookup = turnoutByDistrict) {
   </div>`;
 }
 
-// ── Precinct info panel (unified: turnout + vote results) ─────────────────
-// Shows full station turnout breakdown (always). Metric rows are clickable to switch map coloring.
+// ── Precinct info panel (unified: vote results + turnout) ─────────────────
+// Shows voting breakdown first, then turnout stats. Metric rows are clickable.
 function renderPrecinctPanel(props, td, stationRows) {
   const pname = lang === "ka" ? props.name_ka : props.name_en;
   const turnoutCfg = electionVal?.turnout ?? {};
-  const activeMet = _mapCtrl.current?.currentTurnoutMetric ?? "final";
+  const activeMet  = _mapCtrl.current?.currentTurnoutMetric ?? "final";
+  const isSMDPrec  = effectiveVoteType === "smd" || isPresidential;
 
-  // Clickable metric row — clicking switches the map to that metric
+  // ── Voting results block ─────────────────────────────────────────────────
+  const _sortedRows = [...stationRows].sort((a, b) => b.vote_share - a.vote_share);
+  const _topRows    = _sortedRows.slice(0, 5);
+  const _moreRows   = _sortedRows.slice(5);
+  const colHeader   = isSMDPrec ? t("elections.results.candidate") : t("elections.results.party");
+
+  function voteRow(r) {
+    const color    = partyColor(r.party_id, electionVal?.id);
+    const shareStr = `${(r.vote_share * 100).toFixed(1)}%`;
+    const countStr = r.votes != null ? r.votes.toLocaleString() : "—";
+    const pname_r  = getParty(r.party_id).name?.[lang] || r.party_id;
+    return html`<tr>
+      <td style="vertical-align:middle;">
+        <span class="party-dot" style="background:${color};vertical-align:middle;"></span>
+        ${isSMDPrec && r.candidate_name
+          ? html`<strong style="font-size:0.82rem;">${r.candidate_name}</strong>
+                 <div style="font-size:0.72rem;color:var(--muted);margin-left:15px;">${pname_r}</div>`
+          : html`${pname_r}`}
+      </td>
+      <td style="text-align:right;white-space:nowrap;vertical-align:middle;">
+        <span style="font-weight:700;">${shareStr}</span>
+        <span style="color:var(--muted);font-size:0.75rem;margin-left:4px;">(${countStr})</span>
+      </td>
+    </tr>`;
+  }
+
+  const voteBlock = _sortedRows.length > 0 ? html`
+    <table class="dist-table">
+      <thead><tr>
+        <th>${colHeader}</th>
+        <th style="text-align:right;">${t("elections.results.share")}</th>
+      </tr></thead>
+      <tbody>${_topRows.map(voteRow)}</tbody>
+    </table>
+    ${_moreRows.length > 0 ? html`
+      <details class="below-threshold-details">
+        <summary class="below-threshold-summary">
+          ${t("elections.chart.see_more")}
+          <span class="below-threshold-count">${_moreRows.length}</span>
+        </summary>
+        <table class="dist-table"><tbody>${_moreRows.map(voteRow)}</tbody></table>
+      </details>` : ""}
+  ` : "";
+
+  // ── Turnout block ────────────────────────────────────────────────────────
+  // Clickable metric row — clicking switches the map to that turnout metric
   function metricRow(metric, label, value, sub) {
     if (!value) return "";
     const isActive = activeMet === metric;
@@ -1638,16 +1744,14 @@ function renderPrecinctPanel(props, td, stationRows) {
     el.addEventListener("click", () => _mapCtrl.current?.setTurnoutMetric(metric));
     return el;
   }
-
-  // Static (non-metric) info row
-  function statRow(label, value, sub) {
+  function statRow(label, value) {
     return html`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.81rem;">
       <span style="color:var(--muted);">${label}</span>
-      <span style="font-weight:700;">${value}${sub ? html`<span style="font-weight:400;color:var(--muted);font-size:0.74rem;margin-left:4px;">${sub}</span>` : ""}</span>
+      <span style="font-weight:700;">${value}</span>
     </div>`;
   }
 
-  const _pct     = td?.turnout_pct  != null ? `${(td.turnout_pct  * 100).toFixed(1)}%` : null;
+  const _pct     = td?.turnout_pct != null ? `${(td.turnout_pct * 100).toFixed(1)}%` : null;
   const _noonPct = td?.noon_pct  != null ? `${(td.noon_pct  * 100).toFixed(1)}%`
                  : (td?.voted_noon != null && td?.registered > 0) ? `${(td.voted_noon / td.registered * 100).toFixed(1)}%` : null;
   const _fivePct = td?.five_pct  != null ? `${(td.five_pct  * 100).toFixed(1)}%`
@@ -1656,7 +1760,10 @@ function renderPrecinctPanel(props, td, stationRows) {
                  : (td?.invalid_ballots != null && td?.voted > 0) ? `${(td.invalid_ballots / td.voted * 100).toFixed(1)}%` : null;
 
   const turnoutBlock = td ? html`
-    ${metricRow("final", t("elections.turnout.pct"),  _pct)}
+    <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin:10px 0 4px;padding-top:8px;border-top:1px solid var(--border);">
+      ${t("elections.turnout.title")}
+    </div>
+    ${metricRow("final", t("elections.turnout.pct"), _pct)}
     ${statRow(t("elections.turnout.voted"),      td.voted      != null ? td.voted.toLocaleString()      : "—")}
     ${statRow(t("elections.turnout.registered"), td.registered != null ? td.registered.toLocaleString() : "—")}
     ${turnoutCfg.has_snapshots && _noonPct ? metricRow("noon",    t("elections.turnout.noon"), _noonPct, td.voted_noon != null ? `(${td.voted_noon.toLocaleString()})` : null) : ""}
@@ -1672,6 +1779,7 @@ function renderPrecinctPanel(props, td, stationRows) {
       <div style="font-size:0.74rem;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:4px;">
         <span style="font-weight:600;">${t("elections.results.address") || "Address"}:</span> ${props.address_ka}
       </div>` : ""}
+    ${voteBlock}
     ${turnoutBlock}
   </div>`;
 }

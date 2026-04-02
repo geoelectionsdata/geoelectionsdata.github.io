@@ -83,7 +83,15 @@
       "Bash(ls \"/d/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/raw/\")",
       "Bash(python \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\scripts\\\\transform_parl1919.py\")",
       "Bash(PYTHONIOENCODING=utf-8 python3 -c \":*)",
-      "Bash(PYTHONIOENCODING=utf-8 python3 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\generate_parl1919_turnout.py\")"
+      "Bash(PYTHONIOENCODING=utf-8 python3 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\generate_parl1919_turnout.py\")",
+      "Bash(ls \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\..\\\\raw\" \")",
+      "Bash(node -e \"const r = require\\(''./src/data/csv-registry.json''\\); console.log\\(Object.keys\\(r\\).filter\\(k => k.includes\\(''pres2018''\\)\\).join\\(''\\\\n''\\)\\)\")",
+      "Bash(node -e \"const r = require\\(''./src/data/csv-registry.json''\\); const keys = Object.keys\\(r\\).filter\\(k => k.includes\\(''pres2018''\\)\\); console.log\\(keys\\)\")",
+      "Bash(powershell -Command \"Get-Content csv-registry.json | Select-String ''pres2018'' | Select-Object -First 20\")",
+      "Bash(find \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\" -name \"pres_2018.yml\")",
+      "Bash(find 'D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard' -name pres2018_r1_precincts.csv)",
+      "Bash(head -5 'D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\pres2018_r1_precincts.csv')",
+      "Bash(head -100 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\shp\\\\pres2018_precincts.geojson\")"
     ]
   }
 }

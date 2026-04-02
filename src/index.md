@@ -340,6 +340,29 @@ lang;
     }).addTo(map);
   }
 
+  // ── Legend: only parties that actually won at least one district ──────────
+  const _winnerPartyIds = new Set([..._winnerMap.values()].map(w => w.party_id));
+  const _legendItems = (featured?.parties ?? [])
+    .filter(p => _winnerPartyIds.has(p.id))
+    .map(p => ({ id: p.id, name: featPartyName(p), color: featPartyColor(p.id) }));
+
+  if (_legendItems.length > 0) {
+    const LegendControl = L.Control.extend({
+      onAdd() {
+        const div = L.DomUtil.create("div");
+        div.style.cssText = "background:rgba(255,255,255,0.92);padding:6px 8px;border-radius:5px;box-shadow:0 1px 4px rgba(0,0,0,0.15);font-size:0.72rem;line-height:1.6;";
+        div.innerHTML = _legendItems.map(item =>
+          `<div style="display:flex;align-items:center;gap:5px;">
+            <span style="width:9px;height:9px;border-radius:2px;background:${item.color};display:inline-block;flex-shrink:0;"></span>
+            <span style="white-space:nowrap;color:#333;">${item.name}</span>
+          </div>`
+        ).join("");
+        return div;
+      }
+    });
+    new LegendControl({ position: "bottomleft" }).addTo(map);
+  }
+
   setTimeout(() => map.invalidateSize(), 100);
   invalidation.then(() => { try { map.remove(); } catch(e) {} });
 }

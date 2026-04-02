@@ -9,42 +9,204 @@ system:
   pr:
     enabled: true
     shape_file: "data/shp/parl2024_pr.geojson"
-    precinct_shape_file: "data/shp/parl2024_pr_precincts.geojson"
+    precinct_shape_file: "data/shp/pres2018_precincts.geojson"
   smd:
     enabled: false
   compensation:
     enabled: false
+notes:
+  en: |
+    2018 presidential elections were the last elections when Georgians directly elected the country's president. First time in history, a runoff was needed to determine the winner. Salome Zourabichvili, who was running as an independent but was supported by the ruling Georgian Dream party, was elected as the country's first elected female president.
+  ka: |
+    2018 წლის საპრეზიდენტო არჩევნები გახლდათ უკანასკნელი, როდესაც საქართველოს მოსახლეობამ პრეზიდენტი პირდაპირი წესით აირჩია. პირველად ისტორიაში, გამარჯვებულის გამოსავლენად საჭირო მეორე ტურის ჩატარება გახლდა. სალომე ზურაბიშვილი, რომელიც კენჭს როგორც დამოუკიდებელი კანდიდატი, ისე იყრიდა, საქართველოს პირველი არჩეული ქალი პრეზიდენტი გახდა.
 candidates:
+  # ── Round 1 & 2 finalists ─────────────────────────────────────────────────
   - id: zourabichvili
     name:
       en: "Salome Zourabichvili"
       ka: "სალომე ზურაბიშვილი"
-    party: gd
+    party: independent
+    color: "#1565C0"
+    threshold_status: passed
   - id: vashadze
     name:
       en: "Grigol Vashadze"
       ka: "გრიგოლ ვაშაძე"
     party: unm
+    color: "#C62828"
+    threshold_status: passed
+  # ── Other notable R1 candidates ───────────────────────────────────────────
   - id: bakradze
     name:
       en: "David Bakradze"
       ka: "დავით ბაქრაძე"
     party: european_georgia
-  - id: other_pres
+    color: "#0288D1"
+    threshold_status: passed
+  - id: natelashvili
     name:
-      en: "Other candidates"
-      ka: "სხვა კანდიდატები"
-    party: null
+      en: "Shalva Natelashvili"
+      ka: "შალვა ნათელაშვილი"
+    party: labour
+    color: "#D32F2F"
+    threshold_status: passed
+  - id: usupashvili
+    name:
+      en: "David Usupashvili"
+      ka: "დავით უსუფაშვილი"
+    party: independent
+    color: "#00838F"
+    threshold_status: passed
+  - id: japaridze
+    name:
+      en: "Zurab Japaridze"
+      ka: "ზურაბ ჯაფარიძე"
+    party: independent
+    color: "#F57F17"
+    threshold_status: passed
+  - id: gorgadze
+    name:
+      en: "Irakli Gorgadze"
+      ka: "ირაკლი გორგაძე"
+    party: independent
+    color: "#4527A0"
+    threshold_status: failed
+  # ── Minor R1 candidates ───────────────────────────────────────────────────
+  - id: mikheil_antadze
+    name:
+      en: "Mikheil Antadze"
+      ka: "მიხეილ ანთაძე"
+    party: independent
     color: "#9E9E9E"
+    threshold_status: failed
+  - id: gabunia
+    name:
+      en: "Vakhtang Gabunia"
+      ka: "ვახტანგ გაბუნია"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: mekhatishvili
+    name:
+      en: "Zviad Mekhatishvili"
+      ka: "ზვიად მეხატიშვილი"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: liluashvili
+    name:
+      en: "Giorgi Liluashvili"
+      ka: "გიორგი ლილუაშვილი"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: asatiani
+    name:
+      en: "Akaki Asatiani"
+      ka: "აკაკი ასათიანი"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: kukava
+    name:
+      en: "Kakha Kukava"
+      ka: "კახა კუკავა"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: passed
+  - id: meunargia
+    name:
+      en: "Otar Meunargia"
+      ka: "ოთარ მეუნარგია"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: baghdavadze
+    name:
+      en: "Zviadi Baghdavadze"
+      ka: "ზვიადი ბაღდავაძე"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: saluashvili
+    name:
+      en: "Mikheil Saluashvili"
+      ka: "მიხეილ სალუაშვილი"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: iashvili
+    name:
+      en: "Zviad Iashvili"
+      ka: "ზვიად იაშვილი"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: tskharagauli
+    name:
+      en: "Tamari Tskharagauli"
+      ka: "თამარი ცხორაგაული"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: khutsishvili
+    name:
+      en: "Gela Khutsishvili"
+      ka: "გელა ხუციშვილი"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: chkheidze
+    name:
+      en: "Levani Chkheidze"
+      ka: "ლევანი ჩხეიძე"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: tediashvili
+    name:
+      en: "Besarion Tediashvili"
+      ka: "ბესარიონ თედიაშვილი"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: andriadze
+    name:
+      en: "Giorgi Andriadze"
+      ka: "გიორგი ანდრიაძე"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: chichinadze
+    name:
+      en: "Kakhaberi Chichinadze"
+      ka: "კახაბერ ჭიჭინაძე"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: nonikashvili
+    name:
+      en: "Vladimer Nonikashvili"
+      ka: "ვლადიმერ ნონიკაშვილი"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: shashiashvili
+    name:
+      en: "Teimuraz Shashiashvili"
+      ka: "თეიმურაზ შაშიაშვილი"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
 sub_elections:
   - id: pres_2018_r2
     type: runoff
     date: "2018-11-28"
     name:
-      en: "2018 Presidential — Round 2"
-      ka: "2018 საპრეზიდენტო — მეორე ტური"
+      en: "2018 Presidential: runoff"
+      ka: "2018 საპრეზიდენტო: მეორე ტური"
     files:
-      smd_results:         "data/results/pres2018_r2.csv"
+      pr_results:          "data/results/pres2018_r2.csv"
       pr_precinct_results: "data/results/pres2018_r2_precincts.csv"
 files:
   pr_results:          "data/results/pres2018_r1.csv"
@@ -52,8 +214,8 @@ files:
   cartogram:           "data/shp/parl2024_cartogram.geojson"
 turnout:
   available: true
-  type: basic
-  file: "data/turnout/pres2018_turnout.csv"
-  precinct_file: "data/turnout/pres2018_precincts_turnout.csv"
-  has_snapshots: false
-  has_lists: false
+  type: detailed
+  file: null
+  precinct_file: null
+  has_snapshots: true
+  has_lists: true
