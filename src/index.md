@@ -24,16 +24,13 @@ const t = k => tr(dict, lang, k);
 ```
 
 ```js
-// Featured election: national (parl / pres), has geo + results, rotates daily
-const _national = elections.filter(e =>
-  (e.type === "parliamentary" || e.type === "presidential") &&
-  e.sub_type !== "indirect" &&
-  e.files?.pr_results &&
-  e.system?.pr?.shape_file &&
-  _allGeo[e.system.pr.shape_file] &&
-  _allCsv[e.files.pr_results]
-);
-const featured  = _national[Math.floor(Date.now() / 86400000) % _national.length];
+// Featured election: rotates daily among pinned election IDs
+const _featuredIds = ["parl_2024", "parl_1919"];
+const _featuredPool = _featuredIds
+  .map(id => elections.find(e => e.id === id))
+  .filter(e => e && e.files?.pr_results && e.system?.pr?.shape_file &&
+    _allGeo[e.system.pr.shape_file] && _allCsv[e.files.pr_results]);
+const featured = _featuredPool[Math.floor(Date.now() / 86400000) % _featuredPool.length];
 const featGeo   = _allGeo[featured?.system?.pr?.shape_file];
 const featCsv   = _allCsv[featured?.files?.pr_results] ?? [];
 const featSeats = (featured?.parties ?? []).filter(p => ((p.seats_pr ?? 0) + (p.seats_smd ?? 0)) > 0);
@@ -293,7 +290,7 @@ const layout = html`
     </div>
 
     <div class="card idx-info-card">
-      <div class="idx-info-elec-label">${t("main.latest_title")}</div>
+      <div class="idx-info-elec-label">${t("main.featured_title")}</div>
       <div class="idx-info-elec-name">${featName}</div>
       <div class="idx-info-meta">${featYear}${featTotalSeats ? ` · ${featTotalSeats} ${t("elections.seats_label")}` : ""}</div>
       ${(() => { if (!featNotes) return ""; const _n = document.createElement("p"); _n.className = "idx-info-notes"; _n.innerHTML = featNotes; return _n; })()}
