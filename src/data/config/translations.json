@@ -116,6 +116,7 @@
     "elections.seats_label": "seats",
 
     "elections.map_level": "Map level",
+    "elections.map_level.selfgov": "Self-governing units",
     "elections.map_level.district": "Districts",
     "elections.map_level.council_district": "Council districts",
     "elections.map_level.precinct": "Precincts",
@@ -285,6 +286,7 @@
     "elections.seats_label": "მანდატი",
 
     "elections.map_level": "რუკის დონე",
+    "elections.map_level.selfgov": "თვითმმართველი ერთეულები",
     "elections.map_level.district": "ოლქები",
     "elections.map_level.council_district": "საკრებულო ოლქები",
     "elections.map_level.precinct": "საარჩევნო უბნები",

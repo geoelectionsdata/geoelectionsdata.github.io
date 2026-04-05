@@ -286,6 +286,36 @@ parties:
     color: "#33691E"
     type: party
 
+  # ── 2025 local election parties ──────────────────────────────────────────
+
+  - id: mamuli_ena
+    name:
+      en: Motherland, Language, Faith
+      ka: მამული, ენა, სარწმუნოება
+    color: "#5D4037"
+    type: party
+
+  - id: conservatives_geo
+    name:
+      en: Conservatives for Georgia
+      ka: კონსერვატორები საქართველოსთვის
+    color: "#BF360C"
+    type: party
+
+  - id: greens_geo
+    name:
+      en: Green Party of Georgia
+      ka: მწვანეთა პარტია
+    color: "#388E3C"
+    type: party
+
+  - id: peoples_power
+    name:
+      en: People's Power
+      ka: სახალხო ხელისუფლება
+    color: "#1A237E"
+    type: party
+
   # ── SMD independents ──────────────────────────────────────────────────────
 
   - id: independent
