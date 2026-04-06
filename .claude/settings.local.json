@@ -122,7 +122,10 @@
       "Bash(ls \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\.observablehq\\\\cache\")",
       "Bash(ls \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\.observablehq\\\\cache\\\\data\")",
       "Bash(wc -l \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\raw\\\\local2025_elected_people.csv\")",
-      "Bash(cat \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\raw\\\\local2025_elected_people.csv\")"
+      "Bash(cat \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\raw\\\\local2025_elected_people.csv\")",
+      "Bash(find \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\" -name \"translations*\")",
+      "Bash(head -3 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\raw\\\\local2025_elected_people.csv\")",
+      "Bash(wc -l \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/elections.md\")"
     ]
   }
 }

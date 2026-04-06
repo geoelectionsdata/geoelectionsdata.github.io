@@ -281,6 +281,24 @@ smd_dist <- summarise_to_level(smd_long, "selfgov_id") %>%
          invalid_ballots, invalid_pct)
 write_csv_utf8(smd_dist, file.path(OUT_RESULTS, "local2025_smd.csv"))
 
+# Mayor results indexed by CEC electoral district (1–84) for the district-level map.
+# Tbilisi (selfgov_id/district_id=1) spans CEC districts 1–10; expand those rows.
+# All other selfgovs: selfgov_id = district_id, so no change needed.
+tbilisi_expanded <- smd_dist %>%
+  filter(district_id == "1") %>%
+  crossing(tibble(new_did = as.character(2:10))) %>%
+  mutate(district_id = new_did) %>%
+  select(-new_did)
+
+smd_districts <- smd_dist %>%
+  filter(district_id != "national") %>%
+  bind_rows(tbilisi_expanded) %>%
+  bind_rows(filter(smd_dist, district_id == "national")) %>%
+  arrange(district_id, party_id)
+
+write_csv_utf8(smd_districts, file.path(OUT_RESULTS, "local2025_smd_districts.csv"))
+cat("  Written:", file.path(OUT_RESULTS, "local2025_smd_districts.csv"), "\n")
+
 smd_prec <- smd_long %>%
   group_by(precinct_id, selfgov_id, party_id) %>%
   summarise(
@@ -502,12 +520,12 @@ if (file.exists(ELECTED_PATH)) {
     "\u10d3\u10d0\u10db\u10dd\u10e3\u10d9\u10d8\u10d3\u10d4\u10d1\u10d4\u10da\u10d8" = "independent"
   )
 
-  elected_raw <- read.csv(ELECTED_PATH, fileEncoding = "UTF-8",
-                          stringsAsFactors = FALSE, check.names = FALSE) %>%
+  elected_raw <- read.delim(ELECTED_PATH, fileEncoding = "UTF-8",
+                            stringsAsFactors = FALSE, check.names = FALSE) %>%
     as_tibble()
 
   elected <- elected_raw %>%
-    filter(vote_type %in% c("sakrebulo pr", "sakrebulo smd")) %>%
+    filter(vote_type %in% c("sakrebulo pr", "sakrebulo smd", "mayor")) %>%
     mutate(
       selfgov_id = as.integer(self_governing_unit),
       party_id   = PARTY_NAME_MAP_SEATS[trimws(candidate_political_party)]
@@ -524,30 +542,39 @@ if (file.exists(ELECTED_PATH)) {
     group_by(selfgov_id, party_id) %>%
     summarise(seats_smd = n(), .groups = "drop")
 
-  seats_by_unit <- full_join(seats_pr_unit, seats_smd_unit,
-                              by = c("selfgov_id", "party_id")) %>%
+  seats_mayor_unit <- elected %>%
+    filter(vote_type == "mayor") %>%
+    group_by(selfgov_id, party_id) %>%
+    summarise(seats_mayor = n(), .groups = "drop")
+
+  seats_by_unit <- seats_pr_unit %>%
+    full_join(seats_smd_unit,   by = c("selfgov_id", "party_id")) %>%
+    full_join(seats_mayor_unit, by = c("selfgov_id", "party_id")) %>%
     mutate(
-      seats_pr  = as.integer(coalesce(seats_pr,  0L)),
-      seats_smd = as.integer(coalesce(seats_smd, 0L)),
-      selfgov_id = as.character(selfgov_id)
+      seats_pr    = as.integer(coalesce(seats_pr,    0L)),
+      seats_smd   = as.integer(coalesce(seats_smd,   0L)),
+      seats_mayor = as.integer(coalesce(seats_mayor, 0L)),
+      selfgov_id  = as.character(selfgov_id)
     )
 
   seats_national <- seats_by_unit %>%
     group_by(party_id) %>%
     summarise(
-      seats_pr  = sum(seats_pr),
-      seats_smd = sum(seats_smd),
+      seats_pr    = sum(seats_pr),
+      seats_smd   = sum(seats_smd),
+      seats_mayor = sum(seats_mayor),
       .groups = "drop"
     ) %>%
     mutate(selfgov_id = "national") %>%
-    select(selfgov_id, party_id, seats_pr, seats_smd)
+    select(selfgov_id, party_id, seats_pr, seats_smd, seats_mayor)
 
   seats_final <- bind_rows(seats_national, seats_by_unit) %>%
-    select(selfgov_id, party_id, seats_pr, seats_smd)
+    select(selfgov_id, party_id, seats_pr, seats_smd, seats_mayor)
 
   write_csv_utf8(seats_final, file.path(OUT_RESULTS, "local2025_seats.csv"))
-  cat("  Total PR seats:",  sum(seats_national$seats_pr),  "\n")
-  cat("  Total SMD seats:", sum(seats_national$seats_smd), "\n")
+  cat("  Total PR seats:",    sum(seats_national$seats_pr),    "\n")
+  cat("  Total SMD seats:",   sum(seats_national$seats_smd),   "\n")
+  cat("  Total Mayor seats:", sum(seats_national$seats_mayor), "\n")
 } else {
   cat("  Skipped: elected list not found at", ELECTED_PATH, "\n")
 }

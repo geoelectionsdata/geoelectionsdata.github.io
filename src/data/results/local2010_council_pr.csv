@@ -1,3 +1,0 @@
-district_id,party_id,votes,vote_share,seats_pr,seats_smd,threshold_status
-tbilisi,unm,165000,0.572,14,16,passed
-tbilisi,other,123400,0.428,11,9,failed

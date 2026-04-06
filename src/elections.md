@@ -290,9 +290,13 @@ function loadResults(elec, vt, sub, level, ballotType) {
       : (elec?.files?.pr_precinct_results  ?? elec?.files?.pr_results);
     return lookupCSV(_allCsv,path);
   }
-  const path = vt === "smd"          ? elec?.files?.smd_results
-             : vt === "compensation" ? elec?.files?.compensation_results
-             : elec?.files?.pr_results;
+  // Mayor district level: use CEC-district-indexed file (Tbilisi expanded to districts 1–10)
+  // instead of selfgov-indexed smd_results (where Tbilisi=1 would leave districts 2–10 uncoloured)
+  const path = (ballotType === "mayor" && level === "district" && elec?.files?.smd_district_results)
+    ? elec.files.smd_district_results
+    : vt === "smd"          ? elec?.files?.smd_results
+    : vt === "compensation" ? elec?.files?.compensation_results
+    : elec?.files?.pr_results;
   return lookupCSV(_allCsv,path);
 }
 
@@ -304,8 +308,10 @@ function loadTurnout(elec, level) {
   return lookupCSV(_allTurnout,path);
 }
 
-// For local council mode, use PR shapefile (electoral districts); falls back to SMD if PR is null
-const _geoVt = (isLocal && ballotTypeVal === "council") ? "pr" : effectiveVoteType;
+// For all local modes, use PR shapefile (electoral districts) for the district layer.
+// Mayor elections were previously using the SMD (selfgov) shapefile, which rendered selfgov
+// outlines instead of CEC electoral district outlines at the district level.
+const _geoVt = isLocal ? "pr" : effectiveVoteType;
 const geoData  = electionVal ? loadGeoJSON(electionVal, _geoVt, "district") : null;
 const cartData = _allGeo[electionVal?.files?.cartogram] ?? null;
 
@@ -326,8 +332,9 @@ const selfgovResults = (electionVal && hasSelfGov) ? loadResults(electionVal, ef
 const precinctGeoData  = (electionVal && hasPrecinct) ? loadGeoJSON(electionVal, effectiveVoteType, "precinct") : null;
 const precinctResults  = (electionVal && hasPrecinct) ? loadResults(electionVal, effectiveVoteType, subVal, "precinct", ballotTypeVal)                 : [];
 const precinctTurnout  = (electionVal && hasPrecinct) ? loadTurnout(electionVal, "precinct")                                                          : [];
-// Actual seat composition from elected-people list (council mode only)
-const seatsData = (electionVal && isCouncilMode && electionVal?.files?.seats)
+// Actual seat composition from elected-people list (council mode + mayor mode)
+const _needsSeatsData = isCouncilMode || (isLocal && ballotTypeVal === "mayor");
+const seatsData = (electionVal && _needsSeatsData && electionVal?.files?.seats)
   ? lookupCSV(_allCsv, electionVal.files.seats)
   : [];
 ```
@@ -439,19 +446,21 @@ const _seatsByParty = (_prCfg?.method === "dhondt" && _prCfg?.seats)
     )
   : new Map();
 
-// Build seat lookup from CSV: selfgov_id → Map(party_id → {seats_pr, seats_smd})
+// Build seat lookup from CSV: selfgov_id → Map(party_id → {seats_pr, seats_smd, seats_mayor})
 const _seatsMap = new Map();
 for (const r of seatsData) {
   const sid = String(r.selfgov_id);
   if (!_seatsMap.has(sid)) _seatsMap.set(sid, new Map());
   _seatsMap.get(sid).set(String(r.party_id), {
-    seats_pr:  Number(r.seats_pr)  || 0,
-    seats_smd: Number(r.seats_smd) || 0
+    seats_pr:    Number(r.seats_pr)    || 0,
+    seats_smd:   Number(r.seats_smd)   || 0,
+    seats_mayor: Number(r.seats_mayor) || 0
   });
 }
-const _natSeatsByParty     = _seatsMap.get("national") ?? new Map();
+const _natSeatsByParty      = _seatsMap.get("national") ?? new Map();
 const _totalPRSeatsFromCSV  = d3.sum([..._natSeatsByParty.values()], d => d.seats_pr);
 const _totalSMDSeatsFromCSV = d3.sum([..._natSeatsByParty.values()], d => d.seats_smd);
+const _totalMayorsFromCSV   = d3.sum([..._natSeatsByParty.values()], d => d.seats_mayor);
 
 const nationalArray = Array.from(nationalResults, ([party_id, v]) => {
   const meta = elecPartyMeta.get(party_id);
@@ -466,10 +475,11 @@ const nationalArray = Array.from(nationalResults, ([party_id, v]) => {
   const seats_smd = isCouncilMode
     ? (_councilSMDWins.get(party_id) ?? 0)
     : (meta?.seats_smd ?? v.seats_smd ?? 0);
+  const seats_mayor = _natSeatsByParty.get(party_id)?.seats_mayor ?? 0;
   const seats_comp = meta?.seats_compensation ?? v.seats_comp ?? 0;
   return {
     party_id, ...v,
-    seats_pr, seats_smd, seats_comp, threshold_status,
+    seats_pr, seats_smd, seats_mayor, seats_comp, threshold_status,
     party: getParty(party_id),
     color: partyColor(party_id, electionVal?.id)
   };
@@ -892,12 +902,20 @@ const container = html`
         )}` : isCouncilMode ? html`
         <div id="council-seat-chart">
           <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.local.council_seats_title")}</h4>
-          ${renderCouncilDots(nationalArray, isCouncilMode ? {...electionVal, council: {
+          ${renderCouncilDots(nationalArray, {...electionVal, council: {
             ...electionVal?.council,
             total_smd_seats: _totalSMDSeatsFromCSV > 0 ? _totalSMDSeatsFromCSV : _totalCouncilSMD,
             total_pr_seats:  _totalPRSeatsFromCSV  > 0 ? _totalPRSeatsFromCSV  : (electionVal?.council?.total_pr_seats ?? 0)
-          }} : electionVal, seatFilter)}
+          }}, seatFilter)}
           ${renderSeatLegend(nationalArray, seatFilter, electionVal)}
+        </div>` : (isLocal && ballotTypeVal === "mayor") ? html`
+        <div id="council-seat-chart">
+          <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.local.mayor_seats_title")}</h4>
+          ${renderCouncilDots(nationalArray, {...electionVal, council: {
+            total_pr_seats:  0,
+            total_smd_seats: _totalMayorsFromCSV > 0 ? _totalMayorsFromCSV : (electionVal?.system?.smd?.seats ?? 0)
+          }}, "mayor")}
+          ${renderSeatLegend(nationalArray, "mayor", electionVal)}
         </div>` : html`
         <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.legislature_title")}</h4>
         ${renderDots(nationalArray, seatFilter, electionVal)}
@@ -2181,8 +2199,9 @@ function renderElectoralCollege(elec) {
 
 // ── Seat helpers ──────────────────────────────────────────────────────────
 function seatsFor(d, filter) {
-  if (filter === "pr")  return d.seats_pr  ?? 0;
-  if (filter === "smd") return d.seats_smd ?? 0;
+  if (filter === "pr")    return d.seats_pr    ?? 0;
+  if (filter === "smd")   return d.seats_smd   ?? 0;
+  if (filter === "mayor") return d.seats_mayor ?? 0;
   return (d.seats_pr ?? 0) + (d.seats_smd ?? 0) + (d.seats_comp ?? 0);
 }
 
