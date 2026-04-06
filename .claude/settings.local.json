@@ -125,7 +125,13 @@
       "Bash(cat \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\raw\\\\local2025_elected_people.csv\")",
       "Bash(find \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\" -name \"translations*\")",
       "Bash(head -3 \"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\raw\\\\local2025_elected_people.csv\")",
-      "Bash(wc -l \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/elections.md\")"
+      "Bash(wc -l \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/elections.md\")",
+      "Bash(head -c 3000 \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/shp/majoritarian_2025_major_id.geojson\")",
+      "Bash(head -c 8000 \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/shp/majoritarian_2025_major_id.geojson\")",
+      "Bash(head -c 2500 \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/data/shp/majoritarian_2025_major_id.geojson\")",
+      "Bash(ls \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/.observablehq\")",
+      "Bash(ls \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/.cache\")",
+      "Bash(ls \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data\")"
     ]
   }
 }
