@@ -25,7 +25,7 @@ const t = k => tr(dict, lang, k);
 
 ```js
 // Featured election: rotates daily among pinned election IDs
-const _featuredIds = ["parl_2024", "parl_1919"];
+const _featuredIds = ["parl_2024", "parl_1919", "local_2025"];
 const _featuredPool = _featuredIds
   .map(id => elections.find(e => e.id === id))
   .filter(e => e && e.files?.pr_results && e.system?.pr?.shape_file &&

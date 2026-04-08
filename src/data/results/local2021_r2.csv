@@ -1,0 +1,7 @@
+district_id,party_id,candidate_name,votes,vote_share,seats_pr,seats_smd,threshold_status
+tbilisi,gd,კახა კალაძე,303200,0.621,0,1,notrun
+tbilisi,unm,ნიკა მელია,185100,0.379,0,0,notrun
+kvemo_kartli,gd,ია ხარატიშვილი,107400,0.558,0,1,notrun
+kvemo_kartli,unm,გელა ჯავახიშვილი,85200,0.442,0,0,notrun
+adjara,gd,ოთარ ბახტაძე,103600,0.547,0,1,notrun
+adjara,unm,ლელა ბარათელი,85900,0.453,0,0,notrun

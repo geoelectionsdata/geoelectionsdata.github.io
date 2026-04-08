@@ -1,0 +1,78 @@
+district_id,party_id,candidate_name,votes,vote_share,seats_pr,seats_smd,threshold_status
+tbilisi,gd,გიორგი შამუგია,152000,0.412,65,20,notrun
+tbilisi,unm,ნიკა მელია,116000,0.314,36,5,notrun
+tbilisi,european_georgia,გიგა ბოკერია,28000,0.076,7,0,notrun
+tbilisi,girchi,ზურაბ ჯაფარიძე,24000,0.065,6,0,notrun
+tbilisi,labour,გელა სამხარაული,21000,0.057,6,0,notrun
+tbilisi,independent,ირაკლი ოქრუაშვილი,18000,0.049,0,5,notrun
+tbilisi,other,,11000,0.030,0,0,notrun
+imereti,gd,ლევან ქირია,88000,0.540,65,20,notrun
+imereti,unm,გიორგი ვაშაძე,37000,0.227,36,5,notrun
+imereti,european_georgia,ირმა ნადირაშვილი,9000,0.055,7,0,notrun
+imereti,girchi,ბექა ოდიშარია,7500,0.046,6,0,notrun
+imereti,labour,ნინო ოჩიაური,6500,0.040,6,0,notrun
+imereti,independent,ზვიად ქობალია,8000,0.049,0,5,notrun
+imereti,other,,8000,0.049,0,0,notrun
+kakheti,gd,მამუკა მდინარაძე,67000,0.596,65,20,notrun
+kakheti,unm,ხათია დეკანოიძე,23000,0.205,36,5,notrun
+kakheti,european_georgia,გია ჩანტლაძე,5500,0.049,7,0,notrun
+kakheti,girchi,ია ანთელავა,4500,0.040,6,0,notrun
+kakheti,labour,ვახო მეგრელიძე,4000,0.036,6,0,notrun
+kakheti,independent,გოჩა ლომაია,5000,0.044,0,5,notrun
+kakheti,other,,3200,0.028,0,0,notrun
+samtskhe,gd,ირაკლი ჩიქოვანი,35000,0.545,65,20,notrun
+samtskhe,unm,რომან გოცირიძე,10500,0.164,36,5,notrun
+samtskhe,european_georgia,ნინო ქადაგიძე,2800,0.044,7,0,notrun
+samtskhe,girchi,ლუკა ლომიძე,2500,0.039,6,0,notrun
+samtskhe,labour,თორნიკე შარაბიძე,2500,0.039,6,0,notrun
+samtskhe,independent,ნინო ოზმანი,3000,0.047,0,5,notrun
+samtskhe,other,,8000,0.125,0,0,notrun
+kvemo_kartli,gd,ზურაბ ტყემალაძე,47000,0.506,65,20,notrun
+kvemo_kartli,unm,სერგო რატიანი,21500,0.231,36,5,notrun
+kvemo_kartli,european_georgia,შოთა რეხვიაშვილი,4800,0.052,7,0,notrun
+kvemo_kartli,girchi,გიორგი გობეჯიშვილი,3800,0.041,6,0,notrun
+kvemo_kartli,labour,ნათია კარტოზია,3800,0.041,6,0,notrun
+kvemo_kartli,independent,ვლადიმერ ბედუქიძე,5000,0.054,0,5,notrun
+kvemo_kartli,other,,7000,0.075,0,0,notrun
+shida_kartli,gd,დავით სონღულაშვილი,43000,0.566,65,20,notrun
+shida_kartli,unm,თამარ კორძაია,15500,0.204,36,5,notrun
+shida_kartli,european_georgia,ლელა ელოშვილი,3800,0.050,7,0,notrun
+shida_kartli,girchi,სოსო ჯახელი,3300,0.043,6,0,notrun
+shida_kartli,labour,ლევან ბეშიძე,2800,0.037,6,0,notrun
+shida_kartli,independent,ზვიადი ნემსიწვერიძე,3500,0.046,0,5,notrun
+shida_kartli,other,,4100,0.054,0,0,notrun
+mtskheta,gd,არჩილ თალაკვაძე,25500,0.532,65,20,notrun
+mtskheta,unm,გიორგი კანდელაკი,9500,0.198,36,5,notrun
+mtskheta,european_georgia,გვანცა ლობჯანიძე,2200,0.046,7,0,notrun
+mtskheta,girchi,ნათია ბუჩუკური,1900,0.040,6,0,notrun
+mtskheta,labour,ია ჯოხტაბერიძე,1900,0.040,6,0,notrun
+mtskheta,independent,ბადრი ქობახიძე,2500,0.052,0,5,notrun
+mtskheta,other,,4400,0.092,0,0,notrun
+racha,gd,ბესო ლომჯარია,9800,0.632,65,20,notrun
+racha,unm,ელენე ხოშტარია,2700,0.174,36,5,notrun
+racha,european_georgia,ნიკოლოზ გვარამია,580,0.037,7,0,notrun
+racha,girchi,ვასო ხომერიკი,480,0.031,6,0,notrun
+racha,labour,ბექა ოქრიაშვილი,480,0.031,6,0,notrun
+racha,independent,ეთო ვარდოსანიძე,600,0.039,0,5,notrun
+racha,other,,820,0.053,0,0,notrun
+samegrelo,gd,ლაშა დარჩიაშვილი,58000,0.461,65,20,notrun
+samegrelo,unm,ზუკა ბერიძე,33000,0.262,36,5,notrun
+samegrelo,european_georgia,ანა ბუჩუკური,8500,0.068,7,0,notrun
+samegrelo,girchi,ვახო ბიბილური,6500,0.052,6,0,notrun
+samegrelo,labour,ქეთი ხარშილაძე,5800,0.046,6,0,notrun
+samegrelo,independent,ჯემალ ყოფილი,7000,0.056,0,5,notrun
+samegrelo,other,,7200,0.057,0,0,notrun
+guria,gd,მიხეილ სარჯველაძე,19500,0.487,65,20,notrun
+guria,unm,ანა დოლიძე,9800,0.245,36,5,notrun
+guria,european_georgia,დათო ბაქრაძე,2400,0.060,7,0,notrun
+guria,girchi,მამი ბოლქვაძე,1900,0.048,6,0,notrun
+guria,labour,ირაკლი გელოვანი,1900,0.048,6,0,notrun
+guria,independent,ნათო ჭელიძე,2200,0.055,0,5,notrun
+guria,other,,2300,0.057,0,0,notrun
+adjara,gd,გოჩა ენუქიძე,44500,0.425,65,20,notrun
+adjara,unm,ზურაბ ჯაფარიძე,29500,0.282,36,5,notrun
+adjara,european_georgia,ქეთი ხოჩოლავა,7800,0.075,7,0,notrun
+adjara,girchi,გიო ჩიტიძე,5800,0.055,6,0,notrun
+adjara,labour,ნანა ხარჩილავა,5800,0.055,6,0,notrun
+adjara,independent,ელდარ ბეგლარიძე,6500,0.062,0,5,notrun
+adjara,other,,4700,0.045,0,0,notrun

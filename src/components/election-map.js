@@ -218,7 +218,12 @@ export async function buildElectionMap({
             if (panel) panel.replaceWith(viewMode === "turnout"
               ? renderTurnoutPanel(did, _props, turnoutMap)
               : renderDistrictPanel(did, _props, councilDistrictResults));
-            if (isCouncilMode) updateCouncilSeats(did, _props);
+            if (isCouncilMode) {
+              // Always show parent selfgov unit composition, not just this one majoritarian district
+              const _sgId = String(Math.floor(Number(did) / 100));
+              const _sgFeat = selfgovGeoData?.features?.find(f => String(f.properties.id) === _sgId);
+              updateCouncilSeats(_sgId, _sgFeat?.properties ?? _props, true);
+            }
           });
           layer.bindTooltip(
             `<strong>${getFeatureName(feature, lang)}</strong>`,
@@ -379,6 +384,15 @@ export async function buildElectionMap({
                     return r;
                   });
                 panel.replaceWith(renderDistrictPanel("__precinct__", enhancedProps, stationRows));
+              }
+              // Council mode: always show parent selfgov unit composition in the seat chart
+              if (isCouncilMode) {
+                const _majorId = (isCouncilMode && effectiveVoteType === "smd")
+                  ? (_precinctToMajorId.get(stationId) ?? parentDid)
+                  : parentDid;
+                const _sgId   = String(Math.floor(Number(_majorId) / 100));
+                const _sgFeat = selfgovGeoData?.features?.find(f => String(f.properties.id) === _sgId);
+                updateCouncilSeats(_sgId, _sgFeat?.properties, true);
               }
             });
             layer.bindTooltip(

@@ -316,6 +316,190 @@ parties:
     color: "#1A237E"
     type: party
 
+  # ── 2021 local election parties ──────────────────────────────────────────
+
+  - id: lelo
+    name:
+      en: Lelo for Georgia
+      ka: ლელო
+    color: "#00695C"
+    type: party
+
+  - id: droa
+    name:
+      en: Droa
+      ka: დროა
+    color: "#EF6C00"
+    type: party
+
+  - id: girchi_more_freedom
+    name:
+      en: Girchi — More Freedom
+      ka: გირჩი — მეტი თავისუფლება
+    color: "#F9A825"
+    type: party
+
+  - id: citizens
+    name:
+      en: Citizens
+      ka: მოქალაქეები
+    color: "#1565C0"
+    type: party
+
+  - id: third_force
+    name:
+      en: Third Force
+      ka: მესამე ძალა-სტრატეგია აღმაშენებელი
+    color: "#37474F"
+    type: party
+
+  - id: early_elections_coalition
+    name:
+      en: Early Elections Coalition
+      ka: ვადამდელი არჩევნები - ერთიანი საქართველო - დემოკრატიული მოძრაობა
+    color: "#B71C1C"
+    type: alliance
+
+  - id: law_justice
+    name:
+      en: Law and Justice
+      ka: კანონი და სამართალი
+    color: "#1A237E"
+    type: party
+
+  - id: new_christian_democrats
+    name:
+      en: New Christian Democrats
+      ka: ახალი ქრისტიანდემოკრატები
+    color: "#1B5E20"
+    type: party
+
+  - id: reformer
+    name:
+      en: Reformer
+      ka: რეფორმერი
+    color: "#4527A0"
+    type: party
+
+  - id: georgian_group
+    name:
+      en: Georgian Group
+      ka: ქართული დასი
+    color: "#33691E"
+    type: party
+
+  - id: european_socialists
+    name:
+      en: European Socialists
+      ka: ევროპელი სოციალისტები
+    color: "#C62828"
+    type: party
+
+  - id: progress_freedom
+    name:
+      en: Progress and Freedom
+      ka: პროგრესი და თავისუფლება
+    color: "#0277BD"
+    type: party
+
+  - id: development_party
+    name:
+      en: Development Party
+      ka: საქართველოს განვითარების პარტია
+    color: "#FF8F00"
+    type: party
+
+  - id: social_democrats
+    name:
+      en: Social Democrats
+      ka: საქართველოს სოციალ-დემოკრატიული პარტია
+    color: "#D81B60"
+    type: party
+
+  - id: free_choice
+    name:
+      en: Free Choice
+      ka: თავისუფალი არჩევანი - ახალი ალტერნატივა
+    color: "#00838F"
+    type: party
+
+  - id: social_justice
+    name:
+      en: Social Justice
+      ka: სოციალური სამართლიანობა
+    color: "#BF360C"
+    type: party
+
+  - id: workers_socialist
+    name:
+      en: Workers-Socialist Party
+      ka: მშრომელთა სოციალისტური პარტია
+    color: "#4E342E"
+    type: party
+
+  - id: nation_party
+    name:
+      en: Nation's Party
+      ka: ერი
+    color: "#5D4037"
+    type: party
+
+  - id: mechiauri_united
+    name:
+      en: Mechiauri United
+      ka: მეჭიაური გაერთიანებული
+    color: "#827717"
+    type: party
+
+  - id: freedom_gamsakhurdia
+    name:
+      en: Freedom — Gamsakhurdia
+      ka: თავისუფლება-ზვიად გამსახურდიას გზა
+    color: "#880E4F"
+    type: party
+
+  - id: face_plus
+    name:
+      en: Face Plus
+      ka: სახე+
+    color: "#006064"
+    type: party
+
+  - id: democrats_alliance
+    name:
+      en: Alliance of Democrats
+      ka: დემოკრატთა ალიანსი
+    color: "#283593"
+    type: alliance
+
+  - id: third_way
+    name:
+      en: Third Way
+      ka: მესამე გზა
+    color: "#558B2F"
+    type: party
+
+  - id: peoples_party
+    name:
+      en: People's Party
+      ka: სახალხო პარტია
+    color: "#4527A0"
+    type: party
+
+  - id: for_people
+    name:
+      en: For the People
+      ka: ხალხისთვის
+    color: "#AD1457"
+    type: party
+
+  - id: reformators
+    name:
+      en: Reformers
+      ka: რეფორმატორები
+    color: "#6A1B9A"
+    type: party
+
   # ── SMD independents ──────────────────────────────────────────────────────
 
   - id: independent

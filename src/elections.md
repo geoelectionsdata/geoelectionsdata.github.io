@@ -98,18 +98,10 @@ const hasSubElections = subElections.length > 0;
 const subElectionItems = isPlebisciteEarly
   ? subElections
   : [{id: "__main__", name: {en: "Main election", ka: "მთავარი"}}, ...subElections];
-// Local elections: rounds shown as a radio below the HR — use radio input
-// Other elections (parliament, plebiscite): keep dropdown in top section
-const subElectionInput = (isLocal && hasSubElections)
-  ? Inputs.radio(subElectionItems, {
-      value: subElectionItems[0],
-      format: (item, idx) => idx === 0
-        ? t("elections.local.round1")
-        : t("elections.local.round2")
-    })
-  : Inputs.select(subElectionItems, {
-      format: e => e.name?.[lang] || e.name?.en || e.id
-    });
+// All elections: sub-election shown as a dropdown in the top section
+const subElectionInput = Inputs.select(subElectionItems, {
+  format: e => e.name?.[lang] || e.name?.en || e.id
+});
 const subVal = Generators.input(subElectionInput);
 ```
 
@@ -250,40 +242,55 @@ function loadGeoJSON(elec, vt, level) {
 }
 
 function loadResults(elec, vt, sub, level, ballotType) {
-  // Council ballot type: load council-specific files (ignores sub-elections)
+  const isSubActive = sub?.id !== "__main__";
+
+  // Council ballot type: load council-specific files
   if (ballotType === "council") {
     if (level === "selfgov") {
       // Self-governing unit level for council PR
       return lookupCSV(_allCsv, elec?.files?.pr_selfgov_results ?? elec?.files?.council_pr_results);
     }
     if (level === "council_district") {
+      // Sub-election override (e.g. runoff)
+      if (isSubActive && vt === "smd" && sub?.files?.council_smd_results)
+        return lookupCSV(_allCsv, sub.files.council_smd_results);
       const path = vt === "smd"
         ? elec?.files?.council_smd_results
         : elec?.files?.council_pr_results;
       return lookupCSV(_allCsv, path);
     }
     if (level === "precinct") {
+      // Sub-election override
+      if (isSubActive && vt === "smd" && sub?.files?.council_smd_precinct_results)
+        return lookupCSV(_allCsv, sub.files.council_smd_precinct_results);
       const path = vt === "smd"
         ? (elec?.files?.council_smd_precinct_results ?? elec?.files?.council_smd_results)
         : (elec?.files?.council_pr_precinct_results  ?? elec?.files?.council_pr_results);
       return lookupCSV(_allCsv, path);
     }
+    // District level fallthrough — sub-election override
+    if (isSubActive && vt === "smd" && sub?.files?.council_smd_results)
+      return lookupCSV(_allCsv, sub.files.council_smd_results);
     const path = vt === "smd"
       ? elec?.files?.council_smd_results
       : elec?.files?.council_pr_results;
     return lookupCSV(_allCsv, path);
   }
   if (level === "selfgov") {
-    // Self-governing unit level for mayor (smd_results are already keyed by selfgov_id)
+    // Self-governing unit level for mayor — sub-election override (e.g. mayor runoff)
+    if (isSubActive && vt === "smd" && sub?.files?.smd_results)
+      return lookupCSV(_allCsv, sub.files.smd_results);
     const path = vt === "smd" ? elec?.files?.smd_results : elec?.files?.pr_selfgov_results;
     return lookupCSV(_allCsv, path);
   }
-  const isSubActive = sub?.id !== "__main__";
   if (isSubActive) {
     if (level === "precinct") {
       const subPrecinct = sub?.files?.smd_precinct_results ?? sub?.files?.pr_precinct_results;
       if (subPrecinct) return lookupCSV(_allCsv,subPrecinct);
     }
+    // Mayor district level: prefer Tbilisi-expanded district file if available
+    if (ballotType === "mayor" && level === "district" && sub?.files?.smd_district_results)
+      return lookupCSV(_allCsv, sub.files.smd_district_results);
     const subPath = sub?.files?.smd_results ?? sub?.files?.pr_results ?? sub?.files?.results;
     if (subPath) return lookupCSV(_allCsv,subPath);
   }
@@ -324,7 +331,8 @@ const turnoutData          = electionVal ? loadTurnout(electionVal, "district") 
 // Council-district intermediate layer (sakrebulo districts, council mode only)
 const councilDistrictGeoData = (electionVal && hasCouncilDistricts) ? loadGeoJSON(electionVal, _geoVt, "council_district") : null;
 const councilDistrictResults = (electionVal && hasCouncilDistricts) ? loadResults(electionVal, effectiveVoteType, subVal, "council_district", ballotTypeVal) : [];
-// Always load council SMD results for seat computation, even in PR map mode
+// Always load council SMD results for seat computation from the parent election (full results),
+// even when a sub-election (runoff) is active — seats reflect the elected-people list.
 const _allCouncilSMDResults = (electionVal && isCouncilMode && electionVal?.files?.council_smd_results)
   ? lookupCSV(_allCsv, electionVal.files.council_smd_results)
   : councilDistrictResults;
@@ -773,7 +781,7 @@ const container = html`
       <div class="filter-label">${t("elections.local.ballot_type")}</div>
       ${ballotTypeInput}
     </div>` : ""}
-    ${hasSubElections && !isLocal ? html`
+    ${hasSubElections ? html`
     <div class="filter-item">
       <div class="filter-label">${isPlebiscite ? t("elections.question_label") : t("elections.sub_election")}</div>
       ${subElectionInput}
@@ -788,11 +796,6 @@ const container = html`
     ${hasTurnout ? html`<div class="filter-item">
       <div class="filter-label">${t("elections.view_mode")}</div>
       ${viewModeInput}
-    </div>` : ""}
-    ${isLocal && !isCouncilMode && hasSubElections && viewMode === "results" ? html`
-    <div class="filter-item">
-      <div class="filter-label">${t("elections.local.round")}</div>
-      ${subElectionInput}
     </div>` : ""}
     ${!isIndirect ? html`
     <div class="filter-item">
