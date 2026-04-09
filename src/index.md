@@ -33,7 +33,6 @@ const _featuredPool = _featuredIds
 const featured = _featuredPool[Math.floor(Date.now() / 86400000) % _featuredPool.length];
 const featGeo   = _allGeo[featured?.system?.pr?.shape_file];
 const featCsv   = _allCsv[featured?.files?.pr_results] ?? [];
-const featSeats = (featured?.parties ?? []).filter(p => ((p.seats_pr ?? 0) + (p.seats_smd ?? 0)) > 0);
 
 // Winner-by-district lookup
 const _winnerMap = new Map();
@@ -64,32 +63,10 @@ lang;
 const _typeOrder = ["parliamentary", "presidential", "local", "adjara", "plebiscite"];
 const _byType    = d3.group(elections, e => e.type);
 
-const featName       = featured?.name?.[lang] || featured?.name?.en || "";
-const featYear       = (featured?.date ?? "").slice(0, 4);
-const featTotalSeats = (featured?.system?.pr?.seats ?? 0) + (featured?.system?.smd?.seats ?? 0);
-const featNotes      = (featured?.notes?.[lang] || featured?.notes?.en || "").trim();
-const featUrl        = featured ? `elections?type=${featured.type}&election=${featured.id}` : "elections";
-
-// Stacked seat bar
-const _seatTotal = d3.sum(featSeats, p => (p.seats_pr ?? 0) + (p.seats_smd ?? 0));
-const seatBar = html`<div style="display:flex;height:12px;border-radius:3px;overflow:hidden;margin:6px 0 10px;">
-  ${featSeats.map(p => {
-    const s = (p.seats_pr ?? 0) + (p.seats_smd ?? 0);
-    return html`<div title="${featPartyName(p)}: ${s}" style="width:${(s / _seatTotal * 100).toFixed(2)}%;background:${featPartyColor(p.id)};"></div>`;
-  })}
-</div>`;
-
-// Seat list
-const seatList = featSeats.map(p => {
-  const s = (p.seats_pr ?? 0) + (p.seats_smd ?? 0);
-  return html`<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--border);font-size:0.78rem;">
-    <div style="display:flex;align-items:center;gap:6px;min-width:0;">
-      <span style="width:9px;height:9px;border-radius:2px;flex-shrink:0;background:${featPartyColor(p.id)};display:inline-block;"></span>
-      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${featPartyName(p)}</span>
-    </div>
-    <strong style="flex-shrink:0;margin-left:8px;">${s}</strong>
-  </div>`;
-});
+const featName  = featured?.name?.[lang] || featured?.name?.en || "";
+const featYear  = (featured?.date ?? "").slice(0, 4);
+const featNotes = (featured?.notes?.[lang] || featured?.notes?.en || "").trim();
+const featUrl   = featured ? `elections?type=${featured.type}&election=${featured.id}` : "elections";
 
 // Browse section — collapsible per type with election cards inside
 function renderBrowseSection(typeKey) {
@@ -292,11 +269,8 @@ const layout = html`
     <div class="card idx-info-card">
       <div class="idx-info-elec-label">${t("main.featured_title")}</div>
       <div class="idx-info-elec-name">${featName}</div>
-      <div class="idx-info-meta">${featYear}${featTotalSeats ? ` · ${featTotalSeats} ${t("elections.seats_label")}` : ""}</div>
+      <div class="idx-info-meta">${featYear}</div>
       ${(() => { if (!featNotes) return ""; const _n = document.createElement("p"); _n.className = "idx-info-notes"; _n.innerHTML = featNotes; return _n; })()}
-      <div class="idx-section-label">${t("elections.legislature_title")}</div>
-      ${seatBar}
-      <div>${seatList}</div>
       <a href="${featUrl}" class="idx-explore-btn">${t("main.card.open")} →</a>
     </div>
   </div>

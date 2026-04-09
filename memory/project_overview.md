@@ -66,6 +66,19 @@ Georgia elections data dashboard built with Observable Framework (v1.13.2). Bili
 
 ---
 
+## index.md featured election card
+
+The featured election info card (right of map on index page) shows **only**:
+- "Featured election" label
+- Election name (bilingual)
+- Year
+- Blurb/notes text (`featured.notes[lang]`)
+- "Open →" link button
+
+Seat total count, stacked seat bar, and party seat list were removed — too detailed for a landing card. `featSeats` variable removed; `featPartyColor` / `featPartyName` kept (still used by map legend).
+
+---
+
 ## elections.md features implemented
 
 - **Left filter panel:** election type, election selector (sorted newest→oldest), sub-election/question, vote type toggle (hidden for forced-SMD contexts), view mode, map type (geo/cartogram), map detail level (district/precinct), seat filter

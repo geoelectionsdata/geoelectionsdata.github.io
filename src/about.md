@@ -188,20 +188,6 @@ const styleOptions = [
         <h4 style="margin-top:0;">${L.about_title}</h4>
         <p style="margin:0;line-height:1.7;">${L.about_body}</p>
       </div>
-<!--  
-      <div class="card" style="margin-bottom:1rem;">
-        <h4 style="margin-top:0;">${L.sources_title}</h4>
-        <ul style="margin:0;padding-left:1.25rem;line-height:1.8;">
-          ${L.sources.map(s => html`<li>${s}</li>`)}
-        </ul>
-      </div>
-
-
-    <div class="card">
-        <h4 style="margin-top:0;">${L.contact_title}</h4>
-        <p style="margin:0;">${L.contact_body}</p>
-      </div>
-           -->
     </div>
 
 
