@@ -198,7 +198,29 @@
       "Bash(pkill -f \"node.*framework\")",
       "Bash(taskkill /PID 28732 /F)",
       "Bash(taskkill /PID 28732 /F /T)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/elections)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/elections)",
+      "Bash(node src/data/downloads.json.js)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Generated: {d[\\\\\"generated\\\\\"]}'\\); print\\(f'Files: {len\\(d[\\\\\"files\\\\\"]\\)}'\\); [print\\(f'  {f[\\\\\"election_id\\\\\"]} [{f[\\\\\"sub_type\\\\\"]}] → {f[\\\\\"filename\\\\\"]} \\({round\\(f[\\\\\"size_bytes\\\\\"]/1000\\)}KB\\)'\\) for f in d['files']]\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/electionsdata-wireframe/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/electionsdata-wireframe/downloads)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/electionsdata-wireframe/about)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/downloads)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/about)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/data/downloads/2024_Parliamentary_Elections_main_20241026_data_202604091910364.xlsx)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/data/downloads/2024_Parliamentary_Elections_main_20241026_data_202604091925198.xlsx\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/data/shp/parl2024_pr.geojson\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/data/config/translations.json\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/logo_ka-1.svg\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/custom-style.css\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/_file/custom-style.css?sha=a0b2184721ba844ee4b2549767485f5e72706035013794e1d3ad8802eda3a425\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/_observablehq/theme-air,alt,wide.css\")",
+      "Bash(curl -v \"http://localhost:3001/data/downloads/2024_Parliamentary_Elections_main_20241026_data_202604091925198.xlsx\")",
+      "Bash(node -e \"const crypto=require\\('crypto'\\);const fs=require\\('fs'\\);const file='src/data/downloads/2024_Parliamentary_Elections_main_20241026_data_202604091925198.xlsx';const hash=crypto.createHash\\('sha256'\\).update\\(fs.readFileSync\\(file\\)\\).digest\\('hex'\\);console.log\\(hash\\);\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/_file/data/downloads/2024_Parliamentary_Elections_main_20241026_data_202604091925198.xlsx?sha=176cc68ccd8353291a63969c9763b0a7a80bce929baf2af46d2bbc2aa0c66e33\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); f=d['files'][6]; print\\('filename:', f['filename']\\); print\\('sha:', f['sha']\\); print\\('size:', f['size_bytes']\\)\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/_file/data/downloads/2024_Parliamentary_Elections_main_20241026_data_202604091941128.xlsx?sha=b817ff44d729ec022564f333b4670b95711f421af85e8ced45e47cfbcc74ebc5\")",
+      "Bash(timeout 30 bash -c 'while ! curl -s \"http://localhost:3001/_file/data/downloads.json\" 2>/dev/null | head -c 5 | grep -q \"{\"; do sleep 2; done; echo \"ready\"')"
     ]
   }
 }

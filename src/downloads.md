@@ -1,0 +1,297 @@
+---
+theme: [air, alt, wide]
+title: Data Downloads
+toc: false
+---
+
+```js
+import * as d3 from "npm:d3";
+import {getLang, tr} from "./components/state.js";
+
+const dict      = await FileAttachment("data/config/translations.json").json();
+const manifest  = await FileAttachment("data/downloads.json").json();
+const lang = getLang();
+```
+
+```js
+const t = k => tr(dict, lang, k);
+```
+
+```js
+// ── Localised strings ──────────────────────────────────────────────────────
+const L = {
+  en: {
+    page_title:  "Data Downloads",
+    page_sub:    "Download structured election results as Excel files (.xlsx). Each file contains district-level and precinct-level results, turnout data, candidate lists, and citation metadata.",
+    generated:   "Files generated",
+    main_round:  "Main",
+    runoff:      "Runoff",
+    by_election: "By-election",
+    download:    "Download",
+    no_data:     "No download files are available yet.",
+    format_note: "Format: Excel (.xlsx) · Includes: district results, precinct results (where available), candidates, turnout, citation metadata",
+  },
+  ka: {
+    page_title:  "მონაცემების ჩამოტვირთვა",
+    page_sub:    "ჩამოტვირთეთ საარჩევნო შედეგები Excel-ის ფორმატში (.xlsx). თითოეული ფაილი შეიცავს საუბნო და საოლქო შედეგებს, აქტივობას, კანდიდატთა სიებს და მეტამონაცემებს.",
+    generated:   "ფაილების გენერირება",
+    main_round:  "1-ლი ტური",
+    runoff:      "მე-2 ტური",
+    by_election: "შუალ. არჩ.",
+    download:    "ჩამოტვ.",
+    no_data:     "ჩამოსატვირთი ფაილები ჯერ არ არის ხელმისაწვდომი.",
+    format_note: "ფორმატი: Excel (.xlsx) · მოიცავს: საუბნო და საოლქო შედეგებს (სადაც ხელმისაწვდომია), კანდიდატებს, აქტივობას, მეტამონაცემებს",
+  }
+};
+const Lx = L[lang] ?? L.en;
+```
+
+```js
+// ── Data grouping ──────────────────────────────────────────────────────────
+const TYPE_ORDER = ["parliamentary", "presidential", "local", "adjara", "plebiscite"];
+
+function subLabel(entry) {
+  if (entry.sub_type === "runoff")      return Lx.runoff;
+  if (entry.sub_type === "by_election") return Lx.by_election;
+  return Lx.main_round;
+}
+
+function formatSize(bytes) {
+  if (bytes >= 1_000_000) return `${(bytes / 1_000_000).toFixed(1)} MB`;
+  if (bytes >= 1_000)     return `${Math.round(bytes / 1_000)} KB`;
+  return `${bytes} B`;
+}
+
+function formatGenerated(iso) {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleDateString(lang === "ka" ? "ka-GE" : "en-GB", {
+      day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit"
+    });
+  } catch { return iso; }
+}
+
+// Group files: election_id → entries[], type → election_ids[]
+const byElection = d3.group(manifest.files ?? [], d => d.election_id);
+
+const idsByType = new Map();
+for (const [elecId, entries] of byElection) {
+  const type = entries[0]?.election_type ?? "other";
+  if (!idsByType.has(type)) idsByType.set(type, []);
+  idsByType.get(type).push(elecId);
+}
+for (const [, ids] of idsByType) {
+  ids.sort((a, b) => {
+    const da = byElection.get(a)?.[0]?.date ?? "";
+    const db = byElection.get(b)?.[0]?.date ?? "";
+    return db.localeCompare(da);
+  });
+}
+```
+
+```js
+// ── Render ─────────────────────────────────────────────────────────────────
+lang; // re-render on language change
+
+// Download SVG icon — function so each call returns a fresh DOM node
+const dlIcon = () => html`<svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" style="flex-shrink:0;"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg>`;
+
+// Each election → a card with year, name, and one download pill per sub
+function renderElectionCard(elecId) {
+  const entries = byElection.get(elecId) ?? [];
+  if (!entries.length) return "";
+  const first    = entries[0];
+  const elecName = (lang === "ka" && first.label_ka) ? first.label_ka : first.label_en;
+  const year     = (first.date ?? "").slice(0, 4);
+
+  const pills = entries.map(entry => html`
+    <a class="dl-pill" href="_file/data/downloads/${entry.filename}?sha=${entry.sha}" download="${entry.filename}" title="${entry.filename}">
+      ${dlIcon()}
+      <span class="dl-pill-label">${subLabel(entry)}</span>
+      <span class="dl-pill-size">${formatSize(entry.size_bytes)}</span>
+    </a>`);
+
+  return html`<div class="dl-card">
+    <div class="dl-card-head">
+      <span class="dl-card-year">${year}</span>
+      <span class="dl-card-name">${elecName}</span>
+    </div>
+    <div class="dl-card-pills">${pills}</div>
+  </div>`;
+}
+
+// Each type → a <details> accordion containing election cards
+function renderTypeAccordion(typeKey) {
+  const ids = idsByType.get(typeKey);
+  if (!ids?.length) return "";
+  const typeLabel = t(`type.${typeKey}`) || typeKey;
+  const count = ids.length;
+
+  return html`<details class="dl-accordion">
+    <summary class="dl-accordion-summary">
+      <span class="dl-accordion-chevron">▸</span>
+      <span class="dl-accordion-label">${typeLabel}</span>
+      <span class="dl-accordion-count">${count}</span>
+    </summary>
+    <div class="dl-cards-grid">
+      ${ids.map(id => renderElectionCard(id))}
+    </div>
+  </details>`;
+}
+
+const hasFiles = (manifest.files ?? []).length > 0;
+
+const page = html`
+<style>
+  .dl-page { max-width: 900px; width: 100%; }
+
+  /* ── Type accordions ─────────────────────────────────────────────────── */
+  .dl-accordion {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+  .dl-accordion-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    background: var(--theme-background-alt, #f8f9fb);
+  }
+  .dl-accordion-summary::-webkit-details-marker { display: none; }
+  .dl-accordion-summary:hover { background: rgba(0,0,0,0.03); }
+
+  .dl-accordion-chevron {
+    font-size: 0.68rem;
+    color: var(--muted);
+    transition: transform 0.15s;
+    flex-shrink: 0;
+  }
+  details[open] .dl-accordion-chevron { transform: rotate(90deg); }
+
+  .dl-accordion-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--theme-foreground);
+    flex: 1;
+  }
+  .dl-accordion-count {
+    font-size: 0.68rem;
+    color: var(--muted);
+    background: var(--border);
+    border-radius: 10px;
+    padding: 1px 7px;
+    flex-shrink: 0;
+  }
+
+  /* ── Election cards grid ─────────────────────────────────────────────── */
+  .dl-cards-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .dl-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--surface, var(--theme-background));
+    min-width: 180px;
+    max-width: 280px;
+    flex: 1 1 180px;
+  }
+
+  .dl-card-head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .dl-card-year {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .dl-card-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--theme-foreground);
+    line-height: 1.3;
+  }
+
+  /* ── Download pills ──────────────────────────────────────────────────── */
+  .dl-card-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .dl-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
+    border: 1px solid var(--theme-foreground-focus, #3b82f6);
+    color: var(--theme-foreground-focus, #3b82f6);
+    text-decoration: none;
+    font-size: 0.74rem;
+    transition: background 0.12s, color 0.12s;
+  }
+  .dl-pill:hover { background: var(--theme-foreground-focus, #3b82f6); color: #fff; }
+  .dl-pill-label { flex: 1; }
+  .dl-pill-size {
+    font-size: 0.66rem;
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+
+  /* ── Meta / footer ───────────────────────────────────────────────────── */
+  .dl-meta-row {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .dl-format-note {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+
+<div class="dl-page">
+
+  <div class="card" style="padding:1rem 1.25rem; margin-bottom:1.25rem;">
+    <h2 style="margin:0 0 0.4rem;">${Lx.page_title}</h2>
+    <p style="margin:0;color:var(--muted);font-size:0.86rem;max-width:740px;line-height:1.55;">${Lx.page_sub}</p>
+  </div>
+
+  <div class="dl-meta-row">
+    <span>${Lx.generated}: ${formatGenerated(manifest.generated)}</span>
+    <span>${(manifest.files ?? []).length} files</span>
+  </div>
+
+  ${hasFiles
+    ? html`<div>${TYPE_ORDER.map(k => renderTypeAccordion(k))}</div>
+           <p class="dl-format-note">${Lx.format_note}</p>`
+    : html`<p style="color:var(--muted);padding:2rem 0;">${Lx.no_data}</p>`}
+
+</div>
+`;
+
+display(page);
+```

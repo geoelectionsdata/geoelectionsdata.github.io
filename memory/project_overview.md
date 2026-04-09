@@ -23,11 +23,12 @@ Georgia elections data dashboard built with Observable Framework (v1.13.2). Bili
 - `index.md` — landing/overview
 - `elections.md` — main election analysis page (most developed)
 - `about.md` — CEDAG project info + interactive citation generator (APA/Harvard/Chicago/BibTeX)
+- `downloads.md` — data download hub (active, bilingual); nav links to `./downloads`. Replaced the old placeholder `data.md`.
 
-**Pages (commented out, not deleted):**
-- `candidates.md` — candidate browser (placeholder, to do later)
-- `data.md` — data download hub (placeholder, to do later)
-- `analysis.md` — analysis posts (placeholder, to do later)
+**Pages (commented out or removed):**
+- `candidates.md` — candidate browser (still commented out, to do later)
+- `analysis.md` — analysis posts (still commented out, to do later)
+- `data.md` — DELETED; replaced by `downloads.md` (`data.md` conflicted with Observable Framework's reserved `/data/` path and silently 404'd)
 
 **Key config files:**
 - `observablehq.config.js` — base path `/electionsdata-wireframe/`, no sidebar
@@ -41,6 +42,18 @@ Georgia elections data dashboard built with Observable Framework (v1.13.2). Bili
 **Data loaders:**
 - `src/data/elections.json.js` — YAML→JSON (reads elections.yml)
 - `src/data/parties.json.js` — YAML→JSON (reads parties.yml)
+
+---
+
+## Data Downloads system
+
+- **`src/data/downloads.json.js`** — Observable Framework data loader. Reads all individual election YAMLs from `src/data/config/elections/`, generates one `.xlsx` per election+sub-election, writes to `src/data/downloads/`, outputs JSON manifest to stdout.
+- **`src/downloads.md`** — Data Downloads page (bilingual). Loads manifest, renders election type accordions → election cards → download pills.
+- **Nav link**: `./downloads` (was `./data` — `data.md` caused a conflict with Observable Framework's reserved `/data/` path and silently 404'd).
+- **File serving**: Observable Framework dev server only serves files at `/_file/PATH?sha=SHA256`. The manifest includes the SHA-256 hash of each xlsx so download links use `_file/data/downloads/${filename}?sha=${sha}` — works in both dev and production.
+- **Filenames**: `{election_name_en}_{main|runoff|by_election}_{YYYYMMDD}_data_{YYYYMMDDTHHmmss}.xlsx`. Date ranges (e.g. 1919 election) take only the first date segment.
+- **Sheet names** cannot contain `/` in Excel — use ` - ` separator (e.g. `"Candidates - კანდიდატები"`).
+- **9 files generated**: adj_2016, adj_2020, local_2021 (main+runoff), local_2025, parl_1919, parl_2024, pres_2018 (main+runoff). Elections still in monolithic `elections.yml` only (parl_2020, parl_1992, ref_2024) are skipped until migrated to individual YAMLs.
 
 ---
 
