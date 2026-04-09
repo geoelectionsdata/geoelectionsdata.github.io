@@ -20,7 +20,7 @@ const about = {
     hero_abbr:     "CEDAG",
     hero_sub:      "An open, structured dataset of Georgian election results from 1919 to the present.",
     about_title:   "About the Archive",
-    about_body:    `CEDAG brings together official election results, candidate lists, and
+    about_body:    `CEDAG brings together available official election results, candidate lists, and
       constituency-level data for all national and sub-national elections held in Georgia.
       Data are sourced from the Central Election Commission of Georgia (CEC), contemporary
       press coverage, and the National Archives of Georgia. The archive is maintained by
@@ -49,22 +49,22 @@ const about = {
   ka: {
     hero_title:    "საქართველოს არჩევნების ყოვლისმომცველი მონაცემთა არქივი",
     hero_abbr:     "CEDAG",
-    hero_sub:      "ღია, სტრუქტურირებული მონაცემთა ბაზა საქართველოს არჩევნების შედეგების შესახებ 1919 წლიდან დღემდე.",
+    hero_sub:      "1919 წლიდან დღემდე საქართველოში ჩატარებული არჩევნების შედეგების ღია, სტრუქტურირებული მონაცემთა ბაზა.",
     about_title:   "არქივის შესახებ",
-    about_body:    `CEDAG აერთიანებს ოფიციალურ საარჩევნო შედეგებს, კანდიდატთა სიებს და
-      საოლქო დონის მონაცემებს საქართველოში გამართული ყველა ეროვნული და
-      ადგილობრივი არჩევნებისათვის. მონაცემები მომზადებულია საქართველოს
-      ცენტრალური საარჩევნო კომისიის (ცსკ), პრესისა და საქართველოს ეროვნული
-      არქივის მასალების საფუძველზე. არქივს ინახავს დავით სიჭინავა; ის ღიად
-      არის ხელმისაწვდომი კვლევითი, ჟურნალისტური და სამოქალაქო გამოყენებისათვის.`,
+    about_body:    `CEDAG-ი მოიცავს საქართველოში გამართული ყველა ეროვნული და
+      ადგილობრივი არჩევნების შედეგებს, კანდიდატთა სიებს და საოლქო თუ საუბნო დონის მონაცემებს, რომელთა შესახებ ინფორმაციის
+      პოვნა შესაძლებელი იყო. მონაცემები მომზადებულია საქართველოს
+      ცენტრალური საარჩევნო კომისიის (ცესკო), პრესისა და საქართველოს ეროვნული
+      არქივის მასალების საფუძველზე. მონაცემები დამუშავებულია დავით სიჭინავას მიერ, ხოლო მონაცემები გამოყენება შეუძლია
+      ნებისმიერ მსურველს, აკადემიური, ჟურნალისტური თუ საინფორმაციო მიზნით. მონაცემების გამოყენებისას, გთხოვთ, მიუთითოთ წყარო ამავე გვერდზე მოცემული ფორმატით`,
     sources_title: "პირველადი წყაროები",
     sources: [
-      "საქართველოს ცენტრალური საარჩევნო კომისია (cesko.ge)",
+      "საქართველოს ცენტრალური საარჩევნო კომისია",
       "საქართველოს ეროვნული არქივი",
-      "თანამედროვე პრესსა და ოფიციალური გაზეთის ჩანაწერები",
+      "პრესა და საგაზეთო პუბლიკაციები",
     ],
     cite_title:    "CEDAG-ის ციტირება",
-    cite_sub:      "აირჩიეთ არჩევნები და ციტირების სტილი ფორმატირებული მითითების მისაღებად.",
+    cite_sub:      "აირჩიეთ არჩევნები და დააგენერირეთ ციტირება სასურველ ფორმატში",
     pick_election: "არჩევნები",
     pick_style:    "ციტირების სტილი",
     copy:          "კოპირება",
@@ -76,7 +76,7 @@ const about = {
       chicago: "Chicago 17th",
     },
     contact_title: "კონტაქტი",
-    contact_body:  "კითხვების, შესწორებების ან თანამშრომლობის მოთხოვნების შემთხვევაში, გთხოვთ, დაუკავშირდეთ დავით სიჭინავას.",
+    contact_body:  "კითხვების, შესწორებების ან თანამშრომლობის შემთხვევაში, გთხოვთ, დაუკავშირდეთ დავით სიჭინავას.",
   },
 };
 
@@ -178,16 +178,17 @@ const styleOptions = [
     <p style="margin:0.6rem 0 0;color:var(--muted);max-width:760px;">${L.hero_sub}</p>
   </div>
 
-  <!-- Two-column layout -->
-  <div class="about-cols">
 
+  <!-- Two-column layout -->
+
+<div class="about-cols">
     <!-- Left: about + sources -->
     <div>
       <div class="card" style="margin-bottom:1rem;">
         <h4 style="margin-top:0;">${L.about_title}</h4>
         <p style="margin:0;line-height:1.7;">${L.about_body}</p>
       </div>
-
+<!--  
       <div class="card" style="margin-bottom:1rem;">
         <h4 style="margin-top:0;">${L.sources_title}</h4>
         <ul style="margin:0;padding-left:1.25rem;line-height:1.8;">
@@ -195,11 +196,14 @@ const styleOptions = [
         </ul>
       </div>
 
-      <div class="card">
+
+    <div class="card">
         <h4 style="margin-top:0;">${L.contact_title}</h4>
         <p style="margin:0;">${L.contact_body}</p>
       </div>
+           -->
     </div>
+
 
     <!-- Right: citation generator -->
     <div class="card" style="align-self:start;">
