@@ -1,7 +1,0 @@
-district_id,party_id,candidate_name,votes,vote_share,seats_pr,seats_smd,threshold_status
-tbilisi,gd,კახა კალაძე,318400,0.678,0,1,notrun
-tbilisi,unm,ზაალ უდუმაშვილი,151000,0.322,0,0,notrun
-imereti,gd,ზაზა ჩახვაშვილი,134800,0.644,0,1,notrun
-imereti,unm,ნინო ბუბუთეიშვილი,74500,0.356,0,0,notrun
-adjara,gd,ოთარ ბახტაძე,117400,0.619,0,1,notrun
-adjara,unm,ლელა ბარათელი,72200,0.381,0,0,notrun

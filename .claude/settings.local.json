@@ -197,7 +197,8 @@
       "Bash(pkill -f \"observable\")",
       "Bash(pkill -f \"node.*framework\")",
       "Bash(taskkill /PID 28732 /F)",
-      "Bash(taskkill /PID 28732 /F /T)"
+      "Bash(taskkill /PID 28732 /F /T)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/elections)"
     ]
   }
 }

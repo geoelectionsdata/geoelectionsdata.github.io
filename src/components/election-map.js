@@ -279,39 +279,45 @@ export async function buildElectionMap({
       }
     }
 
+    // ── Per-precinct winner/share lookups (for point precinct coloring) ──────
+    const winnerByPrecinct = new Map();
+    const shareByPrecinct  = new Map();
+    d3.group(precinctResults, r => String(Math.round(r.precinct_id))).forEach((rows, pid) => {
+      const winner = rows.reduce((a, b) => (b.vote_share > a.vote_share ? b : a));
+      winnerByPrecinct.set(pid, winner);
+      shareByPrecinct.set(pid, d3.max(rows, r => r.vote_share));
+    });
+
     // ── Precinct layer (zoom-activated) ──────────────────────────────────
     // Precincts may be Point features (polling station coordinates) rather than
-    // polygons. In that case each point is coloured by its parent CEC district
-    // winner (feature.properties.district_id) and rendered as a small circle.
+    // polygons. In that case each point is coloured by its own precinct-level winner.
     let precinctLayer = null;
 
     if (precinctGeoData) {
       const isPoints = precinctGeoData.features?.[0]?.geometry?.type === "Point";
 
       if (isPoints) {
-        // Point precincts — CircleMarker, graduated color by parent district winner share
+        // Point precincts — CircleMarker, colored by per-precinct winner
         precinctLayer = L.geoJSON(precinctGeoData, {
           pointToLayer(feature, latlng) {
-            // Resolve parent district for coloring
-            // Council SMD: color by major_id (from CSV); others: electoral district
-            const _rawDist = feature.properties.district ?? feature.properties.district_id;
-            const _d       = Number(_rawDist);
+            const _rawDist  = feature.properties.district ?? feature.properties.district_id;
+            const _d        = Number(_rawDist);
+            const stationId = String(Math.round(feature.properties.id));
             const parentDid = (isCouncilMode && effectiveVoteType === "smd")
-              ? (_precinctToMajorId.get(String(Math.round(feature.properties.id))) ?? String(_rawDist))
+              ? (_precinctToMajorId.get(stationId) ?? String(_rawDist))
               : (effectiveVoteType === "smd" && !isCouncilMode && _d >= 1 && _d <= 10)
                 ? "1" : String(_rawDist);
             let fillColor;
             if (viewMode === "turnout") {
               // Use computed id (feature.properties.id) — matches CSV precinct_id.
               // feature.properties.precinct_id is the raw CEC code and does NOT match.
-              const stationId = String(Math.round(feature.properties.id));
               const td = _precinctTurnoutByStation.get(stationId) ?? turnoutByDistrict.get(parentDid);
               fillColor = d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value, _invalidMax));
             } else {
-              const winner = winnerByDistrict.get(parentDid);
+              const winner = winnerByPrecinct.get(stationId) ?? winnerByDistrict.get(parentDid);
               if (winner) {
-                const color = partyColor(winner.party_id, electionVal?.id);
-                const intensity = shareByDistrict.get(parentDid) ?? 0.5;
+                const color     = partyColor(winner.party_id, electionVal?.id);
+                const intensity = shareByPrecinct.get(stationId) ?? shareByDistrict.get(parentDid) ?? 0.5;
                 fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + intensity * 0.6);
               } else {
                 fillColor = "#cccccc";
@@ -726,9 +732,10 @@ export async function buildElectionMap({
             const td = _precinctTurnoutByStation.get(pid) ?? turnoutByDistrict.get(parentDid);
             fillColor = d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value, _invalidMax));
           } else {
-            const winner = winnerByDistrict.get(parentDid);
+            const winner = winnerByPrecinct.get(pid) ?? winnerByDistrict.get(parentDid);
             const color  = winner ? partyColor(winner.party_id, electionVal?.id) : "#ccc";
-            fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + (shareByDistrict.get(parentDid) ?? 0.5) * 0.6);
+            const intensity = shareByPrecinct.get(pid) ?? shareByDistrict.get(parentDid) ?? 0.5;
+            fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + intensity * 0.6);
           }
           l.setStyle({fillColor, fillOpacity: 0.85});
         });

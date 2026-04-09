@@ -19,12 +19,15 @@ Georgia elections data dashboard built with Observable Framework (v1.13.2). Bili
 - BPG Georgian fonts (bpg-arial, bpg-arial-caps) via custom font loader
 - YAML/JSON config — elections.yml, translations.json
 
-**5 Pages:**
+**Pages (active):**
 - `index.md` — landing/overview
 - `elections.md` — main election analysis page (most developed)
-- `candidates.md` — candidate browser (placeholder)
-- `data.md` — data download hub (placeholder)
-- `analysis.md` — analysis posts (placeholder)
+- `about.md` — CEDAG project info + interactive citation generator (APA/Harvard/Chicago/BibTeX)
+
+**Pages (commented out, not deleted):**
+- `candidates.md` — candidate browser (placeholder, to do later)
+- `data.md` — data download hub (placeholder, to do later)
+- `analysis.md` — analysis posts (placeholder, to do later)
 
 **Key config files:**
 - `observablehq.config.js` — base path `/electionsdata-wireframe/`, no sidebar
@@ -70,7 +73,7 @@ Georgia elections data dashboard built with Observable Framework (v1.13.2). Bili
 - **District results panel:** click a district/precinct to see results or turnout stats. Shows candidate names for SMD and presidential elections.
 - **Bar chart:** party vote shares with threshold separator line (dashed). Presidential elections show ✓ winner badge. Title changes for presidential.
 - **Seat composition:** dot tiles grouped by party. Hidden for presidential and plebiscite elections.
-- **Turnout view:** national summary card (big %, voted, registered + optional snapshots + optional list breakdown). Composition card hidden for plebiscite type.
+- **Turnout view:** map only + election info card (constrained to 680px, same as map column). Separate turnout summary card removed (duplicated map infobox). Composition card hidden for plebiscite type.
 - **Precinct drill-down:** Districts/Precincts toggle (shown only when `hasPrecinct=true`).
 - **View toggle:** Results/Turnout (shown only when `hasTurnout=true`).
 - **Presidential direct:** Map + district panel + turnout — same pipeline as PR parliamentary.

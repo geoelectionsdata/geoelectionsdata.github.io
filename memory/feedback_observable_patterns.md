@@ -252,6 +252,57 @@ turnoutByDistrict.set(did, _td);
 
 ---
 
+## Precinct dot coloring — two code paths must BOTH be fixed
+
+Point precincts (CircleMarkers) have two separate places where fill color is set:
+
+1. **`pointToLayer`** — runs when the layer is first created (on `buildElectionMap` call)
+2. **`updatePrecinctDots`** — runs immediately when the user switches to precinct level (line ~477: `_mapCtrl.current.updatePrecinctDots(...)`) and again on party-filter or turnout-metric changes
+
+Both must use the same logic. If only `pointToLayer` is fixed, `updatePrecinctDots` overwrites the colors as soon as the precinct level is activated — making the fix invisible.
+
+**Pattern — build per-precinct lookups before the layer:**
+```js
+const winnerByPrecinct = new Map();
+const shareByPrecinct  = new Map();
+d3.group(precinctResults, r => String(Math.round(r.precinct_id))).forEach((rows, pid) => {
+  const winner = rows.reduce((a, b) => (b.vote_share > a.vote_share ? b : a));
+  winnerByPrecinct.set(pid, winner);
+  shareByPrecinct.set(pid, d3.max(rows, r => r.vote_share));
+});
+```
+
+Then in BOTH `pointToLayer` and `updatePrecinctDots` `else` branch:
+```js
+const winner    = winnerByPrecinct.get(pid) ?? winnerByDistrict.get(parentDid);
+const intensity = shareByPrecinct.get(pid)  ?? shareByDistrict.get(parentDid) ?? 0.5;
+fillColor = d3.interpolateRgb("#f5f5f5", partyColor(winner.party_id, ...))(0.4 + intensity * 0.6);
+```
+
+`winnerByPrecinct` is in the closure scope of `buildElectionMap` so it's accessible inside `updatePrecinctDots`.
+
+---
+
+## About page — citation generator pattern
+
+`src/about.md` uses a single block cell `{ ... display(page) }` with all state managed imperatively via DOM `addEventListener("input", update)`. This avoids:
+- `Generators.input()` inside named-output cells (Observable doesn't handle these well in plain objects)
+- `html([str])` — calling `html` as a tagged template requires a real template strings array with `.raw`; passing a plain array throws `TypeError: can't access property 0, r is undefined`
+
+**Correct pattern for embedding an HTML string in htl:**
+```js
+const div = document.createElement("div");
+div.innerHTML = myHtmlString;  // safe — you control the string
+// then use ${div} in the html`...` template
+```
+
+**Wrong:**
+```js
+${html([myHtmlString])}  // throws — plain array has no .raw property
+```
+
+---
+
 ## Sub-election precinct data routing
 
 `loadResults()` checks sub-election precinct files BEFORE falling back to district files. Order:

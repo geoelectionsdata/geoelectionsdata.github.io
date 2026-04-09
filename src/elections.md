@@ -832,21 +832,21 @@ const container = html`
     `}
 
     <!-- BOTTOM: election info (notes) + seat distribution -->
+    ${viewMode === "turnout" ? html`
+    <!-- Turnout mode: info card only, constrained to map column width -->
+    <div style="max-width:680px; width:100%;">
+      ${renderElectionInfo(electionVal)}
+    </div>
+    ` : html`
     <div class="${(!isPresidential && !isPlebiscite) ? "elections-bottom" : ""}">
 
       <!-- LEFT: election notes/blurb from YAML -->
       ${renderElectionInfo(electionVal)}
 
-      <!-- RIGHT: seat distribution (or turnout summary in turnout mode) -->
+      <!-- RIGHT: seat distribution -->
       ${!isPresidential && !isPlebiscite ? html`
       <div class="card">
-        ${viewMode === "turnout" ? html`
-        <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.results.national")}</h4>
-        ${renderTurnoutSummary(
-          turnoutData.length > 0 ? turnoutData
-            : turnoutByDistrict.has("national") ? [turnoutByDistrict.get("national")] : [],
-          electionVal
-        )}` : isCouncilMode ? html`
+        ${isCouncilMode ? html`
         <div id="council-seat-chart">
           <h4 style="margin-top:0; font-size:0.85rem;">${t("elections.local.council_seats_title")}</h4>
           ${renderCouncilDots(nationalArray, {...electionVal, council: {
@@ -869,7 +869,7 @@ const container = html`
         ${renderSeatLegend(nationalArray, seatFilter, electionVal)}`}
       </div>` : ""}
 
-    </div>
+    </div>`}
 
   </div>
 </div>
