@@ -220,7 +220,14 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/_file/data/downloads/2024_Parliamentary_Elections_main_20241026_data_202604091925198.xlsx?sha=176cc68ccd8353291a63969c9763b0a7a80bce929baf2af46d2bbc2aa0c66e33\")",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); f=d['files'][6]; print\\('filename:', f['filename']\\); print\\('sha:', f['sha']\\); print\\('size:', f['size_bytes']\\)\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/_file/data/downloads/2024_Parliamentary_Elections_main_20241026_data_202604091941128.xlsx?sha=b817ff44d729ec022564f333b4670b95711f421af85e8ced45e47cfbcc74ebc5\")",
-      "Bash(timeout 30 bash -c 'while ! curl -s \"http://localhost:3001/_file/data/downloads.json\" 2>/dev/null | head -c 5 | grep -q \"{\"; do sleep 2; done; echo \"ready\"')"
+      "Bash(timeout 30 bash -c 'while ! curl -s \"http://localhost:3001/_file/data/downloads.json\" 2>/dev/null | head -c 5 | grep -q \"{\"; do sleep 2; done; echo \"ready\"')",
+      "Bash(node src/data/index-featured.json.js)",
+      "Bash(node -e \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\)\\); console.log\\('election:', d.electionId, '| geo features:', d.geo?.features?.length, '| csv rows:', d.csv?.length\\);\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('election:', d['electionId'], '| geo features:', len\\(d['geo']['features']\\), '| csv rows:', len\\(d['csv']\\)\\)\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/_file/data/index-featured.json?sha=9f6affaf389699315f774f84486ce5cf5b1baff6f768e1b74d23152c45b26dd5\")",
+      "Bash(curl -s \"http://localhost:3001/_import/index.js?sha=ac91589baf7123a54843cf0bd2b4caa29867e887eb9faa8bd8469ae9027d2f56\")",
+      "Bash(curl -s \"http://localhost:3001/\")",
+      "Bash(curl -s \"http://localhost:3001/_file/data/index-featured.json?sha=9f6affaf389699315f774f84486ce5cf5b1baff6f768e1b74d23152c45b26dd5\")"
     ]
   }
 }

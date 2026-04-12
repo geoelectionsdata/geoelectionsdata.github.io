@@ -2,8 +2,8 @@ id: local_2025
 type: local
 date: "2025-04-12"
 name:
-  en: "2025 Local Elections"
-  ka: "2025 წლის ადგილობრივი არჩევნები"
+  en: "2025 elections of municipal authorities"
+  ka: "მუნიციპალიტეტის ორგანოთა 2025 წლის არჩევნები"
 system:
   pr:
     enabled: true

@@ -11,8 +11,7 @@ import {getLang, tr} from "./components/state.js";
 const dict      = await FileAttachment("data/config/translations.json").json();
 const elections = await FileAttachment("data/elections.json").json();
 const parties   = await FileAttachment("data/parties.json").json();
-const _allGeo   = await FileAttachment("data/geo-registry.json").json();
-const _allCsv   = await FileAttachment("data/csv-registry.json").json();
+const _featured = await FileAttachment("data/index-featured.json").json();
 ```
 
 ```js
@@ -24,15 +23,10 @@ const t = k => tr(dict, lang, k);
 ```
 
 ```js
-// Featured election: rotates daily among pinned election IDs
-const _featuredIds = ["parl_2024", "parl_1919", "local_2025"];
-const _featuredPool = _featuredIds
-  .map(id => elections.find(e => e.id === id))
-  .filter(e => e && e.files?.pr_results && e.system?.pr?.shape_file &&
-    _allGeo[e.system.pr.shape_file] && _allCsv[e.files.pr_results]);
-const featured = _featuredPool[Math.floor(Date.now() / 86400000) % _featuredPool.length];
-const featGeo   = _allGeo[featured?.system?.pr?.shape_file];
-const featCsv   = _allCsv[featured?.files?.pr_results] ?? [];
+// Featured election: data pre-computed server-side by index-featured.json.js
+const featured = elections.find(e => e.id === _featured.electionId);
+const featGeo  = _featured.geo;
+const featCsv  = _featured.csv ?? [];
 
 // Winner-by-district lookup
 const _winnerMap = new Map();

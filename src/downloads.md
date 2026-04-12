@@ -104,8 +104,15 @@ function renderElectionCard(elecId) {
   const elecName = (lang === "ka" && first.label_ka) ? first.label_ka : first.label_en;
   const year     = (first.date ?? "").slice(0, 4);
 
+  // _file/?sha= only exists in Observable Framework dev server.
+  // In production (GitHub Pages) files are at their direct path.
+  const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  const fileUrl = (entry) => isDev
+    ? `_file/data/downloads/${entry.filename}?sha=${entry.sha}`
+    : `data/downloads/${entry.filename}`;
+
   const pills = entries.map(entry => html`
-    <a class="dl-pill" href="_file/data/downloads/${entry.filename}?sha=${entry.sha}" download="${entry.filename}" title="${entry.filename}">
+    <a class="dl-pill" href="${fileUrl(entry)}" download="${entry.filename}" title="${entry.filename}">
       ${dlIcon()}
       <span class="dl-pill-label">${subLabel(entry)}</span>
       <span class="dl-pill-size">${formatSize(entry.size_bytes)}</span>
