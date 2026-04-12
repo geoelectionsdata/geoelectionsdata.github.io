@@ -58,6 +58,11 @@ jobs:
       - name: Build project
         run: yarn build
 
+      - name: Copy xlsx downloads to dist
+        run: |
+          mkdir -p dist/data/downloads
+          cp src/data/downloads/*.xlsx dist/data/downloads/ 2>/dev/null || true
+
       # ── Deploy ─────────────────────────────────────────────────────────────
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v3
