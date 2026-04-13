@@ -150,7 +150,7 @@ const hasFiles = (manifest.files ?? []).length > 0;
 
 const page = html`
 <style>
-  .dl-page { max-width: 900px; width: 100%; }
+  .dl-page { width: 100%; }
 
   /* ── Type accordions ─────────────────────────────────────────────────── */
   .dl-accordion {

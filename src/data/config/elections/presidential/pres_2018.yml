@@ -208,6 +208,11 @@ sub_elections:
     files:
       pr_results:          "data/results/pres2018_r2.csv"
       pr_precinct_results: "data/results/pres2018_r2_precincts.csv"
+sources:
+  - name:
+      en: "Freedom of Information (FOI) request from the Central Election Commission of Georgia"
+      ka: "ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+
 files:
   pr_results:          "data/results/pres2018_r1.csv"
   pr_precinct_results: "data/results/pres2018_r1_precincts.csv"

@@ -590,7 +590,6 @@ const container = html`
     grid-template-columns: 210px 1fr;
     gap: 1rem;
     align-items: start;
-    max-width: 1200px;
     width: 100%;
   }
   .elections-main {

@@ -1,6 +1,6 @@
 {
   "en": {
-    "app.title": "Elections in Georgia",
+    "app.title": "Comprehensive Election Data Archive of Georgia",
     "type.parliamentary": "Parliamentary",
     "type.presidential": "Presidential",
     "type.local": "Local",
@@ -167,7 +167,7 @@
     "footer.right": "Placeholder footer information"
   },
     "ka": {
-    "app.title": "არჩევნები საქართველოში",
+    "app.title": "საქართველოს არჩევნების მონაცემთა არქივი",
 
     "type.parliamentary": "საპარლამენტო",
     "type.presidential": "საპრეზიდენტო",

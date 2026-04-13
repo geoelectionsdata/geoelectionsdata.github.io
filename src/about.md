@@ -16,21 +16,14 @@ const elections = await FileAttachment("data/elections.json").json();
 // ── Localised strings ────────────────────────────────────────────────────────
 const about = {
   en: {
-    hero_title:    "Comprehensive Election Data Archive of Georgia",
-    hero_abbr:     "CEDAG",
-    hero_sub:      "An open, structured dataset of Georgian election results from 1919 to the present.",
-    about_title:   "About the Archive",
-    about_body:    `CEDAG brings together available official election results, candidate lists, and
-      constituency-level data for all national and sub-national elections held in Georgia.
-      Data are sourced from the Central Election Commission of Georgia (CEC), contemporary
-      press coverage, and the National Archives of Georgia. The archive is maintained by
-      David Sichinava and is freely available for research, journalism, and civic use.`,
-    sources_title: "Primary Sources",
-    sources: [
-      "Central Election Commission of Georgia (cesko.ge)",
-      "National Archives of Georgia",
-      "Contemporary press and official gazette records",
-    ],
+    about_title: "Georgia Elections Data Archive (GEDA)",
+    about_body:  `The Georgia Elections Data Archive (GEDA) is an open, structured
+      dataset of election results held in Georgia from 1919 to the present. It brings together available
+      results, candidate lists, and constituency-level data for all national and sub-national
+      elections. Data are sourced from the Central Election Commission of Georgia
+      (CEC), contemporary press coverage, and the National Archives of Georgia. The archive is
+      maintained by David Sichinava, and any interested parties are welcome to use it for academic and journalistic purposes, or for general interest.  Data are released under a CC-BY-4.0 license; when using,
+      please cite the archive using the format provided on this page.`,
     cite_title:    "Cite CEDAG",
     cite_sub:      "Select an election and a citation style to generate a formatted reference.",
     pick_election: "Election",
@@ -43,26 +36,16 @@ const about = {
       harvard: "Harvard",
       chicago: "Chicago 17th",
     },
-    contact_title: "Contact",
-    contact_body:  "For questions, corrections, or collaboration inquiries, please contact David Sichinava.",
+    contact_title:   "Contact",
+    contact_body:    "For questions, corrections, or collaboration inquiries, please contact David Sichinava.",
+    src_title:       "Sources",
+    src_col_election:"Election",
+    src_col_source:  "Source",
+    src_col_note:    "Note",
   },
   ka: {
-    hero_title:    "საქართველოს არჩევნების ყოვლისმომცველი მონაცემთა არქივი",
-    hero_abbr:     "CEDAG",
-    hero_sub:      "1919 წლიდან დღემდე საქართველოში ჩატარებული არჩევნების შედეგების ღია, სტრუქტურირებული მონაცემთა ბაზა.",
-    about_title:   "არქივის შესახებ",
-    about_body:    `CEDAG-ი მოიცავს საქართველოში გამართული ყველა ეროვნული და
-      ადგილობრივი არჩევნების შედეგებს, კანდიდატთა სიებს და საოლქო თუ საუბნო დონის მონაცემებს, რომელთა შესახებ ინფორმაციის
-      პოვნა შესაძლებელი იყო. მონაცემები მომზადებულია საქართველოს
-      ცენტრალური საარჩევნო კომისიის (ცესკო), პრესისა და საქართველოს ეროვნული
-      არქივის მასალების საფუძველზე. მონაცემები დამუშავებულია დავით სიჭინავას მიერ, ხოლო მონაცემები გამოყენება შეუძლია
-      ნებისმიერ მსურველს, აკადემიური, ჟურნალისტური თუ საინფორმაციო მიზნით. მონაცემების გამოყენებისას, გთხოვთ, მიუთითოთ წყარო ამავე გვერდზე მოცემული ფორმატით`,
-    sources_title: "პირველადი წყაროები",
-    sources: [
-      "საქართველოს ცენტრალური საარჩევნო კომისია",
-      "საქართველოს ეროვნული არქივი",
-      "პრესა და საგაზეთო პუბლიკაციები",
-    ],
+    about_title: "საქართველოს არჩევნების მონაცემთა არქივი (GEDA)",
+    about_body:  `საქართველოს არჩევნების მონაცემთა არქივი (GEDA) 1919 წლიდან დღემდე საქართველოში ჩატარებული არჩევნების შედეგების ღია, სტრუქტურირებული მონაცემთა ბაზას წარმოადგენს. იგი მოიცავს საქართველოში გამართული ყველა ეროვნული და ადგილობრივი არჩევნების შედეგებს, კანდიდატთა სიებს და საოლქო თუ საუბნო დონის მონაცემებს, რომელთა შესახებ ინფორმაციის მოძიება შესაძლებელი იყო. მონაცემები მომზადებულია საქართველოს ცენტრალური საარჩევნო კომისიის (ცესკო), პრესისა და საქართველოს ეროვნული არქივის მასალების საფუძველზე. მონაცემები დამუშავებულია დავით სიჭინავას მიერ, ხოლო მათი გამოყენება შეუძლია ნებისმიერ მსურველს, აკადემიური, ჟურნალისტური თუ საინფორმაციო მიზნით. მონაცემები ვრცელდება CC-BY-4.0 ლიცენზიით, შესაბამისად, გამოყენებისას, გთხოვთ, მიუთითოთ წყარო ამავე გვერდზე მოცემული ფორმატით.`,
     cite_title:    "CEDAG-ის ციტირება",
     cite_sub:      "აირჩიეთ არჩევნები და დააგენერირეთ ციტირება სასურველ ფორმატში",
     pick_election: "არჩევნები",
@@ -75,8 +58,12 @@ const about = {
       harvard: "Harvard",
       chicago: "Chicago 17th",
     },
-    contact_title: "კონტაქტი",
-    contact_body:  "კითხვების, შესწორებების ან თანამშრომლობის შემთხვევაში, გთხოვთ, დაუკავშირდეთ დავით სიჭინავას.",
+    contact_title:   "კონტაქტი",
+    contact_body:    "კითხვების, შესწორებების ან თანამშრომლობის შემთხვევაში, გთხოვთ, დაუკავშირდეთ დავით სიჭინავას.",
+    src_title:       "წყაროები",
+    src_col_election:"არჩევნები",
+    src_col_source:  "წყარო",
+    src_col_note:    "შენიშვნა",
   },
 };
 
@@ -166,30 +153,38 @@ const styleOptions = [
   styleSelect.addEventListener("input", update);
   update(); // initial render
 
+  // Build sources rows from elections that have a sources array
+  const srcTableRows = elections
+    .filter(e => Array.isArray(e.sources) && e.sources.length > 0)
+    .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
+    .map(e => {
+      const elecLabel = (lang === "ka" && e.name?.ka) ? e.name.ka : (e.name?.en ?? e.id);
+      const items = e.sources.map(s => {
+        const label = (lang === "ka" && s.name?.ka) ? s.name.ka : (s.name?.en ?? "");
+        return s.url
+          ? html`<li><a href="${s.url}" target="_blank" rel="noopener">${label}</a></li>`
+          : html`<li>${label}</li>`;
+      });
+      const note = (lang === "ka" && e.source_note?.ka) ? e.source_note.ka
+                 : e.source_note?.en ?? "";
+      return html`<tr>
+        <td class="src-elec-cell">${elecLabel}</td>
+        <td><ul class="src-list">${items}</ul></td>
+        <td class="src-note-cell">${note}</td>
+      </tr>`;
+    });
+
   const page = html`
 <div class="about-page">
 
-  <!-- Hero -->
-  <div class="card card-featured" style="margin-bottom:1.5rem;">
-    <div style="display:flex;align-items:baseline;gap:0.75rem;flex-wrap:wrap;">
-      <h2 style="margin:0;">${L.hero_title}</h2>
-      <span style="font-size:1rem;font-weight:600;color:var(--muted);letter-spacing:0.05em;">(${L.hero_abbr})</span>
-    </div>
-    <p style="margin:0.6rem 0 0;color:var(--muted);max-width:760px;">${L.hero_sub}</p>
-  </div>
-
-
   <!-- Two-column layout -->
+  <div class="about-cols">
 
-<div class="about-cols">
-    <!-- Left: about + sources -->
-    <div>
-      <div class="card" style="margin-bottom:1rem;">
-        <h4 style="margin-top:0;">${L.about_title}</h4>
-        <p style="margin:0;line-height:1.7;">${L.about_body}</p>
-      </div>
+    <!-- Left: combined about card -->
+    <div class="card" style="align-self:start;">
+      <h4 style="margin-top:0;">${L.about_title}</h4>
+      <p style="margin:0;line-height:1.7;">${L.about_body}</p>
     </div>
-
 
     <!-- Right: citation generator -->
     <div class="card" style="align-self:start;">
@@ -210,6 +205,22 @@ const styleOptions = [
     </div>
 
   </div>
+
+  <!-- Sources card -->
+  <div class="card sources-card" style="margin-top:1rem;">
+    <h4 style="margin-top:0;">${L.src_title}</h4>
+    <table class="sources-table">
+      <thead>
+        <tr>
+          <th>${L.src_col_election}</th>
+          <th>${L.src_col_source}</th>
+          <th>${L.src_col_note}</th>
+        </tr>
+      </thead>
+      <tbody>${srcTableRows}</tbody>
+    </table>
+  </div>
+
 </div>
 `;
 
@@ -219,7 +230,6 @@ const styleOptions = [
 
 <style>
 .about-page {
-  max-width: 1100px;
   width: 100%;
 }
 .about-cols {
@@ -230,5 +240,50 @@ const styleOptions = [
 }
 @media (max-width: 720px) {
   .about-cols { grid-template-columns: 1fr; }
+}
+.sources-card {
+  overflow: hidden;
+  padding: 0 !important;
+}
+.sources-card h4 {
+  padding: 1rem 1rem 0.75rem;
+  margin: 0;
+}
+.sources-table {
+  width: 100%;
+  max-width: none;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+.sources-table th {
+  text-align: left;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 2px solid var(--theme-foreground-faintest, #e0e0e0);
+  color: var(--muted);
+  font-weight: 600;
+}
+.sources-table td {
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--theme-foreground-faintest, #e0e0e0);
+  vertical-align: top;
+}
+.src-elec-cell {
+  font-weight: 500;
+  width: 35%;
+  vertical-align: top;
+  padding-top: 0.6rem;
+}
+.src-note-cell {
+  width: 20%;
+  vertical-align: top;
+  padding-top: 0.6rem;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+.src-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  line-height: 1.7;
 }
 </style>

@@ -129,6 +129,14 @@ parties:
       ka: აფხაზეთის ნაციონალური პარტია
     threshold_status: failed
     seats_pr: 0
+sources:
+  - name:
+      en: "National Archives of Georgia. Central Historical Archive, Fund N1834, Descr. 2, Fol. 59, Pg. 63"
+      ka: "საქართველოს ეროვნული არქივი. საისტორიო ცენტრალური არქივი, ფონდი N1834, აღწერა 2, საქმე 59, გვ. 63"
+  - name:
+      en: "National Archives of Georgia. Central Historical Archive, Fund N1834, Descr. 2, Fol. 17, Pg. 25"
+      ka: "საქართველოს ეროვნული არქივი. საისტორიო ცენტრალური არქივი, ფონდი N1834, აღწერა 2, საქმე 17, გვ. 25"
+
 files:
   pr_results:  "data/results/parl1919_pr.csv"
   smd_results: null

@@ -193,6 +193,11 @@ parties:
     seats_pr: 0
     seats_smd: 0
 
+sources:
+  - name:
+      en: "Freedom of Information (FOI) request from the Central Elections Commission of Georgia"
+      ka: "ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+
 files:
   pr_results:          "data/results/parl2024_pr.csv"
   pr_precinct_results: "data/results/parl2024_pr_precincts.csv"

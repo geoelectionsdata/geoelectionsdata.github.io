@@ -166,6 +166,11 @@ parties:
     threshold_status: failed
 
 # ── Data files ────────────────────────────────────────────────────────────
+sources:
+  - name:
+      en: "Freedom of Information (FOI) request from the Central Elections Commission of Georgia"
+      ka: "ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+
 files:
   seats:                        "data/results/local2021_seats.csv"
   pr_results:                   "data/results/local2021_pr.csv"

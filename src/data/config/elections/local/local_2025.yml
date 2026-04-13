@@ -59,6 +59,11 @@ parties:
   - id: georgia_party
     threshold_status: failed
 
+sources:
+  - name:
+      en: "Freedom of Information (FOI) request from the Central Elections Commission of Georgia"
+      ka: "ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+
 files:
   seats:                        "data/results/local2025_seats.csv"
   pr_results:                   "data/results/local2025_pr.csv"

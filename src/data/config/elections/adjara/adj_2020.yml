@@ -29,6 +29,14 @@ parties:
     threshold_status: passed
   - id: other
     threshold_status: failed
+sources:
+  - name:
+      en: "Freedom of Information (FOI) request from the Central Election Commission of Georgia"
+      ka: "ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+source_note:
+  en: "Data are incomplete"
+  ka: "მონაცემები არასრულადაა წარმოდგენილი"
+
 files:
   pr_results:           "data/results/adj2020_pr.csv"
   pr_precinct_results:  "data/results/adj2020_pr_precincts.csv"

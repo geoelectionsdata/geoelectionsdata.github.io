@@ -90,8 +90,6 @@ const layout = html`
 <style>
   .idx-page-wrap {
     width: 100%;
-    max-width: 1150px;
-    box-sizing: border-box;
   }
   .idx-home-grid {
     display: grid;

@@ -41,12 +41,18 @@ body, p, span, div, label, button, input, select {
 
 p { line-height: 1.6; }
 
+/* ---- LAYOUT WIDTH (overrides wide theme's 100vw; controls header + page content together) ---- */
+:root {
+  --observablehq-max-width: 1200px;
+}
+
 /* ---- HEADER ---- */
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 1.5rem;
+  width: 100%;
+  padding-right: 1.5rem;
   background: var(--card);
   border-bottom: 2px solid var(--border);
   position: sticky;
@@ -60,9 +66,9 @@ p { line-height: 1.6; }
   font-family: var(--font-head);
   font-weight: bold;
   color: var(--dark);
-  flex: 0 0 380px;
-  width: 380px;
-  max-width: 380px;
+  flex: 0 0 500px;
+  width: 500px;
+  max-width: 500px;
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -90,7 +96,7 @@ p { line-height: 1.6; }
 /* ---- NAVIGATION ---- */
 .top-nav {
   display: flex;
-  gap: 0.25rem;
+  gap: 0;
   align-items: center;
 }
 
@@ -99,14 +105,13 @@ p { line-height: 1.6; }
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 0.4rem 0.75rem;
+  padding: 0.4rem 0.5rem;
   border-radius: var(--radius);
   border-bottom: 2px solid transparent;
   transition: color 0.15s, border-color 0.15s;
   display: inline-block;
-  min-width: 100px;
   text-align: center;
   white-space: nowrap;
 }
@@ -453,6 +458,9 @@ hr {
 #observablehq-header {
   border-bottom: none !important;
 }
+
+/* ---- ALIGN BODY CONTENT WITH HEADER PADDING ---- */
+/* Applied per-page via wrapper classes below — see idx-page-wrap, dl-page, about-page */
 
 /* ================================================================
    RESPONSIVE — MOBILE
