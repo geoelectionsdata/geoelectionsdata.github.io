@@ -3,8 +3,8 @@ type: parliamentary
 sub_type: pr
 date: "2024-10-26"
 name:
-  en: "2024 Parliamentary Elections"
-  ka: "2024 წლის საპარლამენტო არჩევნები"
+  en: "October 26, 2024 elections to the Parliament of Georgia"
+  ka: "საქართველოს პარლამენტის 2024 წლის 26 ოქტომბრის არჩევნები"
 system:
   pr:
     enabled: true

@@ -227,7 +227,18 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3001/_file/data/index-featured.json?sha=9f6affaf389699315f774f84486ce5cf5b1baff6f768e1b74d23152c45b26dd5\")",
       "Bash(curl -s \"http://localhost:3001/_import/index.js?sha=ac91589baf7123a54843cf0bd2b4caa29867e887eb9faa8bd8469ae9027d2f56\")",
       "Bash(curl -s \"http://localhost:3001/\")",
-      "Bash(curl -s \"http://localhost:3001/_file/data/index-featured.json?sha=9f6affaf389699315f774f84486ce5cf5b1baff6f768e1b74d23152c45b26dd5\")"
+      "Bash(curl -s \"http://localhost:3001/_file/data/index-featured.json?sha=9f6affaf389699315f774f84486ce5cf5b1baff6f768e1b74d23152c45b26dd5\")",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\(0,'utf8'\\); const data=JSON.parse\\(d\\); const adj=data.find\\(e=>e.type==='adjara'\\); console.log\\(JSON.stringify\\({id:adj?.id, map_view:adj?.map_view},null,2\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\({scripts: p.scripts, observablehq: p.observablehq}, null, 2\\)\\)\")",
+      "Bash(node -e \"const fs=require\\('fs'\\); const f='src/data/elections.json.js'; const t=fs.statSync\\(f\\).mtime; fs.utimesSync\\(f, t, new Date\\(\\)\\); console.log\\('touched', f\\)\")",
+      "Bash(ls src/data/shp/adj*)",
+      "Bash(ls src/data/downloads/*.js)",
+      "Bash(ls src/data/*.xlsx.js)",
+      "Bash(head -5 src/data/turnout/adj2020_precincts_turnout.csv)",
+      "Bash(head -5 src/data/turnout/adj2020_turnout.csv)",
+      "Bash(cmd.exe /c \"dir /b \\\\\"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\\"\")",
+      "Bash(cmd.exe /c \"more /e +1 \\\\\"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\adj2020_pr_precincts.csv\\\\\" | findstr /n .\"\"\")",
+      "Bash(node scripts/generate_adj2024_data.js)"
     ]
   }
 }

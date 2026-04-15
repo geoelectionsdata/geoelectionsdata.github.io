@@ -18,9 +18,11 @@ export async function buildElectionMap({
   invalidation
 }) {
   // Restore saved view if we're staying on the same election (e.g. switching viewMode)
-  const _sameElec  = _mapState.elecId === electionVal?.id;
-  const _initCenter = _sameElec ? _mapState.center : [42.1, 43.0];
-  const _initZoom   = _sameElec ? _mapState.zoom   : 7;
+  const _sameElec   = _mapState.elecId === electionVal?.id;
+  const _defCenter  = electionVal?.map_view?.center ?? [42.1, 43.0];
+  const _defZoom    = electionVal?.map_view?.zoom   ?? 7;
+  const _initCenter = _sameElec ? _mapState.center : _defCenter;
+  const _initZoom   = _sameElec ? _mapState.zoom   : _defZoom;
 
   // Clean up previous Leaflet instance; save current view first so we can restore it
   invalidation.then(() => {

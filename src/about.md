@@ -46,7 +46,7 @@ const about = {
   ka: {
     about_title: "საქართველოს არჩევნების მონაცემთა არქივი (GEDA)",
     about_body:  `საქართველოს არჩევნების მონაცემთა არქივი (GEDA) 1919 წლიდან დღემდე საქართველოში ჩატარებული არჩევნების შედეგების ღია, სტრუქტურირებული მონაცემთა ბაზას წარმოადგენს. იგი მოიცავს საქართველოში გამართული ყველა ეროვნული და ადგილობრივი არჩევნების შედეგებს, კანდიდატთა სიებს და საოლქო თუ საუბნო დონის მონაცემებს, რომელთა შესახებ ინფორმაციის მოძიება შესაძლებელი იყო. მონაცემები მომზადებულია საქართველოს ცენტრალური საარჩევნო კომისიის (ცესკო), პრესისა და საქართველოს ეროვნული არქივის მასალების საფუძველზე. მონაცემები დამუშავებულია დავით სიჭინავას მიერ, ხოლო მათი გამოყენება შეუძლია ნებისმიერ მსურველს, აკადემიური, ჟურნალისტური თუ საინფორმაციო მიზნით. მონაცემები ვრცელდება CC-BY-4.0 ლიცენზიით, შესაბამისად, გამოყენებისას, გთხოვთ, მიუთითოთ წყარო ამავე გვერდზე მოცემული ფორმატით.`,
-    cite_title:    "CEDAG-ის ციტირება",
+    cite_title:    "GEDA-ს ციტირება",
     cite_sub:      "აირჩიეთ არჩევნები და დააგენერირეთ ციტირება სასურველ ფორმატში",
     pick_election: "არჩევნები",
     pick_style:    "ციტირების სტილი",
@@ -116,7 +116,7 @@ const styleOptions = [
     if (!elec) return "";
     const key   = `sichinava${elec.year}${elec.id.replace(/[^a-z0-9]/gi, "")}`;
     const title = `Results of the ${elec.nameEn}`;
-    return `@misc{${key},\n  author    = {Sichinava, David},\n  title     = {{${title}}},\n  year      = {${elec.year}},\n  publisher = {Comprehensive Election Data Archive of Georgia (CEDAG)},\n  url       = {${elec.url}}\n}`;
+    return `@misc{${key},\n  author    = {Sichinava, David},\n  title     = {{${title}}},\n  year      = {${elec.year}},\n  publisher = {Georgia Election Data Archive (GEDA)},\n  url       = {${elec.url}}\n}`;
   }
 
   function stripTags(s) { return s.replace(/<[^>]+>/g, ""); }

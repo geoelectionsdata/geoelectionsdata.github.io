@@ -1,0 +1,159 @@
+id: adj_2024
+type: adjara
+sub_type: pr
+date: "2024-10-26"
+name:
+  en: "2024 elections to the Supreme Council of the Autonomous Republic of Adjara"
+  ka: "აჭარის ავტონომიური რესპუბლიკის უმაღლესი საბჭოს 2024 წლის არჩევნები"
+system:
+  pr:
+    enabled: true
+    seats: 150
+    threshold_pct: 5.0
+    method: dhondt
+    shape_file: "data/shp/adj2024_pr.geojson"
+    precinct_shape_file: "data/shp/adj2024_pr_precincts.geojson"
+  smd:
+    enabled: false
+    seats: 0
+    shape_file: null
+  compensation:
+    enabled: false
+    shape_file: null
+notes:
+  en: |
+    In parallel with the 2024 parliamentary elections, members of the Adjara Supreme Council were elected through fully proportional system.
+  ka: |
+    2024 წლის საპარლამენტო არჩევნების პარალელურად, ჩატარდა აჭარის უმაღლესი საბჭოს წევრთა არჩევნები, სრულად პროპორციული სისტემით.
+sub_elections: []
+
+# threshold_status is official — not calculated from vote_share.
+# alias overrides the canonical party name from parties.yml for this election.
+# color overrides the canonical party color from parties.yml for this election.
+parties:
+  - id: gd
+    alias:
+      en: Georgian Dream
+      ka: ქართული ოცნება
+    color: "#21509e"
+    threshold_status: passed
+    seats_pr: 13
+    seats_smd: 0
+
+  - id: coalition_for_change
+    alias:
+      en: Coalition for Change
+      ka: კოალიცია ცვლილებისთვის
+    color: "#377149"
+    threshold_status: passed
+    seats_pr: 1
+    seats_smd: 0
+
+  - id: unity
+    alias:
+      en: Unity — National Movement
+      ka: ერთობა — ნაციონალური მოძრაობა
+    color: "#d13529"
+    threshold_status: passed
+    seats_pr: 4
+    seats_smd: 0
+
+  - id: strong_georgia
+    alias:
+      en: Strong Georgia
+      ka: ძლიერი საქართველო
+    color: "#fcaf13"
+    threshold_status: passed
+    seats_pr: 1
+    seats_smd: 0
+
+  - id: gakharia
+    alias:
+      en: For Georgia
+      ka: გახარია საქართველოსთვის
+    color: "#4b2775"
+    threshold_status: passed
+    seats_pr: 1
+    seats_smd: 0
+
+  - id: girchi
+    alias:
+      en: Girchi
+      ka: გირჩი
+    color: "#00a749"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: european_democrats
+    alias:
+      en: European Democrats
+      ka: ევროპელი დემოკრატები
+    color: "#0288D1"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: patriots
+    alias:
+      en: Alliance of Patriots
+      ka: საქართველოს პატრიოტთა ალიანსი
+    color: "#e1ab2c"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: our_georgia
+    alias:
+      en: Our United Georgia
+      ka: ჩვენი გაერთიანებული საქართველო
+    color: "#2E7D32"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: free_georgia
+    alias:
+      en: Free Georgia
+      ka: თავისუფალი საქართველო
+    color: "#00695C"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: tribuna
+    alias:
+      en: Tribuna
+      ka: ტრიბუნა
+    color: "#4A148C"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+map_view:
+  center: [41.7225389, 42.1149651]
+  zoom: 9
+
+sources:
+  - name:
+      en: "Freedom of Information (FOI) request from the Supreme Electoral Council of Adjara"
+      ka: "აჭარის უმაღლესი საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+
+source_note:
+  en: "Data are extracted using computer vision and then compared to the ground truth, thus sometimes might diverge from official results."
+  ka: "მონაცემები გაციფრულებლია კომპიუტერული ხედვის მეთოდით და შემდეგ შედარებულია შედეგებს, შესაბამისად, ზოგჯერ შესაძლოა, არ ემთხვეოდეს ოფიციალურ მონაცემებს"
+
+files:
+  pr_results:           "data/results/adj2024_pr.csv"
+  pr_precinct_results:  "data/results/adj2024_pr_precincts.csv"
+  smd_results:          null
+  smd_precinct_results: null
+  candidates:           null
+  cartogram:            null
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/adj2024_turnout.csv"
+  precinct_file: "data/turnout/adj2024_precincts_turnout.csv"
+  has_snapshots: false
+  has_lists: false
