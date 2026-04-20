@@ -2,6 +2,9 @@ import L from "npm:leaflet";
 import * as d3 from "npm:d3";
 import {turnoutValue, turnoutNorm} from "./election-utils.js";
 
+// Module-level cache: survives buildElectionMap re-calls (one fetch per session)
+const _precinctRegistryCache = { geo: null, csv: null };
+
 // Builds (or rebuilds) the Leaflet election map.
 // Called from elections.md as an awaited async cell.
 // ctx must include all reactive state plus mutable handles and renderer functions.
@@ -11,6 +14,7 @@ export async function buildElectionMap({
   councilDistrictGeoData, councilDistrictResults,
   selfgovGeoData, selfgovResults,
   precinctGeoPath, precinctCsvPath, precinctTurnout,
+  _precinctGeoRegistryUrl, _precinctCsvRegistryUrl,
   seatsData, _districtRows, _allCouncilSMDResults, _invalidMax,
   _mapCtrl, _mapState, _turnoutMetricCtrl, mapContainer,
   partyColor, passed,
@@ -277,17 +281,23 @@ export async function buildElectionMap({
       let precinctGeoData  = null;
       let precinctResults  = [];
 
-      if (precinctGeoPath) {
+      if (precinctGeoPath && _precinctGeoRegistryUrl) {
         try {
-          const r = await fetch(`/_file/${precinctGeoPath}`);
-          precinctGeoData = await r.json();
+          if (!_precinctRegistryCache.geo) {
+            const r = await fetch(_precinctGeoRegistryUrl);
+            _precinctRegistryCache.geo = await r.json();
+          }
+          precinctGeoData = _precinctRegistryCache.geo[precinctGeoPath] ?? null;
         } catch(e) { console.warn("Precinct GeoJSON load failed", e); }
       }
 
-      if (precinctCsvPath) {
+      if (precinctCsvPath && _precinctCsvRegistryUrl) {
         try {
-          const r = await fetch(`/_file/${precinctCsvPath}`);
-          precinctResults = d3.csvParse(await r.text(), d3.autoType);
+          if (!_precinctRegistryCache.csv) {
+            const r = await fetch(_precinctCsvRegistryUrl);
+            _precinctRegistryCache.csv = await r.json();
+          }
+          precinctResults = _precinctRegistryCache.csv[precinctCsvPath] ?? [];
         } catch(e) { console.warn("Precinct CSV load failed", e); }
       }
 

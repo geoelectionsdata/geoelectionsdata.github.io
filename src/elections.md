@@ -215,6 +215,10 @@ const _allGeo          = await FileAttachment("data/geo-registry.json").json();
 const _allCsv          = await FileAttachment("data/csv-registry.json").json();
 const _allTurnout      = await FileAttachment("data/turnout-registry.json").json();
 const _occupiedGeo     = await FileAttachment("data/shp/occupied_territories.geojson").json();
+// Precinct registries — fetched lazily on first precinct level activation.
+// .url() (no await) registers the files in the production build without loading data.
+const _precinctGeoRegistryUrl = FileAttachment("data/precinct-geo-registry.json").url();
+const _precinctCsvRegistryUrl = FileAttachment("data/precinct-csv-registry.json").url();
 
 function lookupCSV(dataMap, path) {
   return dataMap?.[path] ?? [];
@@ -911,6 +915,7 @@ await buildElectionMap({
   councilDistrictGeoData, councilDistrictResults,
   selfgovGeoData, selfgovResults,
   precinctGeoPath, precinctCsvPath, precinctTurnout,
+  _precinctGeoRegistryUrl, _precinctCsvRegistryUrl,
   seatsData, _districtRows, _allCouncilSMDResults, _invalidMax,
   _mapCtrl, _mapState, _turnoutMetricCtrl, mapContainer,
   partyColor, passed,
