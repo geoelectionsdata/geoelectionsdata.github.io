@@ -238,7 +238,13 @@
       "Bash(head -5 src/data/turnout/adj2020_turnout.csv)",
       "Bash(cmd.exe /c \"dir /b \\\\\"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\\"\")",
       "Bash(cmd.exe /c \"more /e +1 \\\\\"D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\results\\\\adj2020_pr_precincts.csv\\\\\" | findstr /n .\"\"\")",
-      "Bash(node scripts/generate_adj2024_data.js)"
+      "Bash(node scripts/generate_adj2024_data.js)",
+      "Bash(node --input-type=module)",
+      "Bash(python -c ' *)",
+      "Bash(python -c \"import pytesseract; print\\(pytesseract.get_tesseract_version\\(\\)\\); langs = pytesseract.get_languages\\(\\); print\\('Languages:', [l for l in langs if 'kat' in l or 'geo' in l]\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(node scripts/generate_parl2020_data.js)",
+      "Bash(node --input-type=module -e ' *)"
     ]
   }
 }

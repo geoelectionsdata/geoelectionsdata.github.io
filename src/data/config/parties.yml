@@ -500,6 +500,225 @@ parties:
     color: "#6A1B9A"
     type: party
 
+  # ── 2020 parliamentary election parties ──────────────────────────────────
+
+  - id: whites
+    name:
+      en: Whites
+      ka: თეთრები
+    color: "#78909C"
+    type: party
+
+  - id: democratic_movement
+    name:
+      en: Burjanadze — United Georgia — Democratic Movement
+      ka: ნინო ბურჯანაძე — ერთიანი საქართველო — დემოკრატიული მოძრაობა
+    color: "#5D4037"
+    type: bloc
+
+  - id: future_georgia
+    name:
+      en: Future Georgia
+      ka: მომავალი საქართველო
+    color: "#0277BD"
+    type: party
+
+  - id: mechiauri
+    name:
+      en: Mechiauri — United Georgia
+      ka: თამაზ მეჭიაური — ერთიანი საქართველოსთვის
+    color: "#00838F"
+    type: party
+
+  - id: greens
+    name:
+      en: Green Party of Georgia
+      ka: მწვანეთა პარტია
+    color: "#388E3C"
+    type: party
+
+  - id: free_georgia_movement
+    name:
+      en: Movement for Free Georgia
+      ka: მოძრაობა თავისუფალი საქართველოსთვის
+    color: "#0288D1"
+    type: party
+
+  - id: georgian_choice
+    name:
+      en: Georgian Choice
+      ka: ქართული არჩევანი
+    color: "#E65100"
+    type: party
+
+  - id: victorious_georgia
+    name:
+      en: Victorious Georgia
+      ka: გამარჯვებული საქართველო
+    color: "#1A237E"
+    type: party
+
+  - id: industry_sakartvelo
+    name:
+      en: Industry Will Save Georgia
+      ka: მრეწველობა გადაარჩენს საქართველოს
+    color: "#546E7A"
+    type: party
+
+  - id: alliance
+    name:
+      en: Our Georgia — Solidarity Alliance
+      ka: ჩვენი საქართველო — სოლიდარობის ალიანსი
+    color: "#7B1FA2"
+    type: bloc
+
+  - id: new_force
+    name:
+      en: New Force
+      ka: ახალი ძალა
+    color: "#006064"
+    type: party
+
+  - id: free_democrats
+    name:
+      en: Free Democrats
+      ka: თავისუფალი დემოკრატები
+    color: "#1565C0"
+    type: party
+
+  - id: justice
+    name:
+      en: For Justice
+      ka: სამართლიანობისთვის
+    color: "#4A148C"
+    type: party
+
+  - id: agmashenebeli
+    name:
+      en: Strategy Agmashenebeli
+      ka: სტრატეგია აღმაშენებელი
+    color: "#283593"
+    type: bloc
+
+  - id: roots
+    name:
+      en: Georgian Roots
+      ka: ქართული ფესვები
+    color: "#6D4C41"
+    type: party
+
+  - id: ndp_2020
+    name:
+      en: National Democratic Party
+      ka: ეროვნულ-დემოკრატიული პარტია
+    color: "#1B5E20"
+    type: party
+
+  - id: social_justice_2020
+    name:
+      en: For Social Justice
+      ka: სოციალური სამართლიანობისათვის
+    color: "#BF360C"
+    type: party
+
+  - id: zviads_way
+    name:
+      en: Zviad's Way
+      ka: ზვიადის გზა
+    color: "#4E342E"
+    type: party
+
+  - id: georgian_idea
+    name:
+      en: Georgian Idea
+      ka: ქართული იდეა
+    color: "#004D40"
+    type: party
+
+  - id: national_democrats
+    name:
+      en: National Democratic Movement
+      ka: ეროვნულ-დემოკრატიული მოძრაობა
+    color: "#33691E"
+    type: party
+
+  - id: social_democrats_2020
+    name:
+      en: Social Democrats for Georgia's Development
+      ka: სოციალ-დემოკრატები საქართველოს განვითარებისათვის
+    color: "#880E4F"
+    type: party
+
+  - id: conservatives
+    name:
+      en: Conservative Party of Georgia
+      ka: საქართველოს კონსერვატიული პარტია
+    color: "#37474F"
+    type: party
+
+  - id: choice_homeland_2020
+    name:
+      en: Choice for the Homeland
+      ka: არჩევანი სამშობლოსათვის
+    color: "#B71C1C"
+    type: party
+
+  - id: georgian_troupe
+    name:
+      en: Georgian Troupe
+      ka: ქართული დასი
+    color: "#6A1B9A"
+    type: party
+
+  - id: progressive_georgia
+    name:
+      en: Progressive Georgia
+      ka: პროგრესული საქართველო
+    color: "#D84315"
+    type: party
+
+  - id: veterans
+    name:
+      en: Veterans' and Patriots' Political Movement
+      ka: საქართველოს ძალოვან ვეტერანთა და პატრიოტთა პოლიტიკური მოძრაობა
+    color: "#455A64"
+    type: party
+
+  - id: euroatlantic_vector
+    name:
+      en: Euro-Atlantic Vector
+      ka: ევროატლანტიკური ვექტორი
+    color: "#1976D2"
+    type: party
+
+  - id: traditionalists
+    name:
+      en: Traditionalists
+      ka: ტრადიციონალისტები
+    color: "#827717"
+    type: party
+
+  - id: peoples_movement_2020
+    name:
+      en: People's Movement — Christian Democrats
+      ka: სახალხო მოძრაობა ქრისტიან-დემოკრატები
+    color: "#00796B"
+    type: party
+
+  - id: georgian_march
+    name:
+      en: Georgian March
+      ka: ქართული მარში
+    color: "#8D1A3A"
+    type: party
+
+  - id: motherland_2020
+    name:
+      en: Motherland
+      ka: მამულიშვილთა ორდენი სამშობლო
+    color: "#4527A0"
+    type: party
+
   # ── SMD independents ──────────────────────────────────────────────────────
 
   - id: independent

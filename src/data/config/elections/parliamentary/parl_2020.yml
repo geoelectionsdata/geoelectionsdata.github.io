@@ -1,0 +1,364 @@
+id: parl_2020
+type: parliamentary
+sub_type: mixed
+date: "2020-10-31"
+name:
+  en: "October 31, 2020 elections to the Parliament of Georgia"
+  ka: "საქართველოს პარლამენტის 2020 წლის 31 ოქტომბრის არჩევნები"
+
+system:
+  pr:
+    enabled: true
+    seats: 120
+    threshold_pct: 1.0
+    method: dhondt
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/parl2020_pr_precincts.geojson"
+  smd:
+    enabled: true
+    seats: 30
+    shape_file: "data/shp/parl2020_smd.geojson"
+    precinct_shape_file: "data/shp/parl2020_pr_precincts.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+
+map_view:
+  center: [42.1, 43.5]
+  zoom: 7
+
+notes:
+  en: |
+    The 2020 parliamentary elections were held under a reduced 1% proportional threshold and consolidated majoritarian districts. On November 21, 2020, a second round was held in 17 majoritarian electoral districts; however, the opposition candidates who advanced to the second round boycotted the elections. As a result, "Georgian Dream" obtained a simple majority in the parliament. Opposition parties initially disputed the results and refused to enter the parliament, but the boycott ended after an agreement was reached through the mediation of European Council President Charles Michel in April 2021.
+  ka: |
+    2020 წლის საპარლამენტო ჩატარდა შემცირებული 1%-იანი პროპორციული ბარიერისა და გამსხვილებული მაჟორიტარული ოლქების პირობებში.  2020 წლის 21 ნოემბერს 17 მაჟორიტარულ საარჩევნო ოლქში მეორე ტური გაიმართა, თუმცა მეორე ტურში გასულმა ოპოზიციურმა კანდიდატებმა არჩევნებს ბოიკოტი გამოუცხდეს. შედეგად, „ქართულმა ოცნებამ" პარლამენტში უბრალო უმრავლესობა მოიპოვა. ოპოზიციური პარტიები თავდაპირველად სადავოდ ხდიდნენ შედეგებს და უარს ამბობდნენ პარლამენტში შესვლაზე, თუმცა 2021 წლის აპრილში ევროკავშირის საბჭოს პრეზიდენტ შარლ მიშელის მიერ შუამავლობით მიღწეული შეთანხმების შემდეგ, ბოიკოტი დასრულდა.
+
+sub_elections:
+  - id: parl_2020_r2
+    type: runoff
+    name:
+      en: Second Round (November 21, 2020)
+      ka: მეორე ტური (2020 წლის 21 ნოემბერი)
+    files:
+      smd_results:          "data/results/parl2020_smd_runoff.csv"
+      smd_precinct_results: "data/results/parl2020_smd_runoff_precincts.csv"
+
+# threshold_status is official — not calculated from vote_share.
+# alias overrides the canonical party name from parties.yml for this election.
+# Parties listed in descending order of national PR vote share.
+parties:
+  - id: gd
+    alias:
+      en: Georgian Dream — Democratic Georgia
+      ka: ქართული ოცნება — დემოკრატიული საქართველო
+    color: "#21509e"
+    threshold_status: passed
+    seats_pr: 60
+    seats_smd: 30
+
+  - id: unm
+    alias:
+      en: "Bloc: UNM — United Opposition — Strength in Unity"
+      ka: ბლოკი „ერთიანი ნაციონალური მოძრაობა — გაერთიანებული ოპოზიცია „ძალა ერთობაშია""
+    color: "#C62828"
+    threshold_status: passed
+    seats_pr: 36
+    seats_smd: 0
+
+  - id: european_georgia
+    alias:
+      en: "Bakradze, Ugulava, Bokeria — European Georgia — Movement for Freedom"
+      ka: ბაქრაძე, უგულავა, ბოკერია — ევროპული საქართველო — მოძრაობა თავისუფლებისთვის
+    color: "#0288D1"
+    threshold_status: passed
+    seats_pr: 5
+    seats_smd: 0
+
+  - id: lelo
+    alias:
+      en: "Lelo — Mamuka Khazaradze"
+      ka: ლელო — მამუკა ხაზარაძე
+    color: "#00695C"
+    threshold_status: passed
+    seats_pr: 4
+    seats_smd: 0
+
+  - id: agmashenebeli
+    alias:
+      en: "Bloc: Giorgi Vashadze — Strategy Agmashenebeli"
+      ka: ბლოკი „გიორგი ვაშაძე — სტრატეგია აღმაშენებელი"
+    color: "#283593"
+    threshold_status: passed
+    seats_pr: 4
+    seats_smd: 0
+
+  - id: patriots
+    alias:
+      en: "Tarkhan-Mouravi, Inashvili — Alliance of Patriots of Georgia"
+      ka: დავით თარხან-მოურავი, ირმა ინაშვილი — საქართველოს პატრიოტთა ალიანსი
+    color: "#880E4F"
+    threshold_status: passed
+    seats_pr: 4
+    seats_smd: 0
+
+  - id: girchi
+    alias:
+      en: Girchi
+      ka: გირჩი
+    color: "#F57F17"
+    threshold_status: passed
+    seats_pr: 4
+    seats_smd: 0
+
+  - id: citizens
+    alias:
+      en: "Aleko Elisashvili — Citizens"
+      ka: ალეკო ელისაშვილი — მოქალაქეები
+    color: "#1565C0"
+    threshold_status: passed
+    seats_pr: 2
+    seats_smd: 0
+
+  - id: labour
+    alias:
+      en: "Shalva Natelashvili — Labour Party of Georgia"
+      ka: შალვა ნათელაშვილი — საქართველოს ლეიბორისტული პარტია
+    color: "#D32F2F"
+    threshold_status: passed
+    seats_pr: 1
+    seats_smd: 0
+
+  - id: democratic_movement
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: tribuna
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: alliance
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: georgian_idea
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: free_georgia
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: free_democrats
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: national_democrats
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: georgian_march
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: social_democrats_2020
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: victorious_georgia
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: veterans
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: conservatives
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: freedom_gamsakhurdia
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: social_justice_2020
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: mechiauri
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: whites
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: future_georgia
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: reformer
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: georgian_choice
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: justice
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: roots
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: reformators
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: new_force
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: zviads_way
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: development_party
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: greens
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: change_georgia
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: georgia_party
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: industry_sakartvelo
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: peoples_party
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: georgian_troupe
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: progressive_georgia
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: free_georgia_movement
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: workers_socialist
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: choice_homeland_2020
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: motherland_2020
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: new_christian_democrats
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: ndp_2020
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: euroatlantic_vector
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: traditionalists
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: peoples_movement_2020
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  # SMD-only parties / candidates
+  - id: our_georgia
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: independent
+    seats_pr: 0
+    seats_smd: 0
+
+sources:
+  - name:
+      en: "Public information requested from the Central Election Commission as part of the preparation of the National Democratic Institute's (NDI) election portal electionsdata.ge"
+      ka: "„ეროვნული დემოკრატიული ინსტიტუტის“ (NDI) საარჩევნო პორტალის electionsdata.ge მომზადების ფარგლებში ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+
+files:
+  pr_results:           "data/results/parl2020_pr.csv"
+  pr_precinct_results:  "data/results/parl2020_pr_precincts.csv"
+  smd_results:          "data/results/parl2020_smd.csv"
+  smd_precinct_results: "data/results/parl2020_smd_precincts.csv"
+  candidates:           null
+  cartogram:            "data/shp/parl2020_cartogram.geojson"
+
+turnout:
+  available: true
+  type: basic
+  file: null
+  precinct_file: null
+  has_snapshots: true   # voted_noon / voted_5pm present in all result CSVs
+  has_lists: true       # main_list / special_list present
