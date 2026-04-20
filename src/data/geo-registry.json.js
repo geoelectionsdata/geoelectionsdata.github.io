@@ -14,6 +14,7 @@ const registry = {};
 for (const election of loadElections()) {
   for (const p of collectPaths(election)) {
     if (!p.endsWith(".geojson")) continue;
+    if (p.includes("_precincts")) continue;
     if (registry[p] || !fileExists(p)) continue;
     registry[p] = JSON.parse(readText(p));
   }

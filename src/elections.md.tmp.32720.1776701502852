@@ -910,7 +910,7 @@ await buildElectionMap({
   geoData, cartData, results, turnoutData, turnoutByDistrict,
   councilDistrictGeoData, councilDistrictResults,
   selfgovGeoData, selfgovResults,
-  precinctGeoPath, precinctCsvPath, precinctTurnout,
+  precinctGeoData, precinctResults, precinctTurnout,
   seatsData, _districtRows, _allCouncilSMDResults, _invalidMax,
   _mapCtrl, _mapState, _turnoutMetricCtrl, mapContainer,
   partyColor, passed,

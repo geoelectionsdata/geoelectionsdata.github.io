@@ -16,6 +16,7 @@ for (const election of loadElections()) {
   for (const p of collectPaths(election)) {
     if (!p.endsWith(".csv")) continue;
     if (p.startsWith("data/turnout/")) continue;
+    if (p.includes("_precincts")) continue;
     if (registry[p] || !fileExists(p)) continue;
     registry[p] = csvParse(readText(p), autoType);
   }
