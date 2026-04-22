@@ -216,7 +216,7 @@ const _allCsv          = await FileAttachment("data/csv-registry.json").json();
 const _allTurnout      = await FileAttachment("data/turnout-registry.json").json();
 const _occupiedGeo     = await FileAttachment("data/shp/occupied_territories.geojson").json();
 // Precinct registries — fetched lazily on first precinct level activation.
-// .url() (no await) registers the files in the production build without loading data.
+// The GeoJSON and CSV registries are YAML-derived manifests; selected precinct files are fetched separately.
 const _precinctGeoRegistryUrl = FileAttachment("data/precinct-geo-registry.json").url();
 const _precinctCsvRegistryUrl = FileAttachment("data/precinct-csv-registry.json").url();
 

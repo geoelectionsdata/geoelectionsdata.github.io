@@ -244,7 +244,17 @@
       "Bash(python -c \"import pytesseract; print\\(pytesseract.get_tesseract_version\\(\\)\\); langs = pytesseract.get_languages\\(\\); print\\('Languages:', [l for l in langs if 'kat' in l or 'geo' in l]\\)\")",
       "Bash(node -e ' *)",
       "Bash(node scripts/generate_parl2020_data.js)",
-      "Bash(node --input-type=module -e ' *)"
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(python -c \"import sys; sys.stdout.reconfigure\\(encoding='utf-8'\\); import pdfplumber; pdf_path = r'D:\\\\Dropbox \\(Personal\\)\\\\My projects\\\\Elections\\\\ge_elections_dashboard\\\\wireframe\\\\observable_framework\\\\elections_data\\\\src\\\\data\\\\raw\\\\elected_candidates_prop_smd.pdf'; pdf = pdfplumber.open\\(pdf_path\\); print\\(f'Total pages: {len\\(pdf.pages\\)}'\\); pdf.close\\(\\)\")",
+      "Bash(Rscript -e \"p <- parse\\('src/loaders/process_parl1919.R'\\); cat\\('parl1919.R: OK,', length\\(p\\), 'top-level exprs\\\\n'\\); p <- parse\\('src/loaders/process_pres2018.R'\\); cat\\('pres2018.R: OK,', length\\(p\\), 'top-level exprs\\\\n'\\)\")",
+      "Bash(Rscript src/loaders/process_parl1919.R)",
+      "Bash(Rscript src/loaders/process_pres2018.R)",
+      "Bash(Rscript -e 'suppressPackageStartupMessages\\({library\\(readxl\\); library\\(dplyr\\); library\\(tidyr\\)}\\); f <- list.files\\(\"src/data/raw\"\\); R1_FILE <- file.path\\(\"src/data/raw\", f[grepl\\(\"2018\", f\\) & grepl\\(\"პირველი\", f\\)][1]\\); df <- read_excel\\(R1_FILE, col_names = TRUE\\); df[[1]] <- fill\\(tibble::tibble\\(x=df[[1]]\\), x, .direction=\"down\"\\)$x; df[[3]] <- df[[3]]; jami_rows <- which\\(df[[3]] == \"ჯამი\"\\); i <- jami_rows[1]; cat\\(\"row:\", i, \" district:\", as.integer\\(df[[1]][i]\\), \" col3:\", df[[3]][i], \"\\\\n\"\\); cat\\(\"col 8 \\(voted\\):\", df[[8]][i], \"\\\\n\"\\); cat\\(\"col 49:\", df[[49]][i], \" col 50:\", df[[50]][i], \" col 51:\", df[[51]][i], \"\\\\n\"\\); cat\\(\"col 59:\", df[[59]][i], \" col 60:\", df[[60]][i], \" col 61:\", df[[61]][i], \" col 62:\", df[[62]][i], \"\\\\n\"\\); cat\\(\"ncol:\", ncol\\(df\\), \"\\\\n\"\\)')",
+      "Bash(Rscript -e ' *)",
+      "Bash(Rscript _debug.R)",
+      "Bash(Rscript -e 'options\\(scipen = 100\\); suppressPackageStartupMessages\\(library\\(readr\\)\\); x <- tibble::tibble\\(a = c\\(0.000865, 0.376194, 0.0011, 0\\)\\); write_csv\\(x, tempfile <- tempfile\\(\\)\\); cat\\(readLines\\(tempfile\\), sep = \"\\\\n\"\\)')",
+      "Bash(Rscript -e 'options\\(scipen = 100\\); x <- c\\(0.000865, 0.376194, 0.0011, 0, NA\\); cat\\(\"format\\(\\):\", format\\(x\\), \"\\\\n\"\\); cat\\(\"format trim:\", format\\(x, trim=TRUE, scientific=FALSE\\), \"\\\\n\"\\)')",
+      "Bash(Rscript -e 'options\\(scipen = 100\\); x <- c\\(0.000865, 0.376194, 0.0011, 0, NA, 0.502502, 9573\\); for \\(m in c\\(\"g\",\"f\",\"fg\"\\)\\) cat\\(sprintf\\(\"formatC %s: [%s]\\\\n\", m, paste\\(formatC\\(x, digits = 6, format = m\\), collapse=\"|\"\\)\\)\\)')"
     ]
   }
 }

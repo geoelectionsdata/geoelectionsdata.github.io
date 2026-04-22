@@ -500,6 +500,127 @@ parties:
     color: "#6A1B9A"
     type: party
 
+  # ── 2016 parliamentary election parties ──────────────────────────────────
+
+  - id: burchuladze
+    name:
+      en: State for the People — Paata Burchuladze
+      ka: სახელმწიფო ხალხისთვის — პაატა ბურჭულაძე
+    color: "#607D8B"
+    type: party
+
+  - id: progressive_democratic_2016
+    name:
+      en: Progressive Democratic Party
+      ka: პროგრესულ-დემოკრატიული პარტია
+    color: "#9E9E9E"
+    type: party
+
+  - id: burjanadze_democratic
+    name:
+      en: Burjanadze — Democrats
+      ka: ბურჯანაძე-დემოკრატები
+    color: "#5C6BC0"
+    type: party
+
+  - id: republicans_2016
+    name:
+      en: Republican Party of Georgia
+      ka: საქართველოს რესპუბლიკური პარტია
+    color: "#FF7043"
+    type: party
+
+  - id: peoples_power_2016
+    name:
+      en: People's Power
+      ka: სახალხო ხელისფლება
+    color: "#9E9E9E"
+    type: party
+
+  - id: communist_stalinist
+    name:
+      en: Stalinist Communist Party of Georgia
+      ka: კომუნისტური პარტია (სტალინელები)
+    color: "#9E9E9E"
+    type: party
+
+  - id: peace_georgia_2016
+    name:
+      en: Party for Peace
+      ka: მშვიდობისა და ერთიანობის პარტია
+    color: "#9E9E9E"
+    type: party
+
+  - id: united_communist_2016
+    name:
+      en: United Communist Party of Georgia (2016)
+      ka: საქართველოს გაერთიანებული კომუნისტური პარტია
+    color: "#9E9E9E"
+    type: party
+
+  - id: georgia_2016
+    name:
+      en: Georgia Party (2016)
+      ka: საქართველო (2016)
+    color: "#9E9E9E"
+    type: party
+
+  - id: kostava_society
+    name:
+      en: Merab Kostava Society
+      ka: მერაბ კოსტავას საზოგადოება
+    color: "#9E9E9E"
+    type: party
+
+  - id: chvenni_peoples
+    name:
+      en: Our People
+      ka: ჩვენი ხალხი
+    color: "#9E9E9E"
+    type: party
+
+  - id: left_alliance_2016
+    name:
+      en: Left Alliance (2016)
+      ka: მემარცხენე ალიანსი (2016)
+    color: "#9E9E9E"
+    type: party
+
+  - id: national_forum
+    name:
+      en: National Forum
+      ka: ეროვნული ფორუმი
+    color: "#AB47BC"
+    type: party
+
+  - id: our_georgia_2016
+    name:
+      en: Our Georgia (2016)
+      ka: ჩვენი საქართველო (2016)
+    color: "#9E9E9E"
+    type: party
+
+  - id: smd_only_42
+    name:
+      en: Independent SMD Candidate
+      ka: დამოუკიდებელი კანდიდატი
+    color: "#66BB6A"
+    type: independent
+
+  - id: smd_only_43
+    name:
+      en: Independent SMD Candidate
+      ka: დამოუკიდებელი კანდიდატი
+    color: "#80DEEA"
+    type: independent
+
+  - id: smd_only_44
+    name:
+      en: Independent SMD Candidate
+      ka: დამოუკიდებელი კანდიდატი
+    color: "#BDBDBD"
+    type: independent
+
   # ── 2020 parliamentary election parties ──────────────────────────────────
 
   - id: whites

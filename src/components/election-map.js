@@ -3,7 +3,77 @@ import * as d3 from "npm:d3";
 import {turnoutValue, turnoutNorm} from "./election-utils.js";
 
 // Module-level cache: survives buildElectionMap re-calls (one fetch per session)
-const _precinctRegistryCache = { geo: null, csv: null };
+const _precinctRegistryCache = {
+  geoManifest: null,
+  geoByPath: new Map(),
+  csvManifest: null,
+  csvByPath: new Map()
+};
+
+async function fetchTextAsset(path) {
+  const urls = [path];
+  if (!/^(?:[a-z]+:|\/)/i.test(path)) urls.push(`/_file/${path}`);
+
+  let lastError;
+  for (const url of urls) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+      return await response.text();
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
+async function fetchJSONAsset(path) {
+  return JSON.parse(await fetchTextAsset(path));
+}
+
+async function loadPrecinctGeo(path, registryUrl) {
+  if (!path || !registryUrl) return null;
+
+  if (!_precinctRegistryCache.geoManifest) {
+    _precinctRegistryCache.geoManifest = await fetchJSONAsset(registryUrl);
+  }
+
+  const assetPath = _precinctRegistryCache.geoManifest[path];
+  if (!assetPath) return null;
+
+  if (!_precinctRegistryCache.geoByPath.has(assetPath)) {
+    const promise = fetchJSONAsset(assetPath).catch(error => {
+      _precinctRegistryCache.geoByPath.delete(assetPath);
+      throw error;
+    });
+    _precinctRegistryCache.geoByPath.set(assetPath, promise);
+  }
+
+  return _precinctRegistryCache.geoByPath.get(assetPath);
+}
+
+async function loadPrecinctCsv(path, registryUrl) {
+  if (!path || !registryUrl) return [];
+
+  if (!_precinctRegistryCache.csvManifest) {
+    _precinctRegistryCache.csvManifest = await fetchJSONAsset(registryUrl);
+  }
+
+  const assetPath = _precinctRegistryCache.csvManifest[path];
+  if (!assetPath) return [];
+
+  if (!_precinctRegistryCache.csvByPath.has(assetPath)) {
+    const promise = fetchTextAsset(assetPath)
+      .then(text => d3.csvParse(text, d3.autoType))
+      .catch(error => {
+        _precinctRegistryCache.csvByPath.delete(assetPath);
+        throw error;
+      });
+    _precinctRegistryCache.csvByPath.set(assetPath, promise);
+  }
+
+  return _precinctRegistryCache.csvByPath.get(assetPath);
+}
 
 // Builds (or rebuilds) the Leaflet election map.
 // Called from elections.md as an awaited async cell.
@@ -283,21 +353,13 @@ export async function buildElectionMap({
 
       if (precinctGeoPath && _precinctGeoRegistryUrl) {
         try {
-          if (!_precinctRegistryCache.geo) {
-            const r = await fetch(_precinctGeoRegistryUrl);
-            _precinctRegistryCache.geo = await r.json();
-          }
-          precinctGeoData = _precinctRegistryCache.geo[precinctGeoPath] ?? null;
+          precinctGeoData = await loadPrecinctGeo(precinctGeoPath, _precinctGeoRegistryUrl);
         } catch(e) { console.warn("Precinct GeoJSON load failed", e); }
       }
 
       if (precinctCsvPath && _precinctCsvRegistryUrl) {
         try {
-          if (!_precinctRegistryCache.csv) {
-            const r = await fetch(_precinctCsvRegistryUrl);
-            _precinctRegistryCache.csv = await r.json();
-          }
-          precinctResults = _precinctRegistryCache.csv[precinctCsvPath] ?? [];
+          precinctResults = await loadPrecinctCsv(precinctCsvPath, _precinctCsvRegistryUrl);
         } catch(e) { console.warn("Precinct CSV load failed", e); }
       }
 

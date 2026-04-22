@@ -1,0 +1,231 @@
+id: parl_2016
+type: parliamentary
+sub_type: mixed
+date: "2016-10-08"
+name:
+  en: "October 8, 2016 elections to the Parliament of Georgia"
+  ka: "საქართველოს პარლამენტის 2016 წლის 8 ოქტომბრის არჩევნები"
+
+system:
+  pr:
+    enabled: true
+    seats: 77
+    threshold_pct: 5.0
+    method: dhondt
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/parl2016_pr_precincts.geojson"
+  smd:
+    enabled: true
+    seats: 73
+    shape_file: "data/shp/parl2016_smd.geojson"
+    precinct_shape_file: "data/shp/parl2016_pr_precincts.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+
+map_view:
+  center: [42.1, 43.5]
+  zoom: 7
+
+notes:
+  en: |
+    The 2016 parliamentary elections were held under Georgia's mixed electoral system: 77 seats were distributed proportionally (5% threshold) and 73 seats were filled through single-mandate majoritarian districts. Оnly Georgian Dream, the United National Movement, and the Alliance of Patriots crossed the threshold. A second round of majoritarian elections was held on October 30, 2016, in 45 districts where no candidate received a majority in the first round. Georgian Dream, following the victory in elections, was able to garner constitutional majority.
+  ka: |
+    2016 წლის საპარლამენტო არჩევნები გაიმართა შერეული საარჩევნო სისტემის პირობებში: 77 მანდატი განაწილდა პროპორციული წარმომადგენლობის წესით, 5%-იანი ბარიერის პირობებში, ხოლო 73 მანდატი — ერთმანდატიანი მაჟორიტარული ოლქების მეშვეობით. 5%-იანი ზღვარი მხოლოდ სამმა პარტიამ - „ქართულმა ოცნებამ“, „ერთიანმა ნაციონალურმა მოძრაობამ“ და „საქართველოს პატრიოტთა ალიანსმა“ გადალახეს. 2016 წლის 30 ოქტომბერს გაიმართა იმ 45 მაჟორიტარულ ოლქებში, სადაც პირველ ტურში გამარჯვებული ვერ გამოვლინდა. არჩევნებში გამარჯვებულმა „ქართულმა ოცნებამ“ საკონსტიტუციო უმრავლესობა მოიპოვა.
+
+sub_elections:
+  - id: parl_2016_r2
+    type: runoff
+    name:
+      en: Second Round (October 30, 2016)
+      ka: მეორე ტური (2016 წლის 30 ოქტომბერი)
+    files:
+      smd_results:          "data/results/parl2016_smd_runoff.csv"
+      smd_precinct_results: "data/results/parl2016_smd_runoff_precincts.csv"
+
+# threshold_status is official — not calculated from vote_share.
+# alias overrides the canonical party name from parties.yml for this election.
+# Parties listed in descending order of national PR vote share.
+# seats_pr / seats_smd: set to 0 as placeholder for GD, UNM, Patriots — update manually.
+parties:
+  - id: gd
+    alias:
+      en: Georgian Dream — Democratic Georgia
+      ka: ქართული ოცნება — დემოკრატიული საქართველო
+    color: "#1565C0"
+    threshold_status: passed
+    seats_pr: 44    # placeholder
+    seats_smd: 71   # placeholder
+
+  - id: unm
+    alias:
+      en: United National Movement
+      ka: ერთიანი ნაციონალური მოძრაობა
+    color: "#C62828"
+    threshold_status: passed
+    seats_pr: 27    # placeholder
+    seats_smd: 0   # placeholder
+
+  - id: patriots
+    alias:
+      en: Alliance of Patriots of Georgia
+      ka: საქართველოს პატრიოტთა ალიანსი
+    color: "#880E4F"
+    threshold_status: passed
+    seats_pr: 6    # placeholder
+    seats_smd: 0   # placeholder
+
+  - id: free_democrats
+    alias:
+      en: Free Democrats
+      ka: თავისუფალი დემოკრატები
+    color: "#1565C0"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: burjanadze_democratic
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: burchuladze
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: labour
+    alias:
+      en: Labour Party of Georgia
+      ka: საქართველოს ლეიბორისტული პარტია
+    color: "#D32F2F"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: republicans_2016
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: national_forum
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: industry_sakartvelo
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 1
+
+  - id: georgian_idea
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: peace_georgia_2016
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: georgian_group
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: chvenni_peoples
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: zviads_way
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: mechiauri_united
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: progressive_democratic_2016
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: peoples_power_2016
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: communist_stalinist
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: workers_socialist
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: united_communist_2016
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: georgia_2016
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: kostava_society
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: left_alliance_2016
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: our_georgia_2016
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  # SMD-only candidates (ran in majoritarian districts only, not on PR ballot)
+  - id: smd_only_42
+    seats_pr: 0
+    seats_smd: 1
+
+  - id: smd_only_43
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: smd_only_44
+    seats_pr: 0
+    seats_smd: 0
+
+sources:
+  - name:
+      en: "Public information requested from the Central Election Commission as part of the preparation of the National Democratic Institute's (NDI) election portal electionsdata.ge"
+      ka: >-
+        „ეროვნული დემოკრატიული ინსტიტუტის" (NDI) საარჩევნო პორტალის
+        electionsdata.ge მომზადების ფარგლებში ცენტრალური საარჩევნო
+        კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია
+
+files:
+  pr_results:           "data/results/parl2016_pr.csv"
+  pr_precinct_results:  "data/results/parl2016_pr_precincts.csv"
+  smd_results:          "data/results/parl2016_smd.csv"
+  smd_precinct_results: "data/results/parl2016_smd_precincts.csv"
+  candidates:           null
+  cartogram:            null
+
+turnout:
+  available: true
+  type: basic
+  file: null
+  precinct_file: null
+  has_snapshots: true   # voted_noon / voted_5pm present in all result CSVs
+  has_lists: true       # main_list / special_list present

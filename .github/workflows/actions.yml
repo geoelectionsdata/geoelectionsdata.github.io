@@ -32,17 +32,44 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: r-${{ runner.os }}-${{ hashFiles('scripts/*.R') }}
+          key: r-${{ runner.os }}-${{ hashFiles('src/loaders/*.R') }}
           restore-keys: r-${{ runner.os }}-
 
       - name: Install R packages
         run: |
-          Rscript -e "install.packages(c('readxl', 'dplyr', 'tidyr', 'stringr'),
+          Rscript -e "install.packages(c('readxl', 'dplyr', 'tidyr', 'stringr',
+                                         'yaml', 'openxlsx', 'jsonlite', 'sf'),
                                         repos = 'https://cloud.r-project.org')"
 
       # ── Process raw election data ───────────────────────────────────────────
+      # Each loader reads from src/data/raw/ and writes to src/data/results/
+      # (and src/data/turnout/ where applicable). Run from project root.
+      # NOTE: process_parl2016.R is a stub — will fail until implemented.
+      - name: Process 2020 parliamentary data
+        run: Rscript src/loaders/process_parl2020.R
+
       - name: Process 2024 parliamentary data
-        run: Rscript scripts/process_parl2024.R
+        run: Rscript src/loaders/process_parl2024.R
+
+      - name: Process 2021 local data
+        run: Rscript src/loaders/process_local2021.R
+
+      - name: Process 2025 local data
+        run: Rscript src/loaders/process_local2025.R
+
+      - name: Process 2024 Adjara data
+        run: Rscript src/loaders/process_adj2024.R
+
+      - name: Process 2018 presidential data
+        run: Rscript src/loaders/process_pres2018.R
+
+      - name: Process 1919 parliamentary data
+        run: Rscript src/loaders/process_parl1919.R
+
+      # ── Build download bundles (xlsx per election) ─────────────────────────
+      - name: Build download bundles
+        run: Rscript src/loaders/build_downloads.R
+        continue-on-error: true  # remove once implemented
 
       # ── Node / Observable build ────────────────────────────────────────────
       - name: Setup Node.js

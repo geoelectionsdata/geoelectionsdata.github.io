@@ -1,8 +1,14 @@
 // 1. Import the Node.js file system module
 import { readFileSync } from "node:fs";
+import { collectExistingPaths } from "./src/data/config/registry-utils.js";
 
 // 2. Read the file content (Path is relative to the project root)
 const headerContent = readFileSync("./src/components/header.html", "utf8");
+
+function precinctAssetPaths() {
+  return collectExistingPaths(p => (p.endsWith(".geojson") || p.endsWith(".csv")) && p.includes("_precincts"))
+    .map(p => `/${p}`);
+}
 
 // See https://observablehq.com/framework/config for documentation.
 export default {
@@ -22,6 +28,7 @@ export default {
     // {name: "Analysis", path: "/analysis"},
     {name: "About", path: "/about"}
   ],
+  dynamicPaths: precinctAssetPaths,
   theme: "air", // "air", "cotton", "ink", or "near-midnight"
   pager: false, // Turn off next/prev buttons for a dashboard feel
   // The app’s title; used in the sidebar and webpage titles.

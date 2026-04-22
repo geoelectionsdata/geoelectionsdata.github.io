@@ -1,21 +1,16 @@
 /**
  * precinct-geo-registry.json.js — data loader
- * Loads only precinct GeoJSON files (paths containing "_precincts").
- * Kept separate from geo-registry so it is fetched lazily by the client
- * only when the user activates the precinct map level.
+ * Emits a small manifest of precinct GeoJSON files (paths containing "_precincts").
+ * The client fetches this manifest lazily, then fetches only the selected
+ * GeoJSON file instead of downloading all precinct geometries at once.
  */
 
-import { loadElections, collectPaths, fileExists, readText } from "./config/registry-utils.js";
+import { collectExistingPaths } from "./config/registry-utils.js";
 
 const registry = {};
 
-for (const election of loadElections()) {
-  for (const p of collectPaths(election)) {
-    if (!p.endsWith(".geojson")) continue;
-    if (!p.includes("_precincts")) continue;
-    if (registry[p] || !fileExists(p)) continue;
-    registry[p] = JSON.parse(readText(p));
-  }
+for (const p of collectExistingPaths(p => p.endsWith(".geojson") && p.includes("_precincts"))) {
+  registry[p] = p;
 }
 
 process.stdout.write(JSON.stringify(registry));
