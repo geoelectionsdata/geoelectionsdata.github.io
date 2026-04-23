@@ -38,7 +38,7 @@ jobs:
       - name: Install R packages
         run: |
           Rscript -e "install.packages(c('readxl', 'dplyr', 'tidyr', 'stringr',
-                                         'yaml', 'openxlsx', 'jsonlite', 'sf'),
+                                         'yaml', 'openxlsx', 'jsonlite', 'sf', 'readxl'),
                                         repos = 'https://cloud.r-project.org')"
 
       # ── Process raw election data ───────────────────────────────────────────
