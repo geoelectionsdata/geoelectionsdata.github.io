@@ -140,14 +140,22 @@ const isCouncilMode   = isLocal && ballotTypeVal === "council";
 const isSubElectionSMD = !isPresidential && !isPlebiscite &&
   subVal?.id !== "__main__" &&
   (subVal?.type === "runoff" || subVal?.type === "by_election");
+// Repeated parliamentary votes may be PR-only in annulled precincts — force "pr" and hide the toggle
+const isSubElectionPR = !isPresidential && !isPlebiscite &&
+  subVal?.id !== "__main__" &&
+  subVal?.type === "repeated";
 const effectiveVoteType = isSubElectionSMD ? "smd"
+  : isSubElectionPR ? "pr"
   : (isLocal && ballotTypeVal === "mayor") ? "smd"
   : voteTypeVal;
 ```
 
 ```js
 // ── Map mode ──────────────────────────────────────────────────────────────
-const mapModeInput = Inputs.radio(["geographic", "cartogram"], {
+const mapModeInput = Inputs.radio([
+  "geographic",
+  // "cartogram", // Hidden while cartogram views are being redesigned.
+], {
   value: "geographic",
   format: k => k === "geographic" ? t("elections.mode.geo") : t("elections.mode.cart")
 });
@@ -617,7 +625,7 @@ const _mapState = { center: [42.1, 43.0], zoom: 7, elecId: null };
 // LAYOUT
 // ════════════════════════════════════════════════════════════
 // Explicit reactive deps — ensures container re-renders when any of these change
-hasTurnout; hasPrecinct; hasCouncilDistricts; viewMode; voteTypeOptions; seatFilterOptions; hasSubElections; isSubElectionSMD; isPresidential; isIndirect; presidentialWinnerId; isPlebiscite; isLocal; hasCouncil; ballotTypeVal; isCouncilMode; lang;
+hasTurnout; hasPrecinct; hasCouncilDistricts; viewMode; voteTypeOptions; seatFilterOptions; hasSubElections; isSubElectionSMD; isSubElectionPR; isPresidential; isIndirect; presidentialWinnerId; isPlebiscite; isLocal; hasCouncil; ballotTypeVal; isCouncilMode; lang;
 // Forward refs: renderer functions defined later; listing them ensures this cell waits for them
 renderNationalPanel; renderElectionInfo; renderBarChart; renderDots; renderCouncilDots; selectPartyOnMap; renderPrecinctPanel;
 
@@ -823,7 +831,7 @@ const container = html`
       <div class="filter-label">${isPlebiscite ? t("elections.question_label") : t("elections.sub_election")}</div>
       ${subElectionInput}
     </div>` : ""}
-    ${voteTypeOptions.length > 1 && !isSubElectionSMD && !isPlebiscite && !(isLocal && ballotTypeVal === "mayor") ? html`
+    ${voteTypeOptions.length > 1 && !isSubElectionSMD && !isSubElectionPR && !isPlebiscite && !(isLocal && ballotTypeVal === "mayor") ? html`
     <div class="filter-item">
       <div class="filter-label">${t("elections.vote_type")}</div>
       ${voteTypeInput}

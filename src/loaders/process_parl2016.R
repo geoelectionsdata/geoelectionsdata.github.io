@@ -140,6 +140,10 @@ read_sheet <- function(path, sheet, skip = 2) {
   read_excel(path, sheet = sheet, col_names = FALSE, skip = skip, guess_max = 100000, .name_repair = "minimal")
 }
 
+read_sheet_with_header <- function(path, sheet) {
+  read_excel(path, sheet = sheet, col_names = FALSE, guess_max = 100000, .name_repair = "minimal")
+}
+
 parse_precinct <- function(code) {
   code <- cell_str(code)
   parts <- str_split_fixed(code, "\\.", 3)
@@ -159,6 +163,24 @@ parse_precinct <- function(code) {
 make_vote_wide <- function(df, start_col, names_out) {
   vals <- lapply(seq_along(names_out), function(i) num_col(df, start_col + i - 1L))
   names(vals) <- names_out
+  as_tibble(vals, .name_repair = "minimal")
+}
+
+find_header_col <- function(header_row, pattern) {
+  header <- cell_str(unlist(header_row, use.names = FALSE))
+  idx <- which(str_detect(header, pattern))
+  if (length(idx) == 0) return(NA_integer_)
+  idx[[1]]
+}
+
+make_vote_wide_from_headers <- function(header_row, df, codes) {
+  header <- cell_str(unlist(header_row, use.names = FALSE))
+  vals <- lapply(codes, function(code) {
+    idx <- which(header == paste0("vote_", code))
+    if (length(idx) == 0) return(rep(0, nrow(df)))
+    num_col(df, idx[[1]])
+  })
+  names(vals) <- paste0("code_", codes)
   as_tibble(vals, .name_repair = "minimal")
 }
 
@@ -194,6 +216,121 @@ find_raw_file <- function(kind) {
   matches <- files[str_detect(basename(files), kind)]
   if (length(matches) != 1L) stop("Could not uniquely identify 2016 ", kind, " workbook in ", RAW_DIR, call. = FALSE)
   matches[[1]]
+}
+
+find_raw_file_any_year <- function(kind) {
+  files <- list.files(RAW_DIR, pattern = "\\.xlsx$", full.names = TRUE)
+  matches <- files[str_detect(basename(files), kind)]
+  if (length(matches) != 1L) stop("Could not uniquely identify workbook matching ", kind, " in ", RAW_DIR, call. = FALSE)
+  matches[[1]]
+}
+
+parse_candidate_headers <- function(header_row, prefix) {
+  header <- cell_str(unlist(header_row, use.names = FALSE))
+  candidate_cols <- which(str_detect(header, "^\\d+\\s+\\S"))
+  tibble(
+    col = candidate_cols,
+    header = header[candidate_cols]
+  ) %>%
+    mutate(
+      code = as.integer(str_match(header, "^(\\d+)\\s+")[, 2]),
+      name_ka = str_squish(str_remove(header, "^\\d+\\s+")),
+      party_id = paste0(prefix, "_", code),
+      code_order = row_number(),
+      vote_col = paste0("code_", code)
+    )
+}
+
+make_vote_wide_from_colmap <- function(df, colmap) {
+  vals <- lapply(colmap$col, function(col) num_col(df, col))
+  names(vals) <- colmap$vote_col
+  as_tibble(vals, .name_repair = "minimal")
+}
+
+process_smd_by_election <- function(raw, prefix, result_file, precinct_file) {
+  header <- raw[1, , drop = FALSE]
+  body <- raw[-1, , drop = FALSE]
+  candidates <- parse_candidate_headers(header, prefix)
+  invalid_col <- find_header_col(header, "ბათილი")
+  if (nrow(candidates) == 0) stop("No candidate columns found for ", prefix, call. = FALSE)
+  if (is.na(invalid_col)) stop("Could not find invalid-ballots column for ", prefix, call. = FALSE)
+
+  pc <- parse_precinct(str_col(body, 2))
+  vote_cols <- candidates$vote_col
+  votes <- make_vote_wide_from_colmap(body, candidates)
+
+  base_all <- bind_cols(
+    pc,
+    tibble(
+      row_order = seq_len(nrow(body)),
+      main_list = num_col(body, 3),
+      special_list = num_col(body, 4),
+      voted_noon = num_col(body, 5),
+      voted_5pm = num_col(body, 6),
+      voted = num_col(body, 7),
+      invalid_ballots = num_col(body, invalid_col),
+      totalVotes = rowSums(as.data.frame(votes), na.rm = TRUE)
+    )
+  ) %>%
+    mutate(valid_ballots = totalVotes) %>%
+    filter(valid_precinct) %>%
+    add_precinct_ids(shape_lookup) %>%
+    select(row_order, smd, dd, pp, precinct_id, all_of(SUM_COLS))
+
+  valid_idx <- which(pc$valid_precinct)
+  base <- aggregate_precincts_exact(base_all, votes[valid_idx, , drop = FALSE], vote_cols)
+
+  long <- base %>%
+    pivot_longer(all_of(vote_cols), names_to = "vote_col", values_to = "votes") %>%
+    left_join(candidates %>% select(vote_col, code, code_order, party_id, name_ka), by = "vote_col")
+
+  national_totals <- sum_totals(base)
+  national <- long %>%
+    group_by(code, code_order, party_id, name_ka) %>%
+    summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
+    mutate(district_id = "national") %>%
+    attach_totals(national_totals) %>%
+    add_metrics() %>%
+    arrange(code_order)
+
+  district_totals <- sum_totals(base, "smd")
+  district <- long %>%
+    group_by(smd, code, code_order, party_id, name_ka) %>%
+    summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
+    left_join(district_totals, by = "smd") %>%
+    mutate(district_id = as.character(smd)) %>%
+    add_metrics() %>%
+    arrange(smd, code_order)
+
+  precinct <- long %>%
+    mutate(
+      district_id = as.character(precinct_id),
+      precinct_key = paste(smd, dd, pp, sep = ".")
+    ) %>%
+    add_metrics() %>%
+    arrange(precinct_order, code_order)
+
+  result_cols <- c(
+    "district_id", "party_id", "name_ka", "votes", "vote_share", "registered", "voted",
+    "voted_noon", "voted_5pm", "main_list", "special_list",
+    "turnout_pct", "noon_pct", "five_pct", "invalid_ballots", "invalid_pct"
+  )
+
+  precinct_cols <- c(
+    "precinct_id", "precinct_key", "smd", "dd", "pp", "district_id", "party_id", "name_ka",
+    "votes", "vote_share", "registered", "voted", "voted_noon", "voted_5pm",
+    "turnout_pct", "noon_pct", "five_pct", "invalid_ballots", "invalid_pct"
+  )
+
+  write_csv_like_js(bind_rows(national, district), file.path(OUT_DIR, result_file), result_cols)
+  write_csv_like_js(precinct, file.path(OUT_DIR, precinct_file), precinct_cols)
+
+  list(
+    rows = nrow(bind_rows(national, district)),
+    precinct_rows = nrow(precinct),
+    precinct_groups = nrow(base),
+    candidates = candidates
+  )
 }
 
 validate_party_ids <- function() {
@@ -243,11 +380,24 @@ aggregate_precincts <- function(base, votes, vote_cols) {
     )
 }
 
+aggregate_precincts_exact <- function(base, votes, vote_cols) {
+  bind_cols(base, votes) %>%
+    group_by(precinct_id, smd, dd, pp) %>%
+    summarise(
+      precinct_order = min(row_order, na.rm = TRUE),
+      across(all_of(c(SUM_COLS, vote_cols)), ~ sum(.x, na.rm = TRUE)),
+      .groups = "drop"
+    )
+}
+
 validate_party_ids()
 shape_lookup <- load_precinct_shape_lookup(PRECINCT_SHAPE_FILE)
 
-first_round_file <- find_raw_file("პირველი")
-runoff_file <- find_raw_file("მეორე")
+first_round_file <- find_raw_file("პირველი ტური")
+runoff_file <- find_raw_file("მეორე ტური")
+repeated_file <- find_raw_file("განმეორებითი")
+by2019_r1_file <- find_raw_file_any_year("შუალედური პარლამენტი, პირველი ტური")
+by2019_r2_file <- find_raw_file_any_year("პარლამენტი შუალედური მეორე ტური")
 
 cat("Reading:", first_round_file, "\n")
 pr_raw <- read_sheet(first_round_file, 1, skip = 2)
@@ -256,6 +406,17 @@ candidates_raw <- read_sheet(first_round_file, 3, skip = 2)
 
 cat("Reading:", runoff_file, "\n")
 runoff_raw <- read_sheet(runoff_file, 1, skip = 2)
+
+cat("Reading:", repeated_file, "\n")
+repeated_workbook <- read_sheet_with_header(repeated_file, 1)
+repeated_header <- repeated_workbook[1, , drop = FALSE]
+repeated_raw <- repeated_workbook[-1, , drop = FALSE]
+
+cat("Reading:", by2019_r1_file, "\n")
+by2019_r1_raw <- read_sheet_with_header(by2019_r1_file, 1)
+
+cat("Reading:", by2019_r2_file, "\n")
+by2019_r2_raw <- read_sheet_with_header(by2019_r2_file, 1)
 
 candidate_lookup <- tibble(
   smd = as.integer(num_col(candidates_raw, 5)),
@@ -368,6 +529,99 @@ write_csv_like_js(
   pr_precinct,
   file.path(OUT_DIR, "parl2016_pr_precincts.csv"),
   PR_PRECINCT_COLS
+)
+
+# PR repeated election, October 22, 2016 ------------------------------------
+
+repeated_vote_cols <- paste0("code_", PR_CODES)
+repeated_invalid_col <- find_header_col(repeated_header, "ბათილი")
+if (is.na(repeated_invalid_col)) {
+  stop("Could not find invalid-ballots column in repeated-election workbook", call. = FALSE)
+}
+
+repeated_pc <- parse_precinct(str_col(repeated_raw, 2))
+repeated_votes <- make_vote_wide_from_headers(repeated_header, repeated_raw, PR_CODES)
+
+repeated_base_all <- bind_cols(
+  repeated_pc,
+  tibble(
+    row_order = seq_len(nrow(repeated_raw)),
+    main_list = num_col(repeated_raw, 3),
+    special_list = num_col(repeated_raw, 4),
+    voted_noon = num_col(repeated_raw, 5),
+    voted_5pm = num_col(repeated_raw, 6),
+    voted = num_col(repeated_raw, 7),
+    invalid_ballots = num_col(repeated_raw, repeated_invalid_col),
+    totalVotes = rowSums(as.data.frame(repeated_votes), na.rm = TRUE)
+  )
+) %>%
+  mutate(valid_ballots = totalVotes) %>%
+  filter(valid_precinct) %>%
+  add_precinct_ids(shape_lookup) %>%
+  select(row_order, smd, dd, pp, precinct_id, all_of(SUM_COLS))
+
+repeated_valid_idx <- which(repeated_pc$valid_precinct)
+repeated_base <- aggregate_precincts_exact(
+  repeated_base_all,
+  repeated_votes[repeated_valid_idx, , drop = FALSE],
+  repeated_vote_cols
+)
+
+repeated_long <- repeated_base %>%
+  pivot_longer(all_of(repeated_vote_cols), names_to = "vote_col", values_to = "votes") %>%
+  mutate(
+    code = as.integer(str_remove(vote_col, "^code_")),
+    party_id = unname(BALLOT_PARTY_MAP[as.character(code)])
+  )
+
+cat(sprintf("Repeated PR precinct groups: %d\n", nrow(repeated_base)))
+
+repeated_national_totals <- sum_totals(repeated_base)
+repeated_national <- repeated_long %>%
+  group_by(party_id) %>%
+  summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
+  mutate(district_id = "national") %>%
+  attach_totals(repeated_national_totals) %>%
+  add_metrics() %>%
+  arrange(match(party_id, PR_PARTIES))
+
+repeated_district_totals <- repeated_base %>%
+  filter(dd != 87) %>%
+  sum_totals("dd")
+
+repeated_district <- repeated_long %>%
+  filter(dd != 87) %>%
+  group_by(dd, party_id) %>%
+  summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
+  left_join(repeated_district_totals, by = "dd") %>%
+  mutate(district_id = as.character(dd)) %>%
+  add_metrics() %>%
+  arrange(dd, match(party_id, PR_PARTIES))
+
+write_csv_like_js(
+  bind_rows(repeated_national, repeated_district),
+  file.path(OUT_DIR, "parl2016_pr_repeated.csv"),
+  PR_RESULT_COLS
+)
+
+repeated_precinct <- repeated_long %>%
+  mutate(
+    district_id = as.character(precinct_id),
+    precinct_key = paste(smd, dd, pp, sep = ".")
+  ) %>%
+  add_metrics() %>%
+  arrange(precinct_order, match(party_id, PR_PARTIES))
+
+REPEATED_PR_PRECINCT_COLS <- c(
+  "precinct_id", "precinct_key", "smd", "dd", "pp", "district_id", "party_id",
+  "votes", "vote_share", "registered", "voted", "voted_noon", "voted_5pm",
+  "turnout_pct", "noon_pct", "five_pct", "invalid_ballots", "invalid_pct"
+)
+
+write_csv_like_js(
+  repeated_precinct,
+  file.path(OUT_DIR, "parl2016_pr_repeated_precincts.csv"),
+  REPEATED_PR_PRECINCT_COLS
 )
 
 # SMD, precinct and district outputs ----------------------------------------
@@ -564,7 +818,28 @@ write_csv_like_js(
   RUNOFF_PRECINCT_COLS
 )
 
+# Mtatsminda 2019 parliamentary by-elections -------------------------------
+
+by2019_r1 <- process_smd_by_election(
+  by2019_r1_raw,
+  "mtatsminda_2019",
+  "parl2016_mtatsminda_2019_smd.csv",
+  "parl2016_mtatsminda_2019_smd_precincts.csv"
+)
+cat(sprintf("Mtatsminda 2019 first-round precinct groups: %d\n", by2019_r1$precinct_groups))
+
+by2019_r2 <- process_smd_by_election(
+  by2019_r2_raw,
+  "mtatsminda_2019",
+  "parl2016_mtatsminda_2019_smd_runoff.csv",
+  "parl2016_mtatsminda_2019_smd_runoff_precincts.csv"
+)
+cat(sprintf("Mtatsminda 2019 runoff precinct groups: %d\n", by2019_r2$precinct_groups))
+
 cat("\nDone.\n")
 cat(sprintf("  PR: %d district rows, %d precinct rows\n", nrow(bind_rows(pr_national, pr_district)), nrow(pr_precinct)))
+cat(sprintf("  Repeated PR: %d district rows, %d precinct rows\n", nrow(bind_rows(repeated_national, repeated_district)), nrow(repeated_precinct)))
 cat(sprintf("  SMD: %d district rows, %d precinct rows\n", nrow(bind_rows(smd_national, smd_district)), nrow(smd_precinct)))
 cat(sprintf("  Runoff: %d district rows, %d precinct rows\n", nrow(bind_rows(runoff_national, runoff_district)), nrow(runoff_precinct)))
+cat(sprintf("  Mtatsminda 2019 first round: %d district rows, %d precinct rows\n", by2019_r1$rows, by2019_r1$precinct_rows))
+cat(sprintf("  Mtatsminda 2019 runoff: %d district rows, %d precinct rows\n", by2019_r2$rows, by2019_r2$precinct_rows))

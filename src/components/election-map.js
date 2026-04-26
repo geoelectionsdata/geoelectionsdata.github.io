@@ -357,6 +357,7 @@ export async function buildElectionMap({
     let _shareByPartyByPrecinct   = new Map();
     let precinctLayer             = null;
     let _precinctDataLoaded       = false;
+    let _precinctUsesExactKeys    = false;
 
     function updateCouncilSeatsForPrecinct(parentDid, stationId, props) {
       if (!isCouncilMode) return;
@@ -370,6 +371,30 @@ export async function buildElectionMap({
     function precinctStationId(feature) {
       const raw = feature?.properties?.id ?? feature?.properties?.precinct_id;
       return raw == null ? null : String(Math.round(Number(raw)));
+    }
+
+    function precinctKeyPart(value) {
+      if (value == null || value === "") return null;
+      const n = Number(value);
+      return Number.isFinite(n) ? String(Math.round(n)) : String(value);
+    }
+
+    function precinctExactKey(feature) {
+      const p = feature?.properties ?? {};
+      const smd = precinctKeyPart(p.MID ?? p.smd ?? p.major_id);
+      const dd  = precinctKeyPart(p.District ?? p.district ?? p.district_id);
+      const pp  = precinctKeyPart(p.Precinct ?? p.precinct ?? p.precinct_number);
+      return smd && dd && pp ? `${smd}.${dd}.${pp}` : null;
+    }
+
+    function precinctResultKey(row) {
+      const key = row?.precinct_key;
+      if (key != null && String(key).trim() !== "") return String(key).trim();
+      return String(Math.round(row.precinct_id));
+    }
+
+    function precinctFeatureResultKey(feature) {
+      return _precinctUsesExactKeys ? precinctExactKey(feature) : precinctStationId(feature);
     }
 
     function precinctStationNumber(feature) {
@@ -462,11 +487,14 @@ export async function buildElectionMap({
         } catch(e) { console.warn("Precinct CSV load failed", e); }
       }
 
+      _precinctUsesExactKeys = precinctResults.some(r => r.precinct_key != null && String(r.precinct_key).trim() !== "");
+      const precinctResultKeys = new Set(precinctResults.map(precinctResultKey));
+
       // Per-station inline turnout (precincts have registered/ballots columns)
       if (precinctResults.length > 0 && precinctResults[0]?.registered != null) {
         const _seenPids = new Set();
         for (const r of precinctResults) {
-          const pid = String(r.precinct_id);
+          const pid = precinctResultKey(r);
           if (!_seenPids.has(pid)) { _seenPids.add(pid); _precinctTurnoutByStation.set(pid, r); }
         }
       }
@@ -480,7 +508,7 @@ export async function buildElectionMap({
       }
 
       // Per-precinct winner/share lookups (point precinct coloring)
-      d3.group(precinctResults, r => String(Math.round(r.precinct_id))).forEach((rows, pid) => {
+      d3.group(precinctResults, precinctResultKey).forEach((rows, pid) => {
         const winner = rows.reduce((a, b) => (b.vote_share > a.vote_share ? b : a));
         winnerByPrecinct.set(pid, winner);
         shareByPrecinct.set(pid, d3.max(rows, r => r.vote_share));
@@ -488,13 +516,19 @@ export async function buildElectionMap({
 
       // Party-filter share lookup
       for (const r of precinctResults) {
-        const pid = String(Math.round(r.precinct_id));
+        const pid = precinctResultKey(r);
         if (!_shareByPartyByPrecinct.has(pid)) _shareByPartyByPrecinct.set(pid, new Map());
         const shares = _shareByPartyByPrecinct.get(pid);
         shares.set(r.party_id, (shares.get(r.party_id) ?? 0) + (Number(r.vote_share) || 0));
       }
 
       if (!precinctGeoData) return;
+      if (_precinctUsesExactKeys) {
+        precinctGeoData = {
+          ...precinctGeoData,
+          features: precinctGeoData.features?.filter(f => precinctResultKeys.has(precinctExactKey(f))) ?? []
+        };
+      }
       const isPoints = precinctGeoData.features?.[0]?.geometry?.type === "Point";
 
       if (isPoints) {
@@ -503,16 +537,17 @@ export async function buildElectionMap({
             const _rawDist  = precinctRawDistrict(feature);
             const _d        = Number(_rawDist);
             const stationId = String(Math.round(feature.properties.id));
+            const resultKey = precinctFeatureResultKey(feature) ?? stationId;
             const parentDid = precinctParentId(feature, stationId);
             let fillColor;
             if (viewMode === "turnout") {
-              const td = _precinctTurnoutByStation.get(stationId) ?? turnoutByDistrict.get(parentDid);
+              const td = _precinctTurnoutByStation.get(resultKey) ?? _precinctTurnoutByStation.get(stationId) ?? turnoutByDistrict.get(parentDid);
               fillColor = d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value, _invalidMax));
             } else {
-              const winner = winnerByPrecinct.get(stationId) ?? winnerByDistrict.get(parentDid);
+              const winner = winnerByPrecinct.get(resultKey) ?? winnerByPrecinct.get(stationId) ?? winnerByDistrict.get(parentDid);
               if (winner) {
                 const color     = partyColor(winner.party_id, electionVal?.id);
-                const intensity = shareByPrecinct.get(stationId) ?? shareByDistrict.get(parentDid) ?? 0.5;
+                const intensity = shareByPrecinct.get(resultKey) ?? shareByPrecinct.get(stationId) ?? shareByDistrict.get(parentDid) ?? 0.5;
                 fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + intensity * 0.6);
               } else {
                 fillColor = "#cccccc";
@@ -525,7 +560,8 @@ export async function buildElectionMap({
           onEachFeature(feature, layer) {
             const _rawStId   = feature.properties.id;
             const stationId  = String(Math.round(_rawStId));
-            const stationNum = Math.round(_rawStId) % 1000;
+            const resultKey  = precinctFeatureResultKey(feature) ?? stationId;
+            const stationNum = precinctStationNumber(feature);
             const _rawDist   = precinctRawDistrict(feature);
             const _d         = Number(_rawDist);
             const parentDid  = precinctParentId(feature, stationId);
@@ -553,10 +589,10 @@ export async function buildElectionMap({
                 address_ka:       _geoAddrKa
               };
               if (viewMode === "turnout") {
-                panel.replaceWith(renderTurnoutPanel(stationId, enhancedProps, _precinctTurnoutByStation));
+                panel.replaceWith(renderTurnoutPanel(resultKey, enhancedProps, _precinctTurnoutByStation));
               } else {
                 const stationRows = precinctResults
-                  .filter(r => String(r.precinct_id) === stationId)
+                  .filter(r => precinctResultKey(r) === resultKey)
                   .map(r => {
                     if (!r.name_ka && !r.candidate_name) {
                       if (isCouncilMode && effectiveVoteType === "smd") {
@@ -588,9 +624,10 @@ export async function buildElectionMap({
         precinctLayer = L.geoJSON(precinctGeoData, {
           style(feature) {
             const stationId = precinctStationId(feature);
+            const resultKey = precinctFeatureResultKey(feature) ?? stationId;
             const parentDid = precinctParentId(feature, stationId);
             if (viewMode === "turnout") {
-              const td = _precinctTurnoutByStation.get(stationId) ?? turnoutByDistrict.get(parentDid);
+              const td = _precinctTurnoutByStation.get(resultKey) ?? _precinctTurnoutByStation.get(stationId) ?? turnoutByDistrict.get(parentDid);
               if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight: 0.5};
               return {
                 fillColor: d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value, _invalidMax)),
@@ -599,25 +636,26 @@ export async function buildElectionMap({
                 weight: 0.5
               };
             }
-            const winner = winnerByPrecinct.get(stationId) ?? winnerByDistrict.get(parentDid);
+            const winner = winnerByPrecinct.get(resultKey) ?? winnerByPrecinct.get(stationId) ?? winnerByDistrict.get(parentDid);
             if (!winner) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight: 0.5};
             const baseColor = partyColor(winner.party_id, electionVal?.id);
-            const intensity = shareByPrecinct.get(stationId) ?? shareByDistrict.get(parentDid) ?? 0.5;
+            const intensity = shareByPrecinct.get(resultKey) ?? shareByPrecinct.get(stationId) ?? shareByDistrict.get(parentDid) ?? 0.5;
             const lightened = d3.color(baseColor) ? d3.interpolateRgb("#f5f5f5", baseColor)(0.4 + intensity * 0.6) : "#ccc";
             return {fillColor: lightened, fillOpacity: 0.9, color: "#ffffff", weight: 0.5};
           },
           onEachFeature(feature, layer) {
             const stationId = precinctStationId(feature);
+            const resultKey = precinctFeatureResultKey(feature) ?? stationId;
             const parentDid = precinctParentId(feature, stationId);
             const enhancedProps = precinctDisplayProps(feature, stationId, parentDid);
             layer.on("click", () => {
               const panel = document.getElementById("results-panel");
               if (!panel) return;
               if (viewMode === "turnout") {
-                panel.replaceWith(renderTurnoutPanel(stationId, enhancedProps, _precinctTurnoutByStation));
+                panel.replaceWith(renderTurnoutPanel(resultKey, enhancedProps, _precinctTurnoutByStation));
               } else {
                 const stationRows = enrichPrecinctRows(
-                  precinctResults.filter(r => String(Math.round(r.precinct_id)) === stationId)
+                  precinctResults.filter(r => precinctResultKey(r) === resultKey)
                 );
                 panel.replaceWith(renderDistrictPanel("__precinct__", enhancedProps, stationRows));
               }
@@ -984,13 +1022,15 @@ export async function buildElectionMap({
         }
         precinctLayer.eachLayer(l => {
           const pid       = String(Math.round(l.feature?.properties?.id ?? 0));
+          const resultKey = precinctFeatureResultKey(l.feature) ?? pid;
           const _rawD     = precinctRawDistrict(l.feature);
           const _dn       = Number(_rawD);
           // Council SMD: resolve via precinct→major_id map; local SMD: Tbilisi fold; others: electoral district
           const parentDid = precinctParentId(l.feature, pid);
           let fillColor;
           if (activePartyId) {
-            const share = _shareByPartyByPrecinct.get(pid)?.get(activePartyId)
+            const share = _shareByPartyByPrecinct.get(resultKey)?.get(activePartyId)
+                       ?? _shareByPartyByPrecinct.get(pid)?.get(activePartyId)
                        ?? _shareByPartyByCouncilDistrict.get(parentDid)?.get(activePartyId)
                        ?? _shareByPartyByDistrict.get(parentDid)?.get(activePartyId)
                        ?? _shareByPartyBySelfgov.get(parentDid)?.get(activePartyId)
@@ -998,12 +1038,12 @@ export async function buildElectionMap({
             const color = partyColor(activePartyId, electionVal?.id);
             fillColor = d3.interpolateRgb("#f5f5f5", color)(0.15 + ((share - minS) / range) * 0.85);
           } else if (viewMode === "turnout") {
-            const td = _precinctTurnoutByStation.get(pid) ?? turnoutByDistrict.get(parentDid);
+            const td = _precinctTurnoutByStation.get(resultKey) ?? _precinctTurnoutByStation.get(pid) ?? turnoutByDistrict.get(parentDid);
             fillColor = d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value, _invalidMax));
           } else {
-            const winner = winnerByPrecinct.get(pid) ?? winnerByDistrict.get(parentDid);
+            const winner = winnerByPrecinct.get(resultKey) ?? winnerByPrecinct.get(pid) ?? winnerByDistrict.get(parentDid);
             const color  = winner ? partyColor(winner.party_id, electionVal?.id) : "#ccc";
-            const intensity = shareByPrecinct.get(pid) ?? shareByDistrict.get(parentDid) ?? 0.5;
+            const intensity = shareByPrecinct.get(resultKey) ?? shareByPrecinct.get(pid) ?? shareByDistrict.get(parentDid) ?? 0.5;
             fillColor = d3.interpolateRgb("#f5f5f5", color)(0.4 + intensity * 0.6);
           }
           l.setStyle({fillColor, fillOpacity: 0.85});

@@ -34,6 +34,16 @@ notes:
     2016 წლის საპარლამენტო არჩევნები გაიმართა შერეული საარჩევნო სისტემის პირობებში: 77 მანდატი განაწილდა პროპორციული წარმომადგენლობის წესით, 5%-იანი ბარიერის პირობებში, ხოლო 73 მანდატი — ერთმანდატიანი მაჟორიტარული ოლქების მეშვეობით. 5%-იანი ზღვარი მხოლოდ სამმა პარტიამ - „ქართულმა ოცნებამ“, „ერთიანმა ნაციონალურმა მოძრაობამ“ და „საქართველოს პატრიოტთა ალიანსმა“ გადალახეს. 2016 წლის 30 ოქტომბერს გაიმართა იმ 45 მაჟორიტარულ ოლქებში, სადაც პირველ ტურში გამარჯვებული ვერ გამოვლინდა. არჩევნებში გამარჯვებულმა „ქართულმა ოცნებამ“ საკონსტიტუციო უმრავლესობა მოიპოვა.
 
 sub_elections:
+  - id: parl_2016_repeat_20161022
+    type: repeated
+    date: "2016-10-22"
+    name:
+      en: Repeated elections (October 22, 2016)
+      ka: განმეორებითი არჩევნები (2016 წლის 22 ოქტომბერი)
+    files:
+      pr_results:          "data/results/parl2016_pr_repeated.csv"
+      pr_precinct_results: "data/results/parl2016_pr_repeated_precincts.csv"
+
   - id: parl_2016_r2
     type: runoff
     name:
@@ -42,6 +52,26 @@ sub_elections:
     files:
       smd_results:          "data/results/parl2016_smd_runoff.csv"
       smd_precinct_results: "data/results/parl2016_smd_runoff_precincts.csv"
+
+  - id: parl_2016_mtatsminda_2019
+    type: by_election
+    date: "2019-05-19"
+    name:
+      en: Mtatsminda by-election (May 19, 2019)
+      ka: მთაწმინდის შუალედური არჩევნები (2019 წლის 19 მაისი)
+    files:
+      smd_results:          "data/results/parl2016_mtatsminda_2019_smd.csv"
+      smd_precinct_results: "data/results/parl2016_mtatsminda_2019_smd_precincts.csv"
+
+  - id: parl_2016_mtatsminda_2019_r2
+    type: runoff
+    date: "2019-06-09"
+    name:
+      en: Mtatsminda by-election runoff (June 9, 2019)
+      ka: მთაწმინდის შუალედური არჩევნების მეორე ტური (2019 წლის 9 ივნისი)
+    files:
+      smd_results:          "data/results/parl2016_mtatsminda_2019_smd_runoff.csv"
+      smd_precinct_results: "data/results/parl2016_mtatsminda_2019_smd_runoff_precincts.csv"
 
 # threshold_status is official — not calculated from vote_share.
 # alias overrides the canonical party name from parties.yml for this election.
@@ -205,6 +235,147 @@ parties:
   - id: smd_only_44
     seats_pr: 0
     seats_smd: 0
+
+  # Mtatsminda 2019 by-election candidates
+  - id: mtatsminda_2019_4
+    alias:
+      en: Nita Sikharulidze
+      ka: ნიტა სიხარულიძე
+    color: "#7E57C2"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_9
+    alias:
+      en: Giorgi Andriadze
+      ka: გიორგი ანდრიაძე
+    color: "#26A69A"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_13
+    alias:
+      en: Shalva Shavgulidze
+      ka: შალვა შავგულიძე
+    color: "#D55E00"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_17
+    alias:
+      en: Giorgi Liluashvili
+      ka: გიორგი ლილუაშვილი
+    color: "#8D6E63"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_21
+    alias:
+      en: Giorgi Shalikashvili
+      ka: გიორგი შალიკაშვილი
+    color: "#78909C"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_23
+    alias:
+      en: Tebea Tengiani
+      ka: თებეა თენგიანი
+    color: "#EC407A"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_24
+    alias:
+      en: Mamuka Tuskadze
+      ka: მამუკა ტუსკაძე
+    color: "#5C6BC0"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_27
+    alias:
+      en: Valisa Ghvinjilia
+      ka: ვალისა ღვინჯილია
+    color: "#9CCC65"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_28
+    alias:
+      en: Mikheil Saluashvili
+      ka: მიხეილ სალუაშვილი
+    color: "#FFB74D"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_31
+    alias:
+      en: Irma Razmadze
+      ka: ირმა რაზმაძე
+    color: "#4DB6AC"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_33
+    alias:
+      en: Jemal Nadareishvili
+      ka: ჯემალ ნადარეიშვილი
+    color: "#9575CD"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_35
+    alias:
+      en: Germane Sabo
+      ka: გერმანე საბო
+    color: "#00AEEF"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_38
+    alias:
+      en: Nodar Inaneishvili
+      ka: ნოდარ ინანეიშვილი
+    color: "#A1887F"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_41
+    alias:
+      en: Vladimer Kakhadze
+      ka: ვლადიმერ კახაძე
+    color: "#1565C0"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_42
+    alias:
+      en: Levan Ioseliani
+      ka: ლევან იოსელიანი
+    color: "#43A047"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_43
+    alias:
+      en: Koba Davitashvili
+      ka: კობა დავითაშვილი
+    color: "#F06292"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_44
+    alias:
+      en: Sopio Khorguani
+      ka: სოფიო ხორგუანი
+    color: "#7986CB"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_45
+    alias:
+      en: Grigol Gegelia
+      ka: გრიგოლ გეგელია
+    color: "#00897B"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_46
+    alias:
+      en: Ioseb Koberidze
+      ka: იოსებ კობერიძე
+    color: "#BDBDBD"
+    threshold_status: notrun
+
+  - id: mtatsminda_2019_47
+    alias:
+      en: Tamar Alpaidze
+      ka: თამარ ალფაიძე
+    color: "#FDD835"
+    threshold_status: notrun
 
 sources:
   - name:

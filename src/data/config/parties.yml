@@ -192,14 +192,14 @@ parties:
     name:
       en: Socialist-Revolutionary Party of Georgia
       ka: საქართველოს სოციალისტ-რევოლუციონერთა პარტია
-    color: "#AD1457"
+    color: "#377eb8"
     type: party
 
   - id: dashnaks
     name:
       en: Dashnaktsutyun
       ka: „დაშნაკცუთიუნ"
-    color: "#BF360C"
+    color: "#984ea3"
     type: party
 
   - id: federalists_1919
