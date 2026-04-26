@@ -68,6 +68,17 @@ jobs:
       - name: Process 1919 parliamentary data
         run: Rscript src/loaders/process_parl1919.R
 
+      # ── Node setup for download bundle scripts and Observable build ────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install Node dependencies
+        run: npm ci
+
       # ── Build download bundles (xlsx per election) ─────────────────────────
       - name: Build parl2024 download bundle
         run: node src/loaders/downloads/process_parl2024_download.js
@@ -104,18 +115,8 @@ jobs:
         continue-on-error: true  # remove once implemented
 
       # ── Node / Observable build ────────────────────────────────────────────
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'yarn'
-          cache-dependency-path: package-lock.json
-
-      - name: Install Node dependencies
-        run: yarn --frozen-lockfile
-
       - name: Build project
-        run: yarn build
+        run: npm run build
 
       - name: Copy xlsx downloads to dist
         run: |

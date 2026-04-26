@@ -806,6 +806,27 @@ export async function buildElectionMap({
     const _legendCtrl = new LegendControl({ position: "bottomleft" }).addTo(map);
 
     // ── Zoom-to-country button (below +/−) ───────────────────────────────────
+    function boundsForFeatures(geo, predicate) {
+      const features = geo?.features?.filter(predicate) ?? [];
+      if (features.length === 0) return null;
+      const bounds = L.geoJSON({type: "FeatureCollection", features}).getBounds();
+      return bounds.isValid() ? bounds : null;
+    }
+
+    function zoomToTbilisi() {
+      const selfgovBounds = boundsForFeatures(selfgovGeoData, f => String(f.properties?.id) === "1");
+      const districtBounds = boundsForFeatures(activeGeo, f => {
+        const id = Number(geoId(f));
+        return id >= 1 && id <= 10;
+      });
+      const councilBounds = boundsForFeatures(councilDistrictGeoData, f =>
+        councilSelfgovIdFromMajorId(geoId(f)) === "1"
+      );
+      const bounds = selfgovBounds ?? districtBounds ?? councilBounds;
+      if (bounds) map.fitBounds(bounds.pad(0.08), {maxZoom: 12});
+      else map.setView([41.7151, 44.8271], 11);
+    }
+
     const ZoomHomeControl = L.Control.extend({
       onAdd(map) {
         const container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
@@ -821,6 +842,18 @@ export async function buildElectionMap({
         L.DomEvent.on(btn, "click", e => {
           L.DomEvent.preventDefault(e);
           map.setView([42.1, 43.0], 7);
+        });
+        const tbilisiBtn = L.DomUtil.create("a", "", container);
+        tbilisiBtn.href = "#";
+        const _tbilisiLabel = lang === "ka" ? "თბილისის მასშტაბი" : "Zoom to Tbilisi";
+        tbilisiBtn.title = _tbilisiLabel;
+        tbilisiBtn.setAttribute("role", "button");
+        tbilisiBtn.setAttribute("aria-label", _tbilisiLabel);
+        tbilisiBtn.style.cssText = "display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#444;text-decoration:none;";
+        tbilisiBtn.innerHTML = `<svg viewBox="403.98 288.718 2699.87 1899.822" width="17" height="17" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg"><path vector-effect="none" fill-rule="evenodd" d="M1285.44,2042.49 L1097.28,2005.25 L983.165,2014.44 L851.078,2006.01 L813.029,2038.73 L730.081,2051.67 L715.302,2039.2 L695.463,2059.25 L674.468,2060.2 L659.646,2031.95 L610.363,1996.92 L586.187,1898.98 L588.047,1862.41 L527.201,1853.79 L530.044,1812.21 L489.862,1776.02 L484.704,1740.88 L446.405,1710.8 L427.056,1643.36 L403.98,1625.94 L447.449,1587.01 L462.233,1595.55 L511.661,1566.53 L514.73,1581.97 L552.604,1564.44 L570.619,1574.32 L640.514,1564.1 L691.286,1579.26 L701.507,1568.05 L712.716,1574.32 L724.915,1556.51 L740.74,1563.77 L762.17,1560.14 L767.082,1548.27 L771.288,1544.59 L774.579,1543.24 L796.295,1549.11 L800.403,1523.58 L835.838,1508.41 L846.24,1488.45 L859.445,1491.68 L860.032,1472.9 L905.81,1441.5 L904.049,1425.07 L943.665,1425.07 L977.705,1398.33 L996.486,1402.76 L1021.43,1390.44 L1036.76,1347.42 L1055.25,1340.67 L1022.97,1326.59 L1012.99,1293.72 L966.921,1237.67 L922.903,1208.91 L1002.72,1127.57 L1037.94,1122.58 L1033.47,1095.23 L1013.06,1085.44 L1005.07,1065.95 L996.559,971.073 L937.282,960.509 L936.402,879.81 L816.743,786.81 L847.512,732.393 L820.803,713.488 L822.652,689.297 L833.129,680.515 L877.042,692.225 L881.973,663.874 L899.847,669.267 L902.158,650.931 L926.243,650.728 L921.021,640.556 L950.957,609.886 L1040.36,540.516 L1041.97,510.591 L1085.21,502.953 L1079.86,489.58 L1135.6,495.254 L1131.95,516.892 L1152.76,534.142 L1229.45,561.908 L1297.56,542.801 L1343.21,498.27 L1451.27,495.064 L1472.85,472.991 L1458.25,452.997 L1393.51,481.452 L1374.1,463.932 L1366.82,439.718 L1383.2,381.146 L1502.01,342.842 L1517.23,314.089 L1556.13,288.718 L1793.56,404.927 L1885.62,420.381 L2156.56,501.83 L2354.45,628.682 L2359.63,620.025 L2350.41,639.485 L2342.61,643.904 L2258.05,669.274 L2236.06,720.015 L2236.06,813.04 L2256.62,885.071 L2241.46,952.325 L2340.09,973.456 L2325.3,986.017 L2305.59,1021.52 L2355.97,1009.97 L2361.95,1026.97 L2384.92,1025.84 L2420.54,1011.59 L2475.02,934.615 L2500.45,921.531 L2572.65,959.846 L2594.41,946.275 L2630.4,994.309 L2708.97,1006.35 L2823.37,1057.92 L2838.25,1105.24 L2900.58,1190.91 L2925.4,1249.63 L2964.27,1261.41 L3024.3,1193.41 L3063.07,1271.76 L3094.33,1305.98 L3090.4,1342.27 L3070,1362.16 L3071.1,1403.78 L3093.25,1436.72 L3080.77,1469.5 L3102.66,1490.89 L3092.49,1520.64 L3103.85,1556.35 L3058.49,1632.89 L3002.96,1653.79 L2991.38,1670.44 L2989.79,1725.52 L2959.42,1759.95 L2962.76,1821.58 L2911.06,1868.28 L2854.85,1856.59 L2831.22,1902.06 L2788.6,1909.6 L2783.83,1931.63 L2731.19,1946.94 L2746.57,1998.68 L2737.36,2023.57 L2665.13,2036.55 L2591.47,2005.45 L2556.21,2029.27 L2490.23,2098.77 L2480.58,2188.54 L2393.71,2165.39 L2365.95,2173 L2360.23,2142.02 L2373.89,2074.28 L2355.18,2024.88 L2344.59,2038.81 L2263.3,2023.15 L2257.6,2013.84 L2283.64,1997.7 L2197.97,1961.41 L2170.32,1931.01 L2150.96,1955.72 L2122.96,1893.39 L2069.73,1903.75 L1790.38,1908.48 L1791.78,1926.87 L1757.47,1956.25 L1720.85,1937.37 L1680.82,1941.51 L1722.6,2034.07 L1767.55,2072.79 L1719.88,2101.39 L1726.81,2107.57 L1706.95,2145.8 L1681.13,2164.03 L1638.34,2067.77 L1606.46,2087.76 L1584.17,2070.87 L1574.27,2077.06 L1582.12,2099.34 L1487.29,2090.44 L1466.71,2115.94 L1456.48,2086.46 L1439.72,2090.74 L1433.71,2124.54 L1315.74,2026.87 L1285.44,2042.49"/></svg>`;
+        L.DomEvent.on(tbilisiBtn, "click", e => {
+          L.DomEvent.preventDefault(e);
+          zoomToTbilisi();
         });
         L.DomEvent.disableClickPropagation(container);
         return container;
