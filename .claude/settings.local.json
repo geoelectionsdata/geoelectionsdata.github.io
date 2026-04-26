@@ -254,7 +254,28 @@
       "Bash(Rscript _debug.R)",
       "Bash(Rscript -e 'options\\(scipen = 100\\); suppressPackageStartupMessages\\(library\\(readr\\)\\); x <- tibble::tibble\\(a = c\\(0.000865, 0.376194, 0.0011, 0\\)\\); write_csv\\(x, tempfile <- tempfile\\(\\)\\); cat\\(readLines\\(tempfile\\), sep = \"\\\\n\"\\)')",
       "Bash(Rscript -e 'options\\(scipen = 100\\); x <- c\\(0.000865, 0.376194, 0.0011, 0, NA\\); cat\\(\"format\\(\\):\", format\\(x\\), \"\\\\n\"\\); cat\\(\"format trim:\", format\\(x, trim=TRUE, scientific=FALSE\\), \"\\\\n\"\\)')",
-      "Bash(Rscript -e 'options\\(scipen = 100\\); x <- c\\(0.000865, 0.376194, 0.0011, 0, NA, 0.502502, 9573\\); for \\(m in c\\(\"g\",\"f\",\"fg\"\\)\\) cat\\(sprintf\\(\"formatC %s: [%s]\\\\n\", m, paste\\(formatC\\(x, digits = 6, format = m\\), collapse=\"|\"\\)\\)\\)')"
+      "Bash(Rscript -e 'options\\(scipen = 100\\); x <- c\\(0.000865, 0.376194, 0.0011, 0, NA, 0.502502, 9573\\); for \\(m in c\\(\"g\",\"f\",\"fg\"\\)\\) cat\\(sprintf\\(\"formatC %s: [%s]\\\\n\", m, paste\\(formatC\\(x, digits = 6, format = m\\), collapse=\"|\"\\)\\)\\)')",
+      "Bash(Rscript src/loaders/process_local2017.R)",
+      "Bash(grep -v \"• \\\\`\")",
+      "Bash(node src/loaders/downloads/process_local2017_download.js)",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); const arr=JSON.parse\\(d\\); console.log\\('Elections found:', arr.length\\); arr.filter\\(e=>e.id.includes\\('local'\\)\\).forEach\\(e=>console.log\\(' -', e.id, e.date, e.name?.en\\)\\)\")",
+      "Bash(node -e \"import\\('./src/data/elections.json.js'\\).catch\\(\\(\\)=>{}\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); local=[e for e in d if 'local' in e['id']]; [print\\(e['id'], e['date'], e['name']['en']\\) for e in local]\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); local=[f for f in d['files'] if '2017' in f['election_id']]; [print\\(f['election_id'], f['sub_id'], f['filename'], f['size_bytes']\\) for f in local]\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); keys=[k for k in d if 'local2017' in k]; [print\\(k, len\\(d[k]\\), 'rows'\\) for k in sorted\\(keys\\)]\")",
+      "Bash(node src/data/precinct-csv-registry.json.js)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(k,'rows:',len\\(v\\)\\) for k,v in sorted\\(d.items\\(\\)\\) if 'local2025' in k or 'local2021' in k]\")",
+      "Bash(python -c \"import json; d=json.load\\(open\\('src/data/shp/selfgov_areas_2025.geojson'\\)\\); print\\([f['properties'].get\\('id'\\) for f in d['features'][:10]]\\)\")",
+      "Bash(python -c \"import json; d=json.load\\(open\\('src/data/shp/selfgov_areas_2025.geojson', encoding='utf-8'\\)\\); print\\([f['properties'].get\\('id'\\) for f in d['features'][:10]]\\)\")",
+      "Bash(python -c \"import json; d=json.load\\(open\\('src/data/shp/selfgov_areas_2025.geojson', encoding='utf-8'\\)\\); ids=sorted\\([f['properties'].get\\('id'\\) for f in d['features']]\\); print\\(ids\\)\")",
+      "Bash(awk -F',' '$5==2 {print $1}' src/data/results/local2017_smd.csv)",
+      "Bash(awk -F',' '$4==2 {print $1}' src/data/results/local2017_council_smd.csv)",
+      "Bash(awk -F',' '$4==2' src/data/results/local2017_council_smd.csv)",
+      "Bash(ls src/data/config/candidates/local/local_2017.yml)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); const j=JSON.parse\\(d\\); const keys=Object.keys\\(j\\).filter\\(k=>k.includes\\('local2017'\\)\\); console.log\\('local2017 keys:', keys\\); keys.forEach\\(k=>console.log\\(k, '-', j[k].length, 'rows'\\)\\);\")",
+      "Bash(node -e \"process.stdin.resume\\(\\); let d=''; process.stdin.on\\('data',c=>d+=c\\); process.stdin.on\\('end',\\(\\)=>{ try{const j=JSON.parse\\(d\\); const keys=Object.keys\\(j\\).filter\\(k=>k.includes\\('local2017'\\)\\); console.log\\(keys\\); keys.forEach\\(k=>console.log\\(k,j[k].length\\)\\);} catch\\(e\\){console.log\\('parse error',e.message,d.slice\\(0,200\\)\\)} }\\);\")",
+      "Bash(awk -F',' '$1==\"\\\\\"1\\\\\"\" || $1==\"\\\\\"2\\\\\"\" || $1==\"\\\\\"3\\\\\"\"' src/data/results/local2017_smd_districts.csv)"
     ]
   }
 }

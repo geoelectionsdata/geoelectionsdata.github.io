@@ -149,6 +149,20 @@ export async function buildElectionMap({
   // Stringify GeoJSON integer ids once — both winnerByDistrict and turnoutByDistrict
   // are keyed by string (from CSV), but GeoJSON feature.properties.id is an integer.
   function geoId(feature) { return String(feature.properties.id ?? feature.properties.major_id); }
+  function councilSelfgovIdFromMajorId(id) {
+    const n = Number(id);
+    const raw = n >= 10000 ? Math.floor(n / 10000) : Math.floor(n / 100);
+    return String(raw === 99 ? 1 : raw);
+  }
+  function councilSelfgovIdFromDistrictId(id) {
+    const n = Number(id);
+    return String(n >= 1 && n <= 10 ? 1 : n);
+  }
+  function updateCouncilSeatsForDistrict(did, props) {
+    const sgId = councilSelfgovIdFromDistrictId(did);
+    const sgFeat = selfgovGeoData?.features?.find(f => String(f.properties.id) === sgId);
+    updateCouncilSeats(sgId, sgFeat?.properties ?? props, true);
+  }
 
   // Returns the full human-readable feature name for panels and tooltips.
   // Handles majoritarian GeoJSON (district_name_en + N + major) where name_en/name_ka are absent.
@@ -200,7 +214,7 @@ export async function buildElectionMap({
           ? renderTurnoutPanel(did, f.properties)
           : renderDistrictPanel(did, f.properties));
 
-        if (isCouncilMode) updateCouncilSeats(did, f.properties);
+        if (isCouncilMode) updateCouncilSeatsForDistrict(did, f.properties);
       });
       circle.bindTooltip(
         `<strong>${lang === "ka" ? f.properties.name_ka : f.properties.name_en}</strong>`,
@@ -219,7 +233,7 @@ export async function buildElectionMap({
           if (panel) panel.replaceWith(viewMode === "turnout"
             ? renderTurnoutPanel(did, feature.properties)
             : renderDistrictPanel(did, feature.properties));
-          if (isCouncilMode) updateCouncilSeats(did, feature.properties);
+          if (isCouncilMode) updateCouncilSeatsForDistrict(did, feature.properties);
         });
         layer.bindTooltip(
           `<strong>${lang === "ka" ? feature.properties.name_ka : feature.properties.name_en}</strong>`,
@@ -296,7 +310,7 @@ export async function buildElectionMap({
               : renderDistrictPanel(did, _props, councilDistrictResults));
             if (isCouncilMode) {
               // Always show parent selfgov unit composition, not just this one majoritarian district
-              const _sgId = String(Math.floor(Number(did) / 100));
+              const _sgId = councilSelfgovIdFromMajorId(did);
               const _sgFeat = selfgovGeoData?.features?.find(f => String(f.properties.id) === _sgId);
               updateCouncilSeats(_sgId, _sgFeat?.properties ?? _props, true);
             }
@@ -344,6 +358,91 @@ export async function buildElectionMap({
     let precinctLayer             = null;
     let _precinctDataLoaded       = false;
 
+    function updateCouncilSeatsForPrecinct(parentDid, stationId, props) {
+      if (!isCouncilMode) return;
+      const sgId = effectiveVoteType === "smd"
+        ? councilSelfgovIdFromMajorId(_precinctToMajorId.get(stationId) ?? parentDid)
+        : councilSelfgovIdFromDistrictId(parentDid);
+      const sgFeat = selfgovGeoData?.features?.find(f => String(f.properties.id) === sgId);
+      updateCouncilSeats(sgId, sgFeat?.properties ?? props, true);
+    }
+
+    function precinctStationId(feature) {
+      const raw = feature?.properties?.id ?? feature?.properties?.precinct_id;
+      return raw == null ? null : String(Math.round(Number(raw)));
+    }
+
+    function precinctStationNumber(feature) {
+      const p = feature?.properties ?? {};
+      const raw = p.precinct ?? p.Precinct ?? p.precinct_number ?? p.id;
+      return raw == null ? null : Math.round(Number(raw)) % 1000;
+    }
+
+    function precinctRawDistrict(feature) {
+      const p = feature?.properties ?? {};
+      return p.district ?? p.district_id ?? p.District;
+    }
+
+    function precinctParentId(feature, stationId) {
+      const p = feature?.properties ?? {};
+      if (isCouncilMode && effectiveVoteType === "smd") {
+        const mid = p.MID ?? p.major_id;
+        return mid != null ? String(Math.round(Number(mid))) : (_precinctToMajorId.get(stationId) ?? String(precinctRawDistrict(feature)));
+      }
+      if (effectiveVoteType === "smd" && !isCouncilMode) {
+        const mayor = p.Mayor ?? p.selfgov_id;
+        if (mayor != null) {
+          const m = Number(mayor);
+          return String(m === 99 ? 1 : m);
+        }
+        const d = Number(precinctRawDistrict(feature));
+        return d >= 1 && d <= 10 ? "1" : String(d);
+      }
+      return String(precinctRawDistrict(feature));
+    }
+
+    function precinctDisplayProps(feature, stationId, parentDid) {
+      const stationNum = precinctStationNumber(feature);
+      const p = feature?.properties ?? {};
+      const rawDist = String(precinctRawDistrict(feature));
+      const nameGeo = (isCouncilMode && effectiveVoteType === "smd" && councilDistrictGeoData)
+        ? councilDistrictGeoData
+        : activeGeo;
+      const distFeat = nameGeo?.features?.find(f => {
+        const id = String(f.properties.id ?? f.properties.major_id);
+        return id === parentDid || id === rawDist;
+      });
+      const distNameEn = (distFeat ? getDistrictBaseName(distFeat, "en") : null) ?? parentDid ?? rawDist;
+      const distNameKa = (distFeat ? getDistrictBaseName(distFeat, "ka") : null) ?? distNameEn;
+      const suffix = stationNum == null ? stationId : stationNum;
+      return {
+        ...p,
+        name_en: `${distNameEn} N${suffix}`,
+        name_ka: `${distNameKa} N${suffix}`,
+        precinct_name_ka: p.name_ka || p.precinct_name || null,
+        address_ka: p.address || null
+      };
+    }
+
+    function enrichPrecinctRows(rows) {
+      return rows.map(r => {
+        if (!r.name_ka && !r.candidate_name) {
+          if (isCouncilMode && effectiveVoteType === "smd") {
+            const match = _allCouncilSMDResults.find(
+              d => String(d.district_id) === String(r.district_id) && d.party_id === r.party_id
+            );
+            if (match?.name_ka) return {...r, name_ka: match.name_ka};
+          } else if (ballotTypeVal === "mayor") {
+            const match = selfgovResults.find(
+              d => String(d.district_id) === String(r.selfgov_id) && d.party_id === r.party_id
+            );
+            if (match?.name_ka) return {...r, name_ka: match.name_ka};
+          }
+        }
+        return r;
+      });
+    }
+
     async function _ensurePrecinctLayer() {
       if (_precinctDataLoaded) return;
       _precinctDataLoaded = true;
@@ -389,9 +488,10 @@ export async function buildElectionMap({
 
       // Party-filter share lookup
       for (const r of precinctResults) {
-        const pid = String(r.precinct_id);
+        const pid = String(Math.round(r.precinct_id));
         if (!_shareByPartyByPrecinct.has(pid)) _shareByPartyByPrecinct.set(pid, new Map());
-        _shareByPartyByPrecinct.get(pid).set(r.party_id, r.vote_share);
+        const shares = _shareByPartyByPrecinct.get(pid);
+        shares.set(r.party_id, (shares.get(r.party_id) ?? 0) + (Number(r.vote_share) || 0));
       }
 
       if (!precinctGeoData) return;
@@ -400,13 +500,10 @@ export async function buildElectionMap({
       if (isPoints) {
         precinctLayer = L.geoJSON(precinctGeoData, {
           pointToLayer(feature, latlng) {
-            const _rawDist  = feature.properties.district ?? feature.properties.district_id;
+            const _rawDist  = precinctRawDistrict(feature);
             const _d        = Number(_rawDist);
             const stationId = String(Math.round(feature.properties.id));
-            const parentDid = (isCouncilMode && effectiveVoteType === "smd")
-              ? (_precinctToMajorId.get(stationId) ?? String(_rawDist))
-              : (effectiveVoteType === "smd" && !isCouncilMode && _d >= 1 && _d <= 10)
-                ? "1" : String(_rawDist);
+            const parentDid = precinctParentId(feature, stationId);
             let fillColor;
             if (viewMode === "turnout") {
               const td = _precinctTurnoutByStation.get(stationId) ?? turnoutByDistrict.get(parentDid);
@@ -429,12 +526,9 @@ export async function buildElectionMap({
             const _rawStId   = feature.properties.id;
             const stationId  = String(Math.round(_rawStId));
             const stationNum = Math.round(_rawStId) % 1000;
-            const _rawDist   = feature.properties.district ?? feature.properties.district_id;
+            const _rawDist   = precinctRawDistrict(feature);
             const _d         = Number(_rawDist);
-            const parentDid  = (isCouncilMode && effectiveVoteType === "smd")
-              ? (_precinctToMajorId.get(stationId) ?? String(_rawDist))
-              : (effectiveVoteType === "smd" && !isCouncilMode && _d >= 1 && _d <= 10)
-                ? "1" : String(_rawDist);
+            const parentDid  = precinctParentId(feature, stationId);
             const _nameGeo   = (isCouncilMode && effectiveVoteType === "smd" && councilDistrictGeoData)
               ? councilDistrictGeoData
               : activeGeo;
@@ -481,14 +575,7 @@ export async function buildElectionMap({
                   });
                 panel.replaceWith(renderDistrictPanel("__precinct__", enhancedProps, stationRows));
               }
-              if (isCouncilMode) {
-                const _majorId = (isCouncilMode && effectiveVoteType === "smd")
-                  ? (_precinctToMajorId.get(stationId) ?? parentDid)
-                  : parentDid;
-                const _sgId   = String(Math.floor(Number(_majorId) / 100));
-                const _sgFeat = selfgovGeoData?.features?.find(f => String(f.properties.id) === _sgId);
-                updateCouncilSeats(_sgId, _sgFeat?.properties, true);
-              }
+              updateCouncilSeatsForPrecinct(parentDid, stationId, enhancedProps);
             });
             layer.bindTooltip(
               `<strong>${lang === "ka" ? titleKa : titleEn}</strong>`,
@@ -498,20 +585,46 @@ export async function buildElectionMap({
         });
       } else {
         // Polygon precincts — choropleth
-        const {winnerMap, shareMap, turnoutMap} = buildLookups(precinctResults, precinctTurnout);
-        const pStyle = makeLayerStyle(winnerMap, shareMap, turnoutMap, 0.5);
         precinctLayer = L.geoJSON(precinctGeoData, {
-          style: pStyle,
+          style(feature) {
+            const stationId = precinctStationId(feature);
+            const parentDid = precinctParentId(feature, stationId);
+            if (viewMode === "turnout") {
+              const td = _precinctTurnoutByStation.get(stationId) ?? turnoutByDistrict.get(parentDid);
+              if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight: 0.5};
+              return {
+                fillColor: d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value, _invalidMax)),
+                fillOpacity: 0.9,
+                color: "#ffffff",
+                weight: 0.5
+              };
+            }
+            const winner = winnerByPrecinct.get(stationId) ?? winnerByDistrict.get(parentDid);
+            if (!winner) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight: 0.5};
+            const baseColor = partyColor(winner.party_id, electionVal?.id);
+            const intensity = shareByPrecinct.get(stationId) ?? shareByDistrict.get(parentDid) ?? 0.5;
+            const lightened = d3.color(baseColor) ? d3.interpolateRgb("#f5f5f5", baseColor)(0.4 + intensity * 0.6) : "#ccc";
+            return {fillColor: lightened, fillOpacity: 0.9, color: "#ffffff", weight: 0.5};
+          },
           onEachFeature(feature, layer) {
-            const did = geoId(feature);
+            const stationId = precinctStationId(feature);
+            const parentDid = precinctParentId(feature, stationId);
+            const enhancedProps = precinctDisplayProps(feature, stationId, parentDid);
             layer.on("click", () => {
               const panel = document.getElementById("results-panel");
-              if (panel) panel.replaceWith(viewMode === "turnout"
-                ? renderTurnoutPanel(did, feature.properties, turnoutMap)
-                : renderDistrictPanel(did, feature.properties, precinctResults));
+              if (!panel) return;
+              if (viewMode === "turnout") {
+                panel.replaceWith(renderTurnoutPanel(stationId, enhancedProps, _precinctTurnoutByStation));
+              } else {
+                const stationRows = enrichPrecinctRows(
+                  precinctResults.filter(r => String(Math.round(r.precinct_id)) === stationId)
+                );
+                panel.replaceWith(renderDistrictPanel("__precinct__", enhancedProps, stationRows));
+              }
+              updateCouncilSeatsForPrecinct(parentDid, stationId, enhancedProps);
             });
             layer.bindTooltip(
-              `<strong>${lang === "ka" ? feature.properties.name_ka : feature.properties.name_en}</strong>`,
+              `<strong>${lang === "ka" ? enhancedProps.name_ka : enhancedProps.name_en}</strong>`,
               {sticky: true}
             );
           }
@@ -540,6 +653,12 @@ export async function buildElectionMap({
       ? (viewMode === "turnout" && selfgovLayer ? "selfgov" : (councilDistrictLayer ? "council_district" : "district"))
       : (selfgovLayer ? "selfgov" : "district");
 
+    function refreshPartyFilter() {
+      if (_mapCtrl.current?.currentPartyId) {
+        _mapCtrl.current.setPartyFilter(_mapCtrl.current.currentPartyId, true);
+      }
+    }
+
     function applyLevel(levelId, controlDiv) {
       currentLevel = levelId;
       if (levelId === "selfgov" && selfgovLayer) {
@@ -564,7 +683,8 @@ export async function buildElectionMap({
           if (selfgovLayer         && map.hasLayer(selfgovLayer))         map.removeLayer(selfgovLayer);
           if (councilDistrictLayer && map.hasLayer(councilDistrictLayer)) map.removeLayer(councilDistrictLayer);
           if (!map.hasLayer(precinctLayer)) precinctLayer.addTo(map);
-          if (_mapCtrl.current) _mapCtrl.current.updatePrecinctDots(_mapCtrl.current.currentPartyId);
+          if (_mapCtrl.current?.currentPartyId) refreshPartyFilter();
+          else if (_mapCtrl.current) _mapCtrl.current.updatePrecinctDots(null);
         });
       }
       if (controlDiv) {
@@ -572,6 +692,7 @@ export async function buildElectionMap({
           el.classList.toggle("lc-active", el.dataset.level === currentLevel);
         });
       }
+      if (levelId !== "precinct") refreshPartyFilter();
     }
 
     const LevelControl = L.Control.extend({
@@ -598,19 +719,28 @@ export async function buildElectionMap({
     applyLevel(currentLevel, null);
 
     // ── Party filter: lookups for district, selfgov, and precinct vote shares ─
+    function addShare(shareMap, areaId, partyId, voteShare) {
+      const key = String(areaId);
+      if (!shareMap.has(key)) shareMap.set(key, new Map());
+      const shares = shareMap.get(key);
+      shares.set(partyId, (shares.get(partyId) ?? 0) + (Number(voteShare) || 0));
+    }
+
     const _shareByPartyByDistrict = new Map();
     for (const r of _districtRows) {
-      const did = String(r.district_id);
-      if (!_shareByPartyByDistrict.has(did)) _shareByPartyByDistrict.set(did, new Map());
-      _shareByPartyByDistrict.get(did).set(r.party_id, r.vote_share);
+      addShare(_shareByPartyByDistrict, r.district_id, r.party_id, r.vote_share);
     }
 
     const _shareByPartyBySelfgov = new Map();
     for (const r of selfgovResults) {
       if (String(r.district_id) === "national") continue;
-      const sgid = String(r.district_id);
-      if (!_shareByPartyBySelfgov.has(sgid)) _shareByPartyBySelfgov.set(sgid, new Map());
-      _shareByPartyBySelfgov.get(sgid).set(r.party_id, r.vote_share);
+      addShare(_shareByPartyBySelfgov, r.district_id, r.party_id, r.vote_share);
+    }
+
+    const _shareByPartyByCouncilDistrict = new Map();
+    for (const r of councilDistrictResults) {
+      if (String(r.district_id) === "national") continue;
+      addShare(_shareByPartyByCouncilDistrict, r.district_id, r.party_id, r.vote_share);
     }
 
     // ── Map legend control (bottom-left) ────────────────────────────────────
@@ -720,14 +850,14 @@ export async function buildElectionMap({
           councilDistrictLayer.setStyle(_councilDistrictStyleFn);
         }
         // Update precinct dots
-        this.updatePrecinctDots(this.currentPartyId);
+        this.updatePrecinctDots(viewMode === "turnout" ? null : this.currentPartyId);
         // Update legend
         if (this.legendDiv) this.legendDiv.innerHTML = buildLegendHTML(null);
       },
 
-      setPartyFilter(partyId) {
+      setPartyFilter(partyId, force = false) {
         // Radio behaviour: clicking the active party deselects; clicking a new one replaces
-        const newId = this.currentPartyId === partyId ? null : partyId;
+        const newId = force ? partyId : (this.currentPartyId === partyId ? null : partyId);
         this.currentPartyId = newId;
 
         // Visual feedback: highlight matching rows in bar chart and district/precinct tables
@@ -739,11 +869,19 @@ export async function buildElectionMap({
         });
 
         // Only restyle the active layer; others must stay hollow
-        const districtIsActive = currentLevel === "district";
-        const selfgovIsActive  = currentLevel === "selfgov";
+        const districtIsActive        = currentLevel === "district";
+        const selfgovIsActive         = currentLevel === "selfgov";
+        const councilDistrictIsActive = currentLevel === "council_district";
+        const precinctIsActive        = currentLevel === "precinct";
 
         // Compute min/max from the active layer's share map
-        const _activeShareMap = selfgovIsActive ? _shareByPartyBySelfgov : _shareByPartyByDistrict;
+        const _activeShareMap = precinctIsActive && _shareByPartyByPrecinct.size
+          ? _shareByPartyByPrecinct
+          : councilDistrictIsActive
+            ? _shareByPartyByCouncilDistrict
+            : selfgovIsActive
+              ? _shareByPartyBySelfgov
+              : _shareByPartyByDistrict;
         const allShares = newId
           ? [..._activeShareMap.values()].map(m => m.get(newId) ?? 0).filter(v => v > 0)
           : [];
@@ -779,6 +917,20 @@ export async function buildElectionMap({
           selfgovLayer.setStyle(_selfgovStyleFn);
         }
 
+        if (newId && councilDistrictIsActive && councilDistrictLayer) {
+          const color = partyColor(newId, electionVal?.id);
+          councilDistrictLayer.setStyle(feature => {
+            const did   = geoId(feature);
+            const share = _shareByPartyByCouncilDistrict.get(did)?.get(newId) ?? 0;
+            return {
+              fillColor:   d3.interpolateRgb("#f5f5f5", color)(0.15 + ((share - minShare) / range) * 0.85),
+              fillOpacity: 0.9, color: "#ffffff", weight: 0.8
+            };
+          });
+        } else if (councilDistrictIsActive && councilDistrictLayer && _councilDistrictStyleFn) {
+          councilDistrictLayer.setStyle(_councilDistrictStyleFn);
+        }
+
         // Always fully re-style precinct dots from scratch (prevents stale colours)
         this.updatePrecinctDots(newId, minShare, maxShare);
 
@@ -799,17 +951,17 @@ export async function buildElectionMap({
         }
         precinctLayer.eachLayer(l => {
           const pid       = String(Math.round(l.feature?.properties?.id ?? 0));
-          const _rawD     = l.feature?.properties?.district ?? l.feature?.properties?.district_id;
+          const _rawD     = precinctRawDistrict(l.feature);
           const _dn       = Number(_rawD);
           // Council SMD: resolve via precinct→major_id map; local SMD: Tbilisi fold; others: electoral district
-          const parentDid = (isCouncilMode && effectiveVoteType === "smd")
-            ? (_precinctToMajorId.get(pid) ?? String(_rawD))
-            : (effectiveVoteType === "smd" && !isCouncilMode && _dn >= 1 && _dn <= 10)
-              ? "1" : String(_rawD);
+          const parentDid = precinctParentId(l.feature, pid);
           let fillColor;
           if (activePartyId) {
             const share = _shareByPartyByPrecinct.get(pid)?.get(activePartyId)
-                       ?? _shareByPartyByDistrict.get(parentDid)?.get(activePartyId) ?? 0;
+                       ?? _shareByPartyByCouncilDistrict.get(parentDid)?.get(activePartyId)
+                       ?? _shareByPartyByDistrict.get(parentDid)?.get(activePartyId)
+                       ?? _shareByPartyBySelfgov.get(parentDid)?.get(activePartyId)
+                       ?? 0;
             const color = partyColor(activePartyId, electionVal?.id);
             fillColor = d3.interpolateRgb("#f5f5f5", color)(0.15 + ((share - minS) / range) * 0.85);
           } else if (viewMode === "turnout") {

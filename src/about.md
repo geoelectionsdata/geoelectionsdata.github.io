@@ -21,10 +21,10 @@ const about = {
       dataset of election results held in Georgia from 1919 to the present. It brings together available
       results, candidate lists, and constituency-level data for all national and sub-national
       elections. Data are sourced from the Central Election Commission of Georgia
-      (CEC), contemporary press coverage, and the National Archives of Georgia. The archive is
-      maintained by David Sichinava, and any interested parties are welcome to use it for academic and journalistic purposes, or for general interest.  Data are released under a CC-BY-4.0 license; when using,
+      (CEC), contemporary press coverage, and the National Archives of Georgia. Part of the election results and spatial data were kindly granted by the National Democratic Institute (NDI).
+      The archive is maintained by David Sichinava, and any interested parties are welcome to use it for academic and journalistic purposes, or for general interest.  Data are released under a CC-BY-4.0 license; when using,
       please cite the archive using the format provided on this page.`,
-    cite_title:    "Cite CEDAG",
+    cite_title:    "Cite GEDA",
     cite_sub:      "Select an election and a citation style to generate a formatted reference.",
     pick_election: "Election",
     pick_style:    "Citation style",
@@ -45,7 +45,7 @@ const about = {
   },
   ka: {
     about_title: "საქართველოს არჩევნების მონაცემთა არქივი (GEDA)",
-    about_body:  `საქართველოს არჩევნების მონაცემთა არქივი (GEDA) 1919 წლიდან დღემდე საქართველოში ჩატარებული არჩევნების შედეგების ღია, სტრუქტურირებული მონაცემთა ბაზას წარმოადგენს. იგი მოიცავს საქართველოში გამართული ყველა ეროვნული და ადგილობრივი არჩევნების შედეგებს, კანდიდატთა სიებს და საოლქო თუ საუბნო დონის მონაცემებს, რომელთა შესახებ ინფორმაციის მოძიება შესაძლებელი იყო. მონაცემები მომზადებულია საქართველოს ცენტრალური საარჩევნო კომისიის (ცესკო), პრესისა და საქართველოს ეროვნული არქივის მასალების საფუძველზე. მონაცემები დამუშავებულია დავით სიჭინავას მიერ, ხოლო მათი გამოყენება შეუძლია ნებისმიერ მსურველს, აკადემიური, ჟურნალისტური თუ საინფორმაციო მიზნით. მონაცემები ვრცელდება CC-BY-4.0 ლიცენზიით, შესაბამისად, გამოყენებისას, გთხოვთ, მიუთითოთ წყარო ამავე გვერდზე მოცემული ფორმატით.`,
+    about_body:  `საქართველოს არჩევნების მონაცემთა არქივი (GEDA) 1919 წლიდან დღემდე საქართველოში ჩატარებული არჩევნების შედეგების ღია, სტრუქტურირებული მონაცემთა ბაზას წარმოადგენს. იგი მოიცავს საქართველოში გამართული ყველა ეროვნული და ადგილობრივი არჩევნების შედეგებს, კანდიდატთა სიებს და საოლქო თუ საუბნო დონის მონაცემებს, რომელთა შესახებ ინფორმაციის მოძიება შესაძლებელი იყო. მონაცემები მომზადებულია საქართველოს ცენტრალური საარჩევნო კომისიის (ცესკო), პრესისა და საქართველოს ეროვნული არქივის მასალების საფუძველზე. შედეგებისა და სივრცითი მონაცემების ნაწილი გადმოგვცა „ეროვნულმა დემოკრატიულმა ინსტიტუტმა“ (NDI). მონაცემები დამუშავებულია დავით სიჭინავას მიერ, ხოლო მათი გამოყენება შეუძლია ნებისმიერ მსურველს, აკადემიური, ჟურნალისტური თუ საინფორმაციო მიზნით. მონაცემები ვრცელდება CC-BY-4.0 ლიცენზიით, შესაბამისად, გამოყენებისას, გთხოვთ, მიუთითოთ წყარო ამავე გვერდზე მოცემული ფორმატით.`,
     cite_title:    "GEDA-ს ციტირება",
     cite_sub:      "აირჩიეთ არჩევნები და დააგენერირეთ ციტირება სასურველ ფორმატში",
     pick_election: "არჩევნები",
@@ -73,15 +73,18 @@ const BASE_URL = "https://electionsdata.ge";
 
 ```js
 // ── Election list for citation picker ────────────────────────────────────────
+const currentYear = new Date().getFullYear();
+
 const elecOptions = elections
   .filter(e => e.id && e.name)
   .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
   .map(e => ({
-    id:    e.id,
-    label: (lang === "ka" && e.name?.ka) ? e.name.ka : (e.name?.en ?? e.id),
-    url:   `${BASE_URL}/${e.id}`,
-    year:  e.date ? new Date(e.date).getFullYear() : 2026,
+    id:     e.id,
+    label:  (lang === "ka" && e.name?.ka) ? e.name.ka : (e.name?.en ?? e.id),
+    url:    `${BASE_URL}/${e.id}`,
+    year:   currentYear,
     nameEn: e.name?.en ?? e.id,
+    nameKa: e.name?.ka ?? "",
   }));
 
 const styleOptions = [
@@ -99,16 +102,27 @@ const styleOptions = [
 
   function formatCitation(elec, styleVal) {
     if (!elec) return "";
-    const { nameEn, year, url } = elec;
-    const title   = `Results of the ${nameEn}`;
-    const archive = "Comprehensive Election Data Archive of Georgia (CEDAG)";
-    const today   = new Date().toLocaleDateString("en-GB", {day: "numeric", month: "long", year: "numeric"});
+    const { nameEn, nameKa, year, url } = elec;
+    const isKa = lang === "ka";
+
+    const title = isKa && nameKa
+      ? nameKa.replace(/არჩევნები$/, "არჩევნების შედეგები")
+      : `Results of the ${nameEn}`;
+    const archive    = isKa ? "საქართველოს არჩევნების მონაცემთა არქივი (GEDA)"
+                            : "Georgia Elections Data Archive (GEDA)";
+    const author     = isKa ? "სიჭინავა, დ."    : "Sichinava, D.";
+    const authorFull = isKa ? "სიჭინავა, დავით" : "Sichinava, David";
+    const availAt    = isKa ? "ხელმისაწვდომია"  : "Available at";
+    const retrieved  = isKa ? "ნანახია"          : "Retrieved on";
+    const today      = new Date().toLocaleDateString(isKa ? "ka-GE" : "en-GB",
+                         {day: "numeric", month: "long", year: "numeric"});
+
     if (styleVal === "apa")
-      return `Sichinava, D. (${year}). <em>${title}</em>. ${archive}. ${url}`;
+      return `${author} (${year}). <em>${title}</em>. ${archive}. ${url}. ${retrieved}: ${today}.`;
     if (styleVal === "harvard")
-      return `Sichinava, D. (${year}) <em>${title}</em>, ${archive}. Available at: ${url} (Accessed: ${today}).`;
+      return `${author} (${year}) <em>${title}</em>, ${archive}. ${availAt}: ${url}. ${retrieved}: ${today}.`;
     if (styleVal === "chicago")
-      return `Sichinava, David. ${year}. "<em>${title}</em>." ${archive}. ${url}.`;
+      return `${authorFull}. ${year}. "<em>${title}</em>." ${archive}. ${url}. ${retrieved}: ${today}.`;
     return "";
   }
 

@@ -389,7 +389,7 @@ const _districtRows  = results.filter(r => String(r.district_id) !== "national")
 const _hasNatRows    = _nationalRows.length > 0;
 
 // For council mode: compute actual district wins from council SMD results
-// major_id = selfgov_id * 100 + local_sequential; one winner per district = one SMD seat
+// one winner per council majoritarian district = one SMD seat
 // Computed always (not just in SMD map mode) so seat chart is stable across vote type switches
 const _councilSMDWins = isCouncilMode
   ? (() => {
@@ -455,7 +455,21 @@ const _totalPRSeatsFromCSV  = d3.sum([..._natSeatsByParty.values()], d => d.seat
 const _totalSMDSeatsFromCSV = d3.sum([..._natSeatsByParty.values()], d => d.seats_smd);
 const _totalMayorsFromCSV   = d3.sum([..._natSeatsByParty.values()], d => d.seats_mayor);
 
-const nationalArray = Array.from(nationalResults, ([party_id, v]) => {
+const _nationalPartyIds = new Set([
+  ...nationalResults.keys(),
+  ..._natSeatsByParty.keys(),
+  ..._councilSMDWins.keys()
+]);
+
+const nationalArray = Array.from(_nationalPartyIds, party_id => {
+  const v = nationalResults.get(party_id) ?? {
+    votes: 0,
+    vote_share: 0,
+    seats_pr: 0,
+    seats_smd: 0,
+    seats_comp: 0,
+    threshold_status: "notrun"
+  };
   const meta = elecPartyMeta.get(party_id);
   const threshold_status = meta?.threshold_status ?? v.threshold_status ?? "notrun";
   // Use actual election results from CSV when available (council mode),
@@ -466,7 +480,9 @@ const nationalArray = Array.from(nationalResults, ([party_id, v]) => {
         ? meta.seats_pr
         : _seatsByParty.size > 0 ? (_seatsByParty.get(party_id) ?? 0) : (v.seats_pr ?? 0));
   const seats_smd = isCouncilMode
-    ? (_councilSMDWins.get(party_id) ?? 0)
+    ? (_natSeatsByParty.size > 0
+        ? (_natSeatsByParty.get(party_id)?.seats_smd ?? 0)
+        : (_councilSMDWins.get(party_id) ?? 0))
     : (meta?.seats_smd ?? v.seats_smd ?? 0);
   const seats_mayor = _natSeatsByParty.get(party_id)?.seats_mayor ?? 0;
   const seats_comp = meta?.seats_compensation ?? v.seats_comp ?? 0;

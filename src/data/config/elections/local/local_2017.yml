@@ -1,0 +1,139 @@
+id: local_2017
+type: local
+date: "2017-10-21"
+name:
+  en: "2017 elections of municipal authorities"
+  ka: "მუნიციპალიტეტის ორგანოთა 2017 წლის არჩევნები"
+notes:
+  en: |
+    Georgian Dream won all 64 mayoralties in the first or second round. European Georgia,
+    which had split from the United National Movement earlier in 2017, competed for the
+    first time. Mayor and Sakrebulo majoritarian contests in several municipalities
+    proceeded to a second round held on 11 November 2017.
+  ka: |
+    ქართულმა ოცნებამ სრული გამარჯვება მოიპოვა — 64 მუნიციპალიტეტში მერები პირველ ან
+    მეორე ტურში აირჩია. ევროპული საქართველო, რომელიც 2017 წელს გაიყო ეროვნული მოძრაობისგან,
+    პირველად მონაწილეობდა ადგილობრივ არჩევნებში. ზოგიერთ მუნიციპალიტეტში მერებისა და
+    საკრებულოს მაჟორიტარი კანდიდატების გამოსავლენად, 2017 წლის 11 ნოემბერს მეორე ტური
+    ჩატარდა.
+
+# ── Electoral system ──────────────────────────────────────────────────────
+system:
+  pr:
+    enabled: true
+    seats: 0                        # varies by municipality
+    threshold_pct: 3.0              # 3% threshold
+    method: dhondt
+    shape_file: "data/shp/parl2024_pr.geojson"
+    selfgov_shape_file: "data/shp/selfgov_areas_2025.geojson"
+    precinct_shape_file: "data/shp/local2017_precincts.geojson"
+  smd:
+    enabled: true
+    seats: 64                       # 64 self-governing units
+    shape_file: "data/shp/selfgov_areas_2025.geojson"
+    precinct_shape_file: "data/shp/local2017_precincts.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+
+# ── Council (Sakrebulo majoritarian) ─────────────────────────────────────
+council:
+  total_pr_seats: 0
+  total_smd_seats: 0
+  shape_file: "data/shp/majoritarian_2017_major_id.geojson"
+
+sub_elections:
+  - id: local_2017_r2
+    type: runoff
+    name:
+      en: Second Round
+      ka: მეორე ტური
+    files:
+      smd_results:                  "data/results/local2017_r2_smd.csv"
+      smd_precinct_results:         "data/results/local2017_r2_smd_precincts.csv"
+      council_smd_results:          "data/results/local2017_r2_council_smd.csv"
+      council_smd_precinct_results: "data/results/local2017_r2_council_smd_precincts.csv"
+
+# ── Party metadata ────────────────────────────────────────────────────────
+# threshold_status reflects the national 3% Sakrebulo PR threshold.
+parties:
+  - id: gd
+    threshold_status: passed
+    alias:
+      ka: ქართული ოცნება - დემოკრატიული საქართველო
+  - id: unm
+    threshold_status: passed
+  - id: european_georgia
+    threshold_status: passed
+    alias:
+      ka: ევროპული საქართველო-მოძრაობა თავისუფლებისთვის
+  - id: patriots
+    threshold_status: passed
+    alias:
+      ka: დავით თარხან-მოურავი, ირმა ინაშვილი - საქართველოს პატრიოტთა ალიანსი
+      en: Davit Tarkhan-Mouravi, Irma Inashvili - Alliance of Patriots of Georgia
+  - id: labour
+    threshold_status: passed
+    alias:
+      ka: შალვა ნათელაშვილი-საქართველოს ლეიბორისტული პარტია
+      en: Shalva Natelashvili-Labour Party of Georgia
+  - id: girchi
+    threshold_status: passed
+  - id: republicans_2016
+    threshold_status: failed
+  - id: free_democrats
+    threshold_status: failed
+  - id: burjanadze_democratic
+    threshold_status: failed
+  - id: new_christian_democrats
+    threshold_status: failed
+    alias:
+      ka: გოგი წულაია - ახალი ქრისტიანდემოკრატები
+      en: Gogi Tsulaia - New Christian Democrats
+  - id: industry_sakartvelo
+    threshold_status: failed
+  - id: greens
+    threshold_status: failed
+  - id: social_democrats
+    threshold_status: failed
+  - id: european_democrats
+    threshold_status: failed
+  - id: national_forum
+    threshold_status: failed
+  - id: democratic_movement
+    threshold_status: failed
+  - id: georgian_march
+    threshold_status: failed
+
+# ── Data files ────────────────────────────────────────────────────────────
+sources:
+  - name:
+      en: "Public information requested from the Central Election Commission as part of the preparation of the National Democratic Institute's (NDI) election portal electionsdata.ge"
+      ka: >-
+        „ეროვნული დემოკრატიული ინსტიტუტის" (NDI) საარჩევნო პორტალის
+        electionsdata.ge მომზადების ფარგლებში ცენტრალური საარჩევნო
+        კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია
+
+
+files:
+  seats:                        "data/results/local2017_seats.csv"
+  pr_results:                   "data/results/local2017_pr.csv"
+  pr_selfgov_results:           "data/results/local2017_pr_selfgov.csv"
+  pr_precinct_results:          "data/results/local2017_pr_precincts.csv"
+  smd_results:                  "data/results/local2017_smd.csv"
+  smd_district_results:         "data/results/local2017_smd_districts.csv"
+  smd_precinct_results:         "data/results/local2017_smd_precincts.csv"
+  council_smd_results:          "data/results/local2017_council_smd.csv"
+  council_smd_precinct_results: "data/results/local2017_council_smd_precincts.csv"
+  council_pr_results:           "data/results/local2017_pr.csv"
+  council_pr_precinct_results:  "data/results/local2017_pr_precincts.csv"
+  candidates:                   "data/config/candidates/local/local_2017.yml"
+
+# ── Turnout metadata ──────────────────────────────────────────────────────
+turnout:
+  available: true
+  type: basic
+  file: null
+  precinct_file: null
+  has_snapshots: true    # voted_noon / voted_5pm columns present in CSVs
+  has_lists: false

@@ -142,6 +142,12 @@ export function makeRenderers({
 
   // ── Update council seat chart imperatively on district click ──────────────
   // isSelfgov=true: distId is a selfgov_id; aggregate all majoritarian districts in that unit
+  function councilSelfgovIdFromMajorId(id) {
+    const n = Number(id);
+    const raw = n >= 10000 ? Math.floor(n / 10000) : Math.floor(n / 100);
+    return String(raw === 99 ? 1 : raw);
+  }
+
   function updateCouncilSeats(distId, props, isSelfgov = false) {
     const chart = document.getElementById("council-seat-chart");
     if (!chart) return;
@@ -150,13 +156,21 @@ export function makeRenderers({
     if (isSelfgov) {
       distRows = _allCouncilSMDResults.filter(r =>
         String(r.district_id) !== "national" &&
-        Math.floor(Number(r.district_id) / 100) === Number(distId)
+        councilSelfgovIdFromMajorId(r.district_id) === String(distId)
       );
     } else {
       distRows = results.filter(r => String(r.district_id) === distId);
     }
 
     const _smdWins = new Map();
+    const _distRollup = d3.rollup(distRows, rows => ({
+      votes:      d3.sum(rows, r => r.votes),
+      vote_share: d3.mean(rows, r => r.vote_share),
+      seats_pr:   rows[0]?.seats_pr  ?? 0,
+      seats_smd:  rows[0]?.seats_smd ?? 0,
+      threshold_status: rows[0]?.threshold_status ?? "notrun"
+    }), d => d.party_id);
+
     for (const rows of d3.group(
       distRows.filter(r => String(r.district_id) !== "national"),
       r => String(r.district_id)
@@ -164,27 +178,37 @@ export function makeRenderers({
       const w = rows.reduce((a, b) => b.votes > a.votes ? b : a);
       _smdWins.set(w.party_id, (_smdWins.get(w.party_id) ?? 0) + 1);
     }
-    const _totalSMD = d3.sum([..._smdWins.values()]);
 
     const _unitSeats    = isSelfgov ? (_seatsMap.get(distId) ?? new Map()) : new Map();
     const _totalPRUnit  = d3.sum([..._unitSeats.values()], d => d.seats_pr);
+    const _totalSMDUnit = d3.sum([..._unitSeats.values()], d => d.seats_smd);
+    const _totalSMD = isSelfgov && _unitSeats.size > 0
+      ? _totalSMDUnit
+      : d3.sum([..._smdWins.values()]);
 
     const distArray = Array.from(
-      d3.rollup(distRows, rows => ({
-        votes:      d3.sum(rows, r => r.votes),
-        vote_share: d3.mean(rows, r => r.vote_share),
-        seats_pr:   rows[0]?.seats_pr  ?? 0,
-        seats_smd:  rows[0]?.seats_smd ?? 0,
-        threshold_status: rows[0]?.threshold_status ?? "notrun"
-      }), d => d.party_id),
-      ([party_id, v]) => ({
+      new Set([..._distRollup.keys(), ..._unitSeats.keys()]),
+      party_id => {
+        const v = _distRollup.get(party_id) ?? {
+          votes: 0,
+          vote_share: 0,
+          seats_pr: 0,
+          seats_smd: 0,
+          threshold_status: "notrun"
+        };
+        return {
         party_id, ...v,
-        seats_smd: _smdWins.get(party_id) ?? 0,
+        seats_smd: isSelfgov && _unitSeats.size > 0
+          ? (_unitSeats.get(party_id)?.seats_smd ?? 0)
+          : (_smdWins.get(party_id) ?? 0),
         seats_pr:  isSelfgov ? (_unitSeats.get(party_id)?.seats_pr ?? 0) : (v.seats_pr ?? 0),
         party: getParty(party_id),
         color: partyColor(party_id, electionVal?.id)
-      })
-    ).sort((a, b) => b.vote_share - a.vote_share);
+      };
+    }).sort((a, b) =>
+      seatsFor(b, seatFilter) - seatsFor(a, seatFilter) ||
+      b.vote_share - a.vote_share
+    );
 
     const distElec = {...electionVal, council: {
       total_pr_seats:  _totalPRUnit,

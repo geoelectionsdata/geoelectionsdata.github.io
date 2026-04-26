@@ -600,6 +600,15 @@ parties:
     color: "#9E9E9E"
     type: party
 
+  # ── 2017 local election parties ──────────────────────────────────────────
+
+  - id: vashadze_2017
+    name:
+      en: Giorgi Vashadze — Unity New Georgia
+      ka: გიორგი ვაშაძე — ერთობა ახალი საქართველო
+    color: "#0288D1"
+    type: bloc
+
   - id: smd_only_42
     name:
       en: Independent SMD Candidate
@@ -847,6 +856,13 @@ parties:
       en: Independent
       ka: დამოუკიდებელი
     color: "#546E7A"
+    type: independent
+
+  - id: initiative_group
+    name:
+      en: Initiative Group
+      ka: საინიციატივო ჯგუფი
+    color: "#78909C"
     type: independent
 
   # ── Referendum vote options ───────────────────────────────────────────────

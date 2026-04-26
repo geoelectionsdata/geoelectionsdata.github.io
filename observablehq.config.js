@@ -1,13 +1,25 @@
 // 1. Import the Node.js file system module
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { collectExistingPaths } from "./src/data/config/registry-utils.js";
+import {
+  PARL2024_DOWNLOAD_FILENAME,
+  collectLegacyDownloadEntries
+} from "./src/loaders/downloads/shared.js";
 
 // 2. Read the file content (Path is relative to the project root)
 const headerContent = readFileSync("./src/components/header.html", "utf8");
 
-function precinctAssetPaths() {
-  return collectExistingPaths(p => (p.endsWith(".geojson") || p.endsWith(".csv")) && p.includes("_precincts"))
+function dynamicAssetPaths() {
+  const paths = collectExistingPaths(p => (p.endsWith(".geojson") || p.endsWith(".csv")) && p.includes("_precincts"))
     .map(p => `/${p}`);
+  for (const entry of collectLegacyDownloadEntries({ excludeIds: new Set(["parl_2024"]) })) {
+    paths.push(`/data/downloads/${entry.filename}`);
+  }
+  const parl2024Path = `./src/data/downloads/${PARL2024_DOWNLOAD_FILENAME}`;
+  if (existsSync(parl2024Path)) {
+    paths.push(`/data/downloads/${PARL2024_DOWNLOAD_FILENAME}`);
+  }
+  return [...new Set(paths)].sort();
 }
 
 // See https://observablehq.com/framework/config for documentation.
@@ -28,7 +40,7 @@ export default {
     // {name: "Analysis", path: "/analysis"},
     {name: "About", path: "/about"}
   ],
-  dynamicPaths: precinctAssetPaths,
+  dynamicPaths: dynamicAssetPaths,
   theme: "air", // "air", "cotton", "ink", or "near-midnight"
   pager: false, // Turn off next/prev buttons for a dashboard feel
   // The app’s title; used in the sidebar and webpage titles.
