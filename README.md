@@ -1,18 +1,23 @@
-# Georgia Elections Data Dashboard
+# Georgia Elections Data Archive (GEDA)
 
-This repository contains a dashboard for visualizing and analyzing election data from Georgia. Regretfully, Electionsdata.ge, a website that previously provided comprehensive election data, is gone, therefore this project aims to fill that gap.
+The Georgia Elections Data Archive (GEDA) is an open, structured dataset of election results held in Georgia from 1919 to the present. It brings together available results, candidate lists, and constituency-level data for all national and sub-national elections.
 
-## To do
-- [ ] Put together a wireframe for the dashboard
-- [ ] Create a backend to serve the data to the dashboard
-- [ ] Collect, systematize and clean election data from official sources, via FOIs or from my own archives.
+Data are sourced from the Central Election Commission of Georgia (CEC), contemporary press coverage, and the National Archives of Georgia. Part of the election results and spatial data were kindly granted by the National Democratic Institute (NDI).
 
-## Technologies Used
+The archive is maintained by David Sichinava and is available for academic, journalistic, and general-interest use. Data are released under a **CC-BY-4.0** license — when using, please cite the archive using the format provided on the [About page](https://electionsdata.ge/about).
 
-- Observable Framework for building the dashboard
-- D3.js for data visualization
-- HTML/CSS for structuring and styling the dashboard
-- JavaScript for interactivity and data manipulation
-- Git for version control
-- R (through OF data loaders) for data cleaning and preprocessing
-- LLMs for assistance with coding and data analysis (ChatGPT, Google Gemini)
+## Technologies
+
+- [Observable Framework](https://observablehq.com/framework/) — static site and dashboard build
+- [D3.js](https://d3js.org/) — data visualisation
+- [Leaflet](https://leafletjs.com/) — interactive maps
+- R — data cleaning, preprocessing, and CSV generation (via Observable Framework data loaders)
+- JavaScript / HTML / CSS — interactivity and layout
+- [Claude](https://claude.ai) (Anthropic) — coding assistance and data analysis
+- [OpenAI Codex](https://openai.com/codex) — coding assistance
+- Git / GitHub Actions — version control and automated builds
+
+## License
+
+Data: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)  
+Code: MIT
