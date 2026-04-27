@@ -62,6 +62,9 @@ jobs:
       - name: Process 2024 Adjara data
         run: Rscript src/loaders/process_adj2024.R
 
+      - name: Process 2020 Adjara data
+        run: Rscript src/loaders/process_adj2020.R
+
       - name: Process 2018 presidential data
         run: Rscript src/loaders/process_pres2018.R
 
@@ -109,6 +112,9 @@ jobs:
       - name: Build adj2024 download bundle
         run: node src/loaders/downloads/process_adj2024_download.js
         continue-on-error: true  # remove once implemented
+
+      - name: Build adj2020 download bundle
+        run: node src/loaders/downloads/process_adj2020_download.js
 
       - name: Build parl1919 download bundle
         run: node src/loaders/downloads/process_parl1919_download.js

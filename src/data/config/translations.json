@@ -151,7 +151,7 @@
     "elections.electoral_college.elected": "Elected",
     "elections.electoral_college.total": "Total members",
     "elections.electoral_college.no_data": "No electoral college data available",
-    "elections.results.national": "National",
+    "elections.results.national": "Summary of results",
     "elections.results.address": "Address",
 
     "elections.local.ballot_type": "Ballot",
@@ -322,7 +322,7 @@
     "elections.electoral_college.elected": "არჩეულია",
     "elections.electoral_college.total": "სულ წევრი",
     "elections.electoral_college.no_data": "ამომრჩეველთა კოლეგიის მონაცემები არ არის",
-    "elections.results.national": "ეროვნული",
+    "elections.results.national": "საერთო შედეგები",
     "elections.results.address": "მისამართი",
 
     "elections.local.ballot_type": "ბიულეტენი",

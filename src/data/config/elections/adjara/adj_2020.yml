@@ -1,0 +1,179 @@
+id: adj_2020
+type: adjara
+sub_type: mixed
+date: "2020-10-31"
+name:
+  en: "October 31, 2020 elections to the Supreme Council of the Autonomous Republic of Adjara"
+  ka: "აჭარის ავტონომიური რესპუბლიკის უმაღლესი საბჭოს 2020 წლის 31 ოქტომბრის არჩევნები"
+
+system:
+  pr:
+    enabled: true
+    seats: 18
+    threshold_pct: 1.0
+    method: dhondt
+    shape_file: "data/shp/adj2024_pr.geojson"
+    precinct_shape_file: "data/shp/adj2020_pr_precincts.geojson"
+  smd:
+    enabled: true
+    seats: 3
+    shape_file: "data/shp/adj2020_smd.geojson"
+    precinct_shape_file: "data/shp/adj2020_pr_precincts.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+
+map_view:
+  center: [41.7225389, 42.1149651]
+  zoom: 9
+
+notes:
+  en: |
+    The 2020 elections to the Supreme Council of Adjara were held in parallel with the 2020 parliamentary elections. Members were elected through proportional lists and three single-member majoritarian districts. Majoritarian races in Batumi and the Khelvachauri-Keda-Shuakhevi-Khulo district went to a runoff; Kobuleti-Khelvachauri was decided in the first round.
+  ka: |
+    აჭარის უმაღლესი საბჭოს 2020 წლის არჩევნები 2020 წლის საპარლამენტო არჩევნების პარალელურად გაიმართა. წევრები აირჩიეს პროპორციული სიებით და სამი მაჟორიტარული ოლქით. ბათუმისა და ხელვაჩაური-ქედა-შუახევი-ხულოს მაჟორიტარულ ოლქებში გაიმართა მეორე ტური; ქობულეთი-ხელვაჩაურის ოლქში გამარჯვებული პირველივე ტურში გამოვლინდა.
+
+sub_elections:
+  - id: adj_2020_smd_runoff
+    type: runoff
+    name:
+      en: "Second Round (November 21, 2020)"
+      ka: "მეორე ტური (2020 წლის 21 ნოემბერი)"
+    files:
+      smd_results:          "data/results/adj2020_smd_runoff.csv"
+      smd_precinct_results: "data/results/adj2020_smd_runoff_precincts.csv"
+
+# Council composition placeholders: fill official threshold and seat fields later.
+parties:
+  - id: gd
+    threshold_status: passed
+    seats_pr: 10
+    seats_smd: 3
+
+  - id: unm
+    threshold_status: passed
+    seats_pr: 7
+    seats_smd: 0
+
+  - id: european_georgia
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: lelo
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: patriots
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: girchi
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: agmashenebeli
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: citizens
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: labour
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: democratic_movement
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: tribuna
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: alliance
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: georgian_idea
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: free_georgia
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: georgian_march
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: victorious_georgia
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: conservatives
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: freedom_gamsakhurdia
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: social_justice_2020
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: georgian_choice
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: justice
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: face_plus
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+sources:
+  - name:
+      en: "Public information requested from the Supreme Electoral Council of Adjara"
+      ka: "აჭარის უმაღლესი საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+
+files:
+  pr_results:           "data/results/adj2020_pr.csv"
+  pr_precinct_results:  "data/results/adj2020_pr_precincts.csv"
+  smd_results:          "data/results/adj2020_smd.csv"
+  smd_precinct_results: "data/results/adj2020_smd_precincts.csv"
+  candidates:           "data/candidates/adj2020_smd_candidates.csv"
+  party_lists:          "data/candidates/adj2020_party_lists.csv"
+  elected:              "data/candidates/adj2020_elected.csv"
+  cartogram:            null
+
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/adj2020_turnout.csv"
+  precinct_file: "data/turnout/adj2020_precincts_turnout.csv"
+  has_snapshots: true
+  has_lists: true
