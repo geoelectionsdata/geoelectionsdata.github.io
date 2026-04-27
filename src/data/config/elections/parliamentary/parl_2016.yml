@@ -53,6 +53,16 @@ sub_elections:
       smd_results:          "data/results/parl2016_smd_runoff.csv"
       smd_precinct_results: "data/results/parl2016_smd_runoff_precincts.csv"
 
+  - id: parl_2016_major54_2018
+    type: by_election
+    date: "2018-04-28"
+    name:
+      en: Majoritarian District 54 by-election (April 28, 2018)
+      ka: №54 მაჟორიტარული ოლქის შუალედური არჩევნები (2018 წლის 28 აპრილი)
+    files:
+      smd_results:          "data/results/parl2016_major54_2018_smd.csv"
+      smd_precinct_results: "data/results/parl2016_major54_2018_smd_precincts.csv"
+
   - id: parl_2016_mtatsminda_2019
     type: by_election
     date: "2019-05-19"
@@ -235,6 +245,49 @@ parties:
   - id: smd_only_44
     seats_pr: 0
     seats_smd: 0
+
+  # Majoritarian District 54 2018 by-election candidates
+  - id: major54_2018_2
+    alias:
+      en: Giorgi Ugulava
+      ka: გიორგი უგულავა
+    color: "#C62828"
+    threshold_status: notrun
+
+  - id: major54_2018_17
+    alias:
+      en: Giorgi Liluashvili
+      ka: გიორგი ლილუაშვილი
+    color: "#8D6E63"
+    threshold_status: notrun
+
+  - id: major54_2018_21
+    alias:
+      en: Zurab Kartvelishvili
+      ka: ზურაბ ქართველიშვილი
+    color: "#78909C"
+    threshold_status: notrun
+
+  - id: major54_2018_23
+    alias:
+      en: Mamuka Tuskadze
+      ka: მამუკა ტუსკაძე
+    color: "#5C6BC0"
+    threshold_status: notrun
+
+  - id: major54_2018_41
+    alias:
+      en: Givi Chichinadze
+      ka: გივი ჭიჭინაძე
+    color: "#1565C0"
+    threshold_status: notrun
+
+  - id: major54_2018_42
+    alias:
+      en: Vasil Kopaliani
+      ka: ვასილ კოპალიანი
+    color: "#43A047"
+    threshold_status: notrun
 
   # Mtatsminda 2019 by-election candidates
   - id: mtatsminda_2019_4

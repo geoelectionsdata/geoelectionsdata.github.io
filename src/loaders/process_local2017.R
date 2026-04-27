@@ -52,6 +52,11 @@ suppressPackageStartupMessages({
 # ── Paths ──────────────────────────────────────────────────────────────────
 EXCEL_R1   <- "src/data/raw/2017  საკრებულო, მერი I ტური.xlsx"
 EXCEL_R2   <- "src/data/raw/2017 მერი II ტური.xlsx"
+BY2018_ZUGDIDI_67_27 <- "src/data/raw/2018 შუალდეური 67.27.xlsx"
+BY2019_LOCAL <- "src/data/raw/2019 შუალედური, მერის რიგგარეშე.xlsx"
+BY2019_OCT_COUNCIL <- "src/data/raw/2019.27.10 საკრებულოს შუალედური.xlsx"
+BY2020_LOCAL <- "src/data/raw/2020 საკრებულო, მერი.xlsx"
+BY2020_MAYOR_R2 <- "src/data/raw/2020 მერი მეორე ტური.xlsx"
 CANDS_PATH <- "src/data/raw/adg_2017_candidates_unified.xlsx"
 PRECINCT_GEO <- "src/data/shp/local2017_precincts.geojson"
 OUT_RESULTS <- "src/data/results"
@@ -164,6 +169,18 @@ write_csv_utf8 <- function(df, path) {
 }
 
 # ── Core sheet reader ──────────────────────────────────────────────────────
+cell_chr <- function(x) {
+  out <- as.character(x)
+  out[is.na(out)] <- ""
+  str_squish(out)
+}
+
+cell_num <- function(x) {
+  out <- suppressWarnings(as.numeric(as.character(x)))
+  out[is.na(out)] <- 0
+  out
+}
+
 read_sheet_long <- function(excel_path, sheet_name, has_major) {
   df <- read_excel(excel_path, sheet = sheet_name, col_names = TRUE)
   df <- df[, colSums(is.na(df)) < nrow(df)]
@@ -794,6 +811,889 @@ maj_prec <- maj_long %>%
          registered, voted, voted_noon, voted_5pm,
          turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
 write_csv_utf8(maj_prec, file.path(OUT_RESULTS, "local2017_council_smd_precincts.csv"))
+
+# ── Zugdidi Sakrebulo SMD 27 by-election, 13 May 2018 ─────────────────────
+cat("Processing Zugdidi 2018 Sakrebulo SMD by-election...\n")
+
+read_zugdidi_2018_council_smd <- function(path) {
+  raw <- read_excel(path, sheet = "maJoritaeuli", col_names = FALSE, .name_repair = "minimal")
+  headers <- cell_chr(unlist(raw[1, ], use.names = FALSE))
+  body <- raw[-1, , drop = FALSE]
+
+  candidate_cols <- which(str_detect(headers, "^\\d+\\s+"))
+  candidate_meta <- tibble(
+    candidate_col = candidate_cols,
+    party_num = str_extract(headers[candidate_cols], "^\\d+"),
+    name_ka = str_squish(str_remove(headers[candidate_cols], "^\\d+\\s+")),
+    party_id = paste0("zugdidi_2018_", party_num)
+  )
+
+  base <- tibble(
+    row_id = seq_len(nrow(body)),
+    electoral_district = cell_chr(body[[1]]),
+    major_label = as.integer(cell_num(body[[2]])),
+    precinct_code = cell_chr(body[[3]]),
+    main_list = as.integer(cell_num(body[[4]])),
+    special_list = as.integer(cell_num(body[[5]])),
+    voted_noon = as.integer(cell_num(body[[6]])),
+    voted_5pm = as.integer(cell_num(body[[7]])),
+    voted = as.integer(cell_num(body[[8]])),
+    ballots_received = as.integer(cell_num(body[[10]])),
+    valid_ballots = as.integer(cell_num(body[[17]])),
+    invalid_ballots = as.integer(cell_num(body[[18]]))
+  ) %>%
+    filter(str_detect(precinct_code, "^\\d+\\.\\d+\\.\\d+$")) %>%
+    mutate(
+      code_part_1 = as.integer(str_split_fixed(precinct_code, fixed("."), 3)[, 1]),
+      district = as.integer(str_split_fixed(precinct_code, fixed("."), 3)[, 2]),
+      precinct_number = as.integer(str_split_fixed(precinct_code, fixed("."), 3)[, 3]),
+      selfgov_id = to_selfgov(district),
+      major_id = to_major_id(district, major_label),
+      precinct_id = district * 1000L + precinct_number,
+      precinct_key = paste(major_id, district, precinct_number, sep = "."),
+      registered = main_list + special_list
+    )
+
+  vote_wide <- base
+  for (i in seq_len(nrow(candidate_meta))) {
+    vote_wide[[candidate_meta$party_id[[i]]]] <-
+      as.integer(cell_num(body[[candidate_meta$candidate_col[[i]]]][base$row_id]))
+  }
+
+  vote_wide %>%
+    pivot_longer(
+      cols = all_of(candidate_meta$party_id),
+      names_to = "party_id",
+      values_to = "votes"
+    ) %>%
+    left_join(candidate_meta %>% select(party_id, party_num, name_ka), by = "party_id") %>%
+    mutate(
+      votes = as.integer(coalesce(votes, 0L)),
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    )
+}
+
+zugdidi_2018_long <- read_zugdidi_2018_council_smd(BY2018_ZUGDIDI_67_27)
+
+zugdidi_2018_turn <- zugdidi_2018_long %>%
+  distinct(major_id, precinct_id, .keep_all = TRUE) %>%
+  group_by(major_id) %>%
+  summarise(
+    registered = sum(registered, na.rm = TRUE),
+    main_list = sum(main_list, na.rm = TRUE),
+    special_list = sum(special_list, na.rm = TRUE),
+    voted = sum(voted, na.rm = TRUE),
+    voted_noon = sum(voted_noon, na.rm = TRUE),
+    voted_5pm = sum(voted_5pm, na.rm = TRUE),
+    invalid_ballots = sum(invalid_ballots, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    turnout_pct = round(voted / registered, 6),
+    noon_pct = round(voted_noon / registered, 6),
+    five_pct = round(voted_5pm / registered, 6),
+    invalid_pct = round(invalid_ballots / voted, 6)
+  )
+
+zugdidi_2018_party <- zugdidi_2018_long %>%
+  group_by(major_id, party_id, name_ka) %>%
+  summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
+  filter(votes > 0)
+
+zugdidi_2018_valid <- zugdidi_2018_party %>%
+  group_by(major_id) %>%
+  summarise(total_valid = sum(votes), .groups = "drop")
+
+zugdidi_2018_dist <- zugdidi_2018_party %>%
+  left_join(zugdidi_2018_valid, by = "major_id") %>%
+  left_join(zugdidi_2018_turn, by = "major_id") %>%
+  mutate(
+    district_id = as.character(major_id),
+    round = 1L,
+    vote_share = round(votes / total_valid, 6)
+  ) %>%
+  select(district_id, party_id, name_ka, round, votes, vote_share,
+         registered, voted, voted_noon, voted_5pm,
+         main_list, special_list, turnout_pct, noon_pct, five_pct,
+         invalid_ballots, invalid_pct)
+
+zugdidi_2018_turn_nat <- zugdidi_2018_turn %>%
+  summarise(across(c(registered, voted, voted_noon, voted_5pm,
+                     main_list, special_list, invalid_ballots), sum)) %>%
+  mutate(
+    turnout_pct = round(voted / registered, 6),
+    noon_pct = round(voted_noon / registered, 6),
+    five_pct = round(voted_5pm / registered, 6),
+    invalid_pct = round(invalid_ballots / voted, 6)
+  )
+
+zugdidi_2018_nat <- zugdidi_2018_party %>%
+  group_by(party_id, name_ka) %>%
+  summarise(votes = sum(votes), .groups = "drop") %>%
+  mutate(
+    district_id = "national",
+    round = 1L,
+    vote_share = round(votes / sum(votes), 6),
+    registered = zugdidi_2018_turn_nat$registered,
+    voted = zugdidi_2018_turn_nat$voted,
+    voted_noon = zugdidi_2018_turn_nat$voted_noon,
+    voted_5pm = zugdidi_2018_turn_nat$voted_5pm,
+    main_list = zugdidi_2018_turn_nat$main_list,
+    special_list = zugdidi_2018_turn_nat$special_list,
+    turnout_pct = zugdidi_2018_turn_nat$turnout_pct,
+    noon_pct = zugdidi_2018_turn_nat$noon_pct,
+    five_pct = zugdidi_2018_turn_nat$five_pct,
+    invalid_ballots = zugdidi_2018_turn_nat$invalid_ballots,
+    invalid_pct = zugdidi_2018_turn_nat$invalid_pct
+  ) %>%
+  select(names(zugdidi_2018_dist))
+
+write_csv_utf8(
+  bind_rows(zugdidi_2018_nat, zugdidi_2018_dist),
+  file.path(OUT_RESULTS, "local2017_zugdidi_2018_council_smd.csv")
+)
+
+zugdidi_2018_prec <- zugdidi_2018_long %>%
+  filter(votes > 0) %>%
+  group_by(precinct_id, major_id, party_id, name_ka) %>%
+  summarise(
+    votes = sum(votes, na.rm = TRUE),
+    precinct_key = first(precinct_key),
+    raw_district_id = first(district),
+    precinct_number = first(precinct_number),
+    registered = first(registered),
+    voted = first(voted),
+    voted_noon = first(voted_noon),
+    voted_5pm = first(voted_5pm),
+    invalid_ballots = first(invalid_ballots),
+    .groups = "drop"
+  ) %>%
+  group_by(precinct_id, major_id) %>%
+  mutate(vote_share = round(votes / sum(votes), 6)) %>%
+  ungroup() %>%
+  mutate(
+    district_id = as.character(major_id),
+    turnout_pct = round(voted / registered, 6),
+    noon_pct = round(voted_noon / registered, 6),
+    five_pct = round(voted_5pm / registered, 6),
+    invalid_pct = round(invalid_ballots / voted, 6)
+  ) %>%
+  select(precinct_id, precinct_key, district_id, raw_district_id, precinct_number,
+         party_id, name_ka, votes, vote_share, registered, voted, voted_noon, voted_5pm,
+         turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
+
+write_csv_utf8(
+  zugdidi_2018_prec,
+  file.path(OUT_RESULTS, "local2017_zugdidi_2018_council_smd_precincts.csv")
+)
+
+write_csv_utf8(smd_dist[0, ], file.path(OUT_RESULTS, "local2017_zugdidi_2018_smd.csv"))
+write_csv_utf8(smd_prec[0, ], file.path(OUT_RESULTS, "local2017_zugdidi_2018_smd_precincts.csv"))
+
+# ── Local by-elections, 19 May 2019: mayors + Sakrebulo SMDs ──────────────
+cat("Processing 2019 local by-elections...\n")
+
+party_id_from_2019_label <- function(label) {
+  n <- str_squish(str_replace_all(coalesce(label, ""), "[„“\"]", ""))
+  case_when(
+    str_detect(n, "სახელმწიფო ხალხ") ~ "burchuladze",
+    str_detect(n, "ევროპული საქართველო") ~ "european_georgia",
+    str_detect(n, "ქრისტიან-დემოკრატიული მოძრაობა") ~ "peoples_movement_2020",
+    str_detect(n, "ერთიანი ნაციონალური") ~ "unm",
+    str_detect(n, "პატრიოტთა ალიანს") ~ "patriots",
+    str_detect(n, "მოძრაობა\\s+თავისუფალი საქართველოსთვის") ~ "free_georgia_movement",
+    str_detect(n, "თავისუფალი საქართველო") ~ "free_georgia",
+    str_detect(n, "^საქართველო$") ~ "georgia_2016",
+    str_detect(n, "ახალი ქრისტიან") ~ "new_christian_democrats",
+    str_detect(n, "სოციალური სამართლიანობის") ~ "social_justice_2020",
+    str_detect(n, "ახალი საქართველო") ~ "vashadze_2017",
+    str_detect(n, "ზვიად გამსახურდიას გზა") ~ "freedom_gamsakhurdia",
+    str_detect(n, "ძალოვან ვეტერან") ~ "veterans",
+    str_detect(n, "ეროვნულ-დემოკრატ") ~ "national_democrats",
+    str_detect(n, "ქრისტიან-კო.?სერვატორ") ~ "conservatives",
+    str_detect(n, "ლეიბორისტ") ~ "labour",
+    str_detect(n, "ლელო") ~ "lelo",
+    str_detect(n, "ტრიბუნა") ~ "tribuna",
+    str_detect(n, "აღმაშენებელი") ~ "agmashenebeli",
+    str_detect(n, "ქართული ოცნება") ~ "gd",
+    str_detect(n, "საინიციატივო ჯგუფ") ~ "initiative_group",
+    TRUE ~ NA_character_
+  )
+}
+
+normalise_2019_sakrebulo_key <- function(key) {
+  dplyr::recode(
+    as.character(key),
+    "56.01" = "56.02",
+    "58.01" = "57.03",
+    "59.04" = "58.04",
+    "60.01" = "60.03",
+    .default = as.character(key)
+  )
+}
+
+read_2019_candidate_lookup <- function(path) {
+  read_excel(path, sheet = "Candidate", col_names = TRUE) %>%
+    rename(election_type = Elections, source_key = District, candidate_text = Name) %>%
+    mutate(
+      election_type = str_squish(as.character(election_type)),
+      source_key = str_squish(as.character(source_key)),
+      candidate_text = str_squish(as.character(candidate_text)),
+      party_num = str_match(candidate_text, "N\\s*(\\d+)")[, 2],
+      name_ka = str_squish(str_split_fixed(candidate_text, "\\s+–\\s+", 2)[, 1]),
+      party_label = candidate_text %>%
+        str_remove("^.*?\\s+–\\s+") %>%
+        str_remove("\\s+–?\\s*N\\s*\\d+.*$") %>%
+        str_squish(),
+      result_key = if_else(
+        election_type == "Sakrebulo SMD",
+        normalise_2019_sakrebulo_key(source_key),
+        source_key
+      ),
+      party_num = if_else(
+        election_type == "Sakrebulo SMD" & result_key == "60.03" & party_num == "28",
+        "38",
+        party_num
+      ),
+      party_id = party_id_from_2019_label(party_label)
+    ) %>%
+    filter(!is.na(party_num), !is.na(party_id)) %>%
+    distinct(election_type, result_key, party_num, .keep_all = TRUE)
+}
+
+candidate_2019 <- read_2019_candidate_lookup(BY2019_LOCAL)
+
+read_2019_mayor_long <- function(path, candidate_lookup) {
+  raw <- read_excel(path, sheet = "მერი", col_names = FALSE, .name_repair = "minimal")
+  headers <- cell_chr(unlist(raw[1, ], use.names = FALSE))
+  body <- raw[-1, , drop = FALSE]
+  candidate_cols <- which(str_detect(headers, "^\\d+$"))
+
+  base <- tibble(
+    row_id = seq_len(nrow(body)),
+    district = as.integer(cell_num(body[[1]])),
+    precinct_number = as.integer(cell_num(body[[2]])),
+    main_list = as.integer(cell_num(body[[3]])),
+    special_list = as.integer(cell_num(body[[4]])),
+    voted_noon = as.integer(cell_num(body[[5]])),
+    voted_5pm = as.integer(cell_num(body[[6]])),
+    voted = as.integer(cell_num(body[[7]])),
+    ballots_received = as.integer(cell_num(body[[9]])),
+    valid_ballots = as.integer(cell_num(body[[29]])),
+    invalid_ballots = as.integer(cell_num(body[[30]]))
+  ) %>%
+    filter(!is.na(district), !is.na(precinct_number), district > 0, precinct_number > 0) %>%
+    mutate(
+      selfgov_id = to_selfgov(district),
+      precinct_id = district * 1000L + precinct_number,
+      registered = main_list + special_list
+    )
+
+  vote_wide <- base
+  for (col in candidate_cols) {
+    vote_wide[[headers[[col]]]] <- as.integer(cell_num(body[[col]][base$row_id]))
+  }
+
+  lookup <- candidate_lookup %>%
+    filter(election_type == "Mayor") %>%
+    mutate(selfgov_id = as.integer(result_key)) %>%
+    select(selfgov_id, party_num, party_id, name_ka)
+
+  vote_wide %>%
+    pivot_longer(cols = all_of(headers[candidate_cols]), names_to = "party_num", values_to = "votes") %>%
+    mutate(party_num = as.character(party_num), votes = as.integer(coalesce(votes, 0L))) %>%
+    left_join(lookup, by = c("selfgov_id", "party_num")) %>%
+    mutate(
+      party_id = coalesce(party_id, paste0("local2019_mayor_", selfgov_id, "_", party_num)),
+      name_ka = coalesce(name_ka, ""),
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    )
+}
+
+read_2019_council_long <- function(path, candidate_lookup) {
+  raw <- read_excel(path, sheet = "საკრებულო", col_names = FALSE, .name_repair = "minimal")
+  headers <- cell_chr(unlist(raw[1, ], use.names = FALSE))
+  body <- raw[-1, , drop = FALSE]
+  candidate_cols <- which(str_detect(headers, "^\\d+$"))
+
+  base <- tibble(
+    row_id = seq_len(nrow(body)),
+    district = as.integer(cell_num(body[[1]])),
+    major_label = as.integer(cell_num(body[[2]])),
+    precinct_raw = cell_chr(body[[3]]),
+    precinct_number = as.integer(cell_num(body[[3]])),
+    main_list = as.integer(cell_num(body[[4]])),
+    special_list = as.integer(cell_num(body[[5]])),
+    voted_noon = as.integer(cell_num(body[[6]])),
+    voted_5pm = as.integer(cell_num(body[[7]])),
+    voted = as.integer(cell_num(body[[8]])),
+    ballots_received = as.integer(cell_num(body[[10]])),
+    valid_ballots = as.integer(cell_num(body[[28]])),
+    invalid_ballots = as.integer(cell_num(body[[29]]))
+  ) %>%
+    filter(!is.na(district), !is.na(major_label), !is.na(precinct_number), precinct_raw != "ჯამი") %>%
+    mutate(
+      result_key = paste0(district, ".", str_pad(major_label, 2, pad = "0")),
+      selfgov_id = to_selfgov(district),
+      precinct_id = district * 1000L + precinct_number,
+      registered = main_list + special_list,
+      major_id_fallback = to_major_id(district, major_label)
+    ) %>%
+    left_join(
+      precinct_join_lookup %>% select(precinct_id, major_id_geo),
+      by = "precinct_id"
+    ) %>%
+    mutate(
+      major_id = coalesce(major_id_geo, major_id_fallback),
+      precinct_key = paste(major_id, district, precinct_number, sep = ".")
+    ) %>%
+    select(-major_id_geo, -major_id_fallback)
+
+  vote_wide <- base
+  for (col in candidate_cols) {
+    vote_wide[[headers[[col]]]] <- as.integer(cell_num(body[[col]][base$row_id]))
+  }
+
+  lookup <- candidate_lookup %>%
+    filter(election_type == "Sakrebulo SMD") %>%
+    select(result_key, party_num, party_id, name_ka)
+
+  vote_wide %>%
+    pivot_longer(cols = all_of(headers[candidate_cols]), names_to = "party_num", values_to = "votes") %>%
+    mutate(party_num = as.character(party_num), votes = as.integer(coalesce(votes, 0L))) %>%
+    left_join(lookup, by = c("result_key", "party_num")) %>%
+    mutate(
+      party_id = coalesce(party_id, paste0("local2019_council_", result_key, "_", party_num)),
+      name_ka = coalesce(name_ka, ""),
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    )
+}
+
+summarise_2019_mayor_dist <- function(df_long) {
+  turn <- df_long %>%
+    distinct(selfgov_id, precinct_id, .keep_all = TRUE) %>%
+    group_by(selfgov_id) %>%
+    summarise(
+      registered = sum(registered, na.rm = TRUE),
+      main_list = sum(main_list, na.rm = TRUE),
+      special_list = sum(special_list, na.rm = TRUE),
+      voted = sum(voted, na.rm = TRUE),
+      voted_noon = sum(voted_noon, na.rm = TRUE),
+      voted_5pm = sum(voted_5pm, na.rm = TRUE),
+      invalid_ballots = sum(invalid_ballots, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    mutate(
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    )
+
+  party <- df_long %>%
+    group_by(selfgov_id, party_id, party_num, name_ka) %>%
+    summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
+    filter(votes > 0)
+
+  valid <- party %>%
+    group_by(selfgov_id) %>%
+    summarise(total_valid = sum(votes), .groups = "drop")
+
+  local <- party %>%
+    left_join(valid, by = "selfgov_id") %>%
+    left_join(turn, by = "selfgov_id") %>%
+    mutate(
+      district_id = as.character(selfgov_id),
+      round = 1L,
+      vote_share = round(votes / total_valid, 6)
+    ) %>%
+    select(district_id, party_id, party_num, name_ka, round, votes, vote_share,
+           registered, voted, voted_noon, voted_5pm,
+           main_list, special_list, turnout_pct, noon_pct, five_pct,
+           invalid_ballots, invalid_pct)
+
+  turn_nat <- turn %>%
+    summarise(across(c(registered, voted, voted_noon, voted_5pm,
+                       main_list, special_list, invalid_ballots), sum)) %>%
+    mutate(
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    )
+
+  national <- party %>%
+    group_by(party_id) %>%
+    summarise(votes = sum(votes), .groups = "drop") %>%
+    mutate(
+      district_id = "national",
+      party_num = "",
+      name_ka = "",
+      round = 1L,
+      vote_share = round(votes / sum(votes), 6),
+      registered = turn_nat$registered,
+      voted = turn_nat$voted,
+      voted_noon = turn_nat$voted_noon,
+      voted_5pm = turn_nat$voted_5pm,
+      main_list = turn_nat$main_list,
+      special_list = turn_nat$special_list,
+      turnout_pct = turn_nat$turnout_pct,
+      noon_pct = turn_nat$noon_pct,
+      five_pct = turn_nat$five_pct,
+      invalid_ballots = turn_nat$invalid_ballots,
+      invalid_pct = turn_nat$invalid_pct
+    ) %>%
+    select(names(local))
+
+  bind_rows(national, local)
+}
+
+summarise_2019_mayor_prec <- function(df_long) {
+  df_long %>%
+    filter(votes > 0) %>%
+    group_by(precinct_id, selfgov_id, party_id, party_num, name_ka) %>%
+    summarise(
+      votes = sum(votes, na.rm = TRUE),
+      registered = first(registered),
+      voted = first(voted),
+      voted_noon = first(voted_noon),
+      voted_5pm = first(voted_5pm),
+      invalid_ballots = first(invalid_ballots),
+      .groups = "drop"
+    ) %>%
+    group_by(precinct_id) %>%
+    mutate(vote_share = round(votes / sum(votes), 6)) %>%
+    ungroup() %>%
+    mutate(
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    ) %>%
+    select(precinct_id, selfgov_id, party_id, party_num, name_ka, votes, vote_share,
+           registered, voted, voted_noon, voted_5pm,
+           turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
+}
+
+summarise_2019_council_dist <- function(df_long) {
+  turn <- df_long %>%
+    distinct(major_id, precinct_id, .keep_all = TRUE) %>%
+    group_by(major_id) %>%
+    summarise(
+      registered = sum(registered, na.rm = TRUE),
+      main_list = sum(main_list, na.rm = TRUE),
+      special_list = sum(special_list, na.rm = TRUE),
+      voted = sum(voted, na.rm = TRUE),
+      voted_noon = sum(voted_noon, na.rm = TRUE),
+      voted_5pm = sum(voted_5pm, na.rm = TRUE),
+      invalid_ballots = sum(invalid_ballots, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    mutate(
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    )
+
+  party <- df_long %>%
+    group_by(major_id, party_id, name_ka) %>%
+    summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
+    filter(votes > 0)
+
+  valid <- party %>%
+    group_by(major_id) %>%
+    summarise(total_valid = sum(votes), .groups = "drop")
+
+  local <- party %>%
+    left_join(valid, by = "major_id") %>%
+    left_join(turn, by = "major_id") %>%
+    mutate(
+      district_id = as.character(major_id),
+      round = 1L,
+      vote_share = round(votes / total_valid, 6)
+    ) %>%
+    select(district_id, party_id, name_ka, round, votes, vote_share,
+           registered, voted, voted_noon, voted_5pm,
+           main_list, special_list, turnout_pct, noon_pct, five_pct,
+           invalid_ballots, invalid_pct)
+
+  turn_nat <- turn %>%
+    summarise(across(c(registered, voted, voted_noon, voted_5pm,
+                       main_list, special_list, invalid_ballots), sum)) %>%
+    mutate(
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    )
+
+  national <- party %>%
+    group_by(party_id) %>%
+    summarise(votes = sum(votes), .groups = "drop") %>%
+    mutate(
+      district_id = "national",
+      name_ka = "",
+      round = 1L,
+      vote_share = round(votes / sum(votes), 6),
+      registered = turn_nat$registered,
+      voted = turn_nat$voted,
+      voted_noon = turn_nat$voted_noon,
+      voted_5pm = turn_nat$voted_5pm,
+      main_list = turn_nat$main_list,
+      special_list = turn_nat$special_list,
+      turnout_pct = turn_nat$turnout_pct,
+      noon_pct = turn_nat$noon_pct,
+      five_pct = turn_nat$five_pct,
+      invalid_ballots = turn_nat$invalid_ballots,
+      invalid_pct = turn_nat$invalid_pct
+    ) %>%
+    select(names(local))
+
+  bind_rows(national, local)
+}
+
+summarise_2019_council_prec <- function(df_long) {
+  df_long %>%
+    filter(votes > 0) %>%
+    group_by(precinct_id, major_id, party_id, name_ka) %>%
+    summarise(
+      votes = sum(votes, na.rm = TRUE),
+      precinct_key = first(precinct_key),
+      raw_district_id = first(district),
+      precinct_number = first(precinct_number),
+      registered = first(registered),
+      voted = first(voted),
+      voted_noon = first(voted_noon),
+      voted_5pm = first(voted_5pm),
+      invalid_ballots = first(invalid_ballots),
+      .groups = "drop"
+    ) %>%
+    group_by(precinct_id, major_id) %>%
+    mutate(vote_share = round(votes / sum(votes), 6)) %>%
+    ungroup() %>%
+    mutate(
+      district_id = as.character(major_id),
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    ) %>%
+    select(precinct_id, precinct_key, district_id, raw_district_id, precinct_number,
+           party_id, name_ka, votes, vote_share, registered, voted, voted_noon, voted_5pm,
+           turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
+}
+
+local2019_mayor_long <- read_2019_mayor_long(BY2019_LOCAL, candidate_2019)
+local2019_council_long <- read_2019_council_long(BY2019_LOCAL, candidate_2019)
+
+write_csv_utf8(
+  summarise_2019_mayor_dist(local2019_mayor_long),
+  file.path(OUT_RESULTS, "local2017_2019_byelections_smd.csv")
+)
+write_csv_utf8(
+  summarise_2019_mayor_prec(local2019_mayor_long),
+  file.path(OUT_RESULTS, "local2017_2019_byelections_smd_precincts.csv")
+)
+write_csv_utf8(
+  summarise_2019_council_dist(local2019_council_long),
+  file.path(OUT_RESULTS, "local2017_2019_byelections_council_smd.csv")
+)
+write_csv_utf8(
+  summarise_2019_council_prec(local2019_council_long),
+  file.path(OUT_RESULTS, "local2017_2019_byelections_council_smd_precincts.csv")
+)
+
+# ── Sakrebulo SMD by-elections, 27 October 2019 ────────────────────────────
+cat("Processing October 2019 Sakrebulo SMD by-elections...\n")
+
+read_2019_oct_candidate_lookup <- function(path) {
+  read_excel(path, sheet = "Candidates", col_names = TRUE) %>%
+    rename(election_type = Elections, result_key = District, name_ka = Name, party_text = Party) %>%
+    mutate(
+      result_key = str_squish(as.character(result_key)),
+      name_ka = str_squish(as.character(name_ka)),
+      party_text = str_squish(as.character(party_text)),
+      party_num = str_extract(party_text, "^\\d+"),
+      party_label = str_squish(str_remove(party_text, "^\\d+\\s+")),
+      party_id = party_id_from_2019_label(party_label)
+    ) %>%
+    filter(!is.na(party_num), !is.na(party_id)) %>%
+    select(result_key, party_num, party_id, name_ka) %>%
+    distinct(result_key, party_num, .keep_all = TRUE)
+}
+
+read_2019_oct_council_long <- function(path, candidate_lookup) {
+  raw <- read_excel(path, sheet = "შედეგები", col_names = FALSE, .name_repair = "minimal")
+  headers <- cell_chr(unlist(raw[1, ], use.names = FALSE))
+  body <- raw[-1, , drop = FALSE]
+  candidate_cols <- which(str_detect(headers, "^\\d+$"))
+
+  base <- tibble(
+    row_id = seq_len(nrow(body)),
+    district = as.integer(cell_num(body[[1]])),
+    district_name = cell_chr(body[[2]]),
+    major_label = as.integer(cell_num(body[[3]])),
+    precinct_raw = cell_chr(body[[4]]),
+    precinct_number = as.integer(cell_num(body[[4]])),
+    main_list = as.integer(cell_num(body[[5]])),
+    special_list = as.integer(cell_num(body[[6]])),
+    voted_noon = as.integer(cell_num(body[[7]])),
+    voted_5pm = as.integer(cell_num(body[[8]])),
+    voted = as.integer(cell_num(body[[9]])),
+    ballots_received = as.integer(cell_num(body[[11]])),
+    invalid_ballots = as.integer(cell_num(body[[18]])),
+    valid_ballots = as.integer(cell_num(body[[20]]))
+  ) %>%
+    filter(!is.na(district), !is.na(major_label), !is.na(precinct_number), precinct_raw != "ჯამი") %>%
+    mutate(
+      result_key = paste0(district, ".", str_pad(major_label, 2, pad = "0")),
+      selfgov_id = to_selfgov(district),
+      precinct_id = district * 1000L + precinct_number,
+      registered = main_list + special_list,
+      major_id_fallback = to_major_id(district, major_label)
+    ) %>%
+    left_join(
+      precinct_join_lookup %>% select(precinct_id, major_id_geo),
+      by = "precinct_id"
+    ) %>%
+    mutate(
+      major_id = coalesce(major_id_geo, major_id_fallback),
+      precinct_key = paste(major_id, district, precinct_number, sep = ".")
+    ) %>%
+    select(-major_id_geo, -major_id_fallback)
+
+  vote_wide <- base
+  for (col in candidate_cols) {
+    vote_wide[[headers[[col]]]] <- as.integer(cell_num(body[[col]][base$row_id]))
+  }
+
+  vote_wide %>%
+    pivot_longer(cols = all_of(headers[candidate_cols]), names_to = "party_num", values_to = "votes") %>%
+    mutate(party_num = as.character(party_num), votes = as.integer(coalesce(votes, 0L))) %>%
+    left_join(candidate_lookup, by = c("result_key", "party_num")) %>%
+    mutate(
+      party_id = coalesce(party_id, paste0("local2019_oct_council_", result_key, "_", party_num)),
+      name_ka = coalesce(name_ka, ""),
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    )
+}
+
+candidate_2019_oct <- read_2019_oct_candidate_lookup(BY2019_OCT_COUNCIL)
+local2019_oct_council_long <- read_2019_oct_council_long(BY2019_OCT_COUNCIL, candidate_2019_oct)
+
+write_csv_utf8(
+  summarise_2019_council_dist(local2019_oct_council_long),
+  file.path(OUT_RESULTS, "local2017_2019_oct_byelections_council_smd.csv")
+)
+write_csv_utf8(
+  summarise_2019_council_prec(local2019_oct_council_long),
+  file.path(OUT_RESULTS, "local2017_2019_oct_byelections_council_smd_precincts.csv")
+)
+write_csv_utf8(smd_dist[0, ], file.path(OUT_RESULTS, "local2017_2019_oct_byelections_smd.csv"))
+write_csv_utf8(smd_prec[0, ], file.path(OUT_RESULTS, "local2017_2019_oct_byelections_smd_precincts.csv"))
+
+# ── Local by-elections, 31 October 2020: mayors + Sakrebulo SMDs ──────────
+cat("Processing 2020 local by-elections...\n")
+
+precinct_number_from_code <- function(code) {
+  suppressWarnings(as.integer(str_split_fixed(cell_chr(code), fixed("."), 3)[, 3]))
+}
+
+read_2020_mayor_candidates <- function(path) {
+  raw <- read_excel(path, sheet = "Mayoral candidates", col_names = FALSE, .name_repair = "minimal")
+  body <- raw[-1, , drop = FALSE]
+  tibble(
+    selfgov_id = as.integer(cell_num(body[[1]])),
+    party_num = as.character(as.integer(cell_num(body[[3]]))),
+    party_label = cell_chr(body[[4]]),
+    name_ka = str_squish(paste(cell_chr(body[[5]]), cell_chr(body[[6]])))
+  ) %>%
+    mutate(party_id = party_id_from_2019_label(party_label)) %>%
+    filter(!is.na(selfgov_id), !is.na(party_num), !is.na(party_id)) %>%
+    distinct(selfgov_id, party_num, .keep_all = TRUE)
+}
+
+read_2020_council_candidates <- function(path) {
+  raw <- read_excel(path, sheet = "Sakrebulo candidates", col_names = FALSE, .name_repair = "minimal")
+  body <- raw[-1, , drop = FALSE]
+  tibble(
+    district = as.integer(cell_num(body[[1]])),
+    major_label = as.integer(cell_num(body[[3]])),
+    party_num = as.character(as.integer(cell_num(body[[4]]))),
+    party_label = cell_chr(body[[5]]),
+    name_ka = str_squish(paste(cell_chr(body[[6]]), cell_chr(body[[7]])))
+  ) %>%
+    mutate(
+      result_key = paste0(district, ".", str_pad(major_label, 2, pad = "0")),
+      party_id = party_id_from_2019_label(party_label)
+    ) %>%
+    filter(!is.na(district), !is.na(major_label), !is.na(party_num), !is.na(party_id)) %>%
+    distinct(result_key, party_num, .keep_all = TRUE) %>%
+    select(result_key, party_num, party_id, name_ka)
+}
+
+read_2020_mayor_long <- function(path, sheet_name, candidate_lookup) {
+  raw <- read_excel(path, sheet = sheet_name, col_names = FALSE, .name_repair = "minimal")
+  headers <- cell_chr(unlist(raw[1, ], use.names = FALSE))
+  body <- raw[-1, , drop = FALSE]
+  candidate_cols <- which(str_detect(headers, "^\\d+"))
+
+  valid_col <- if (sheet_name == "მერი მეორე ტური") 11L else 19L
+  invalid_col <- if (sheet_name == "მერი მეორე ტური") 12L else 20L
+
+  base <- tibble(
+    row_id = seq_len(nrow(body)),
+    district = as.integer(cell_num(body[[1]])),
+    precinct_code = cell_chr(body[[2]]),
+    precinct_number = precinct_number_from_code(body[[2]]),
+    main_list = as.integer(cell_num(body[[3]])),
+    special_list = as.integer(cell_num(body[[4]])),
+    voted_noon = as.integer(cell_num(body[[5]])),
+    voted_5pm = as.integer(cell_num(body[[6]])),
+    voted = as.integer(cell_num(body[[7]])),
+    ballots_received = as.integer(cell_num(body[[8]])),
+    valid_ballots = as.integer(cell_num(body[[valid_col]])),
+    invalid_ballots = as.integer(cell_num(body[[invalid_col]]))
+  ) %>%
+    filter(!is.na(district), !is.na(precinct_number), precinct_code != "ჯამი") %>%
+    mutate(
+      selfgov_id = to_selfgov(district),
+      precinct_id = district * 1000L + precinct_number,
+      registered = main_list + special_list
+    )
+
+  vote_wide <- base
+  for (col in candidate_cols) {
+    party_num <- str_extract(headers[[col]], "^\\d+")
+    vote_wide[[party_num]] <- as.integer(cell_num(body[[col]][base$row_id]))
+  }
+
+  lookup <- candidate_lookup %>%
+    mutate(selfgov_id = as.integer(selfgov_id), party_num = as.character(party_num)) %>%
+    select(selfgov_id, party_num, party_id, name_ka)
+
+  vote_cols <- unique(str_extract(headers[candidate_cols], "^\\d+"))
+  vote_wide %>%
+    pivot_longer(cols = all_of(vote_cols), names_to = "party_num", values_to = "votes") %>%
+    mutate(party_num = as.character(party_num), votes = as.integer(coalesce(votes, 0L))) %>%
+    left_join(lookup, by = c("selfgov_id", "party_num")) %>%
+    mutate(
+      party_id = coalesce(party_id, paste0("local2020_mayor_", selfgov_id, "_", party_num)),
+      name_ka = coalesce(name_ka, ""),
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    )
+}
+
+read_2020_council_long <- function(path, candidate_lookup) {
+  raw <- read_excel(path, sheet = "საკრებულო", col_names = FALSE, .name_repair = "minimal")
+  headers <- cell_chr(unlist(raw[1, ], use.names = FALSE))
+  body <- raw[-1, , drop = FALSE]
+  candidate_cols <- which(str_detect(headers, "^\\d+$"))
+
+  base <- tibble(
+    row_id = seq_len(nrow(body)),
+    district = as.integer(cell_num(body[[1]])),
+    precinct_code = cell_chr(body[[2]]),
+    precinct_number = precinct_number_from_code(body[[2]]),
+    main_list = as.integer(cell_num(body[[3]])),
+    special_list = as.integer(cell_num(body[[4]])),
+    voted_noon = as.integer(cell_num(body[[5]])),
+    voted_5pm = as.integer(cell_num(body[[6]])),
+    voted = as.integer(cell_num(body[[7]])),
+    ballots_received = as.integer(cell_num(body[[8]])),
+    valid_ballots = as.integer(cell_num(body[[16]])),
+    invalid_ballots = as.integer(cell_num(body[[17]])),
+    major_label = as.integer(cell_num(body[[18]]))
+  ) %>%
+    filter(!is.na(district), !is.na(major_label), !is.na(precinct_number), precinct_code != "ჯამი") %>%
+    mutate(
+      result_key = paste0(district, ".", str_pad(major_label, 2, pad = "0")),
+      selfgov_id = to_selfgov(district),
+      precinct_id = district * 1000L + precinct_number,
+      registered = main_list + special_list,
+      major_id_fallback = to_major_id(district, major_label)
+    ) %>%
+    left_join(
+      precinct_join_lookup %>% select(precinct_id, major_id_geo),
+      by = "precinct_id"
+    ) %>%
+    mutate(
+      major_id = coalesce(major_id_geo, major_id_fallback),
+      precinct_key = paste(major_id, district, precinct_number, sep = ".")
+    ) %>%
+    select(-major_id_geo, -major_id_fallback)
+
+  vote_wide <- base
+  for (col in candidate_cols) {
+    vote_wide[[headers[[col]]]] <- as.integer(cell_num(body[[col]][base$row_id]))
+  }
+
+  lookup <- candidate_lookup %>%
+    select(result_key, party_num, party_id, name_ka)
+
+  vote_wide %>%
+    pivot_longer(cols = all_of(headers[candidate_cols]), names_to = "party_num", values_to = "votes") %>%
+    mutate(party_num = as.character(party_num), votes = as.integer(coalesce(votes, 0L))) %>%
+    left_join(lookup, by = c("result_key", "party_num")) %>%
+    mutate(
+      party_id = coalesce(party_id, paste0("local2020_council_", result_key, "_", party_num)),
+      name_ka = coalesce(name_ka, ""),
+      turnout_pct = round(voted / registered, 6),
+      noon_pct = round(voted_noon / registered, 6),
+      five_pct = round(voted_5pm / registered, 6),
+      invalid_pct = round(invalid_ballots / voted, 6)
+    )
+}
+
+candidate_2020_mayor <- read_2020_mayor_candidates(BY2020_LOCAL)
+candidate_2020_council <- read_2020_council_candidates(BY2020_LOCAL)
+local2020_mayor_long <- read_2020_mayor_long(BY2020_LOCAL, "მერი", candidate_2020_mayor)
+local2020_council_long <- read_2020_council_long(BY2020_LOCAL, candidate_2020_council)
+local2020_mayor_r2_long <- read_2020_mayor_long(BY2020_MAYOR_R2, "მერი მეორე ტური", candidate_2020_mayor)
+
+write_csv_utf8(
+  summarise_2019_mayor_dist(local2020_mayor_long),
+  file.path(OUT_RESULTS, "local2017_2020_byelections_smd.csv")
+)
+write_csv_utf8(
+  summarise_2019_mayor_prec(local2020_mayor_long),
+  file.path(OUT_RESULTS, "local2017_2020_byelections_smd_precincts.csv")
+)
+write_csv_utf8(
+  summarise_2019_council_dist(local2020_council_long),
+  file.path(OUT_RESULTS, "local2017_2020_byelections_council_smd.csv")
+)
+write_csv_utf8(
+  summarise_2019_council_prec(local2020_council_long),
+  file.path(OUT_RESULTS, "local2017_2020_byelections_council_smd_precincts.csv")
+)
+
+write_csv_utf8(
+  summarise_2019_mayor_dist(local2020_mayor_r2_long) %>% mutate(round = 2L),
+  file.path(OUT_RESULTS, "local2017_2020_byelections_smd_runoff.csv")
+)
+write_csv_utf8(
+  summarise_2019_mayor_prec(local2020_mayor_r2_long),
+  file.path(OUT_RESULTS, "local2017_2020_byelections_smd_runoff_precincts.csv")
+)
+write_csv_utf8(maj_dist[0, ], file.path(OUT_RESULTS, "local2017_2020_byelections_council_smd_runoff.csv"))
+write_csv_utf8(maj_prec[0, ], file.path(OUT_RESULTS, "local2017_2020_byelections_council_smd_runoff_precincts.csv"))
 
 # ════════════════════════════════════════════════════════════════════════════
 # 5. SEATS from elected politicians list

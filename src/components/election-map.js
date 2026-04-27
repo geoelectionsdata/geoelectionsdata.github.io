@@ -86,9 +86,10 @@ export async function buildElectionMap({
   precinctGeoPath, precinctCsvPath, precinctTurnout,
   _precinctGeoRegistryUrl, _precinctCsvRegistryUrl,
   seatsData, _districtRows, _allCouncilSMDResults, _invalidMax,
-  _mapCtrl, _mapState, _turnoutMetricCtrl, mapContainer,
+  _mapCtrl, _mapState, _turnoutMetricCtrl, _levelCtrl, _partyCtrl, mapContainer,
   partyColor, passed,
   renderTurnoutPanel, renderDistrictPanel, updateCouncilSeats,
+  shareUrlForCurrentMap,
   invalidation
 }) {
   // Restore saved view if we're staying on the same election (e.g. switching viewMode)
@@ -687,9 +688,10 @@ export async function buildElectionMap({
         ];
     const multiLevel = availableLevels.length > 1;
     // In council SMD turnout mode, default to selfgov (broadest level with turnout data)
-    let currentLevel = _councilSMD
+    const defaultLevel = _councilSMD
       ? (viewMode === "turnout" && selfgovLayer ? "selfgov" : (councilDistrictLayer ? "council_district" : "district"))
       : (selfgovLayer ? "selfgov" : "district");
+    let currentLevel = availableLevels.some(lvl => lvl.id === _levelCtrl?.value) ? _levelCtrl.value : defaultLevel;
 
     function refreshPartyFilter() {
       if (_mapCtrl.current?.currentPartyId) {
@@ -699,6 +701,8 @@ export async function buildElectionMap({
 
     function applyLevel(levelId, controlDiv) {
       currentLevel = levelId;
+      if (_levelCtrl) _levelCtrl.value = currentLevel;
+      if (_mapCtrl.current) _mapCtrl.current.currentLevel = currentLevel;
       if (levelId === "selfgov" && selfgovLayer) {
         if (!map.hasLayer(selfgovLayer)) selfgovLayer.addTo(map);
         districtLayer.setStyle(DISTRICT_HOLLOW);
@@ -899,11 +903,58 @@ export async function buildElectionMap({
     });
     new ZoomHomeControl({ position: "topleft" }).addTo(map);
 
+    // ── Share button (below Tbilisi zoom button, same gap as between controls) ─
+    if (shareUrlForCurrentMap) {
+      const _shareIcon = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>`;
+      const _checkIcon = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+      const ShareControl = L.Control.extend({
+        onAdd() {
+          const container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
+          const btn = L.DomUtil.create("a", "", container);
+          btn.href = "#";
+          const _label = lang === "ka" ? "ბმულის კოპირება" : "Copy share link";
+          btn.title = _label;
+          btn.setAttribute("role", "button");
+          btn.setAttribute("aria-label", _label);
+          btn.style.cssText = "display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#444;text-decoration:none;";
+          btn.innerHTML = _shareIcon;
+          L.DomEvent.on(btn, "click", async e => {
+            L.DomEvent.preventDefault(e);
+            const url = shareUrlForCurrentMap();
+            try {
+              await navigator.clipboard.writeText(url);
+              btn.innerHTML = _checkIcon;
+              btn.style.color = "#2d7d46";
+              setTimeout(() => { btn.innerHTML = _shareIcon; btn.style.color = "#444"; }, 1200);
+            } catch {
+              window.prompt(_label, url);
+            }
+          });
+          L.DomEvent.disableClickPropagation(container);
+          return container;
+        }
+      });
+      new ShareControl({ position: "topleft" }).addTo(map);
+    }
+
     // Expose imperative map controls for bar chart clicks (toggles party filter)
     _mapCtrl.current = {
       currentPartyId: null,
-      currentTurnoutMetric: "final",
+      currentTurnoutMetric: _turnoutMetricCtrl.value ?? "final",
+      currentLevel,
       legendDiv: _legendCtrl.getContainer(),
+
+      getShareState() {
+        const center = map.getCenter();
+        return {
+          lat: center.lat,
+          lng: center.lng,
+          z: map.getZoom(),
+          level: currentLevel,
+          party: this.currentPartyId,
+          metric: this.currentTurnoutMetric
+        };
+      },
 
       setTurnoutMetric(metric) {
         this.currentTurnoutMetric = metric;
@@ -930,6 +981,7 @@ export async function buildElectionMap({
         // Radio behaviour: clicking the active party deselects; clicking a new one replaces
         const newId = force ? partyId : (this.currentPartyId === partyId ? null : partyId);
         this.currentPartyId = newId;
+        if (_partyCtrl) _partyCtrl.value = newId;
 
         // Visual feedback: highlight matching rows in bar chart and district/precinct tables
         document.querySelectorAll(".bar-row[data-party-id]").forEach(row => {
@@ -1050,6 +1102,10 @@ export async function buildElectionMap({
         });
       }
     };
+
+    if (viewMode !== "turnout" && _partyCtrl?.value) {
+      _mapCtrl.current.setPartyFilter(_partyCtrl.value, true);
+    }
   }
 
   setTimeout(() => map.invalidateSize(), 150);

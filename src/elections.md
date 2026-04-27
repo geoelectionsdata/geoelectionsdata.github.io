@@ -33,6 +33,23 @@ const t = k => tr(dict, lang, k);
 const _urlParams    = new URLSearchParams(window.location.search);
 const _typeCtrl     = {value: _urlParams.get("type") ?? "parliamentary"};
 const _electionCtrl = {value: _urlParams.get("election") ?? null};
+const _subCtrl      = {value: _urlParams.get("sub") ?? "__main__"};
+const _ballotCtrl   = {value: _urlParams.get("ballot") ?? "mayor"};
+const _voteCtrl     = {value: _urlParams.get("vote") ?? null};
+const _mapModeCtrl  = {value: _urlParams.get("map") ?? "geographic"};
+const _levelCtrl    = {value: _urlParams.get("level") ?? null};
+const _partyCtrl    = {value: _urlParams.get("party") ?? null};
+
+function updateUrlParams(updates = {}, deletes = []) {
+  const p = new URLSearchParams(window.location.search);
+  for (const key of deletes) p.delete(key);
+  for (const [key, value] of Object.entries(updates)) {
+    if (value == null || value === "" || value === "__default__") p.delete(key);
+    else p.set(key, value);
+  }
+  const query = p.toString();
+  history.replaceState(null, "", `${window.location.pathname}${query ? "?" + query : ""}${window.location.hash}`);
+}
 ```
 
 ```js
@@ -45,9 +62,7 @@ const typeInput = Inputs.select(
 );
 typeInput.addEventListener("input", () => {
   _typeCtrl.value = typeInput.value;
-  const _p = new URLSearchParams(window.location.search);
-  _p.set("type", typeInput.value); _p.delete("election");
-  history.replaceState(null, "", "?" + _p.toString());
+  updateUrlParams({type: typeInput.value}, ["election", "sub", "ballot", "vote", "view", "metric", "map", "level", "party", "lat", "lng", "z"]);
 });
 const typeVal = Generators.input(typeInput);
 ```
@@ -66,9 +81,10 @@ const electionInput = Inputs.select(
 );
 electionInput.addEventListener("input", () => {
   _electionCtrl.value = electionInput.value?.id ?? null;
-  const _p = new URLSearchParams(window.location.search);
-  if (electionInput.value?.id) _p.set("election", electionInput.value.id);
-  history.replaceState(null, "", "?" + _p.toString());
+  updateUrlParams(
+    {election: electionInput.value?.id ?? null},
+    ["sub", "ballot", "vote", "view", "metric", "map", "level", "party", "lat", "lng", "z"]
+  );
 });
 const electionVal = Generators.input(electionInput);
 ```
@@ -80,9 +96,13 @@ const hasCouncil = isLocal && !!(electionVal?.files?.council_pr_results);
 
 const ballotTypeInput = Inputs.radio(
   hasCouncil ? ["mayor", "council"] : ["mayor"],
-  { value: "mayor",
+  { value: (hasCouncil && _ballotCtrl.value === "council") ? "council" : "mayor",
     format: k => k === "mayor" ? t("elections.local.mayor") : t("elections.local.council") }
 );
+ballotTypeInput.addEventListener("input", () => {
+  _ballotCtrl.value = ballotTypeInput.value;
+  updateUrlParams({ballot: isLocal ? ballotTypeInput.value : null}, ["level", "party", "lat", "lng", "z"]);
+});
 const ballotTypeVal = Generators.input(ballotTypeInput);
 ```
 
@@ -97,10 +117,15 @@ const hasSubElections = subElections.length > 0;
 // Plebiscite: questions only (no __main__ option), always start at first question
 const subElectionItems = isPlebisciteEarly
   ? subElections
-  : [{id: "__main__", name: {en: "Main election", ka: "მთავარი"}}, ...subElections];
+  : [{id: "__main__", name: {en: "Main election", ka: "ძირითადი კენჭისყრა"}}, ...subElections];
 // All elections: sub-election shown as a dropdown in the top section
 const subElectionInput = Inputs.select(subElectionItems, {
-  format: e => e.name?.[lang] || e.name?.en || e.id
+  format: e => e.name?.[lang] || e.name?.en || e.id,
+  value: subElectionItems.find(e => e.id === _subCtrl.value) ?? subElectionItems[0]
+});
+subElectionInput.addEventListener("input", () => {
+  _subCtrl.value = subElectionInput.value?.id ?? "__main__";
+  updateUrlParams({sub: _subCtrl.value === "__main__" ? null : _subCtrl.value}, ["level", "party", "lat", "lng", "z"]);
 });
 const subVal = Generators.input(subElectionInput);
 ```
@@ -119,12 +144,16 @@ const voteTypeOptions = [
 ];
 
 const voteTypeInput = Inputs.radio(voteTypeOptions, {
-  value: voteTypeOptions[0] ?? "pr",
+  value: voteTypeOptions.includes(_voteCtrl.value) ? _voteCtrl.value : (voteTypeOptions[0] ?? "pr"),
   format: k => ({
     pr:           t("elections.vote_type.party_list"),
     smd:          t("elections.vote_type.smd"),
     compensation: t("elections.vote_type.compensation")
   })[k]
+});
+voteTypeInput.addEventListener("input", () => {
+  _voteCtrl.value = voteTypeInput.value;
+  updateUrlParams({vote: voteTypeInput.value}, ["level", "party", "lat", "lng", "z"]);
 });
 const voteTypeVal = Generators.input(voteTypeInput);
 ```
@@ -156,8 +185,12 @@ const mapModeInput = Inputs.radio([
   "geographic",
   // "cartogram", // Hidden while cartogram views are being redesigned.
 ], {
-  value: "geographic",
+  value: _mapModeCtrl.value === "cartogram" ? "cartogram" : "geographic",
   format: k => k === "geographic" ? t("elections.mode.geo") : t("elections.mode.cart")
+});
+mapModeInput.addEventListener("input", () => {
+  _mapModeCtrl.value = mapModeInput.value;
+  updateUrlParams({map: mapModeInput.value === "geographic" ? null : mapModeInput.value}, ["level", "party", "lat", "lng", "z"]);
 });
 const mapMode = Generators.input(mapModeInput);
 ```
@@ -178,7 +211,7 @@ const hasSelfGov = isLocal && !!(electionVal?.system?.pr?.selfgov_shape_file);
 
 ```js
 // ── Stable state objects — each in its own no-dep cell so they run ONCE and survive re-renders ──
-const _viewModeCtrl    = {value: "results"};  // persists view mode across language switches
+const _viewModeCtrl    = {value: ["results", "turnout"].includes(_urlParams.get("view")) ? _urlParams.get("view") : "results"};  // persists view mode across language switches
 ```
 
 ```js
@@ -190,14 +223,17 @@ const viewModeInput = Inputs.radio(["results", "turnout"], {
   value: _viewModeCtrl.value,
   format: k => k === "results" ? t("elections.view_mode.results") : t("elections.view_mode.turnout")
 });
-viewModeInput.addEventListener("input", () => { _viewModeCtrl.value = viewModeInput.value; });
+viewModeInput.addEventListener("input", () => {
+  _viewModeCtrl.value = viewModeInput.value;
+  updateUrlParams({view: viewModeInput.value === "results" ? null : viewModeInput.value}, ["party"]);
+});
 const viewMode = Generators.input(viewModeInput);
 ```
 
 ```js
 // ── Turnout metric — controlled imperatively via _mapCtrl (like party filter) ─
 const _turnoutMetrics = ["final", "noon", "5pm", "invalid"];
-const _turnoutMetricCtrl = {value: "final"};  // mutated by setTurnoutMetric
+const _turnoutMetricCtrl = {value: _turnoutMetrics.includes(_urlParams.get("metric")) ? _urlParams.get("metric") : "final"};  // mutated by setTurnoutMetric
 ```
 
 ```js
@@ -617,7 +653,41 @@ function selectPartyOnMap(partyId) { _mapCtrl.current?.setPartyFilter(partyId); 
 
 // Persistent map view state — survives reactive re-renders so zoom/pan is preserved
 // when switching view mode (results ↔ turnout) without changing the election.
-const _mapState = { center: [42.1, 43.0], zoom: 7, elecId: null };
+const _urlLat = Number(_urlParams.get("lat"));
+const _urlLng = Number(_urlParams.get("lng"));
+const _urlZoom = Number(_urlParams.get("z"));
+const _mapState = {
+  center: Number.isFinite(_urlLat) && Number.isFinite(_urlLng) ? [_urlLat, _urlLng] : [42.1, 43.0],
+  zoom: Number.isFinite(_urlZoom) ? _urlZoom : 7,
+  elecId: Number.isFinite(_urlLat) && Number.isFinite(_urlLng) && _electionCtrl.value ? _electionCtrl.value : null
+};
+```
+
+```js
+function shareUrlForCurrentMap() {
+  const p = new URLSearchParams();
+  const mapState = _mapCtrl.current?.getShareState?.() ?? {};
+
+  p.set("type", typeVal);
+  if (electionVal?.id) p.set("election", electionVal.id);
+  if (subVal?.id && subVal.id !== "__main__") p.set("sub", subVal.id);
+  if (isLocal) p.set("ballot", ballotTypeVal);
+  if (effectiveVoteType) p.set("vote", effectiveVoteType);
+  if (viewMode && viewMode !== "results") p.set("view", viewMode);
+  if (mapMode && mapMode !== "geographic") p.set("map", mapMode);
+  if (mapState.level) p.set("level", mapState.level);
+  if (mapState.party) p.set("party", mapState.party);
+  if (mapState.metric && mapState.metric !== "final") p.set("metric", mapState.metric);
+  if (Number.isFinite(mapState.lat) && Number.isFinite(mapState.lng)) {
+    p.set("lat", mapState.lat.toFixed(5));
+    p.set("lng", mapState.lng.toFixed(5));
+  }
+  if (Number.isFinite(mapState.z)) p.set("z", String(Number(mapState.z.toFixed(2))));
+
+  return `${window.location.origin}${window.location.pathname}?${p.toString()}`;
+}
+
+// shareUrlForCurrentMap is passed to buildElectionMap, which mounts it as a Leaflet control.
 ```
 
 ```js
@@ -796,6 +866,7 @@ const container = html`
   .metric-row-active { background: rgba(0,0,0,0.07) !important; }
   .metric-row-active .metric-row-label { font-weight: 700; color: var(--theme-foreground); }
 
+
   /* Map legend control */
   .map-legend {
     background: rgba(255,255,255,0.93);
@@ -941,9 +1012,10 @@ await buildElectionMap({
   precinctGeoPath, precinctCsvPath, precinctTurnout,
   _precinctGeoRegistryUrl, _precinctCsvRegistryUrl,
   seatsData, _districtRows, _allCouncilSMDResults, _invalidMax,
-  _mapCtrl, _mapState, _turnoutMetricCtrl, mapContainer,
+  _mapCtrl, _mapState, _turnoutMetricCtrl, _levelCtrl, _partyCtrl, mapContainer,
   partyColor, passed,
   renderTurnoutPanel, renderDistrictPanel, updateCouncilSeats,
+  shareUrlForCurrentMap,
   invalidation
 });
 ```

@@ -101,7 +101,7 @@ export function legacyFilenamePrefix(election, sub) {
 }
 
 export function mainSubElection() {
-  return { id: "__main__", type: "main", name: { en: "Main" } };
+  return { id: "__main__", type: "main", name: { en: "Main", ka: "ძირითადი კენჭისყრა" } };
 }
 
 export function subElections(election) {
@@ -124,7 +124,7 @@ export function downloadEntry(election, sub, filename) {
     label_en: election.name?.en ?? election.id,
     label_ka: election.name?.ka ?? "",
     sub_name_en: isMain ? "Main" : (sub.name?.en ?? sub.id),
-    sub_name_ka: isMain ? "" : (sub.name?.ka ?? ""),
+    sub_name_ka: isMain ? "ძირითადი კენჭისყრა" : (sub.name?.ka ?? ""),
     date: election.date ?? "",
     filename,
     sha: sha256File(filePath),

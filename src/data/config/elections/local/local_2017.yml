@@ -47,12 +47,67 @@ sub_elections:
     type: runoff
     name:
       en: Second Round
-      ka: მეორე ტური
+      ka: კენჭისყრის მეორე ტური
     files:
       smd_results:                  "data/results/local2017_r2_smd.csv"
       smd_precinct_results:         "data/results/local2017_r2_smd_precincts.csv"
       council_smd_results:          "data/results/local2017_r2_council_smd.csv"
       council_smd_precinct_results: "data/results/local2017_r2_council_smd_precincts.csv"
+  - id: local_2017_zugdidi_2018_sakrebulo_smd
+    type: by_election
+    date: "2018-05-13"
+    name:
+      en: May 13, 2018 Zugdidi Sakrebulo by-election
+      ka: 2018 წლის 13 მაისის ზუგდიდის საკრებულოს შუალედური არჩევნები
+    files:
+      smd_results:                  "data/results/local2017_zugdidi_2018_smd.csv"
+      smd_precinct_results:         "data/results/local2017_zugdidi_2018_smd_precincts.csv"
+      council_smd_results:          "data/results/local2017_zugdidi_2018_council_smd.csv"
+      council_smd_precinct_results: "data/results/local2017_zugdidi_2018_council_smd_precincts.csv"
+  - id: local_2017_2019_by_elections
+    type: by_election
+    date: "2019-05-19"
+    name:
+      en: May 19, 2019 Local by-elections
+      ka: 2019 წლის 19 მაისის ადგილობრივი შუალედური და რიგგარეშე არჩევნები
+    files:
+      smd_results:                  "data/results/local2017_2019_byelections_smd.csv"
+      smd_precinct_results:         "data/results/local2017_2019_byelections_smd_precincts.csv"
+      council_smd_results:          "data/results/local2017_2019_byelections_council_smd.csv"
+      council_smd_precinct_results: "data/results/local2017_2019_byelections_council_smd_precincts.csv"
+  - id: local_2017_2019_oct_sakrebulo_by_elections
+    type: by_election
+    date: "2019-10-27"
+    name:
+      en: October 27, 2019 Sakrebulo by-elections
+      ka: 2019 წლის 27 ოქტომბრის საკრებულოს შუალედური არჩევნები
+    files:
+      smd_results:                  "data/results/local2017_2019_oct_byelections_smd.csv"
+      smd_precinct_results:         "data/results/local2017_2019_oct_byelections_smd_precincts.csv"
+      council_smd_results:          "data/results/local2017_2019_oct_byelections_council_smd.csv"
+      council_smd_precinct_results: "data/results/local2017_2019_oct_byelections_council_smd_precincts.csv"
+  - id: local_2017_2020_by_elections
+    type: by_election
+    date: "2020-10-31"
+    name:
+      en: October 31, 2020 local by-elections
+      ka: 2020 წლის 31 ოქტომბრის ადგილობრივი შუალედური არჩევნები
+    files:
+      smd_results:                  "data/results/local2017_2020_byelections_smd.csv"
+      smd_precinct_results:         "data/results/local2017_2020_byelections_smd_precincts.csv"
+      council_smd_results:          "data/results/local2017_2020_byelections_council_smd.csv"
+      council_smd_precinct_results: "data/results/local2017_2020_byelections_council_smd_precincts.csv"
+  - id: local_2017_2020_by_elections_runoff
+    type: runoff
+    date: "2020-11-21"
+    name:
+      en: November 21, 2020 mayoral runoff
+      ka: 2020 წლის 21 ნოემბრის მერის არჩევნების მეორე ტური
+    files:
+      smd_results:                  "data/results/local2017_2020_byelections_smd_runoff.csv"
+      smd_precinct_results:         "data/results/local2017_2020_byelections_smd_runoff_precincts.csv"
+      council_smd_results:          "data/results/local2017_2020_byelections_council_smd_runoff.csv"
+      council_smd_precinct_results: "data/results/local2017_2020_byelections_council_smd_runoff_precincts.csv"
 
 # ── Party metadata ────────────────────────────────────────────────────────
 # threshold_status reflects the national 3% Sakrebulo PR threshold.
@@ -67,6 +122,24 @@ parties:
     threshold_status: passed
     alias:
       ka: ევროპული საქართველო-მოძრაობა თავისუფლებისთვის
+  - id: zugdidi_2018_2
+    threshold_status: notrun
+    color: "#C62828"
+    alias:
+      ka: გოდერძი კუკავა
+      en: Goderdzi Kukava
+  - id: zugdidi_2018_32
+    threshold_status: notrun
+    color: "#78909C"
+    alias:
+      ka: ბაჩუკი ნარუშვილი
+      en: Bachuki Narushvili
+  - id: zugdidi_2018_41
+    threshold_status: notrun
+    color: "#1565C0"
+    alias:
+      ka: თენგიზ ალმასია
+      en: Tengiz Almasia
   - id: patriots
     threshold_status: passed
     alias:

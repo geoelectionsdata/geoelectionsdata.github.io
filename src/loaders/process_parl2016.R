@@ -396,6 +396,7 @@ shape_lookup <- load_precinct_shape_lookup(PRECINCT_SHAPE_FILE)
 first_round_file <- find_raw_file("პირველი ტური")
 runoff_file <- find_raw_file("მეორე ტური")
 repeated_file <- find_raw_file("განმეორებითი")
+by2018_54_file <- find_raw_file_any_year("2018 შუალედური 54")
 by2019_r1_file <- find_raw_file_any_year("შუალედური პარლამენტი, პირველი ტური")
 by2019_r2_file <- find_raw_file_any_year("პარლამენტი შუალედური მეორე ტური")
 
@@ -411,6 +412,9 @@ cat("Reading:", repeated_file, "\n")
 repeated_workbook <- read_sheet_with_header(repeated_file, 1)
 repeated_header <- repeated_workbook[1, , drop = FALSE]
 repeated_raw <- repeated_workbook[-1, , drop = FALSE]
+
+cat("Reading:", by2018_54_file, "\n")
+by2018_54_raw <- read_sheet_with_header(by2018_54_file, 1)
 
 cat("Reading:", by2019_r1_file, "\n")
 by2019_r1_raw <- read_sheet_with_header(by2019_r1_file, 1)
@@ -818,7 +822,15 @@ write_csv_like_js(
   RUNOFF_PRECINCT_COLS
 )
 
-# Mtatsminda 2019 parliamentary by-elections -------------------------------
+# 2018-2019 parliamentary by-elections --------------------------------------
+
+by2018_54 <- process_smd_by_election(
+  by2018_54_raw,
+  "major54_2018",
+  "parl2016_major54_2018_smd.csv",
+  "parl2016_major54_2018_smd_precincts.csv"
+)
+cat(sprintf("Majoritarian district 54 2018 by-election precinct groups: %d\n", by2018_54$precinct_groups))
 
 by2019_r1 <- process_smd_by_election(
   by2019_r1_raw,
@@ -841,5 +853,6 @@ cat(sprintf("  PR: %d district rows, %d precinct rows\n", nrow(bind_rows(pr_nati
 cat(sprintf("  Repeated PR: %d district rows, %d precinct rows\n", nrow(bind_rows(repeated_national, repeated_district)), nrow(repeated_precinct)))
 cat(sprintf("  SMD: %d district rows, %d precinct rows\n", nrow(bind_rows(smd_national, smd_district)), nrow(smd_precinct)))
 cat(sprintf("  Runoff: %d district rows, %d precinct rows\n", nrow(bind_rows(runoff_national, runoff_district)), nrow(runoff_precinct)))
+cat(sprintf("  Majoritarian district 54 2018 by-election: %d district rows, %d precinct rows\n", by2018_54$rows, by2018_54$precinct_rows))
 cat(sprintf("  Mtatsminda 2019 first round: %d district rows, %d precinct rows\n", by2019_r1$rows, by2019_r1$precinct_rows))
 cat(sprintf("  Mtatsminda 2019 runoff: %d district rows, %d precinct rows\n", by2019_r2$rows, by2019_r2$precinct_rows))
