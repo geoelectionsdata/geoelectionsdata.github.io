@@ -196,9 +196,9 @@ attach_totals <- function(df, totals) {
   df
 }
 
-raw_2020 <- list.files(RAW_DIR, pattern = "^2020.*\\.xlsx$", full.names = TRUE)
-main_file <- raw_2020[str_detect(basename(raw_2020), " I ")]
-runoff_file <- setdiff(raw_2020, main_file)
+raw_2020    <- list.files(RAW_DIR, pattern = "^2020.*\\.xlsx$", full.names = TRUE)
+main_file   <- raw_2020[str_detect(basename(raw_2020), " I ")]
+runoff_file <- raw_2020[str_detect(basename(raw_2020), "მაჟორიტარული")]  # მაჟორიტარული
 
 if (length(main_file) != 1L || length(runoff_file) != 1L) {
   stop(
