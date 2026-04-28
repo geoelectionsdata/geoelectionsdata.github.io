@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+
+import { ensureDownloadsDir } from "./shared.js";
+import { generateAdj2016Downloads } from "./adj2016.js";
+
+ensureDownloadsDir();
+
+const entries = await generateAdj2016Downloads({ generatedAt: new Date() });
+for (const entry of entries) {
+  console.log(`Wrote src/data/downloads/${entry.filename}`);
+  console.log(`  Sub: ${entry.sub_id} | Size: ${entry.size_bytes} bytes | SHA-256: ${entry.sha}`);
+}
