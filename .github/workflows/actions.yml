@@ -35,6 +35,11 @@ jobs:
           key: r-${{ runner.os }}-${{ hashFiles('src/loaders/*.R') }}
           restore-keys: r-${{ runner.os }}-
 
+      - name: Install sf system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libudunits2-dev libgdal-dev libgeos-dev libproj-dev
+
       - name: Install R packages
         run: |
           Rscript -e "install.packages(c('readxl', 'dplyr', 'tidyr', 'stringr',
