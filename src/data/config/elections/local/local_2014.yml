@@ -1,0 +1,252 @@
+id: local_2014
+type: local
+date: "2014-06-15"
+name:
+  en: "2014 elections of municipal authorities"
+  ka: "მუნიციპალიტეტის ორგანოთა 2014 წლის არჩევნები"
+
+notes:
+  en: |
+    The 2014 local elections used the standard local-election structure: Sakrebulo proportional lists, Sakrebulo single-member districts, and directly elected mayors or gamgebelis. As the result of the local self-government reform, Ozurgeti, Zugdidi, Ambrolauri, Gori, Akhaltsikhe, Telavi and Mtskheta became their own municipalities. In a number of races, runoff elections were held.
+  ka: |
+    2014 წლის ადგილობრივი თვითმმართველობის არჩევნებში ამომრჩევლები ირჩევდნენ საკრებულოს პროპორციული სიებით, საკრებულოს მაჟორიტარ წევრებს და მერებს ან გამგებლებს. რეფორმის შედეგად, ქალაქები ოზურგეთი, ზუგდიდი, ამბროლაური, გორი, ახალციხე, თელავი და მცხეთა ცალკე თვითმმართველ ერთეულად ჩამოყალიბდნენ. რიგ ქალაქის მერისა და გამგებლის არჩევნებში დაინიშნა მეორე ტური.
+
+system:
+  pr:
+    enabled: true
+    seats: 0
+    threshold_pct: 4.0
+    method: dhondt
+    shape_file: "data/shp/parl2024_pr.geojson"
+    selfgov_shape_file: "data/shp/selfgov_areas_2014.geojson"
+    precinct_shape_file: "data/shp/local2014_precincts.geojson"
+  smd:
+    enabled: true
+    seats: 71
+    shape_file: "data/shp/selfgov_areas_2014.geojson"
+    precinct_shape_file: "data/shp/local2014_precincts.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+
+council:
+  total_pr_seats: 1035
+  total_smd_seats: 1047
+  shape_file: "data/shp/majoritarian_2014_major_id.geojson"
+
+sub_elections:
+  - id: local_2014_r2
+    type: runoff
+    date: "2014-07-12"
+    name:
+      en: "Second Round"
+      ka: "კენჭისყრის მეორე ტური"
+    files:
+      smd_results:                  "data/results/local2014_r2_smd.csv"
+      smd_precinct_results:         "data/results/local2014_r2_smd_precincts.csv"
+      council_smd_results:          "data/results/local2014_r2_council_smd.csv"
+      council_smd_precinct_results: "data/results/local2014_r2_council_smd_precincts.csv"
+  - id: local_2014_2014_oct_sakrebulo_by_election
+    type: by_election
+    date: "2014-10-20"
+    download_key: "20141020"
+    name:
+      en: "October 20, 2014 Sakrebulo by-election"
+      ka: "2014 წლის 20 ოქტომბრის საკრებულოს შუალედური არჩევნები"
+    files:
+      smd_results:                  "data/results/local2014_2014_oct_byelection_smd.csv"
+      smd_precinct_results:         "data/results/local2014_2014_oct_byelection_smd_precincts.csv"
+      council_smd_results:          "data/results/local2014_2014_oct_byelection_council_smd.csv"
+      council_smd_precinct_results: "data/results/local2014_2014_oct_byelection_council_smd_precincts.csv"
+  - id: local_2014_2015_may_sakrebulo_by_election
+    type: by_election
+    date: "2015-05-31"
+    download_key: "20150531"
+    name:
+      en: "May 31, 2015 Sakrebulo by-election"
+      ka: "2015 წლის 31 მაისის საკრებულოს შუალედური არჩევნები"
+    files:
+      smd_results:                  "data/results/local2014_2015_may_byelection_smd.csv"
+      smd_precinct_results:         "data/results/local2014_2015_may_byelection_smd_precincts.csv"
+      council_smd_results:          "data/results/local2014_2015_may_byelection_council_smd.csv"
+      council_smd_precinct_results: "data/results/local2014_2015_may_byelection_council_smd_precincts.csv"
+  - id: local_2014_2015_oct_sakrebulo_by_election
+    type: by_election
+    date: "2015-10-31"
+    download_key: "20151031"
+    name:
+      en: "October 31, 2015 Sakrebulo by-election"
+      ka: "2015 წლის 31 ოქტომბრის საკრებულოს შუალედური არჩევნები"
+    files:
+      smd_results:                  "data/results/local2014_2015_oct_byelection_smd.csv"
+      smd_precinct_results:         "data/results/local2014_2015_oct_byelection_smd_precincts.csv"
+      council_smd_results:          "data/results/local2014_2015_oct_byelection_council_smd.csv"
+      council_smd_precinct_results: "data/results/local2014_2015_oct_byelection_council_smd_precincts.csv"
+
+parties:
+  - id: gd
+    threshold_status: passed
+  - id: unm
+    threshold_status: passed
+  - id: burjanadze_united_opposition_2014
+    threshold_status: passed
+    color: "#7B1FA2"
+    alias:
+      en: "Nino Burjanadze - United Opposition"
+      ka: "ნინო ბურჯანაძე - ერთიანი ოპოზიცია"
+  - id: patriots
+    threshold_status: passed
+    alias:
+      en: "Davit Tarkhan-Mouravi - Alliance of Patriots of Georgia"
+      ka: "დავით თარხან-მოურავი - საქართველოს პატრიოტთა ალიანსი"
+  - id: labour
+    threshold_status: failed
+    alias:
+      ka: "შალვა ნათელაშვილი - საქართველოს ლეიბორისტული პარტია"
+  - id: nonparliamentary_opposition_2014
+    threshold_status: failed
+    color: "#00897B"
+    alias:
+      en: "Non-parliamentary Opposition (Kakha Kukava, Pikria Chikhradze)"
+      ka: "არასაპარლამენტო ოპოზიცია (კახა კუკავა, ფიქრია ჩიხრაძე)"
+  - id: veterans_patriots_2014
+    threshold_status: failed
+    color: "#795548"
+    alias:
+      en: "Political Movement of Force Veterans and Patriots of Georgia"
+      ka: "საქართველოს ძალოვან ვეტერანთა და პატრიოტთა პოლიტიკური მოძრაობა"
+  - id: national_democratic_2014
+    threshold_status: failed
+    color: "#3949AB"
+    alias:
+      en: "National-Democratic Party"
+      ka: "ეროვნულ-დემოკრატიული პარტია (ედპ)"
+  - id: greens_2014
+    threshold_status: failed
+    color: "#43A047"
+    alias:
+      en: "Giorgi Gachechiladze - Green Party"
+      ka: "გიორგი გაჩეჩილაძე - მწვანეთა პარტია"
+  - id: ufali_2014
+    threshold_status: failed
+    color: "#8D6E63"
+    alias:
+      en: "In the Name of the Lord"
+      ka: "უფლის სახელით - უფალია ჩვენი სიმართლე"
+  - id: self_governance_people_2014
+    threshold_status: failed
+    color: "#26A69A"
+    alias:
+      en: "Self-governance to the People!"
+      ka: "თვითმმართველობა ხალხს!"
+  - id: peoples_party_2014
+    threshold_status: failed
+    color: "#5C6BC0"
+    alias:
+      en: "People's Party"
+      ka: "ხალხის პარტია"
+  - id: reformers_2014
+    threshold_status: failed
+    color: "#0097A7"
+    alias:
+      en: "Irakli Ghlonti - Reformers"
+      ka: "ირაკლი ღლონტი - რეფორმატორები"
+  - id: our_georgia_2014
+    threshold_status: failed
+    color: "#2E7D32"
+    alias:
+      en: "Our Georgia"
+      ka: "ჩვენი საქართველო"
+  - id: future_georgia_2014
+    threshold_status: failed
+    color: "#6D4C41"
+    alias:
+      en: "Future Georgia"
+      ka: "მომავალი საქართველო"
+  - id: georgian_party_2014
+    threshold_status: failed
+    color: "#D55E00"
+    alias:
+      en: "Irakli Okruashvili - Georgian Party"
+      ka: "ირაკლი ოქრუაშვილი - ქართული პარტია"
+  - id: peoples_movement_2014
+    threshold_status: failed
+    color: "#546E7A"
+    alias:
+      en: "People's Movement"
+      ka: "სახალხო მოძრაობა"
+  - id: christian_democrats_2014
+    threshold_status: failed
+    color: "#F9A825"
+    alias:
+      en: "Christian Democratic Party"
+      ka: "ქრისტიან დემოკრატიული პარტია (ქრისტიან დემოკრატები)"
+  - id: unity_hall_2014
+    threshold_status: failed
+    color: "#8E24AA"
+    alias:
+      en: "Unity Hall"
+      ka: "ერთიანობის დარბაზი"
+  - id: georgias_way_2014
+    threshold_status: failed
+    color: "#00ACC1"
+    alias:
+      en: "Salome Zourabichvili - Georgia's Way"
+      ka: "სალომე ზურაბიშვილი - საქართველოს გზა"
+  - id: freedom_zviads_way_2014
+    threshold_status: failed
+    color: "#558B2F"
+    alias:
+      en: "Freedom - Zviad Gamsakhurdia's Way"
+      ka: "თავისუფლება - ზვიად გამსახურდიას გზა"
+  - id: sakhalkho_party_2014
+    threshold_status: failed
+    color: "#78909C"
+    alias:
+      en: "Sakhalkho Party"
+      ka: "სახალხო პარტია"
+  - id: kostava_society
+    threshold_status: failed
+  - id: workers_council_2014
+    threshold_status: failed
+    color: "#607D8B"
+    alias:
+      en: "Workers' Council of Georgia"
+      ka: "საქართველოს მშრომელთა საბჭო"
+  - id: independent
+    threshold_status: notrun
+    color: "#9E9E9E"
+    alias:
+      en: "Independent"
+      ka: "დამოუკიდებელი"
+
+sources:
+  - name:
+      en: "Public information requested from the Central Election Commission as part of the preparation of the National Democratic Institute's (NDI) election portal electionsdata.ge"
+      ka: "„ეროვნული დემოკრატიული ინსტიტუტის“ (NDI) საარჩევნო პორტალის electionsdata.ge მომზადების ფარგლებში ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+
+files:
+  seats:                        "data/results/local2014_seats.csv"
+  pr_results:                   "data/results/local2014_pr.csv"
+  pr_selfgov_results:           "data/results/local2014_pr_selfgov.csv"
+  pr_precinct_results:          "data/results/local2014_pr_precincts.csv"
+  smd_results:                  "data/results/local2014_smd.csv"
+  smd_district_results:         "data/results/local2014_smd_districts.csv"
+  smd_precinct_results:         "data/results/local2014_smd_precincts.csv"
+  council_smd_results:          "data/results/local2014_council_smd.csv"
+  council_smd_precinct_results: "data/results/local2014_council_smd_precincts.csv"
+  council_pr_results:           "data/results/local2014_pr_selfgov.csv"
+  council_pr_precinct_results:  "data/results/local2014_pr_precincts.csv"
+  candidates:                   "data/config/candidates/local/local_2014.yml"
+  party_lists:                  "data/candidates/local2014_party_lists.csv"
+  mayor_candidates:             "data/candidates/local2014_mayor_gamgebeli_candidates.csv"
+  smd_candidates:               "data/candidates/local2014_smd_candidates.csv"
+  elected:                      "data/candidates/local2014_elected.csv"
+
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/local2014_turnout.csv"
+  precinct_file: "data/turnout/local2014_precincts_turnout.csv"
+  has_snapshots: true
+  has_lists: true

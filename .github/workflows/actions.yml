@@ -53,6 +53,9 @@ jobs:
       - name: Process 2017 local data
         run: Rscript src/loaders/process_local2017.R
 
+      - name: Process 2014 local data
+        run: Rscript src/loaders/process_local2014.R
+
       - name: Process 2021 local data
         run: Rscript src/loaders/process_local2021.R
 
@@ -103,6 +106,9 @@ jobs:
 
       - name: Build local2017 download bundle
         run: node src/loaders/downloads/process_local2017_download.js
+
+      - name: Build local2014 download bundle
+        run: node src/loaders/downloads/process_local2014_download.js
 
       - name: Build local2021 download bundle
         run: node src/loaders/downloads/process_local2021_download.js

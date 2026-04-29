@@ -1,0 +1,5 @@
+"district_id","party_id","name_ka","round","votes","registered","voted","voted_noon","voted_5pm","main_list","special_list","invalid_ballots","vote_share","turnout_pct","noon_pct","five_pct","invalid_pct"
+"national","gd","",1,195,732,265,78,202,732,0,8,0.758755,0.362022,0.106557,0.275956,0.030189
+"national","nonparliamentary_opposition_2014","",1,62,732,265,78,202,732,0,8,0.241245,0.362022,0.106557,0.275956,0.030189
+"4810","gd","",1,195,732,265,78,202,732,0,8,0.758755,0.362022,0.106557,0.275956,0.030189
+"4810","nonparliamentary_opposition_2014","",1,62,732,265,78,202,732,0,8,0.241245,0.362022,0.106557,0.275956,0.030189

@@ -145,7 +145,7 @@ export function makeRenderers({
   function councilSelfgovIdFromMajorId(id) {
     const n = Number(id);
     const raw = n >= 10000 ? Math.floor(n / 10000) : Math.floor(n / 100);
-    return String(raw === 99 ? 1 : raw);
+    return String(raw === 99 || (raw >= 1 && raw <= 10) ? 1 : raw);
   }
 
   function updateCouncilSeats(distId, props, isSelfgov = false) {

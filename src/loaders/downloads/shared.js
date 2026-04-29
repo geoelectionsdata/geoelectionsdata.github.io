@@ -97,7 +97,8 @@ export function dateToken(election) {
 
 export function legacyFilenamePrefix(election, sub) {
   const name = sanitize(election.name?.en ?? election.id);
-  return `${name}_${subTypeLabel(sub)}_${dateToken(election)}_data_`;
+  const subKey = sub?.download_key ? `_${sanitize(sub.download_key)}` : "";
+  return `${name}_${subTypeLabel(sub)}${subKey}_${dateToken(election)}_data_`;
 }
 
 export function mainSubElection() {

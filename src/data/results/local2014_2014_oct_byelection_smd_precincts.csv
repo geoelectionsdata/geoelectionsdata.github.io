@@ -1,0 +1,3 @@
+"precinct_id","precinct_key","district_id","raw_district_id","precinct_number","party_id","name_ka","votes","vote_share","registered","voted","voted_noon","voted_5pm","turnout_pct","noon_pct","five_pct","invalid_ballots","invalid_pct"
+48009,"4810.48.9","4810",48,9,"gd","",195,0.758755,732,265,78,202,0.362022,0.106557,0.275956,8,0.030189
+48009,"4810.48.9","4810",48,9,"nonparliamentary_opposition_2014","",62,0.241245,732,265,78,202,0.362022,0.106557,0.275956,8,0.030189
