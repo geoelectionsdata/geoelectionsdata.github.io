@@ -4,6 +4,8 @@ import path from "node:path";
 import { csvParse, autoType } from "d3-dsv";
 import {
   OUT_DIR,
+  WORKBOOK_CREATOR,
+  addMetadataSheet,
   downloadEntry,
   legacyFilenamePrefix,
   readElection,
@@ -65,31 +67,7 @@ function buildCsvSheet(wb, sheetName, rows) {
 }
 
 function buildMetadataSheet(wb, election, sub, generatedAt) {
-  const sheet = wb.addWorksheet("About - Metadata");
-  sheet.getColumn(1).width = 28;
-  sheet.getColumn(2).width = 88;
-  const isMain = !sub || sub.id === "__main__";
-  const subLabel = isMain ? "" : ` - ${sub.name?.en ?? sub.id}`;
-  const rows = [
-    ["Archive", "Comprehensive Election Data Archive of Georgia (CEDAG)"],
-    ["Website", "https://electionsdata.ge"],
-    ["Author", "David Sichinava"],
-    ["Election (EN)", (election.name?.en ?? election.id) + subLabel],
-    ["Election (KA)", (election.name?.ka ?? "") + (isMain ? "" : ` - ${sub.name?.ka ?? ""}`)],
-    ["Election ID", election.id],
-    ["Sub-election ID", sub?.id ?? "__main__"],
-    ["Election Type", election.type],
-    ["Election Date", election.date ?? ""],
-    ["File Generated", generatedAt.toISOString()],
-    ["Data Source", election.sources?.[0]?.name?.en ?? "Central Election Commission of Georgia"],
-    ["License", "Open data. Please cite CEDAG when using."],
-  ];
-  for (const [key, value] of rows) {
-    const row = sheet.addRow([key, value]);
-    row.getCell(1).font = { bold: true, size: 9 };
-    row.getCell(2).font = { size: 9 };
-    row.getCell(2).alignment = { wrapText: true };
-  }
+  addMetadataSheet(wb, election, sub, generatedAt);
 }
 
 function subElectionSheetLabel(sub) {
@@ -103,7 +81,7 @@ async function generateBundle(election, sub, generatedAt) {
   const files = isMain ? election.files : sub.files;
 
   const wb = new ExcelJS.Workbook();
-  wb.creator = "CEDAG - Comprehensive Election Data Archive of Georgia";
+  wb.creator = WORKBOOK_CREATOR;
   wb.created = generatedAt;
   wb.modified = generatedAt;
 

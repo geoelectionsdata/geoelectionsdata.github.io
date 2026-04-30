@@ -37,6 +37,7 @@ sub_elections:
   - id: parl_2016_repeat_20161022
     type: repeated
     date: "2016-10-22"
+    download_key: "20161022"
     name:
       en: Repeated elections (October 22, 2016)
       ka: განმეორებითი არჩევნები (2016 წლის 22 ოქტომბერი)
@@ -58,6 +59,7 @@ sub_elections:
   - id: parl_2016_major54_2018
     type: by_election
     date: "2018-04-28"
+    download_key: "20180428"
     name:
       en: Majoritarian District 54 by-election (April 28, 2018)
       ka: №54 მაჟორიტარული ოლქის შუალედური არჩევნები (2018 წლის 28 აპრილი)
@@ -68,6 +70,7 @@ sub_elections:
   - id: parl_2016_mtatsminda_2019
     type: by_election
     date: "2019-05-19"
+    download_key: "20190519"
     name:
       en: Mtatsminda by-election (May 19, 2019)
       ka: მთაწმინდის შუალედური არჩევნები (2019 წლის 19 მაისი)
@@ -78,6 +81,7 @@ sub_elections:
   - id: parl_2016_mtatsminda_2019_r2
     type: runoff
     date: "2019-06-09"
+    download_key: "20190609"
     name:
       en: Mtatsminda by-election runoff (June 9, 2019)
       ka: მთაწმინდის შუალედური არჩევნების მეორე ტური (2019 წლის 9 ივნისი)

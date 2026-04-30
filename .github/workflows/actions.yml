@@ -97,35 +97,11 @@ jobs:
       - name: Build parl2024 download bundle
         run: node src/loaders/downloads/process_parl2024_download.js
 
-      - name: Build parl2020 download bundle
-        run: node src/loaders/downloads/process_parl2020_download.js
-        continue-on-error: true  # remove once implemented
-
-      - name: Build parl2016 download bundle
-        run: node src/loaders/downloads/process_parl2016_download.js
-        continue-on-error: true  # remove once implemented
-
-      - name: Build pres2018 download bundle
-        run: node src/loaders/downloads/process_pres2018_download.js
-        continue-on-error: true  # remove once implemented
-
       - name: Build local2017 download bundle
         run: node src/loaders/downloads/process_local2017_download.js
 
       - name: Build local2014 download bundle
         run: node src/loaders/downloads/process_local2014_download.js
-
-      - name: Build local2021 download bundle
-        run: node src/loaders/downloads/process_local2021_download.js
-        continue-on-error: true  # remove once implemented
-
-      - name: Build local2025 download bundle
-        run: node src/loaders/downloads/process_local2025_download.js
-        continue-on-error: true  # remove once implemented
-
-      - name: Build adj2024 download bundle
-        run: node src/loaders/downloads/process_adj2024_download.js
-        continue-on-error: true  # remove once implemented
 
       - name: Build adj2020 download bundle
         run: node src/loaders/downloads/process_adj2020_download.js
@@ -133,18 +109,31 @@ jobs:
       - name: Build adj2016 download bundle
         run: node src/loaders/downloads/process_adj2016_download.js
 
-      - name: Build parl1919 download bundle
-        run: node src/loaders/downloads/process_parl1919_download.js
-        continue-on-error: true  # remove once implemented
+      - name: Update download metadata sheets
+        run: node src/loaders/downloads/update_metadata.js
 
       # ── Node / Observable build ────────────────────────────────────────────
       - name: Build project
         run: npm run build
 
-      - name: Copy xlsx downloads to dist
+      - name: Copy manifest xlsx downloads to dist
         run: |
-          mkdir -p dist/data/downloads
-          cp src/data/downloads/*.xlsx dist/data/downloads/ 2>/dev/null || true
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+
+          const manifest = JSON.parse(fs.readFileSync('src/data/downloads.json', 'utf8'));
+          const outDir = 'dist/data/downloads';
+          fs.mkdirSync(outDir, { recursive: true });
+
+          for (const entry of manifest.files ?? []) {
+            const source = path.join('src/data/downloads', entry.filename);
+            if (!fs.existsSync(source)) {
+              throw new Error(`Download file listed in manifest is missing: ${source}`);
+            }
+            fs.copyFileSync(source, path.join(outDir, entry.filename));
+          }
+          NODE
 
       # ── Deploy ─────────────────────────────────────────────────────────────
       - name: Configure GitHub Pages

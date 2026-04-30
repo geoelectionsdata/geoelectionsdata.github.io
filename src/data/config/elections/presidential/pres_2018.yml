@@ -5,6 +5,8 @@ date: "2018-10-28"
 name:
   en: "October 28, 2018 Elections of the President of Georgia"
   ka: "საქართველოს პრეზიდენტის 2018 წლის 28 ოქტომბრის არჩევნები"
+download_name:
+  en: "2018 Presidential Election"
 system:
   pr:
     enabled: true

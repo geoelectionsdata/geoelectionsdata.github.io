@@ -24,7 +24,7 @@ const L = {
     page_title:  "Data Downloads",
     page_sub:    "Download structured election results as Excel files (.xlsx). Each file contains district-level and precinct-level results, turnout data, candidate lists, and citation metadata.",
     generated:   "Files generated",
-    main_round:  "Main",
+    main_round:  "Main elections",
     runoff:      "Runoff",
     by_election: "By-election",
     download:    "Download",
@@ -35,7 +35,7 @@ const L = {
     page_title:  "მონაცემების ჩამოტვირთვა",
     page_sub:    "ჩამოტვირთეთ საარჩევნო შედეგები Excel-ის ფორმატში (.xlsx). თითოეული ფაილი შეიცავს საუბნო და საოლქო შედეგებს, აქტივობას, კანდიდატთა სიებს და მეტამონაცემებს.",
     generated:   "ფაილების გენერირება",
-    main_round:  "1-ლი ტური",
+    main_round:  "ძირითადი კენჭისყრა",
     runoff:      "მე-2 ტური",
     by_election: "შუალ. არჩ.",
     download:    "ჩამოტვ.",
@@ -51,6 +51,8 @@ const Lx = L[lang] ?? L.en;
 const TYPE_ORDER = ["parliamentary", "presidential", "local", "adjara", "plebiscite"];
 
 function subLabel(entry) {
+  const specific = lang === "ka" ? entry.sub_name_ka : entry.sub_name_en;
+  if (entry.sub_id !== "__main__" && specific && specific !== "Main") return specific;
   if (entry.sub_type === "runoff")      return Lx.runoff;
   if (entry.sub_type === "by_election") return Lx.by_election;
   return Lx.main_round;
@@ -84,7 +86,7 @@ for (const [, ids] of idsByType) {
   ids.sort((a, b) => {
     const da = byElection.get(a)?.[0]?.date ?? "";
     const db = byElection.get(b)?.[0]?.date ?? "";
-    return db.localeCompare(da);
+    return da.localeCompare(db);
   });
 }
 ```

@@ -4,6 +4,8 @@ import path from "node:path";
 import { csvParse, autoType } from "d3-dsv";
 import {
   OUT_DIR,
+  WORKBOOK_CREATOR,
+  addMetadataSheet,
   buildPartyLookup,
   dateToken,
   downloadEntry,
@@ -71,6 +73,8 @@ function buildCsvSheet(wb, sheetName, rows) {
 }
 
 function buildMetadataSheet(wb, election, sub, generatedAt) {
+  addMetadataSheet(wb, election, sub, generatedAt);
+  return;
   const sheet = wb.addWorksheet("About - Metadata");
   sheet.getColumn(1).width = 28;
   sheet.getColumn(2).width = 88;
@@ -104,7 +108,7 @@ async function generateBundle(election, sub, generatedAt) {
   const files = isMain ? election.files : sub.files;
 
   const wb = new ExcelJS.Workbook();
-  wb.creator = "CEDAG - Comprehensive Election Data Archive of Georgia";
+  wb.creator = WORKBOOK_CREATOR;
   wb.created = generatedAt;
   wb.modified = generatedAt;
 
@@ -123,11 +127,11 @@ async function generateBundle(election, sub, generatedAt) {
     buildCsvSheet(wb, "Council SMD - Results", readCSV(files?.council_smd_results));
     buildCsvSheet(wb, "Council SMD - Precincts", readCSV(files?.council_smd_precinct_results));
   } else {
-    // Runoff sub-election
-    buildCsvSheet(wb, "Mayor Runoff - Results", readCSV(files?.smd_results));
-    buildCsvSheet(wb, "Mayor Runoff - Precincts", readCSV(files?.smd_precinct_results));
-    buildCsvSheet(wb, "Council SMD Runoff - Results", readCSV(files?.council_smd_results));
-    buildCsvSheet(wb, "Council SMD Runoff - Precincts", readCSV(files?.council_smd_precinct_results));
+    const label = subElectionSheetLabel(sub);
+    buildCsvSheet(wb, `Mayor ${label} - Results`, readCSV(files?.smd_results));
+    buildCsvSheet(wb, `Mayor ${label} - Precincts`, readCSV(files?.smd_precinct_results));
+    buildCsvSheet(wb, `Council ${label} - Results`, readCSV(files?.council_smd_results));
+    buildCsvSheet(wb, `Council ${label} - Precincts`, readCSV(files?.council_smd_precinct_results));
   }
 
   buildMetadataSheet(wb, election, sub, generatedAt);
@@ -138,6 +142,13 @@ async function generateBundle(election, sub, generatedAt) {
   const outPath = path.join(OUT_DIR, filename);
   await wb.xlsx.writeFile(outPath);
   return downloadEntry(election, sub, filename);
+}
+
+function subElectionSheetLabel(sub) {
+  if (sub?.type === "by_election") return "By-election";
+  if (sub?.type === "repeated") return "Repeated";
+  if (sub?.type === "runoff") return "Runoff";
+  return "Sub-election";
 }
 
 export async function generateLocal2017Downloads({ generatedAt = new Date() } = {}) {

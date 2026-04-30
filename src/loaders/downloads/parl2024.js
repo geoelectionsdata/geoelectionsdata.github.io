@@ -5,6 +5,8 @@ import { csvParse, autoType } from "d3-dsv";
 import {
   OUT_DIR,
   PARL2024_DOWNLOAD_FILENAME,
+  WORKBOOK_CREATOR,
+  addMetadataSheet,
   buildPartyLookup,
   downloadEntry,
   mainSubElection,
@@ -506,30 +508,11 @@ function buildRawSheet(wb, sheetName, rows) {
 }
 
 function buildMetadataSheet(wb, election, generatedAt) {
-  const sheet = wb.addWorksheet("About - Metadata");
-  sheet.getColumn(1).width = 28;
-  sheet.getColumn(2).width = 88;
-  const rows = [
-    ["Archive", "Comprehensive Election Data Archive of Georgia (CEDAG)"],
-    ["Website", "https://electionsdata.ge"],
-    ["Author", "David Sichinava"],
-    ["Election (EN)", election.name?.en ?? election.id],
-    ["Election (KA)", election.name?.ka ?? ""],
-    ["Election ID", election.id],
-    ["Election Type", election.type],
-    ["Election Date", election.date ?? ""],
-    ["File Generated", generatedAt.toISOString()],
-    ["Data Source", "Central Election Commission of Georgia (cesko.ge); party-list extraction workbook in data/raw/party_lists_2024_georgia_unified.xlsx"],
-    ["Annulled Precinct", "District 22 (Marneuli), precinct 69, precinct_id 22069"],
-    ["Citation (APA)", `Sichinava, D. (${generatedAt.getFullYear()}). Results of the ${election.name?.en ?? election.id}. Comprehensive Election Data Archive of Georgia (CEDAG). https://electionsdata.ge/${election.id}`],
-    ["License", "Open data. Please cite CEDAG when using."],
-  ];
-  for (const [key, value] of rows) {
-    const row = sheet.addRow([key, value]);
-    row.getCell(1).font = { bold: true, size: 9 };
-    row.getCell(2).font = { size: 9 };
-    row.getCell(2).alignment = { wrapText: true };
-  }
+  addMetadataSheet(wb, election, mainSubElection(), generatedAt, {
+    extraRows: [
+      ["Annulled Precinct", "District 22 (Marneuli), precinct 69, precinct_id 22069"],
+    ],
+  });
 }
 
 export async function generateParl2024Download({ generatedAt = new Date() } = {}) {
@@ -547,7 +530,7 @@ export async function generateParl2024Download({ generatedAt = new Date() } = {}
   const districtInfo = buildDistrictInfo(rawMeta.districts, districtGeo);
 
   const wb = new ExcelJS.Workbook();
-  wb.creator = "CEDAG - Comprehensive Election Data Archive of Georgia";
+  wb.creator = WORKBOOK_CREATOR;
   wb.created = generatedAt;
   wb.modified = generatedAt;
 

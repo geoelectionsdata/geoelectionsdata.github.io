@@ -56,6 +56,7 @@ sub_elections:
   - id: local_2017_zugdidi_2018_sakrebulo_smd
     type: by_election
     date: "2018-05-13"
+    download_key: "20180513"
     name:
       en: May 13, 2018 Zugdidi Sakrebulo by-election
       ka: 2018 წლის 13 მაისის ზუგდიდის საკრებულოს შუალედური არჩევნები
@@ -67,6 +68,7 @@ sub_elections:
   - id: local_2017_2019_by_elections
     type: by_election
     date: "2019-05-19"
+    download_key: "20190519"
     name:
       en: May 19, 2019 Local by-elections
       ka: 2019 წლის 19 მაისის ადგილობრივი შუალედური და რიგგარეშე არჩევნები
@@ -78,6 +80,7 @@ sub_elections:
   - id: local_2017_2019_oct_sakrebulo_by_elections
     type: by_election
     date: "2019-10-27"
+    download_key: "20191027"
     name:
       en: October 27, 2019 Sakrebulo by-elections
       ka: 2019 წლის 27 ოქტომბრის საკრებულოს შუალედური არჩევნები
@@ -89,6 +92,7 @@ sub_elections:
   - id: local_2017_2020_by_elections
     type: by_election
     date: "2020-10-31"
+    download_key: "20201031"
     name:
       en: October 31, 2020 local by-elections
       ka: 2020 წლის 31 ოქტომბრის ადგილობრივი შუალედური არჩევნები
@@ -100,6 +104,7 @@ sub_elections:
   - id: local_2017_2020_by_elections_runoff
     type: runoff
     date: "2020-11-21"
+    download_key: "20201121"
     name:
       en: November 21, 2020 mayoral runoff
       ka: 2020 წლის 21 ნოემბრის მერის არჩევნების მეორე ტური

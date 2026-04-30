@@ -28,8 +28,10 @@ if (fs.existsSync(parl2024Path)) {
 
 files.sort((a, b) =>
   (a.election_type ?? "").localeCompare(b.election_type ?? "") ||
-  (b.date ?? "").localeCompare(a.date ?? "") ||
+  (a.date ?? "").localeCompare(b.date ?? "") ||
   (a.election_id ?? "").localeCompare(b.election_id ?? "") ||
+  (a.date === (readElection(a.election_id)?.date ?? "") ? 0 : 1) -
+    (b.date === (readElection(b.election_id)?.date ?? "") ? 0 : 1) ||
   (a.sub_type ?? "").localeCompare(b.sub_type ?? "")
 );
 

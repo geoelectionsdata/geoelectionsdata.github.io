@@ -125,8 +125,8 @@
     "sub_type": "indirect",
     "date": "2024-12-14",
     "name": {
-      "en": "2024 Presidential Election",
-      "ka": "2024 წლის პრეზიდენტის მორიგი არჩევნები"
+      "en": "December 14, 2024 Elections of the President of Georgia",
+      "ka": "საქართველოს პრეზიდენტის 2024 წლის 14 დეკემბრის არჩევნები"
     },
     "candidates": [
       {
@@ -140,7 +140,7 @@
     ],
     "notes": {
       "en": "First presidential election by electoral college, following the 2024 constitutional amendment removing direct popular vote. Elections were boycotted by the majority of oppositional political parties following the disputed 2024 parliamentary elections.",
-      "ka": "პირველი საპრეზიდენტო არჩევნები ამომრჩეველთა კოლეგიის მეშვეობით, 2024 წლის საკონსტიტუციო ცვლილებების შემდეგ. ოპოზიციური პარტიების უდიდესმა ნაწილმა ამ არჩევნებს ბოიკოტი გამოუცხადა, 2024 წლის სადაო არჩევნების შემდგომ."
+      "ka": "პირველი საპრეზიდენტო არჩევნები ამომრჩეველთა კოლეგიის მეშვეობით, 2024 წლის საკონსტიტუციო ცვლილებების შემდეგ. ოპოზიციური პარტიების უდიდესმა ნაწილმა ამ არჩევნებს ბოიკოტი გამოუცხადა, 2024 წლის სადაო საპარლამენტო არჩევნების შემდგომ."
     },
     "electoral_college": {
       "total": 300,
@@ -1562,8 +1562,11 @@
     "sub_type": "direct",
     "date": "2018-10-28",
     "name": {
-      "en": "2018 Presidential Election",
-      "ka": "2018 წლის საპრეზიდენტო არჩევნები"
+      "en": "October 28, 2018 Elections of the President of Georgia",
+      "ka": "საქართველოს პრეზიდენტის 2018 წლის 28 ოქტომბრის არჩევნები"
+    },
+    "download_name": {
+      "en": "2018 Presidential Election"
     },
     "system": {
       "pr": {
@@ -1580,7 +1583,7 @@
     },
     "notes": {
       "en": "2018 presidential elections were the last elections when Georgians directly elected the country's president. First time in history, a runoff was needed to determine the winner. Salome Zourabichvili, who was running as an independent but was supported by the ruling Georgian Dream party, was elected as the country's first elected female president.\n",
-      "ka": "2018 წლის საპრეზიდენტო არჩევნები გახლდათ უკანასკნელი, როდესაც საქართველოს მოსახლეობამ პრეზიდენტი პირდაპირი წესით აირჩია. პირველად ისტორიაში, გამარჯვებულის გამოსავლენად საჭირო მეორე ტურის ჩატარება გახლდა. სალომე ზურაბიშვილი, რომელიც კენჭს როგორც დამოუკიდებელი კანდიდატი, ისე იყრიდა, საქართველოს პირველი არჩეული ქალი პრეზიდენტი გახდა.\n"
+      "ka": "2018 წლის საპრეზიდენტო არჩევნები გახლდათ უკანასკნელი, როდესაც საქართველოს მოსახლეობამ პრეზიდენტი პირდაპირი წესით აირჩია. პირველად ისტორიაში, გამარჯვებულის გამოსავლენად საჭირო მეორე ტურის ჩატარება გახდა. სალომე ზურაბიშვილი, რომელიც კენჭს როგორც დამოუკიდებელი კანდიდატი, ისე იყრიდა, საქართველოს პირველი არჩეული ქალი პრეზიდენტი გახდა.\n"
     },
     "candidates": [
       {
@@ -1928,6 +1931,7 @@
         "id": "local_2017_zugdidi_2018_sakrebulo_smd",
         "type": "by_election",
         "date": "2018-05-13",
+        "download_key": "20180513",
         "name": {
           "en": "May 13, 2018 Zugdidi Sakrebulo by-election",
           "ka": "2018 წლის 13 მაისის ზუგდიდის საკრებულოს შუალედური არჩევნები"
@@ -1943,6 +1947,7 @@
         "id": "local_2017_2019_by_elections",
         "type": "by_election",
         "date": "2019-05-19",
+        "download_key": "20190519",
         "name": {
           "en": "May 19, 2019 Local by-elections",
           "ka": "2019 წლის 19 მაისის ადგილობრივი შუალედური და რიგგარეშე არჩევნები"
@@ -1958,6 +1963,7 @@
         "id": "local_2017_2019_oct_sakrebulo_by_elections",
         "type": "by_election",
         "date": "2019-10-27",
+        "download_key": "20191027",
         "name": {
           "en": "October 27, 2019 Sakrebulo by-elections",
           "ka": "2019 წლის 27 ოქტომბრის საკრებულოს შუალედური არჩევნები"
@@ -1973,6 +1979,7 @@
         "id": "local_2017_2020_by_elections",
         "type": "by_election",
         "date": "2020-10-31",
+        "download_key": "20201031",
         "name": {
           "en": "October 31, 2020 local by-elections",
           "ka": "2020 წლის 31 ოქტომბრის ადგილობრივი შუალედური არჩევნები"
@@ -1988,6 +1995,7 @@
         "id": "local_2017_2020_by_elections_runoff",
         "type": "runoff",
         "date": "2020-11-21",
+        "download_key": "20201121",
         "name": {
           "en": "November 21, 2020 mayoral runoff",
           "ka": "2020 წლის 21 ნოემბრის მერის არჩევნების მეორე ტური"
@@ -2369,6 +2377,7 @@
         "id": "parl_2016_repeat_20161022",
         "type": "repeated",
         "date": "2016-10-22",
+        "download_key": "20161022",
         "name": {
           "en": "Repeated elections (October 22, 2016)",
           "ka": "განმეორებითი არჩევნები (2016 წლის 22 ოქტომბერი)"
@@ -2396,6 +2405,7 @@
         "id": "parl_2016_major54_2018",
         "type": "by_election",
         "date": "2018-04-28",
+        "download_key": "20180428",
         "name": {
           "en": "Majoritarian District 54 by-election (April 28, 2018)",
           "ka": "№54 მაჟორიტარული ოლქის შუალედური არჩევნები (2018 წლის 28 აპრილი)"
@@ -2409,6 +2419,7 @@
         "id": "parl_2016_mtatsminda_2019",
         "type": "by_election",
         "date": "2019-05-19",
+        "download_key": "20190519",
         "name": {
           "en": "Mtatsminda by-election (May 19, 2019)",
           "ka": "მთაწმინდის შუალედური არჩევნები (2019 წლის 19 მაისი)"
@@ -2422,6 +2433,7 @@
         "id": "parl_2016_mtatsminda_2019_r2",
         "type": "runoff",
         "date": "2019-06-09",
+        "download_key": "20190609",
         "name": {
           "en": "Mtatsminda by-election runoff (June 9, 2019)",
           "ka": "მთაწმინდის შუალედური არჩევნების მეორე ტური (2019 წლის 9 ივნისი)"
