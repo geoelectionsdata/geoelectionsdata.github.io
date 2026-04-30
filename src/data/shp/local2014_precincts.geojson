@@ -1,6 +1,6 @@
 {
 "type": "FeatureCollection",
-"name": "filebd0c511211e4",
+"name": "filec50c62ff7061",
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
 { "type": "Feature", "properties": { "OBJECTID": 1, "District": 21, "Precinct": 22, "PrecID": 21022, "Shape_Leng": 13948.8658992, "Shape_Area": 10412593.525699999, "id": 21022, "precinct_id": 21022, "district_id": 21, "precinct_number": 22, "MID": 2106, "major_id": 2106, "selfgov_id": 21, "Mayor": 21 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 45.140784692364228, 41.381469414657396 ], [ 45.121029054575033, 41.393638413866903 ], [ 45.16057900573162, 41.429018000706485 ], [ 45.172245845336043, 41.414547395354347 ], [ 45.140784692364228, 41.381469414657396 ] ] ] ] } },

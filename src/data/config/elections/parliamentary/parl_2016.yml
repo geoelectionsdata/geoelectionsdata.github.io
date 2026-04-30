@@ -43,6 +43,8 @@ sub_elections:
     files:
       pr_results:          "data/results/parl2016_pr_repeated.csv"
       pr_precinct_results: "data/results/parl2016_pr_repeated_precincts.csv"
+      smd_results:          "data/results/parl2016_smd_repeated.csv"
+      smd_precinct_results: "data/results/parl2016_smd_repeated_precincts.csv"
 
   - id: parl_2016_r2
     type: runoff

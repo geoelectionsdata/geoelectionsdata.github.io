@@ -412,6 +412,11 @@ cat("Reading:", repeated_file, "\n")
 repeated_workbook <- read_sheet_with_header(repeated_file, 1)
 repeated_header <- repeated_workbook[1, , drop = FALSE]
 repeated_raw <- repeated_workbook[-1, , drop = FALSE]
+repeated_candidates_raw <- if (length(readxl::excel_sheets(repeated_file)) >= 2) {
+  read_sheet_with_header(repeated_file, 2)
+} else {
+  tibble()
+}
 
 cat("Reading:", by2018_54_file, "\n")
 by2018_54_raw <- read_sheet_with_header(by2018_54_file, 1)
@@ -448,6 +453,39 @@ party_by_code <- candidate_lookup %>%
   summarise(party_id = first(party_id), .groups = "drop")
 
 cat(sprintf("Candidate lookup: %d entries\n", nrow(candidate_lookup)))
+
+repeated_candidate_lookup <- if (nrow(repeated_candidates_raw) > 1) {
+  repeated_candidate_body <- repeated_candidates_raw[-1, , drop = FALSE]
+  tibble(
+    smd = as.integer(num_col(repeated_candidate_body, 3)),
+    code = as.integer(num_col(repeated_candidate_body, 4)),
+    presenter = str_col(repeated_candidate_body, 5),
+    first_ka = str_col(repeated_candidate_body, 6),
+    last_ka = str_col(repeated_candidate_body, 7)
+  ) %>%
+    filter(smd != 0, code != 0) %>%
+    mutate(
+      party_id = unname(BALLOT_PARTY_MAP[as.character(code)]),
+      name_ka = str_squish(paste(first_ka, last_ka)),
+      candidate_order = row_number()
+    ) %>%
+    filter(!is.na(party_id), name_ka != "") %>%
+    distinct(smd, code, party_id, name_ka, .keep_all = TRUE) %>%
+    group_by(smd, code) %>%
+    slice(1) %>%
+    ungroup() %>%
+    select(smd, code, party_id, name_ka, candidate_order)
+} else {
+  tibble(
+    smd = integer(),
+    code = integer(),
+    party_id = character(),
+    name_ka = character(),
+    candidate_order = integer()
+  )
+}
+
+cat(sprintf("Repeated candidate lookup: %d entries\n", nrow(repeated_candidate_lookup)))
 
 # PR, precinct and district outputs -----------------------------------------
 
@@ -626,6 +664,98 @@ write_csv_like_js(
   repeated_precinct,
   file.path(OUT_DIR, "parl2016_pr_repeated_precincts.csv"),
   REPEATED_PR_PRECINCT_COLS
+)
+
+# SMD repeated election, October 22, 2016 -----------------------------------
+
+repeated_smd_vote_cols <- paste0("code_", SMD_CODES)
+repeated_smd_code_map <- tibble(
+  vote_col = repeated_smd_vote_cols,
+  code = SMD_CODES,
+  code_order = seq_along(SMD_CODES)
+)
+repeated_smd_votes <- make_vote_wide_from_headers(repeated_header, repeated_raw, SMD_CODES)
+
+repeated_smd_base_all <- bind_cols(
+  repeated_pc,
+  tibble(
+    row_order = seq_len(nrow(repeated_raw)),
+    main_list = num_col(repeated_raw, 3),
+    special_list = num_col(repeated_raw, 4),
+    voted_noon = num_col(repeated_raw, 5),
+    voted_5pm = num_col(repeated_raw, 6),
+    voted = num_col(repeated_raw, 7),
+    invalid_ballots = num_col(repeated_raw, repeated_invalid_col),
+    totalVotes = rowSums(as.data.frame(repeated_smd_votes), na.rm = TRUE)
+  )
+) %>%
+  mutate(valid_ballots = totalVotes) %>%
+  filter(valid_precinct) %>%
+  add_precinct_ids(shape_lookup) %>%
+  select(row_order, smd, dd, pp, precinct_id, all_of(SUM_COLS))
+
+repeated_smd_base <- aggregate_precincts_exact(
+  repeated_smd_base_all,
+  repeated_smd_votes[repeated_valid_idx, , drop = FALSE],
+  repeated_smd_vote_cols
+)
+
+repeated_smd_long <- repeated_smd_base %>%
+  pivot_longer(all_of(repeated_smd_vote_cols), names_to = "vote_col", values_to = "votes") %>%
+  left_join(repeated_smd_code_map, by = "vote_col") %>%
+  left_join(repeated_candidate_lookup %>% select(smd, code, party_id, name_ka), by = c("smd", "code")) %>%
+  filter(votes != 0, !is.na(party_id), !is.na(name_ka), name_ka != "")
+
+cat(sprintf("Repeated SMD precinct groups: %d\n", nrow(repeated_smd_base)))
+
+repeated_smd_national_totals <- sum_totals(repeated_smd_base)
+repeated_smd_national <- repeated_smd_long %>%
+  group_by(smd, code, code_order, party_id, name_ka) %>%
+  summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
+  mutate(district_id = "national") %>%
+  attach_totals(repeated_smd_national_totals) %>%
+  add_metrics() %>%
+  arrange(smd, code_order)
+
+repeated_smd_district_totals <- sum_totals(repeated_smd_base, "smd")
+repeated_smd_district <- repeated_smd_long %>%
+  group_by(smd, code, code_order, party_id, name_ka) %>%
+  summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
+  left_join(repeated_smd_district_totals, by = "smd") %>%
+  mutate(district_id = as.character(smd)) %>%
+  add_metrics() %>%
+  arrange(smd, code_order)
+
+REPEATED_SMD_RESULT_COLS <- c(
+  "district_id", "party_id", "name_ka", "votes", "vote_share", "registered", "voted",
+  "voted_noon", "voted_5pm", "main_list", "special_list",
+  "turnout_pct", "noon_pct", "five_pct", "invalid_ballots", "invalid_pct"
+)
+
+write_csv_like_js(
+  bind_rows(repeated_smd_national, repeated_smd_district),
+  file.path(OUT_DIR, "parl2016_smd_repeated.csv"),
+  REPEATED_SMD_RESULT_COLS
+)
+
+repeated_smd_precinct <- repeated_smd_long %>%
+  mutate(
+    district_id = as.character(precinct_id),
+    precinct_key = paste(smd, dd, pp, sep = ".")
+  ) %>%
+  add_metrics() %>%
+  arrange(precinct_order, code_order)
+
+REPEATED_SMD_PRECINCT_COLS <- c(
+  "precinct_id", "precinct_key", "smd", "dd", "pp", "district_id", "party_id", "name_ka",
+  "votes", "vote_share", "registered", "voted", "voted_noon", "voted_5pm",
+  "turnout_pct", "noon_pct", "five_pct", "invalid_ballots", "invalid_pct"
+)
+
+write_csv_like_js(
+  repeated_smd_precinct,
+  file.path(OUT_DIR, "parl2016_smd_repeated_precincts.csv"),
+  REPEATED_SMD_PRECINCT_COLS
 )
 
 # SMD, precinct and district outputs ----------------------------------------
@@ -851,6 +981,7 @@ cat(sprintf("Mtatsminda 2019 runoff precinct groups: %d\n", by2019_r2$precinct_g
 cat("\nDone.\n")
 cat(sprintf("  PR: %d district rows, %d precinct rows\n", nrow(bind_rows(pr_national, pr_district)), nrow(pr_precinct)))
 cat(sprintf("  Repeated PR: %d district rows, %d precinct rows\n", nrow(bind_rows(repeated_national, repeated_district)), nrow(repeated_precinct)))
+cat(sprintf("  Repeated SMD: %d district rows, %d precinct rows\n", nrow(bind_rows(repeated_smd_national, repeated_smd_district)), nrow(repeated_smd_precinct)))
 cat(sprintf("  SMD: %d district rows, %d precinct rows\n", nrow(bind_rows(smd_national, smd_district)), nrow(smd_precinct)))
 cat(sprintf("  Runoff: %d district rows, %d precinct rows\n", nrow(bind_rows(runoff_national, runoff_district)), nrow(runoff_precinct)))
 cat(sprintf("  Majoritarian district 54 2018 by-election: %d district rows, %d precinct rows\n", by2018_54$rows, by2018_54$precinct_rows))

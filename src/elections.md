@@ -168,11 +168,12 @@ const isCouncilMode   = isLocal && ballotTypeVal === "council";
 // Runoffs/by-elections in parliamentary elections are always SMD — force "smd" and hide the toggle
 const isSubElectionSMD = !isPresidential && !isPlebiscite &&
   subVal?.id !== "__main__" &&
-  (subVal?.type === "runoff" || subVal?.type === "by_election");
+  (subVal?.type === "runoff" || subVal?.type === "by_election" ||
+   (subVal?.type === "repeated" && !!(subVal?.files?.smd_results || subVal?.files?.smd_precinct_results)));
 // Repeated parliamentary votes may be PR-only in annulled precincts — force "pr" and hide the toggle
 const isSubElectionPR = !isPresidential && !isPlebiscite &&
   subVal?.id !== "__main__" &&
-  subVal?.type === "repeated";
+  subVal?.type === "repeated" && !isSubElectionSMD;
 const effectiveVoteType = isSubElectionSMD ? "smd"
   : isSubElectionPR ? "pr"
   : (isLocal && ballotTypeVal === "mayor") ? "smd"
@@ -394,6 +395,9 @@ function _getPrecinctPaths(elec, vt, sub, ballotType) {
   const geoPath = vt === "smd"          ? elec?.system?.smd?.precinct_shape_file
                 : vt === "compensation" ? elec?.system?.compensation?.precinct_shape_file
                 : elec?.system?.pr?.precinct_shape_file;
+  const subGeoPath = isSubActive
+    ? (sub?.files?.precinct_shape_file ?? sub?.precinct_shape_file ?? null)
+    : null;
   let csvPath;
   if (ballotType === "council") {
     csvPath = (isSubActive && vt === "smd" && sub?.files?.council_smd_precinct_results)
@@ -404,7 +408,7 @@ function _getPrecinctPaths(elec, vt, sub, ballotType) {
   } else {
     csvPath = vt === "smd" ? elec?.files?.smd_precinct_results : elec?.files?.pr_precinct_results;
   }
-  return { geoPath: geoPath ?? null, csvPath: csvPath ?? null };
+  return { geoPath: subGeoPath ?? geoPath ?? null, csvPath: csvPath ?? null };
 }
 const { geoPath: precinctGeoPath, csvPath: precinctCsvPath } =
   electionVal ? _getPrecinctPaths(electionVal, effectiveVoteType, subVal, ballotTypeVal) : { geoPath: null, csvPath: null };

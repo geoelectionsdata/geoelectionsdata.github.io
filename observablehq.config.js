@@ -51,7 +51,7 @@ export default {
   // Some additional configuration options and their defaults:
   theme: "light",
   // theme: "default", // try "light", "dark", "slate", etc.
-  footer: "დავით სიჭინავა.", // what to show in the footer (HTML)
+  footer: `დავით სიჭინავა. <a href="https://github.com/geoelectionsdata/geoelectionsdata.github.io" target="_blank" rel="noopener noreferrer">GitHub</a>`, // what to show in the footer (HTML)
   sidebar: false, // whether to show the sidebar
   // toc: true, // whether to show the table of contents
   pager: false, // whether to show previous & next links in the footer

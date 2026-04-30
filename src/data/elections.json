@@ -1,0 +1,3578 @@
+[
+  {
+    "id": "local_2025",
+    "type": "local",
+    "date": "2025-04-12",
+    "name": {
+      "en": "2025 elections of municipal authorities",
+      "ka": "მუნიციპალიტეტის ორგანოთა 2025 წლის არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 0,
+        "threshold_pct": 4,
+        "method": "dhondt",
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "selfgov_shape_file": "data/shp/selfgov_areas_2025.geojson",
+        "precinct_shape_file": "data/shp/local2025_precincts.geojson"
+      },
+      "smd": {
+        "enabled": true,
+        "seats": 66,
+        "shape_file": "data/shp/selfgov_areas_2025.geojson",
+        "precinct_shape_file": "data/shp/local2025_precincts.geojson"
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "sub_elections": [],
+    "notes": {
+      "en": "2025 local elections were boycotted by major opposition political parties. It had the lowest turnout and the highest share of invalid ballots registered in history. No international monitoring missions were invited to attend elections.\n",
+      "ka": "2025 წლის ადგილობრივ არჩევნებს მთავარმა ოპოზიციურმა პარტიებმა ბოიკოტი გამოუცხადეს. დაფიქსირდა ისტორიაში ყველაზე დაბალი საარჩევნო აქტივობა და ბათილი ბიულეტენების ყველაზე მაღალი წილი. არჩევნებზე საერთაშორისო მონიტორინგის მისიები არ მოუწვევიათ.\n"
+    },
+    "council": {
+      "total_pr_seats": 0,
+      "total_smd_seats": 0,
+      "shape_file": "data/shp/majoritarian_2025_major_id.geojson"
+    },
+    "parties": [
+      {
+        "id": "gd",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "strong_georgia",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "gakharia",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "girchi",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "conservatives_geo",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "patriots",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "mamuli_ena",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "our_georgia",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "free_georgia",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "peoples_power",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "greens_geo",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "georgia_party",
+        "threshold_status": "failed"
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "Freedom of Information (FOI) request from the Central Elections Commission of Georgia",
+          "ka": "ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "seats": "data/results/local2025_seats.csv",
+      "pr_results": "data/results/local2025_pr.csv",
+      "pr_selfgov_results": "data/results/local2025_pr_selfgov.csv",
+      "pr_precinct_results": "data/results/local2025_pr_precincts.csv",
+      "smd_results": "data/results/local2025_smd.csv",
+      "smd_district_results": "data/results/local2025_smd_districts.csv",
+      "smd_precinct_results": "data/results/local2025_smd_precincts.csv",
+      "council_smd_results": "data/results/local2025_council_smd.csv",
+      "council_smd_precinct_results": "data/results/local2025_council_smd_precincts.csv",
+      "council_pr_results": "data/results/local2025_pr.csv",
+      "council_pr_precinct_results": "data/results/local2025_pr_precincts.csv",
+      "candidates": "data/config/candidates/local/local_2025.yml"
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": null,
+      "precinct_file": null,
+      "has_snapshots": true,
+      "has_lists": false
+    }
+  },
+  {
+    "id": "pres_2024_indirect",
+    "type": "presidential",
+    "sub_type": "indirect",
+    "date": "2024-12-14",
+    "name": {
+      "en": "2024 Presidential Election",
+      "ka": "2024 წლის პრეზიდენტის მორიგი არჩევნები"
+    },
+    "candidates": [
+      {
+        "id": "kavelashvili",
+        "name": {
+          "en": "Mikheil Kavelashvili",
+          "ka": "მიხეილ ყაველაშვილი"
+        },
+        "party": "gd"
+      }
+    ],
+    "notes": {
+      "en": "First presidential election by electoral college, following the 2024 constitutional amendment removing direct popular vote. Elections were boycotted by the majority of oppositional political parties following the disputed 2024 parliamentary elections.",
+      "ka": "პირველი საპრეზიდენტო არჩევნები ამომრჩეველთა კოლეგიის მეშვეობით, 2024 წლის საკონსტიტუციო ცვლილებების შემდეგ. ოპოზიციური პარტიების უდიდესმა ნაწილმა ამ არჩევნებს ბოიკოტი გამოუცხადა, 2024 წლის სადაო არჩევნების შემდგომ."
+    },
+    "electoral_college": {
+      "total": 300,
+      "for": 224,
+      "against": 0,
+      "invalid": 1,
+      "absent": 75
+    },
+    "sub_elections": [],
+    "sources": [
+      {
+        "name": {
+          "ka": "საქართველოს ცენტრალური საარჩევნო კომისია",
+          "en": "Central Elections Commission of Georgia"
+        },
+        "url": "https://cesko.ge/static/file/202412160733-%E1%83%A1%E1%83%90%E1%83%A5%E1%83%90%E1%83%A0%E1%83%97%E1%83%95%E1%83%94%E1%83%9A%E1%83%9D%E1%83%A1-%E1%83%9E%E1%83%A0%E1%83%94%E1%83%96%E1%83%98%E1%83%93%E1%83%94%E1%83%9C%E1%83%A2%E1%83%98%E1%83%A1-%E1%83%90%E1%83%A0%E1%83%A9%E1%83%94%E1%83%95%E1%83%9C%E1%83%94%E1%83%91%E1%83%98%E1%83%A1-%E1%83%A8%E1%83%94%E1%83%93%E1%83%94%E1%83%92%E1%83%94%E1%83%91%E1%83%98%E1%83%A1-%E1%83%A8%E1%83%94%E1%83%9B%E1%83%90%E1%83%AF%E1%83%90%E1%83%9B%E1%83%94%E1%83%91%E1%83%94%E1%83%9A%E1%83%98-%E1%83%9D%E1%83%A5%E1%83%9B%E1%83%98-14.12.2024.pdf"
+      }
+    ],
+    "files": {},
+    "turnout": null
+  },
+  {
+    "id": "adj_2024",
+    "type": "adjara",
+    "sub_type": "pr",
+    "date": "2024-10-26",
+    "name": {
+      "en": "2024 elections to the Supreme Council of the Autonomous Republic of Adjara",
+      "ka": "აჭარის ავტონომიური რესპუბლიკის უმაღლესი საბჭოს 2024 წლის არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 150,
+        "threshold_pct": 5,
+        "method": "dhondt",
+        "shape_file": "data/shp/adj2024_pr.geojson",
+        "precinct_shape_file": "data/shp/adj2024_pr_precincts.geojson"
+      },
+      "smd": {
+        "enabled": false,
+        "seats": 0,
+        "shape_file": null
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "notes": {
+      "en": "In parallel with the 2024 parliamentary elections, members of the Adjara Supreme Council were elected through fully proportional system.\n",
+      "ka": "2024 წლის საპარლამენტო არჩევნების პარალელურად, ჩატარდა აჭარის უმაღლესი საბჭოს წევრთა არჩევნები, სრულად პროპორციული სისტემით.\n"
+    },
+    "sub_elections": [],
+    "parties": [
+      {
+        "id": "gd",
+        "alias": {
+          "en": "Georgian Dream",
+          "ka": "ქართული ოცნება"
+        },
+        "color": "#21509e",
+        "threshold_status": "passed",
+        "seats_pr": 13,
+        "seats_smd": 0
+      },
+      {
+        "id": "coalition_for_change",
+        "alias": {
+          "en": "Coalition for Change",
+          "ka": "კოალიცია ცვლილებისთვის"
+        },
+        "color": "#377149",
+        "threshold_status": "passed",
+        "seats_pr": 1,
+        "seats_smd": 0
+      },
+      {
+        "id": "unity",
+        "alias": {
+          "en": "Unity — National Movement",
+          "ka": "ერთობა — ნაციონალური მოძრაობა"
+        },
+        "color": "#d13529",
+        "threshold_status": "passed",
+        "seats_pr": 4,
+        "seats_smd": 0
+      },
+      {
+        "id": "strong_georgia",
+        "alias": {
+          "en": "Strong Georgia",
+          "ka": "ძლიერი საქართველო"
+        },
+        "color": "#fcaf13",
+        "threshold_status": "passed",
+        "seats_pr": 1,
+        "seats_smd": 0
+      },
+      {
+        "id": "gakharia",
+        "alias": {
+          "en": "For Georgia",
+          "ka": "გახარია საქართველოსთვის"
+        },
+        "color": "#4b2775",
+        "threshold_status": "passed",
+        "seats_pr": 1,
+        "seats_smd": 0
+      },
+      {
+        "id": "girchi",
+        "alias": {
+          "en": "Girchi",
+          "ka": "გირჩი"
+        },
+        "color": "#00a749",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "european_democrats",
+        "alias": {
+          "en": "European Democrats",
+          "ka": "ევროპელი დემოკრატები"
+        },
+        "color": "#0288D1",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "patriots",
+        "alias": {
+          "en": "Alliance of Patriots",
+          "ka": "საქართველოს პატრიოტთა ალიანსი"
+        },
+        "color": "#e1ab2c",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "our_georgia",
+        "alias": {
+          "en": "Our United Georgia",
+          "ka": "ჩვენი გაერთიანებული საქართველო"
+        },
+        "color": "#2E7D32",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "free_georgia",
+        "alias": {
+          "en": "Free Georgia",
+          "ka": "თავისუფალი საქართველო"
+        },
+        "color": "#00695C",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "tribuna",
+        "alias": {
+          "en": "Tribuna",
+          "ka": "ტრიბუნა"
+        },
+        "color": "#4A148C",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      }
+    ],
+    "map_view": {
+      "center": [
+        41.7225389,
+        42.1149651
+      ],
+      "zoom": 9
+    },
+    "sources": [
+      {
+        "name": {
+          "en": "Freedom of Information (FOI) request from the Supreme Electoral Council of Adjara",
+          "ka": "აჭარის უმაღლესი საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "source_note": {
+      "en": "Data are extracted using computer vision and then compared to the ground truth, thus sometimes might diverge from official results.",
+      "ka": "მონაცემები გაციფრულებლია კომპიუტერული ხედვის მეთოდით და შემდეგ შედარებულია შედეგებს, შესაბამისად, ზოგჯერ შესაძლოა, არ ემთხვეოდეს ოფიციალურ მონაცემებს"
+    },
+    "files": {
+      "pr_results": "data/results/adj2024_pr.csv",
+      "pr_precinct_results": "data/results/adj2024_pr_precincts.csv",
+      "smd_results": null,
+      "smd_precinct_results": null,
+      "candidates": null,
+      "cartogram": null
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": "data/turnout/adj2024_turnout.csv",
+      "precinct_file": "data/turnout/adj2024_precincts_turnout.csv",
+      "has_snapshots": false,
+      "has_lists": false
+    }
+  },
+  {
+    "id": "parl_2024",
+    "type": "parliamentary",
+    "sub_type": "pr",
+    "date": "2024-10-26",
+    "name": {
+      "en": "October 26, 2024 elections to the Parliament of Georgia",
+      "ka": "საქართველოს პარლამენტის 2024 წლის 26 ოქტომბრის არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 150,
+        "threshold_pct": 5,
+        "method": "dhondt",
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "precinct_shape_file": "data/shp/parl2024_pr_precincts.geojson"
+      },
+      "smd": {
+        "enabled": false,
+        "seats": 0,
+        "shape_file": null
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "notes": {
+      "en": "2024 parliamentary elections were held on October 26. Preceded by a heated campaign and an increased anti-Western rhetoric of the ruling Georgian Dream party, it featured a 5% electoral threshold for political parties. First time in history, voting machines were used in national elections, leading to allegations of vote rigging. As a result, oppositional political parties refused to recognize its results, and some refused to take up mandates. OSCE ODIHR's <a href=\"https://odihr.osce.org/odihr/elections/georgia/584029\">observation mission final report</a> indicated repeated problems regarding vote secrecy, procedural inconsistencies, intimidation and pressure on voters.\n",
+      "ka": "2024 წლის საპარლამენტო არჩევნები 26 ოქტომბერს ჩატარდა. მას წინ უძღოდა დაძაბული კამპანია და მმართველი „ქართული ოცნების\" მხრიდან გააქტიურებული ანტიდასავლური რიტორიკა. დაწესდა 5%-იანი საარჩევნო ბარიერი. პირველად ისტორიაში, საყოველთაო არჩევნებში ამომრჩევლებს ხმის მიცემა ელექტრონული აპარატებით შეეძლოთ, თუმცა ამასთან დაკავშირებით, წარმოიშვა ბრალდებები გაყალბების შესახებ. შედეგად, ოპოზიციურმა პოლიტიკურმა პარტიებმა არ აღიარეს არჩევნების შედეგები და უმრავლესობამ საპარლამენტო მანდატებზე უარი თქვეს. ეუთო-ს <a href=\"https://odihr.osce.org/odihr/elections/georgia/584029\">სადამკვირვებლო მისიის საბოლოო ანგარიში</a> მიუთითებს ხმის მიცემის ფარულობის მრავალჯერად დარღვევებზე, პროცედურულ არათანმიმდევრულობაზე და ამომრჩევლებზე ზეწოლაზე.\n"
+    },
+    "sub_elections": [],
+    "parties": [
+      {
+        "id": "gd",
+        "alias": {
+          "en": "Georgian Dream",
+          "ka": "ქართული ოცნება"
+        },
+        "color": "#21509e",
+        "threshold_status": "passed",
+        "seats_pr": 89,
+        "seats_smd": 0
+      },
+      {
+        "id": "coalition_for_change",
+        "alias": {
+          "en": "Coalition for Change",
+          "ka": "კოალიცია ცვლილებისთვის"
+        },
+        "color": "#377149",
+        "threshold_status": "passed",
+        "seats_pr": 19,
+        "seats_smd": 0
+      },
+      {
+        "id": "unity",
+        "alias": {
+          "en": "Unity — National Movement",
+          "ka": "ერთობა — ნაციონალური მოძრაობა"
+        },
+        "color": "#d13529",
+        "threshold_status": "passed",
+        "seats_pr": 16,
+        "seats_smd": 0
+      },
+      {
+        "id": "strong_georgia",
+        "alias": {
+          "en": "Strong Georgia",
+          "ka": "ძლიერი საქართველო"
+        },
+        "color": "#fcaf13",
+        "threshold_status": "passed",
+        "seats_pr": 14,
+        "seats_smd": 0
+      },
+      {
+        "id": "gakharia",
+        "alias": {
+          "en": "For Georgia",
+          "ka": "გახარია საქართველოსთვის"
+        },
+        "color": "#4b2775",
+        "threshold_status": "passed",
+        "seats_pr": 12,
+        "seats_smd": 0
+      },
+      {
+        "id": "girchi",
+        "alias": {
+          "en": "Girchi",
+          "ka": "გირჩი"
+        },
+        "color": "#00a749",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "european_democrats",
+        "alias": {
+          "en": "European Democrats",
+          "ka": "ევროპელი დემოკრატები"
+        },
+        "color": "#0288D1",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "labour",
+        "alias": {
+          "en": "Labour Party",
+          "ka": "საქართველოს ლეიბორისტული პარტია"
+        },
+        "color": "#D32F2F",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "change_georgia",
+        "alias": {
+          "en": "Change Georgia",
+          "ka": "შეცვალე საქართველო"
+        },
+        "color": "#E65100",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "patriots",
+        "alias": {
+          "en": "Alliance of Patriots",
+          "ka": "საქართველოს პატრიოტთა ალიანსი"
+        },
+        "color": "#e1ab2c",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "our_georgia",
+        "alias": {
+          "en": "Our United Georgia",
+          "ka": "ჩვენი გაერთიანებული საქართველო"
+        },
+        "color": "#2E7D32",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgia_party",
+        "alias": {
+          "en": "Georgia",
+          "ka": "საქართველო"
+        },
+        "color": "#283593",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "free_georgia",
+        "alias": {
+          "en": "Free Georgia",
+          "ka": "თავისუფალი საქართველო"
+        },
+        "color": "#00695C",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "chven",
+        "alias": {
+          "en": "We",
+          "ka": "ჩვენ"
+        },
+        "color": "#AD1457",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "left_alliance",
+        "alias": {
+          "en": "Left Alliance",
+          "ka": "მემარცხენე ალიანსი"
+        },
+        "color": "#4E342E",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "tribuna",
+        "alias": {
+          "en": "Tribuna",
+          "ka": "ტრიბუნა"
+        },
+        "color": "#4A148C",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgian_unity",
+        "alias": {
+          "en": "Georgian Unity",
+          "ka": "ქართველ ერთობა"
+        },
+        "color": "#5D4037",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "unity_development",
+        "alias": {
+          "en": "Party of Unity and Development",
+          "ka": "საქართველოს ერთობისა და განვითარების პარტია"
+        },
+        "color": "#546E7A",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "Freedom of Information (FOI) request from the Central Elections Commission of Georgia",
+          "ka": "ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "pr_results": "data/results/parl2024_pr.csv",
+      "pr_precinct_results": "data/results/parl2024_pr_precincts.csv",
+      "smd_results": null,
+      "candidates": "data/candidates/parl2024.csv",
+      "cartogram": "data/shp/parl2024_cartogram.geojson"
+    },
+    "turnout": {
+      "available": true,
+      "type": "detailed",
+      "file": null,
+      "precinct_file": null,
+      "has_snapshots": true,
+      "has_lists": true
+    }
+  },
+  {
+    "id": "local_2021",
+    "type": "local",
+    "date": "2021-10-02",
+    "name": {
+      "en": "2021 elections of municipal authorities",
+      "ka": "მუნიციპალიტეტის ორგანოთა 2021 წლის არჩევნები"
+    },
+    "notes": {
+      "en": "First elections after the April 2021 Charles Michel agreement. Political parties agreed on a provisional 43% threshold for the Georgian Dream to trigger early parliamentary elections. Mayor and Sakrebulo majoritarian\ncontests in some municipalities proceeded to a second round.\n",
+      "ka": "პირველი არჩევნები 2021 წლის აპრილის შარლ მიშელის შეთანხმების შემდეგ. პოლიტიკური პარტიები შეთანხმდნენ შუალედურ 43%-იან ბარიერზე, „ქართული ოცნების მხრიდან“ რომლის ვერგადალახვის შემთხვევაში, დაინიშნებოდა რიგგარეშე საპარლამენტო არჩევნები. ზოგიერთ მუნიციპალიტეტში, მერისა და საკრებულოს მაჟორიტარი კანდიდატების არჩევნებში გამარჯვებულის გამოსავლენად, მეორე ტური გახდა საჭირო.\n"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 0,
+        "threshold_pct": 3,
+        "method": "dhondt",
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "selfgov_shape_file": "data/shp/selfgov_areas_2025.geojson",
+        "precinct_shape_file": "data/shp/local2021_precincts.geojson"
+      },
+      "smd": {
+        "enabled": true,
+        "seats": 64,
+        "shape_file": "data/shp/selfgov_areas_2025.geojson",
+        "precinct_shape_file": "data/shp/local2021_precincts.geojson"
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "council": {
+      "total_pr_seats": 0,
+      "total_smd_seats": 0,
+      "shape_file": "data/shp/majoritarian_2021_major_id.geojson"
+    },
+    "sub_elections": [
+      {
+        "id": "local_2021_r2",
+        "type": "runoff",
+        "name": {
+          "en": "Second Round",
+          "ka": "მეორე ტური"
+        },
+        "files": {
+          "smd_results": "data/results/local2021_r2_smd.csv",
+          "smd_precinct_results": "data/results/local2021_r2_smd_precincts.csv",
+          "council_smd_results": "data/results/local2021_r2_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2021_r2_council_smd_precincts.csv"
+        }
+      }
+    ],
+    "parties": [
+      {
+        "id": "gd",
+        "threshold_status": "passed",
+        "alias": {
+          "ka": "ქართული ოცნება - დემოკრატიული საქართველო"
+        }
+      },
+      {
+        "id": "unm",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "lelo",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "european_georgia",
+        "threshold_status": "passed",
+        "alias": {
+          "ka": "ევროპული საქართველო-მოძრაობა თავისუფლებისთვის"
+        }
+      },
+      {
+        "id": "gakharia",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "girchi",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "girchi_more_freedom",
+        "threshold_status": "passed",
+        "alias": {
+          "ka": "ზურაბ გირჩი ჯაფარიძე: გირჩი - მეტი თავისუფლება"
+        }
+      },
+      {
+        "id": "citizens",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "ალეკო ელისაშვილი-მოქალაქეები"
+        }
+      },
+      {
+        "id": "droa",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "ელენე ხოშტარია - დროა"
+        }
+      },
+      {
+        "id": "early_elections_coalition",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "patriots",
+        "threshold_status": "passed",
+        "alias": {
+          "ka": "დავით თარხან-მოურავი, ირმა ინაშვილი - საქართველოს პატრიოტთა ალიანსი",
+          "en": "Davit Tarkhan-Mouravi, Irma Inashvili - Alliance of Patriots of Georgia"
+        }
+      },
+      {
+        "id": "labour",
+        "threshold_status": "passed",
+        "alias": {
+          "ka": "შალვა ნათელაშვილი-საქართველოს ლეიბორისტული პარტია",
+          "en": "Shalva Natelashvili-Labour Party of Georgia"
+        }
+      },
+      {
+        "id": "left_alliance",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "third_force",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "european_democrats",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "law_justice",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "new_christian_democrats",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "გოგი წულაია - ახალი ქრისტიანდემოკრატები",
+          "en": "Gogi Tsulaia - New Christian Democrats"
+        }
+      },
+      {
+        "id": "reformer",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "georgian_group",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "ჯონდი ბაღათურია-ქართული დასი"
+        }
+      },
+      {
+        "id": "european_socialists",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "progress_freedom",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "development_party",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "social_democrats",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "free_choice",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "social_justice",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "მამუკა ტუსკაძე-სოციალური სამართლიანობისათვის"
+        }
+      },
+      {
+        "id": "workers_socialist",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "nation_party",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "ერი - მირიან მირიანაშვილი"
+        }
+      },
+      {
+        "id": "tribuna",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "დავით ჭიჭინაძე - ტრიბუნა"
+        }
+      },
+      {
+        "id": "free_georgia",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "თავისუფალი საქართველო (ზაზა ხატიაშვილი, კახა კუკავა,გრიგოლ ჯოჯუა)"
+        }
+      },
+      {
+        "id": "mechiauri_united",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "თამაზ მეჭიაური ერთიანი საქართველოსთვის"
+        }
+      },
+      {
+        "id": "freedom_gamsakhurdia",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "face_plus",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "democrats_alliance",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "third_way",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "peoples_party",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "for_people",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "ანა დოლიძე - ხალხისთვის"
+        }
+      },
+      {
+        "id": "reformators",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "greens_geo",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "გაჩეჩილაძე - მწვანეთა პარტია"
+        }
+      },
+      {
+        "id": "georgia_party",
+        "threshold_status": "failed"
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "Freedom of Information (FOI) request from the Central Elections Commission of Georgia",
+          "ka": "ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "seats": "data/results/local2021_seats.csv",
+      "pr_results": "data/results/local2021_pr.csv",
+      "pr_selfgov_results": "data/results/local2021_pr_selfgov.csv",
+      "pr_precinct_results": "data/results/local2021_pr_precincts.csv",
+      "smd_results": "data/results/local2021_smd.csv",
+      "smd_district_results": "data/results/local2021_smd_districts.csv",
+      "smd_precinct_results": "data/results/local2021_smd_precincts.csv",
+      "council_smd_results": "data/results/local2021_council_smd.csv",
+      "council_smd_precinct_results": "data/results/local2021_council_smd_precincts.csv",
+      "council_pr_results": "data/results/local2021_pr.csv",
+      "council_pr_precinct_results": "data/results/local2021_pr_precincts.csv",
+      "candidates": "data/config/candidates/local/local_2021.yml"
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": null,
+      "precinct_file": null,
+      "has_snapshots": true,
+      "has_lists": false
+    }
+  },
+  {
+    "id": "adj_2020",
+    "type": "adjara",
+    "sub_type": "mixed",
+    "date": "2020-10-31",
+    "name": {
+      "en": "October 31, 2020 elections to the Supreme Council of the Autonomous Republic of Adjara",
+      "ka": "აჭარის ავტონომიური რესპუბლიკის უმაღლესი საბჭოს 2020 წლის 31 ოქტომბრის არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 18,
+        "threshold_pct": 1,
+        "method": "dhondt",
+        "shape_file": "data/shp/adj2024_pr.geojson",
+        "precinct_shape_file": "data/shp/adj2020_pr_precincts.geojson"
+      },
+      "smd": {
+        "enabled": true,
+        "seats": 3,
+        "shape_file": "data/shp/adj2020_smd.geojson",
+        "precinct_shape_file": "data/shp/adj2020_pr_precincts.geojson"
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "map_view": {
+      "center": [
+        41.7225389,
+        42.1149651
+      ],
+      "zoom": 9
+    },
+    "notes": {
+      "en": "The 2020 elections to the Supreme Council of Adjara were held in parallel with the 2020 parliamentary elections. Members were elected through proportional lists and three single-member majoritarian districts. Majoritarian races in Batumi and the Khelvachauri-Keda-Shuakhevi-Khulo district went to a runoff; Kobuleti-Khelvachauri was decided in the first round.\n",
+      "ka": "აჭარის უმაღლესი საბჭოს 2020 წლის არჩევნები 2020 წლის საპარლამენტო არჩევნების პარალელურად გაიმართა. წევრები აირჩიეს პროპორციული სიებით და სამი მაჟორიტარული ოლქით. ბათუმისა და ხელვაჩაური-ქედა-შუახევი-ხულოს მაჟორიტარულ ოლქებში გაიმართა მეორე ტური; ქობულეთი-ხელვაჩაურის ოლქში გამარჯვებული პირველივე ტურში გამოვლინდა.\n"
+    },
+    "sub_elections": [
+      {
+        "id": "adj_2020_smd_runoff",
+        "type": "runoff",
+        "name": {
+          "en": "Second Round (November 21, 2020)",
+          "ka": "მეორე ტური (2020 წლის 21 ნოემბერი)"
+        },
+        "files": {
+          "smd_results": "data/results/adj2020_smd_runoff.csv",
+          "smd_precinct_results": "data/results/adj2020_smd_runoff_precincts.csv"
+        }
+      }
+    ],
+    "parties": [
+      {
+        "id": "gd",
+        "threshold_status": "passed",
+        "seats_pr": 10,
+        "seats_smd": 3
+      },
+      {
+        "id": "unm",
+        "threshold_status": "passed",
+        "seats_pr": 7,
+        "seats_smd": 0
+      },
+      {
+        "id": "european_georgia",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "lelo",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "patriots",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "girchi",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "agmashenebeli",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "citizens",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "labour",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "democratic_movement",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "tribuna",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "alliance",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgian_idea",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "free_georgia",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgian_march",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "victorious_georgia",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "conservatives",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "freedom_gamsakhurdia",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "social_justice_2020",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgian_choice",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "justice",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "face_plus",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "Public information requested from the Supreme Electoral Council of Adjara",
+          "ka": "აჭარის უმაღლესი საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "pr_results": "data/results/adj2020_pr.csv",
+      "pr_precinct_results": "data/results/adj2020_pr_precincts.csv",
+      "smd_results": "data/results/adj2020_smd.csv",
+      "smd_precinct_results": "data/results/adj2020_smd_precincts.csv",
+      "candidates": "data/candidates/adj2020_smd_candidates.csv",
+      "party_lists": "data/candidates/adj2020_party_lists.csv",
+      "elected": "data/candidates/adj2020_elected.csv",
+      "cartogram": null
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": "data/turnout/adj2020_turnout.csv",
+      "precinct_file": "data/turnout/adj2020_precincts_turnout.csv",
+      "has_snapshots": true,
+      "has_lists": true
+    }
+  },
+  {
+    "id": "parl_2020",
+    "type": "parliamentary",
+    "sub_type": "mixed",
+    "date": "2020-10-31",
+    "name": {
+      "en": "October 31, 2020 elections to the Parliament of Georgia",
+      "ka": "საქართველოს პარლამენტის 2020 წლის 31 ოქტომბრის არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 120,
+        "threshold_pct": 1,
+        "method": "dhondt",
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "precinct_shape_file": "data/shp/parl2020_pr_precincts.geojson"
+      },
+      "smd": {
+        "enabled": true,
+        "seats": 30,
+        "shape_file": "data/shp/parl2020_smd.geojson",
+        "precinct_shape_file": "data/shp/parl2020_pr_precincts.geojson"
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "map_view": {
+      "center": [
+        42.1,
+        43.5
+      ],
+      "zoom": 7
+    },
+    "notes": {
+      "en": "The 2020 parliamentary elections were held under a reduced 1% proportional threshold and consolidated majoritarian districts. On November 21, 2020, a second round was held in 17 majoritarian electoral districts; however, the opposition candidates who advanced to the second round boycotted the elections. As a result, \"Georgian Dream\" obtained a simple majority in the parliament. Opposition parties initially disputed the results and refused to enter the parliament, but the boycott ended after an agreement was reached through the mediation of European Council President Charles Michel in April 2021.\n",
+      "ka": "2020 წლის საპარლამენტო ჩატარდა შემცირებული 1%-იანი პროპორციული ბარიერისა და გამსხვილებული მაჟორიტარული ოლქების პირობებში.  2020 წლის 21 ნოემბერს 17 მაჟორიტარულ საარჩევნო ოლქში მეორე ტური გაიმართა, თუმცა მეორე ტურში გასულმა ოპოზიციურმა კანდიდატებმა არჩევნებს ბოიკოტი გამოუცხდეს. შედეგად, „ქართულმა ოცნებამ\" პარლამენტში უბრალო უმრავლესობა მოიპოვა. ოპოზიციური პარტიები თავდაპირველად სადავოდ ხდიდნენ შედეგებს და უარს ამბობდნენ პარლამენტში შესვლაზე, თუმცა 2021 წლის აპრილში ევროკავშირის საბჭოს პრეზიდენტ შარლ მიშელის მიერ შუამავლობით მიღწეული შეთანხმების შემდეგ, ბოიკოტი დასრულდა.\n"
+    },
+    "sub_elections": [
+      {
+        "id": "parl_2020_r2",
+        "type": "runoff",
+        "name": {
+          "en": "Second Round (November 21, 2020)",
+          "ka": "მეორე ტური (2020 წლის 21 ნოემბერი)"
+        },
+        "files": {
+          "smd_results": "data/results/parl2020_smd_runoff.csv",
+          "smd_precinct_results": "data/results/parl2020_smd_runoff_precincts.csv"
+        }
+      }
+    ],
+    "parties": [
+      {
+        "id": "gd",
+        "alias": {
+          "en": "Georgian Dream — Democratic Georgia",
+          "ka": "ქართული ოცნება — დემოკრატიული საქართველო"
+        },
+        "color": "#21509e",
+        "threshold_status": "passed",
+        "seats_pr": 60,
+        "seats_smd": 30
+      },
+      {
+        "id": "unm",
+        "alias": {
+          "en": "Bloc: UNM — United Opposition — Strength in Unity",
+          "ka": "ბლოკი „ერთიანი ნაციონალური მოძრაობა — გაერთიანებული ოპოზიცია „ძალა ერთობაშია\"\""
+        },
+        "color": "#C62828",
+        "threshold_status": "passed",
+        "seats_pr": 36,
+        "seats_smd": 0
+      },
+      {
+        "id": "european_georgia",
+        "alias": {
+          "en": "Bakradze, Ugulava, Bokeria — European Georgia — Movement for Freedom",
+          "ka": "ბაქრაძე, უგულავა, ბოკერია — ევროპული საქართველო — მოძრაობა თავისუფლებისთვის"
+        },
+        "color": "#0288D1",
+        "threshold_status": "passed",
+        "seats_pr": 5,
+        "seats_smd": 0
+      },
+      {
+        "id": "lelo",
+        "alias": {
+          "en": "Lelo — Mamuka Khazaradze",
+          "ka": "ლელო — მამუკა ხაზარაძე"
+        },
+        "color": "#00695C",
+        "threshold_status": "passed",
+        "seats_pr": 4,
+        "seats_smd": 0
+      },
+      {
+        "id": "agmashenebeli",
+        "alias": {
+          "en": "Bloc: Giorgi Vashadze — Strategy Agmashenebeli",
+          "ka": "ბლოკი „გიორგი ვაშაძე — სტრატეგია აღმაშენებელი\""
+        },
+        "color": "#283593",
+        "threshold_status": "passed",
+        "seats_pr": 4,
+        "seats_smd": 0
+      },
+      {
+        "id": "patriots",
+        "alias": {
+          "en": "Tarkhan-Mouravi, Inashvili — Alliance of Patriots of Georgia",
+          "ka": "დავით თარხან-მოურავი, ირმა ინაშვილი — საქართველოს პატრიოტთა ალიანსი"
+        },
+        "color": "#880E4F",
+        "threshold_status": "passed",
+        "seats_pr": 4,
+        "seats_smd": 0
+      },
+      {
+        "id": "girchi",
+        "alias": {
+          "en": "Girchi",
+          "ka": "გირჩი"
+        },
+        "color": "#F57F17",
+        "threshold_status": "passed",
+        "seats_pr": 4,
+        "seats_smd": 0
+      },
+      {
+        "id": "citizens",
+        "alias": {
+          "en": "Aleko Elisashvili — Citizens",
+          "ka": "ალეკო ელისაშვილი — მოქალაქეები"
+        },
+        "color": "#1565C0",
+        "threshold_status": "passed",
+        "seats_pr": 2,
+        "seats_smd": 0
+      },
+      {
+        "id": "labour",
+        "alias": {
+          "en": "Shalva Natelashvili — Labour Party of Georgia",
+          "ka": "შალვა ნათელაშვილი — საქართველოს ლეიბორისტული პარტია"
+        },
+        "color": "#D32F2F",
+        "threshold_status": "passed",
+        "seats_pr": 1,
+        "seats_smd": 0
+      },
+      {
+        "id": "democratic_movement",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "tribuna",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "alliance",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgian_idea",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "free_georgia",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "free_democrats",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "national_democrats",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgian_march",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "social_democrats_2020",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "victorious_georgia",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "veterans",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "conservatives",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "freedom_gamsakhurdia",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "social_justice_2020",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "mechiauri",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "whites",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "future_georgia",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "reformer",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgian_choice",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "justice",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "roots",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "reformators",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "new_force",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "zviads_way",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "development_party",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "greens",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "change_georgia",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgia_party",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "industry_sakartvelo",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "peoples_party",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgian_troupe",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "progressive_georgia",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "free_georgia_movement",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "workers_socialist",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "choice_homeland_2020",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "motherland_2020",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "new_christian_democrats",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "ndp_2020",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "euroatlantic_vector",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "traditionalists",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "peoples_movement_2020",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "our_georgia",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "independent",
+        "seats_pr": 0,
+        "seats_smd": 0
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "Public information requested from the Central Election Commission as part of the preparation of the National Democratic Institute's (NDI) election portal electionsdata.ge",
+          "ka": "„ეროვნული დემოკრატიული ინსტიტუტის“ (NDI) საარჩევნო პორტალის electionsdata.ge მომზადების ფარგლებში ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "pr_results": "data/results/parl2020_pr.csv",
+      "pr_precinct_results": "data/results/parl2020_pr_precincts.csv",
+      "smd_results": "data/results/parl2020_smd.csv",
+      "smd_precinct_results": "data/results/parl2020_smd_precincts.csv",
+      "candidates": null,
+      "cartogram": "data/shp/parl2020_cartogram.geojson"
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": null,
+      "precinct_file": null,
+      "has_snapshots": true,
+      "has_lists": true
+    }
+  },
+  {
+    "id": "pres_2018",
+    "type": "presidential",
+    "sub_type": "direct",
+    "date": "2018-10-28",
+    "name": {
+      "en": "2018 Presidential Election",
+      "ka": "2018 წლის საპრეზიდენტო არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "precinct_shape_file": "data/shp/pres2018_precincts.geojson"
+      },
+      "smd": {
+        "enabled": false
+      },
+      "compensation": {
+        "enabled": false
+      }
+    },
+    "notes": {
+      "en": "2018 presidential elections were the last elections when Georgians directly elected the country's president. First time in history, a runoff was needed to determine the winner. Salome Zourabichvili, who was running as an independent but was supported by the ruling Georgian Dream party, was elected as the country's first elected female president.\n",
+      "ka": "2018 წლის საპრეზიდენტო არჩევნები გახლდათ უკანასკნელი, როდესაც საქართველოს მოსახლეობამ პრეზიდენტი პირდაპირი წესით აირჩია. პირველად ისტორიაში, გამარჯვებულის გამოსავლენად საჭირო მეორე ტურის ჩატარება გახლდა. სალომე ზურაბიშვილი, რომელიც კენჭს როგორც დამოუკიდებელი კანდიდატი, ისე იყრიდა, საქართველოს პირველი არჩეული ქალი პრეზიდენტი გახდა.\n"
+    },
+    "candidates": [
+      {
+        "id": "zourabichvili",
+        "name": {
+          "en": "Salome Zourabichvili",
+          "ka": "სალომე ზურაბიშვილი"
+        },
+        "party": "independent",
+        "color": "#1565C0",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "vashadze",
+        "name": {
+          "en": "Grigol Vashadze",
+          "ka": "გრიგოლ ვაშაძე"
+        },
+        "party": "unm",
+        "color": "#C62828",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "bakradze",
+        "name": {
+          "en": "David Bakradze",
+          "ka": "დავით ბაქრაძე"
+        },
+        "party": "european_georgia",
+        "color": "#0288D1",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "natelashvili",
+        "name": {
+          "en": "Shalva Natelashvili",
+          "ka": "შალვა ნათელაშვილი"
+        },
+        "party": "labour",
+        "color": "#D32F2F",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "usupashvili",
+        "name": {
+          "en": "David Usupashvili",
+          "ka": "დავით უსუფაშვილი"
+        },
+        "party": "independent",
+        "color": "#00838F",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "japaridze",
+        "name": {
+          "en": "Zurab Japaridze",
+          "ka": "ზურაბ ჯაფარიძე"
+        },
+        "party": "independent",
+        "color": "#F57F17",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "gorgadze",
+        "name": {
+          "en": "Irakli Gorgadze",
+          "ka": "ირაკლი გორგაძე"
+        },
+        "party": "independent",
+        "color": "#4527A0",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "mikheil_antadze",
+        "name": {
+          "en": "Mikheil Antadze",
+          "ka": "მიხეილ ანთაძე"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "gabunia",
+        "name": {
+          "en": "Vakhtang Gabunia",
+          "ka": "ვახტანგ გაბუნია"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "mekhatishvili",
+        "name": {
+          "en": "Zviad Mekhatishvili",
+          "ka": "ზვიად მეხატიშვილი"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "liluashvili",
+        "name": {
+          "en": "Giorgi Liluashvili",
+          "ka": "გიორგი ლილუაშვილი"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "asatiani",
+        "name": {
+          "en": "Akaki Asatiani",
+          "ka": "აკაკი ასათიანი"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "kukava",
+        "name": {
+          "en": "Kakha Kukava",
+          "ka": "კახა კუკავა"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "meunargia",
+        "name": {
+          "en": "Otar Meunargia",
+          "ka": "ოთარ მეუნარგია"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "baghdavadze",
+        "name": {
+          "en": "Zviadi Baghdavadze",
+          "ka": "ზვიადი ბაღდავაძე"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "saluashvili",
+        "name": {
+          "en": "Mikheil Saluashvili",
+          "ka": "მიხეილ სალუაშვილი"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "iashvili",
+        "name": {
+          "en": "Zviad Iashvili",
+          "ka": "ზვიად იაშვილი"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "tskharagauli",
+        "name": {
+          "en": "Tamari Tskharagauli",
+          "ka": "თამარი ცხორაგაული"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "khutsishvili",
+        "name": {
+          "en": "Gela Khutsishvili",
+          "ka": "გელა ხუციშვილი"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "chkheidze",
+        "name": {
+          "en": "Levani Chkheidze",
+          "ka": "ლევანი ჩხეიძე"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "tediashvili",
+        "name": {
+          "en": "Besarion Tediashvili",
+          "ka": "ბესარიონ თედიაშვილი"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "andriadze",
+        "name": {
+          "en": "Giorgi Andriadze",
+          "ka": "გიორგი ანდრიაძე"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "chichinadze",
+        "name": {
+          "en": "Kakhaberi Chichinadze",
+          "ka": "კახაბერ ჭიჭინაძე"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "nonikashvili",
+        "name": {
+          "en": "Vladimer Nonikashvili",
+          "ka": "ვლადიმერ ნონიკაშვილი"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "shashiashvili",
+        "name": {
+          "en": "Teimuraz Shashiashvili",
+          "ka": "თეიმურაზ შაშიაშვილი"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      }
+    ],
+    "sub_elections": [
+      {
+        "id": "pres_2018_r2",
+        "type": "runoff",
+        "date": "2018-11-28",
+        "name": {
+          "en": "2018 Presidential: runoff",
+          "ka": "2018 საპრეზიდენტო: მეორე ტური"
+        },
+        "files": {
+          "pr_results": "data/results/pres2018_r2.csv",
+          "pr_precinct_results": "data/results/pres2018_r2_precincts.csv"
+        }
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "Freedom of Information (FOI) request from the Central Election Commission of Georgia",
+          "ka": "ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "pr_results": "data/results/pres2018_r1.csv",
+      "pr_precinct_results": "data/results/pres2018_r1_precincts.csv",
+      "cartogram": "data/shp/parl2024_cartogram.geojson"
+    },
+    "turnout": {
+      "available": true,
+      "type": "detailed",
+      "file": null,
+      "precinct_file": null,
+      "has_snapshots": true,
+      "has_lists": true
+    }
+  },
+  {
+    "id": "local_2017",
+    "type": "local",
+    "date": "2017-10-21",
+    "name": {
+      "en": "2017 elections of municipal authorities",
+      "ka": "მუნიციპალიტეტის ორგანოთა 2017 წლის არჩევნები"
+    },
+    "notes": {
+      "en": "Georgian Dream won all 64 mayoralties in the first or second round. European Georgia,\nwhich had split from the United National Movement earlier in 2017, competed for the\nfirst time. Mayor and Sakrebulo majoritarian contests in several municipalities\nproceeded to a second round held on 11 November 2017.\n",
+      "ka": "ქართულმა ოცნებამ სრული გამარჯვება მოიპოვა — 64 მუნიციპალიტეტში მერები პირველ ან\nმეორე ტურში აირჩია. ევროპული საქართველო, რომელიც 2017 წელს გაიყო ეროვნული მოძრაობისგან,\nპირველად მონაწილეობდა ადგილობრივ არჩევნებში. ზოგიერთ მუნიციპალიტეტში მერებისა და\nსაკრებულოს მაჟორიტარი კანდიდატების გამოსავლენად, 2017 წლის 11 ნოემბერს მეორე ტური\nჩატარდა.\n"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 0,
+        "threshold_pct": 3,
+        "method": "dhondt",
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "selfgov_shape_file": "data/shp/selfgov_areas_2025.geojson",
+        "precinct_shape_file": "data/shp/local2017_precincts.geojson"
+      },
+      "smd": {
+        "enabled": true,
+        "seats": 64,
+        "shape_file": "data/shp/selfgov_areas_2025.geojson",
+        "precinct_shape_file": "data/shp/local2017_precincts.geojson"
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "council": {
+      "total_pr_seats": 0,
+      "total_smd_seats": 0,
+      "shape_file": "data/shp/majoritarian_2017_major_id.geojson"
+    },
+    "sub_elections": [
+      {
+        "id": "local_2017_r2",
+        "type": "runoff",
+        "name": {
+          "en": "Second Round",
+          "ka": "კენჭისყრის მეორე ტური"
+        },
+        "files": {
+          "smd_results": "data/results/local2017_r2_smd.csv",
+          "smd_precinct_results": "data/results/local2017_r2_smd_precincts.csv",
+          "council_smd_results": "data/results/local2017_r2_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2017_r2_council_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2017_zugdidi_2018_sakrebulo_smd",
+        "type": "by_election",
+        "date": "2018-05-13",
+        "name": {
+          "en": "May 13, 2018 Zugdidi Sakrebulo by-election",
+          "ka": "2018 წლის 13 მაისის ზუგდიდის საკრებულოს შუალედური არჩევნები"
+        },
+        "files": {
+          "smd_results": "data/results/local2017_zugdidi_2018_smd.csv",
+          "smd_precinct_results": "data/results/local2017_zugdidi_2018_smd_precincts.csv",
+          "council_smd_results": "data/results/local2017_zugdidi_2018_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2017_zugdidi_2018_council_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2017_2019_by_elections",
+        "type": "by_election",
+        "date": "2019-05-19",
+        "name": {
+          "en": "May 19, 2019 Local by-elections",
+          "ka": "2019 წლის 19 მაისის ადგილობრივი შუალედური და რიგგარეშე არჩევნები"
+        },
+        "files": {
+          "smd_results": "data/results/local2017_2019_byelections_smd.csv",
+          "smd_precinct_results": "data/results/local2017_2019_byelections_smd_precincts.csv",
+          "council_smd_results": "data/results/local2017_2019_byelections_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2017_2019_byelections_council_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2017_2019_oct_sakrebulo_by_elections",
+        "type": "by_election",
+        "date": "2019-10-27",
+        "name": {
+          "en": "October 27, 2019 Sakrebulo by-elections",
+          "ka": "2019 წლის 27 ოქტომბრის საკრებულოს შუალედური არჩევნები"
+        },
+        "files": {
+          "smd_results": "data/results/local2017_2019_oct_byelections_smd.csv",
+          "smd_precinct_results": "data/results/local2017_2019_oct_byelections_smd_precincts.csv",
+          "council_smd_results": "data/results/local2017_2019_oct_byelections_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2017_2019_oct_byelections_council_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2017_2020_by_elections",
+        "type": "by_election",
+        "date": "2020-10-31",
+        "name": {
+          "en": "October 31, 2020 local by-elections",
+          "ka": "2020 წლის 31 ოქტომბრის ადგილობრივი შუალედური არჩევნები"
+        },
+        "files": {
+          "smd_results": "data/results/local2017_2020_byelections_smd.csv",
+          "smd_precinct_results": "data/results/local2017_2020_byelections_smd_precincts.csv",
+          "council_smd_results": "data/results/local2017_2020_byelections_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2017_2020_byelections_council_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2017_2020_by_elections_runoff",
+        "type": "runoff",
+        "date": "2020-11-21",
+        "name": {
+          "en": "November 21, 2020 mayoral runoff",
+          "ka": "2020 წლის 21 ნოემბრის მერის არჩევნების მეორე ტური"
+        },
+        "files": {
+          "smd_results": "data/results/local2017_2020_byelections_smd_runoff.csv",
+          "smd_precinct_results": "data/results/local2017_2020_byelections_smd_runoff_precincts.csv",
+          "council_smd_results": "data/results/local2017_2020_byelections_council_smd_runoff.csv",
+          "council_smd_precinct_results": "data/results/local2017_2020_byelections_council_smd_runoff_precincts.csv"
+        }
+      }
+    ],
+    "parties": [
+      {
+        "id": "gd",
+        "threshold_status": "passed",
+        "alias": {
+          "ka": "ქართული ოცნება - დემოკრატიული საქართველო"
+        }
+      },
+      {
+        "id": "unm",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "european_georgia",
+        "threshold_status": "passed",
+        "alias": {
+          "ka": "ევროპული საქართველო-მოძრაობა თავისუფლებისთვის"
+        }
+      },
+      {
+        "id": "zugdidi_2018_2",
+        "threshold_status": "notrun",
+        "color": "#C62828",
+        "alias": {
+          "ka": "გოდერძი კუკავა",
+          "en": "Goderdzi Kukava"
+        }
+      },
+      {
+        "id": "zugdidi_2018_32",
+        "threshold_status": "notrun",
+        "color": "#78909C",
+        "alias": {
+          "ka": "ბაჩუკი ნარუშვილი",
+          "en": "Bachuki Narushvili"
+        }
+      },
+      {
+        "id": "zugdidi_2018_41",
+        "threshold_status": "notrun",
+        "color": "#1565C0",
+        "alias": {
+          "ka": "თენგიზ ალმასია",
+          "en": "Tengiz Almasia"
+        }
+      },
+      {
+        "id": "patriots",
+        "threshold_status": "passed",
+        "alias": {
+          "ka": "დავით თარხან-მოურავი, ირმა ინაშვილი - საქართველოს პატრიოტთა ალიანსი",
+          "en": "Davit Tarkhan-Mouravi, Irma Inashvili - Alliance of Patriots of Georgia"
+        }
+      },
+      {
+        "id": "labour",
+        "threshold_status": "passed",
+        "alias": {
+          "ka": "შალვა ნათელაშვილი-საქართველოს ლეიბორისტული პარტია",
+          "en": "Shalva Natelashvili-Labour Party of Georgia"
+        }
+      },
+      {
+        "id": "girchi",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "republicans_2016",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "free_democrats",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "burjanadze_democratic",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "new_christian_democrats",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "გოგი წულაია - ახალი ქრისტიანდემოკრატები",
+          "en": "Gogi Tsulaia - New Christian Democrats"
+        }
+      },
+      {
+        "id": "industry_sakartvelo",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "greens",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "social_democrats",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "european_democrats",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "national_forum",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "democratic_movement",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "georgian_march",
+        "threshold_status": "failed"
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "Public information requested from the Central Election Commission as part of the preparation of the National Democratic Institute's (NDI) election portal electionsdata.ge",
+          "ka": "„ეროვნული დემოკრატიული ინსტიტუტის\" (NDI) საარჩევნო პორტალის electionsdata.ge მომზადების ფარგლებში ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "seats": "data/results/local2017_seats.csv",
+      "pr_results": "data/results/local2017_pr.csv",
+      "pr_selfgov_results": "data/results/local2017_pr_selfgov.csv",
+      "pr_precinct_results": "data/results/local2017_pr_precincts.csv",
+      "smd_results": "data/results/local2017_smd.csv",
+      "smd_district_results": "data/results/local2017_smd_districts.csv",
+      "smd_precinct_results": "data/results/local2017_smd_precincts.csv",
+      "council_smd_results": "data/results/local2017_council_smd.csv",
+      "council_smd_precinct_results": "data/results/local2017_council_smd_precincts.csv",
+      "council_pr_results": "data/results/local2017_pr.csv",
+      "council_pr_precinct_results": "data/results/local2017_pr_precincts.csv",
+      "candidates": "data/config/candidates/local/local_2017.yml"
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": null,
+      "precinct_file": null,
+      "has_snapshots": true,
+      "has_lists": false
+    }
+  },
+  {
+    "id": "adj_2016",
+    "type": "adjara",
+    "sub_type": "mixed",
+    "date": "2016-10-08",
+    "name": {
+      "en": "October 8, 2016 elections to the Supreme Council of the Autonomous Republic of Adjara",
+      "ka": "აჭარის ავტონომიური რესპუბლიკის უმაღლესი საბჭოს 2016 წლის 8 ოქტომბრის არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 15,
+        "threshold_pct": 5,
+        "method": "dhondt",
+        "shape_file": "data/shp/adj2024_pr.geojson",
+        "precinct_shape_file": "data/shp/adj2016_pr_precincts.geojson"
+      },
+      "smd": {
+        "enabled": true,
+        "seats": 6,
+        "shape_file": "data/shp/adj2016_smd.geojson",
+        "precinct_shape_file": "data/shp/adj2016_pr_precincts.geojson"
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "map_view": {
+      "center": [
+        41.7225389,
+        42.1149651
+      ],
+      "zoom": 9
+    },
+    "notes": {
+      "en": "The 2016 elections to the Supreme Council of Adjara were held in parallel with the 2016 parliamentary elections. Members were elected through proportional lists and six single-member majoritarian districts. A second round was held for the majoritarian races.\n",
+      "ka": "აჭარის უმაღლესი საბჭოს 2016 წლის არჩევნები 2016 წლის საპარლამენტო არჩევნების პარალელურად გაიმართა. წევრები აირჩიეს პროპორციული სიებით და ექვსი მაჟორიტარული ოლქით. მაჟორიტარულ ოლქებში გაიმართა მეორე ტური.\n"
+    },
+    "sub_elections": [
+      {
+        "id": "adj_2016_smd_runoff",
+        "type": "runoff",
+        "name": {
+          "en": "Second Round (October 30, 2016)",
+          "ka": "მეორე ტური (2016 წლის 30 ოქტომბერი)"
+        },
+        "files": {
+          "smd_results": "data/results/adj2016_smd_runoff.csv",
+          "smd_precinct_results": "data/results/adj2016_smd_runoff_precincts.csv"
+        }
+      }
+    ],
+    "parties": [
+      {
+        "id": "gd",
+        "threshold_status": "passed",
+        "seats_pr": 8,
+        "seats_smd": 6
+      },
+      {
+        "id": "unm",
+        "threshold_status": "passed",
+        "seats_pr": 5,
+        "seats_smd": 0
+      },
+      {
+        "id": "patriots",
+        "threshold_status": "passed",
+        "seats_pr": 1,
+        "seats_smd": 0
+      },
+      {
+        "id": "burjanadze_democratic",
+        "threshold_status": "passed",
+        "seats_pr": 1,
+        "seats_smd": 0
+      },
+      {
+        "id": "burchuladze",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "republicans_2016",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "mechiauri_united",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "labour",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "peace_georgia_2016",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "united_communist_2016",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "industry_sakartvelo",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "chvenni_peoples",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "national_forum",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "free_democrats",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "serve_georgia_2016",
+        "alias": {
+          "en": "Murman Dumbadze, Medea Vasadze - Serve Georgia",
+          "ka": "მურმან დუმბაძე, მედეა ვასაძე - ემსახურე საქართველოს"
+        },
+        "color": "#26A69A",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "Public information requested from the Supreme Electoral Council of Adjara",
+          "ka": "აჭარის უმაღლესი საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "pr_results": "data/results/adj2016_pr.csv",
+      "pr_precinct_results": "data/results/adj2016_pr_precincts.csv",
+      "smd_results": "data/results/adj2016_smd.csv",
+      "smd_precinct_results": "data/results/adj2016_smd_precincts.csv",
+      "candidates": "data/candidates/adj2016_smd_candidates.csv",
+      "party_lists": "data/candidates/adj2016_party_lists.csv",
+      "elected": "data/candidates/adj2016_elected.csv",
+      "cartogram": null
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": "data/turnout/adj2016_turnout.csv",
+      "precinct_file": "data/turnout/adj2016_precincts_turnout.csv",
+      "has_snapshots": false,
+      "has_lists": true
+    }
+  },
+  {
+    "id": "parl_2016",
+    "type": "parliamentary",
+    "sub_type": "mixed",
+    "date": "2016-10-08",
+    "name": {
+      "en": "October 8, 2016 elections to the Parliament of Georgia",
+      "ka": "საქართველოს პარლამენტის 2016 წლის 8 ოქტომბრის არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 77,
+        "threshold_pct": 5,
+        "method": "dhondt",
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "precinct_shape_file": "data/shp/parl2016_pr_precincts.geojson"
+      },
+      "smd": {
+        "enabled": true,
+        "seats": 73,
+        "shape_file": "data/shp/parl2016_smd.geojson",
+        "precinct_shape_file": "data/shp/parl2016_pr_precincts.geojson"
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "map_view": {
+      "center": [
+        42.1,
+        43.5
+      ],
+      "zoom": 7
+    },
+    "notes": {
+      "en": "The 2016 parliamentary elections were held under Georgia's mixed electoral system: 77 seats were distributed proportionally (5% threshold) and 73 seats were filled through single-mandate majoritarian districts. Оnly Georgian Dream, the United National Movement, and the Alliance of Patriots crossed the threshold. A second round of majoritarian elections was held on October 30, 2016, in 45 districts where no candidate received a majority in the first round. Georgian Dream, following the victory in elections, was able to garner constitutional majority.\n",
+      "ka": "2016 წლის საპარლამენტო არჩევნები გაიმართა შერეული საარჩევნო სისტემის პირობებში: 77 მანდატი განაწილდა პროპორციული წარმომადგენლობის წესით, 5%-იანი ბარიერის პირობებში, ხოლო 73 მანდატი — ერთმანდატიანი მაჟორიტარული ოლქების მეშვეობით. 5%-იანი ზღვარი მხოლოდ სამმა პარტიამ - „ქართულმა ოცნებამ“, „ერთიანმა ნაციონალურმა მოძრაობამ“ და „საქართველოს პატრიოტთა ალიანსმა“ გადალახეს. 2016 წლის 30 ოქტომბერს გაიმართა იმ 45 მაჟორიტარულ ოლქებში, სადაც პირველ ტურში გამარჯვებული ვერ გამოვლინდა. არჩევნებში გამარჯვებულმა „ქართულმა ოცნებამ“ საკონსტიტუციო უმრავლესობა მოიპოვა.\n"
+    },
+    "sub_elections": [
+      {
+        "id": "parl_2016_repeat_20161022",
+        "type": "repeated",
+        "date": "2016-10-22",
+        "name": {
+          "en": "Repeated elections (October 22, 2016)",
+          "ka": "განმეორებითი არჩევნები (2016 წლის 22 ოქტომბერი)"
+        },
+        "files": {
+          "pr_results": "data/results/parl2016_pr_repeated.csv",
+          "pr_precinct_results": "data/results/parl2016_pr_repeated_precincts.csv",
+          "smd_results": "data/results/parl2016_smd_repeated.csv",
+          "smd_precinct_results": "data/results/parl2016_smd_repeated_precincts.csv"
+        }
+      },
+      {
+        "id": "parl_2016_r2",
+        "type": "runoff",
+        "name": {
+          "en": "Second Round (October 30, 2016)",
+          "ka": "მეორე ტური (2016 წლის 30 ოქტომბერი)"
+        },
+        "files": {
+          "smd_results": "data/results/parl2016_smd_runoff.csv",
+          "smd_precinct_results": "data/results/parl2016_smd_runoff_precincts.csv"
+        }
+      },
+      {
+        "id": "parl_2016_major54_2018",
+        "type": "by_election",
+        "date": "2018-04-28",
+        "name": {
+          "en": "Majoritarian District 54 by-election (April 28, 2018)",
+          "ka": "№54 მაჟორიტარული ოლქის შუალედური არჩევნები (2018 წლის 28 აპრილი)"
+        },
+        "files": {
+          "smd_results": "data/results/parl2016_major54_2018_smd.csv",
+          "smd_precinct_results": "data/results/parl2016_major54_2018_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "parl_2016_mtatsminda_2019",
+        "type": "by_election",
+        "date": "2019-05-19",
+        "name": {
+          "en": "Mtatsminda by-election (May 19, 2019)",
+          "ka": "მთაწმინდის შუალედური არჩევნები (2019 წლის 19 მაისი)"
+        },
+        "files": {
+          "smd_results": "data/results/parl2016_mtatsminda_2019_smd.csv",
+          "smd_precinct_results": "data/results/parl2016_mtatsminda_2019_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "parl_2016_mtatsminda_2019_r2",
+        "type": "runoff",
+        "date": "2019-06-09",
+        "name": {
+          "en": "Mtatsminda by-election runoff (June 9, 2019)",
+          "ka": "მთაწმინდის შუალედური არჩევნების მეორე ტური (2019 წლის 9 ივნისი)"
+        },
+        "files": {
+          "smd_results": "data/results/parl2016_mtatsminda_2019_smd_runoff.csv",
+          "smd_precinct_results": "data/results/parl2016_mtatsminda_2019_smd_runoff_precincts.csv"
+        }
+      }
+    ],
+    "parties": [
+      {
+        "id": "gd",
+        "alias": {
+          "en": "Georgian Dream — Democratic Georgia",
+          "ka": "ქართული ოცნება — დემოკრატიული საქართველო"
+        },
+        "color": "#1565C0",
+        "threshold_status": "passed",
+        "seats_pr": 44,
+        "seats_smd": 71
+      },
+      {
+        "id": "unm",
+        "alias": {
+          "en": "United National Movement",
+          "ka": "ერთიანი ნაციონალური მოძრაობა"
+        },
+        "color": "#C62828",
+        "threshold_status": "passed",
+        "seats_pr": 27,
+        "seats_smd": 0
+      },
+      {
+        "id": "patriots",
+        "alias": {
+          "en": "Alliance of Patriots of Georgia",
+          "ka": "საქართველოს პატრიოტთა ალიანსი"
+        },
+        "color": "#880E4F",
+        "threshold_status": "passed",
+        "seats_pr": 6,
+        "seats_smd": 0
+      },
+      {
+        "id": "free_democrats",
+        "alias": {
+          "en": "Free Democrats",
+          "ka": "თავისუფალი დემოკრატები"
+        },
+        "color": "#1565C0",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "burjanadze_democratic",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "burchuladze",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "labour",
+        "alias": {
+          "en": "Labour Party of Georgia",
+          "ka": "საქართველოს ლეიბორისტული პარტია"
+        },
+        "color": "#D32F2F",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "republicans_2016",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "national_forum",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "industry_sakartvelo",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 1
+      },
+      {
+        "id": "georgian_idea",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "peace_georgia_2016",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgian_group",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "chvenni_peoples",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "zviads_way",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "mechiauri_united",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "progressive_democratic_2016",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "peoples_power_2016",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "communist_stalinist",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "workers_socialist",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "united_communist_2016",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgia_2016",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "kostava_society",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "left_alliance_2016",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "our_georgia_2016",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "smd_only_42",
+        "seats_pr": 0,
+        "seats_smd": 1
+      },
+      {
+        "id": "smd_only_43",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "smd_only_44",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "major54_2018_2",
+        "alias": {
+          "en": "Giorgi Ugulava",
+          "ka": "გიორგი უგულავა"
+        },
+        "color": "#C62828",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "major54_2018_17",
+        "alias": {
+          "en": "Giorgi Liluashvili",
+          "ka": "გიორგი ლილუაშვილი"
+        },
+        "color": "#8D6E63",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "major54_2018_21",
+        "alias": {
+          "en": "Zurab Kartvelishvili",
+          "ka": "ზურაბ ქართველიშვილი"
+        },
+        "color": "#78909C",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "major54_2018_23",
+        "alias": {
+          "en": "Mamuka Tuskadze",
+          "ka": "მამუკა ტუსკაძე"
+        },
+        "color": "#5C6BC0",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "major54_2018_41",
+        "alias": {
+          "en": "Givi Chichinadze",
+          "ka": "გივი ჭიჭინაძე"
+        },
+        "color": "#1565C0",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "major54_2018_42",
+        "alias": {
+          "en": "Vasil Kopaliani",
+          "ka": "ვასილ კოპალიანი"
+        },
+        "color": "#43A047",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_4",
+        "alias": {
+          "en": "Nita Sikharulidze",
+          "ka": "ნიტა სიხარულიძე"
+        },
+        "color": "#7E57C2",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_9",
+        "alias": {
+          "en": "Giorgi Andriadze",
+          "ka": "გიორგი ანდრიაძე"
+        },
+        "color": "#26A69A",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_13",
+        "alias": {
+          "en": "Shalva Shavgulidze",
+          "ka": "შალვა შავგულიძე"
+        },
+        "color": "#D55E00",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_17",
+        "alias": {
+          "en": "Giorgi Liluashvili",
+          "ka": "გიორგი ლილუაშვილი"
+        },
+        "color": "#8D6E63",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_21",
+        "alias": {
+          "en": "Giorgi Shalikashvili",
+          "ka": "გიორგი შალიკაშვილი"
+        },
+        "color": "#78909C",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_23",
+        "alias": {
+          "en": "Tebea Tengiani",
+          "ka": "თებეა თენგიანი"
+        },
+        "color": "#EC407A",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_24",
+        "alias": {
+          "en": "Mamuka Tuskadze",
+          "ka": "მამუკა ტუსკაძე"
+        },
+        "color": "#5C6BC0",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_27",
+        "alias": {
+          "en": "Valisa Ghvinjilia",
+          "ka": "ვალისა ღვინჯილია"
+        },
+        "color": "#9CCC65",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_28",
+        "alias": {
+          "en": "Mikheil Saluashvili",
+          "ka": "მიხეილ სალუაშვილი"
+        },
+        "color": "#FFB74D",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_31",
+        "alias": {
+          "en": "Irma Razmadze",
+          "ka": "ირმა რაზმაძე"
+        },
+        "color": "#4DB6AC",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_33",
+        "alias": {
+          "en": "Jemal Nadareishvili",
+          "ka": "ჯემალ ნადარეიშვილი"
+        },
+        "color": "#9575CD",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_35",
+        "alias": {
+          "en": "Germane Sabo",
+          "ka": "გერმანე საბო"
+        },
+        "color": "#00AEEF",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_38",
+        "alias": {
+          "en": "Nodar Inaneishvili",
+          "ka": "ნოდარ ინანეიშვილი"
+        },
+        "color": "#A1887F",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_41",
+        "alias": {
+          "en": "Vladimer Kakhadze",
+          "ka": "ვლადიმერ კახაძე"
+        },
+        "color": "#1565C0",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_42",
+        "alias": {
+          "en": "Levan Ioseliani",
+          "ka": "ლევან იოსელიანი"
+        },
+        "color": "#43A047",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_43",
+        "alias": {
+          "en": "Koba Davitashvili",
+          "ka": "კობა დავითაშვილი"
+        },
+        "color": "#F06292",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_44",
+        "alias": {
+          "en": "Sopio Khorguani",
+          "ka": "სოფიო ხორგუანი"
+        },
+        "color": "#7986CB",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_45",
+        "alias": {
+          "en": "Grigol Gegelia",
+          "ka": "გრიგოლ გეგელია"
+        },
+        "color": "#00897B",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_46",
+        "alias": {
+          "en": "Ioseb Koberidze",
+          "ka": "იოსებ კობერიძე"
+        },
+        "color": "#BDBDBD",
+        "threshold_status": "notrun"
+      },
+      {
+        "id": "mtatsminda_2019_47",
+        "alias": {
+          "en": "Tamar Alpaidze",
+          "ka": "თამარ ალფაიძე"
+        },
+        "color": "#FDD835",
+        "threshold_status": "notrun"
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "Public information requested from the Central Election Commission as part of the preparation of the National Democratic Institute's (NDI) election portal electionsdata.ge",
+          "ka": "„ეროვნული დემოკრატიული ინსტიტუტის\" (NDI) საარჩევნო პორტალის electionsdata.ge მომზადების ფარგლებში ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "pr_results": "data/results/parl2016_pr.csv",
+      "pr_precinct_results": "data/results/parl2016_pr_precincts.csv",
+      "smd_results": "data/results/parl2016_smd.csv",
+      "smd_precinct_results": "data/results/parl2016_smd_precincts.csv",
+      "candidates": null,
+      "cartogram": null
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": null,
+      "precinct_file": null,
+      "has_snapshots": true,
+      "has_lists": true
+    }
+  },
+  {
+    "id": "local_2014",
+    "type": "local",
+    "date": "2014-06-15",
+    "name": {
+      "en": "2014 elections of municipal authorities",
+      "ka": "მუნიციპალიტეტის ორგანოთა 2014 წლის არჩევნები"
+    },
+    "notes": {
+      "en": "The 2014 local elections used the standard local-election structure: Sakrebulo proportional lists, Sakrebulo single-member districts, and directly elected mayors or gamgebelis. As the result of the local self-government reform, Ozurgeti, Zugdidi, Ambrolauri, Gori, Akhaltsikhe, Telavi and Mtskheta became their own municipalities. In a number of races, runoff elections were held.\n",
+      "ka": "2014 წლის ადგილობრივი თვითმმართველობის არჩევნებში ამომრჩევლები ირჩევდნენ საკრებულოს პროპორციული სიებით, საკრებულოს მაჟორიტარ წევრებს და მერებს ან გამგებლებს. რეფორმის შედეგად, ქალაქები ოზურგეთი, ზუგდიდი, ამბროლაური, გორი, ახალციხე, თელავი და მცხეთა ცალკე თვითმმართველ ერთეულად ჩამოყალიბდნენ. რიგ ქალაქის მერისა და გამგებლის არჩევნებში დაინიშნა მეორე ტური.\n"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 0,
+        "threshold_pct": 4,
+        "method": "dhondt",
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "selfgov_shape_file": "data/shp/selfgov_areas_2014.geojson",
+        "precinct_shape_file": "data/shp/local2014_precincts.geojson"
+      },
+      "smd": {
+        "enabled": true,
+        "seats": 71,
+        "shape_file": "data/shp/selfgov_areas_2014.geojson",
+        "precinct_shape_file": "data/shp/local2014_precincts.geojson"
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "council": {
+      "total_pr_seats": 1035,
+      "total_smd_seats": 1047,
+      "shape_file": "data/shp/majoritarian_2014_major_id.geojson"
+    },
+    "sub_elections": [
+      {
+        "id": "local_2014_r2",
+        "type": "runoff",
+        "date": "2014-07-12",
+        "name": {
+          "en": "Second Round",
+          "ka": "კენჭისყრის მეორე ტური"
+        },
+        "files": {
+          "smd_results": "data/results/local2014_r2_smd.csv",
+          "smd_precinct_results": "data/results/local2014_r2_smd_precincts.csv",
+          "council_smd_results": "data/results/local2014_r2_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2014_r2_council_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2014_2014_oct_sakrebulo_by_election",
+        "type": "by_election",
+        "date": "2014-10-20",
+        "download_key": "20141020",
+        "name": {
+          "en": "October 20, 2014 Sakrebulo by-election",
+          "ka": "2014 წლის 20 ოქტომბრის საკრებულოს შუალედური არჩევნები"
+        },
+        "files": {
+          "smd_results": "data/results/local2014_2014_oct_byelection_smd.csv",
+          "smd_precinct_results": "data/results/local2014_2014_oct_byelection_smd_precincts.csv",
+          "council_smd_results": "data/results/local2014_2014_oct_byelection_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2014_2014_oct_byelection_council_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2014_2015_may_sakrebulo_by_election",
+        "type": "by_election",
+        "date": "2015-05-31",
+        "download_key": "20150531",
+        "name": {
+          "en": "May 31, 2015 Sakrebulo by-election",
+          "ka": "2015 წლის 31 მაისის საკრებულოს შუალედური არჩევნები"
+        },
+        "files": {
+          "smd_results": "data/results/local2014_2015_may_byelection_smd.csv",
+          "smd_precinct_results": "data/results/local2014_2015_may_byelection_smd_precincts.csv",
+          "council_smd_results": "data/results/local2014_2015_may_byelection_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2014_2015_may_byelection_council_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2014_2015_oct_sakrebulo_by_election",
+        "type": "by_election",
+        "date": "2015-10-31",
+        "download_key": "20151031",
+        "name": {
+          "en": "October 31, 2015 Sakrebulo by-election",
+          "ka": "2015 წლის 31 ოქტომბრის საკრებულოს შუალედური არჩევნები"
+        },
+        "files": {
+          "smd_results": "data/results/local2014_2015_oct_byelection_smd.csv",
+          "smd_precinct_results": "data/results/local2014_2015_oct_byelection_smd_precincts.csv",
+          "council_smd_results": "data/results/local2014_2015_oct_byelection_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2014_2015_oct_byelection_council_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2014_2016_gardabani_mayor_by_election",
+        "type": "by_election",
+        "date": "2016-01-28",
+        "download_key": "20160128",
+        "name": {
+          "en": "January 28, 2016 Gardabani mayoral by-election",
+          "ka": "2016 წლის 28 იანვრის გარდაბნის მერის რიგგარეშე არჩევნები"
+        },
+        "files": {
+          "smd_results": "data/results/local2014_2016_gardabani_byelection_smd.csv",
+          "smd_precinct_results": "data/results/local2014_2016_gardabani_byelection_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2014_2016_may_sakrebulo_by_election",
+        "type": "by_election",
+        "date": "2016-05-22",
+        "download_key": "20160522",
+        "name": {
+          "en": "May 22, 2016 Sakrebulo by-election",
+          "ka": "2016 წლის 22 მაისის საკრებულოს შუალედური არჩევნები"
+        },
+        "files": {
+          "smd_results": "data/results/local2014_2016_may_byelection_smd.csv",
+          "smd_precinct_results": "data/results/local2014_2016_may_byelection_smd_precincts.csv",
+          "council_smd_results": "data/results/local2014_2016_may_byelection_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2014_2016_may_byelection_council_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2014_2016_oct_sakrebulo_by_election",
+        "type": "by_election",
+        "date": "2016-10-08",
+        "download_key": "20161008",
+        "name": {
+          "en": "October 8, 2016 Sakrebulo by-election",
+          "ka": "2016 წლის 8 ოქტომბრის საკრებულოს შუალედური არჩევნები"
+        },
+        "files": {
+          "precinct_shape_file": "data/shp/local2014_2016_oct_precincts.geojson",
+          "smd_results": "data/results/local2014_2016_oct_byelection_smd.csv",
+          "smd_precinct_results": "data/results/local2014_2016_oct_byelection_smd_precincts.csv",
+          "council_smd_results": "data/results/local2014_2016_oct_byelection_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2014_2016_oct_byelection_council_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2014_2016_oct_mayor_by_election",
+        "type": "by_election",
+        "date": "2016-10-08",
+        "download_key": "20161008_mayor",
+        "name": {
+          "en": "October 8, 2016 mayor/gamgebeli by-election",
+          "ka": "2016 წლის 8 ოქტომბრის მერის/გამგებლის რიგგარეშე არჩევნები"
+        },
+        "files": {
+          "precinct_shape_file": "data/shp/local2014_2016_oct_mayor_precincts.geojson",
+          "smd_results": "data/results/local2014_2016_oct_mayor_byelection_smd.csv",
+          "smd_precinct_results": "data/results/local2014_2016_oct_mayor_byelection_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2014_2016_oct_mayor_by_election_r2",
+        "type": "runoff",
+        "date": "2016-10-30",
+        "download_key": "20161030_mayor",
+        "name": {
+          "en": "October 30, 2016 mayor/gamgebeli by-election runoff",
+          "ka": "2016 წლის 30 ოქტომბრის მერის/გამგებლის რიგგარეშე არჩევნების მეორე ტური"
+        },
+        "files": {
+          "precinct_shape_file": "data/shp/local2014_2016_oct_mayor_precincts.geojson",
+          "smd_results": "data/results/local2014_2016_oct_mayor_byelection_r2_smd.csv",
+          "smd_precinct_results": "data/results/local2014_2016_oct_mayor_byelection_r2_smd_precincts.csv"
+        }
+      },
+      {
+        "id": "local_2014_2016_oct30_sakrebulo_by_election",
+        "type": "by_election",
+        "date": "2016-10-30",
+        "download_key": "20161030_sakrebulo",
+        "name": {
+          "en": "October 30, 2016 Sakrebulo by-election",
+          "ka": "2016 წლის 30 ოქტომბრის საკრებულოს შუალედური არჩევნები"
+        },
+        "files": {
+          "precinct_shape_file": "data/shp/local2014_2016_oct30_precincts.geojson",
+          "smd_results": "data/results/local2014_2016_oct30_byelection_smd.csv",
+          "smd_precinct_results": "data/results/local2014_2016_oct30_byelection_smd_precincts.csv",
+          "council_smd_results": "data/results/local2014_2016_oct30_byelection_council_smd.csv",
+          "council_smd_precinct_results": "data/results/local2014_2016_oct30_byelection_council_smd_precincts.csv"
+        }
+      }
+    ],
+    "parties": [
+      {
+        "id": "gd",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "unm",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "burjanadze_united_opposition_2014",
+        "threshold_status": "passed",
+        "color": "#7B1FA2",
+        "alias": {
+          "en": "Nino Burjanadze - United Opposition",
+          "ka": "ნინო ბურჯანაძე - ერთიანი ოპოზიცია"
+        }
+      },
+      {
+        "id": "patriots",
+        "threshold_status": "passed",
+        "alias": {
+          "en": "Davit Tarkhan-Mouravi - Alliance of Patriots of Georgia",
+          "ka": "დავით თარხან-მოურავი - საქართველოს პატრიოტთა ალიანსი"
+        }
+      },
+      {
+        "id": "labour",
+        "threshold_status": "failed",
+        "alias": {
+          "ka": "შალვა ნათელაშვილი - საქართველოს ლეიბორისტული პარტია"
+        }
+      },
+      {
+        "id": "peoples_authority_2016",
+        "threshold_status": "failed",
+        "color": "#7CB342",
+        "alias": {
+          "en": "People's Authority",
+          "ka": "სახალხო ხელისუფლება"
+        }
+      },
+      {
+        "id": "free_democrats",
+        "threshold_status": "failed",
+        "color": "#1565C0",
+        "alias": {
+          "en": "Free Democrats",
+          "ka": "თავისუფალი დემოკრატები"
+        }
+      },
+      {
+        "id": "burchuladze",
+        "threshold_status": "failed",
+        "color": "#7E57C2",
+        "alias": {
+          "en": "Paata Burchuladze - State for the People",
+          "ka": "პაატა ბურჭულაძე - სახელმწიფო ხალხისთვის"
+        }
+      },
+      {
+        "id": "republicans_2016",
+        "threshold_status": "failed",
+        "color": "#26A69A",
+        "alias": {
+          "en": "Republicans",
+          "ka": "უსუფაშვილი - რესპუბლიკელები"
+        }
+      },
+      {
+        "id": "national_forum",
+        "threshold_status": "failed",
+        "color": "#8D6E63",
+        "alias": {
+          "en": "National Forum",
+          "ka": "ეროვნული ფორუმი"
+        }
+      },
+      {
+        "id": "nonparliamentary_opposition_2014",
+        "threshold_status": "failed",
+        "color": "#00897B",
+        "alias": {
+          "en": "Non-parliamentary Opposition (Kakha Kukava, Pikria Chikhradze)",
+          "ka": "არასაპარლამენტო ოპოზიცია (კახა კუკავა, ფიქრია ჩიხრაძე)"
+        }
+      },
+      {
+        "id": "veterans_patriots_2014",
+        "threshold_status": "failed",
+        "color": "#795548",
+        "alias": {
+          "en": "Political Movement of Force Veterans and Patriots of Georgia",
+          "ka": "საქართველოს ძალოვან ვეტერანთა და პატრიოტთა პოლიტიკური მოძრაობა"
+        }
+      },
+      {
+        "id": "national_democratic_2014",
+        "threshold_status": "failed",
+        "color": "#3949AB",
+        "alias": {
+          "en": "National-Democratic Party",
+          "ka": "ეროვნულ-დემოკრატიული პარტია (ედპ)"
+        }
+      },
+      {
+        "id": "greens_2014",
+        "threshold_status": "failed",
+        "color": "#43A047",
+        "alias": {
+          "en": "Giorgi Gachechiladze - Green Party",
+          "ka": "გიორგი გაჩეჩილაძე - მწვანეთა პარტია"
+        }
+      },
+      {
+        "id": "ufali_2014",
+        "threshold_status": "failed",
+        "color": "#8D6E63",
+        "alias": {
+          "en": "In the Name of the Lord",
+          "ka": "უფლის სახელით - უფალია ჩვენი სიმართლე"
+        }
+      },
+      {
+        "id": "self_governance_people_2014",
+        "threshold_status": "failed",
+        "color": "#26A69A",
+        "alias": {
+          "en": "Self-governance to the People!",
+          "ka": "თვითმმართველობა ხალხს!"
+        }
+      },
+      {
+        "id": "peoples_party_2014",
+        "threshold_status": "failed",
+        "color": "#5C6BC0",
+        "alias": {
+          "en": "People's Party",
+          "ka": "ხალხის პარტია"
+        }
+      },
+      {
+        "id": "reformers_2014",
+        "threshold_status": "failed",
+        "color": "#0097A7",
+        "alias": {
+          "en": "Irakli Ghlonti - Reformers",
+          "ka": "ირაკლი ღლონტი - რეფორმატორები"
+        }
+      },
+      {
+        "id": "our_georgia_2014",
+        "threshold_status": "failed",
+        "color": "#2E7D32",
+        "alias": {
+          "en": "Our Georgia",
+          "ka": "ჩვენი საქართველო"
+        }
+      },
+      {
+        "id": "future_georgia_2014",
+        "threshold_status": "failed",
+        "color": "#6D4C41",
+        "alias": {
+          "en": "Future Georgia",
+          "ka": "მომავალი საქართველო"
+        }
+      },
+      {
+        "id": "georgian_party_2014",
+        "threshold_status": "failed",
+        "color": "#D55E00",
+        "alias": {
+          "en": "Irakli Okruashvili - Georgian Party",
+          "ka": "ირაკლი ოქრუაშვილი - ქართული პარტია"
+        }
+      },
+      {
+        "id": "peoples_movement_2014",
+        "threshold_status": "failed",
+        "color": "#546E7A",
+        "alias": {
+          "en": "People's Movement",
+          "ka": "სახალხო მოძრაობა"
+        }
+      },
+      {
+        "id": "christian_democrats_2014",
+        "threshold_status": "failed",
+        "color": "#F9A825",
+        "alias": {
+          "en": "Christian Democratic Party",
+          "ka": "ქრისტიან დემოკრატიული პარტია (ქრისტიან დემოკრატები)"
+        }
+      },
+      {
+        "id": "unity_hall_2014",
+        "threshold_status": "failed",
+        "color": "#8E24AA",
+        "alias": {
+          "en": "Unity Hall",
+          "ka": "ერთიანობის დარბაზი"
+        }
+      },
+      {
+        "id": "georgias_way_2014",
+        "threshold_status": "failed",
+        "color": "#00ACC1",
+        "alias": {
+          "en": "Salome Zourabichvili - Georgia's Way",
+          "ka": "სალომე ზურაბიშვილი - საქართველოს გზა"
+        }
+      },
+      {
+        "id": "freedom_zviads_way_2014",
+        "threshold_status": "failed",
+        "color": "#558B2F",
+        "alias": {
+          "en": "Freedom - Zviad Gamsakhurdia's Way",
+          "ka": "თავისუფლება - ზვიად გამსახურდიას გზა"
+        }
+      },
+      {
+        "id": "sakhalkho_party_2014",
+        "threshold_status": "failed",
+        "color": "#78909C",
+        "alias": {
+          "en": "Sakhalkho Party",
+          "ka": "სახალხო პარტია"
+        }
+      },
+      {
+        "id": "kostava_society",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "workers_council_2014",
+        "threshold_status": "failed",
+        "color": "#607D8B",
+        "alias": {
+          "en": "Workers' Council of Georgia",
+          "ka": "საქართველოს მშრომელთა საბჭო"
+        }
+      },
+      {
+        "id": "independent",
+        "threshold_status": "notrun",
+        "color": "#9E9E9E",
+        "alias": {
+          "en": "Independent",
+          "ka": "დამოუკიდებელი"
+        }
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "Public information requested from the Central Election Commission as part of the preparation of the National Democratic Institute's (NDI) election portal electionsdata.ge",
+          "ka": "„ეროვნული დემოკრატიული ინსტიტუტის“ (NDI) საარჩევნო პორტალის electionsdata.ge მომზადების ფარგლებში ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "seats": "data/results/local2014_seats.csv",
+      "pr_results": "data/results/local2014_pr.csv",
+      "pr_selfgov_results": "data/results/local2014_pr_selfgov.csv",
+      "pr_precinct_results": "data/results/local2014_pr_precincts.csv",
+      "smd_results": "data/results/local2014_smd.csv",
+      "smd_district_results": "data/results/local2014_smd_districts.csv",
+      "smd_precinct_results": "data/results/local2014_smd_precincts.csv",
+      "council_smd_results": "data/results/local2014_council_smd.csv",
+      "council_smd_precinct_results": "data/results/local2014_council_smd_precincts.csv",
+      "council_pr_results": "data/results/local2014_pr_selfgov.csv",
+      "council_pr_precinct_results": "data/results/local2014_pr_precincts.csv",
+      "candidates": "data/config/candidates/local/local_2014.yml",
+      "party_lists": "data/candidates/local2014_party_lists.csv",
+      "mayor_candidates": "data/candidates/local2014_mayor_gamgebeli_candidates.csv",
+      "smd_candidates": "data/candidates/local2014_smd_candidates.csv",
+      "elected": "data/candidates/local2014_elected.csv"
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": "data/turnout/local2014_turnout.csv",
+      "precinct_file": "data/turnout/local2014_precincts_turnout.csv",
+      "has_snapshots": true,
+      "has_lists": true
+    }
+  },
+  {
+    "id": "parl_1919",
+    "type": "parliamentary",
+    "sub_type": "pr",
+    "date": "1919-02-14 - 1919-02-16",
+    "name": {
+      "en": "1919 Constituent Assembly Elections",
+      "ka": "1919 წლის დამფუძნებელი კრების არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 130,
+        "threshold_pct": 1,
+        "shape_file": "data/shp/parl1919_pr.geojson",
+        "precinct_shape_file": null
+      },
+      "smd": {
+        "enabled": false,
+        "seats": 0,
+        "shape_file": null
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "notes": {
+      "en": "In 1919, Democratic Republic of Georgia elected its first parliament, Constituent Assembly.\n",
+      "ka": "1919 წელს, საქართველოს დემოკრატიულმა რესპუბლიკამ აირჩია თავისი პირველი პარლამენტი, დამფუძნებელი კრება    \n"
+    },
+    "sub_elections": [],
+    "parties": [
+      {
+        "id": "social_democrats_1919",
+        "alias": {
+          "en": "Social Democratic Workers Party of Georgia",
+          "ka": "საქართველოს სოციალ-დემოკრატიული მუშათა პარტია"
+        },
+        "threshold_status": "passed",
+        "seats_pr": 102
+      },
+      {
+        "id": "national_democrats_1919",
+        "alias": {
+          "en": "National-Democratic Party of Georgia",
+          "ka": "საქართველოს ეროვნულ-დემოკრატიული პარტია"
+        },
+        "threshold_status": "passed",
+        "seats_pr": 9
+      },
+      {
+        "id": "sr_1919",
+        "alias": {
+          "en": "Socialist-Revolutionary Party of Goergia",
+          "ka": "საქართველოს სოციალისტ-რევოლუციონერთა პარტია"
+        },
+        "threshold_status": "passed",
+        "seats_pr": 5
+      },
+      {
+        "id": "dashnaks",
+        "alias": {
+          "en": "Dashnaktsutyun",
+          "ka": "„დაშნაკცუთიუნ“"
+        },
+        "threshold_status": "passed",
+        "seats_pr": 3
+      },
+      {
+        "id": "federalists_1919",
+        "alias": {
+          "en": "Socialist-Federalist Party of Georgi",
+          "ka": "საქართველოს სოციალისტ-ფედერალისტთა პარტია"
+        },
+        "threshold_status": "passed",
+        "seats_pr": 9
+      },
+      {
+        "id": "muslim_1919",
+        "alias": {
+          "en": "National Council of Muslims",
+          "ka": "მუსლიმთა ეროვნული საბჭო"
+        },
+        "threshold_status": "failed",
+        "seats_pr": 0
+      },
+      {
+        "id": "raddem_1919",
+        "alias": {
+          "en": "Radical-Democratic Party of Georgia",
+          "ka": "საქართველოს რადიკალ-დემოკრატთა პარტია"
+        },
+        "threshold_status": "failed",
+        "seats_pr": 0
+      },
+      {
+        "id": "natparty_1919",
+        "alias": {
+          "en": "National Party of Georgia",
+          "ka": "საქართველოს ეროვნული პარტია"
+        },
+        "threshold_status": "failed",
+        "seats_pr": 0
+      },
+      {
+        "id": "left_federalists_1919",
+        "alias": {
+          "en": "Leftist Socialist-Federalist Toilers Party",
+          "ka": "მემარცხენე სოციალისტ-ფედერალისტთა მაშვრალთა პარტია"
+        },
+        "threshold_status": "failed",
+        "seats_pr": 0
+      },
+      {
+        "id": "rustaveli_1919",
+        "alias": {
+          "en": "Shota Rustaveli Group",
+          "ka": "შოთა რუსთაველის ჯგუფი"
+        },
+        "threshold_status": "failed",
+        "seats_pr": 0
+      },
+      {
+        "id": "indie_1919",
+        "alias": {
+          "en": "Union of Independents (Non-partisans)",
+          "ka": "დამოუკიდებელთა (უპარტიო) კავშირი"
+        },
+        "threshold_status": "failed",
+        "seats_pr": 0
+      },
+      {
+        "id": "borchalo_1919",
+        "alias": {
+          "en": "Group of Muslims of the Borchalo District",
+          "ka": "ბორჩალოს მაზრის მცხოვრებ მუსულმანთა ჯგუფი"
+        },
+        "threshold_status": "failed",
+        "seats_pr": 0
+      },
+      {
+        "id": "sdwpr_1919",
+        "alias": {
+          "en": "Social Democratic Workers Party of Russia",
+          "ka": "რუსეთის სოციალ-დემოკრატთა მუშათა პარტია"
+        },
+        "threshold_status": "failed",
+        "seats_pr": 0
+      },
+      {
+        "id": "aesth_1919",
+        "alias": {
+          "en": "Aesthetic League of Patriots",
+          "ka": "ესთეტიური ლიგა პატრიოტებისა"
+        },
+        "threshold_status": "failed",
+        "seats_pr": 0
+      },
+      {
+        "id": "hellenic_1919",
+        "alias": {
+          "en": "Democratic Group of the Georgian Greeks",
+          "ka": "საქართველოს ელინთა დემოკრატიული ჯგუფი"
+        },
+        "threshold_status": "failed",
+        "seats_pr": 0
+      },
+      {
+        "id": "abkh_1919",
+        "alias": {
+          "en": "National Party of Georgia",
+          "ka": "აფხაზეთის ნაციონალური პარტია"
+        },
+        "threshold_status": "failed",
+        "seats_pr": 0
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "National Archives of Georgia. Central Historical Archive, Fund N1834, Descr. 2, Fol. 59, Pg. 63",
+          "ka": "საქართველოს ეროვნული არქივი. საისტორიო ცენტრალური არქივი, ფონდი N1834, აღწერა 2, საქმე 59, გვ. 63"
+        }
+      },
+      {
+        "name": {
+          "en": "National Archives of Georgia. Central Historical Archive, Fund N1834, Descr. 2, Fol. 17, Pg. 25",
+          "ka": "საქართველოს ეროვნული არქივი. საისტორიო ცენტრალური არქივი, ფონდი N1834, აღწერა 2, საქმე 17, გვ. 25"
+        }
+      }
+    ],
+    "files": {
+      "pr_results": "data/results/parl1919_pr.csv",
+      "smd_results": null,
+      "candidates": "data/candidates/parl1919.csv",
+      "cartogram": "data/shp/parl1919_cartogram.geojson"
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": null,
+      "has_snapshots": false,
+      "has_lists": false
+    }
+  }
+]

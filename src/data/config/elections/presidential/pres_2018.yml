@@ -3,8 +3,8 @@ type: presidential
 sub_type: direct
 date: "2018-10-28"
 name:
-  en: "2018 Presidential Election"
-  ka: "2018 წლის საპრეზიდენტო არჩევნები"
+  en: "October 28, 2018 Elections of the President of Georgia"
+  ka: "საქართველოს პრეზიდენტის 2018 წლის 28 ოქტომბრის არჩევნები"
 system:
   pr:
     enabled: true
@@ -18,7 +18,7 @@ notes:
   en: |
     2018 presidential elections were the last elections when Georgians directly elected the country's president. First time in history, a runoff was needed to determine the winner. Salome Zourabichvili, who was running as an independent but was supported by the ruling Georgian Dream party, was elected as the country's first elected female president.
   ka: |
-    2018 წლის საპრეზიდენტო არჩევნები გახლდათ უკანასკნელი, როდესაც საქართველოს მოსახლეობამ პრეზიდენტი პირდაპირი წესით აირჩია. პირველად ისტორიაში, გამარჯვებულის გამოსავლენად საჭირო მეორე ტურის ჩატარება გახლდა. სალომე ზურაბიშვილი, რომელიც კენჭს როგორც დამოუკიდებელი კანდიდატი, ისე იყრიდა, საქართველოს პირველი არჩეული ქალი პრეზიდენტი გახდა.
+    2018 წლის საპრეზიდენტო არჩევნები გახლდათ უკანასკნელი, როდესაც საქართველოს მოსახლეობამ პრეზიდენტი პირდაპირი წესით აირჩია. პირველად ისტორიაში, გამარჯვებულის გამოსავლენად საჭირო მეორე ტურის ჩატარება გახდა. სალომე ზურაბიშვილი, რომელიც კენჭს როგორც დამოუკიდებელი კანდიდატი, ისე იყრიდა, საქართველოს პირველი არჩეული ქალი პრეზიდენტი გახდა.
 candidates:
   # ── Round 1 & 2 finalists ─────────────────────────────────────────────────
   - id: zourabichvili

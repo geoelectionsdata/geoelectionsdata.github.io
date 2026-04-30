@@ -382,6 +382,7 @@ export async function buildElectionMap({
 
     function precinctExactKey(feature) {
       const p = feature?.properties ?? {};
+      if (p.precinct_key != null && String(p.precinct_key).trim() !== "") return String(p.precinct_key).trim();
       const smd = precinctKeyPart(p.MID ?? p.smd ?? p.major_id);
       const dd  = precinctKeyPart(p.District ?? p.district ?? p.district_id);
       const pp  = precinctKeyPart(p.Precinct ?? p.precinct ?? p.precinct_number);
