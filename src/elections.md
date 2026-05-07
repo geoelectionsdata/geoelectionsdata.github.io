@@ -8,7 +8,7 @@ toc: false
 import L from "npm:leaflet";
 import * as d3 from "npm:d3";
 import {getLang, tr} from "./components/state.js";
-import {dhondtSeats, makePartyLookup, turnoutValue, turnoutNorm, seatsFor, partiesForFilter} from "./components/election-utils.js";
+import {dhondtSeats, makePartyLookup, turnoutValue, turnoutNorm, seatsFor, partiesForFilter, fetchTextAsset, fetchJSONAsset} from "./components/election-utils.js";
 import {makeRenderers} from "./components/election-renderers.js";
 import {buildElectionMap} from "./components/election-map.js";
 
@@ -257,16 +257,44 @@ const seatFilter = Generators.input(seatFilterInput);
 // Data registries — auto-assembled from election YAMLs by data loaders.
 // To add a new election: create the YAML + data files, then restart dev server. No changes needed here.
 const _allGeo          = await FileAttachment("data/geo-registry.json").json();
-const _allCsv          = await FileAttachment("data/csv-registry.json").json();
+const _csvRegistryUrl  = await FileAttachment("data/csv-registry.json").url();
 const _allTurnout      = await FileAttachment("data/turnout-registry.json").json();
 const _occupiedGeo     = await FileAttachment("data/shp/occupied_territories.geojson").json();
 // Precinct registries — fetched lazily on first precinct level activation.
 // The GeoJSON and CSV registries are YAML-derived manifests; selected precinct files are fetched separately.
-const _precinctGeoRegistryUrl = FileAttachment("data/precinct-geo-registry.json").url();
-const _precinctCsvRegistryUrl = FileAttachment("data/precinct-csv-registry.json").url();
+const _precinctGeoRegistryUrl = await FileAttachment("data/precinct-geo-registry.json").url();
+const _precinctCsvRegistryUrl = await FileAttachment("data/precinct-csv-registry.json").url();
 
 function lookupCSV(dataMap, path) {
   return dataMap?.[path] ?? [];
+}
+
+const _csvRegistryCache = {
+  manifest: null,
+  rowsByPath: new Map()
+};
+
+async function loadCSVPath(path) {
+  if (!path) return [];
+
+  if (!_csvRegistryCache.manifest) {
+    _csvRegistryCache.manifest = await fetchJSONAsset(_csvRegistryUrl);
+  }
+
+  const assetPath = _csvRegistryCache.manifest[path];
+  if (!assetPath) return [];
+
+  if (!_csvRegistryCache.rowsByPath.has(assetPath)) {
+    const promise = fetchTextAsset(assetPath)
+      .then(text => d3.csvParse(text, d3.autoType))
+      .catch(error => {
+        _csvRegistryCache.rowsByPath.delete(assetPath);
+        throw error;
+      });
+    _csvRegistryCache.rowsByPath.set(assetPath, promise);
+  }
+
+  return _csvRegistryCache.rowsByPath.get(assetPath);
 }
 
 function loadGeoJSON(elec, vt, level) {
@@ -290,64 +318,64 @@ function loadGeoJSON(elec, vt, level) {
   return _allGeo[path] ?? null;
 }
 
-function loadResults(elec, vt, sub, level, ballotType) {
+async function loadResults(elec, vt, sub, level, ballotType) {
   const isSubActive = sub?.id !== "__main__";
 
   // Council ballot type: load council-specific files
   if (ballotType === "council") {
     if (level === "selfgov") {
       // Self-governing unit level for council PR
-      return lookupCSV(_allCsv, elec?.files?.pr_selfgov_results ?? elec?.files?.council_pr_results);
+      return loadCSVPath(elec?.files?.pr_selfgov_results ?? elec?.files?.council_pr_results);
     }
     if (level === "council_district") {
       // Sub-election override (e.g. runoff)
       if (isSubActive && vt === "smd" && sub?.files?.council_smd_results)
-        return lookupCSV(_allCsv, sub.files.council_smd_results);
+        return loadCSVPath(sub.files.council_smd_results);
       const path = vt === "smd"
         ? elec?.files?.council_smd_results
         : elec?.files?.council_pr_results;
-      return lookupCSV(_allCsv, path);
+      return loadCSVPath(path);
     }
     if (level === "precinct") {
       // Sub-election override
       if (isSubActive && vt === "smd" && sub?.files?.council_smd_precinct_results)
-        return lookupCSV(_allCsv, sub.files.council_smd_precinct_results);
+        return loadCSVPath(sub.files.council_smd_precinct_results);
       const path = vt === "smd"
         ? (elec?.files?.council_smd_precinct_results ?? elec?.files?.council_smd_results)
         : (elec?.files?.council_pr_precinct_results  ?? elec?.files?.council_pr_results);
-      return lookupCSV(_allCsv, path);
+      return loadCSVPath(path);
     }
     // District level fallthrough — sub-election override
     if (isSubActive && vt === "smd" && sub?.files?.council_smd_results)
-      return lookupCSV(_allCsv, sub.files.council_smd_results);
+      return loadCSVPath(sub.files.council_smd_results);
     const path = vt === "smd"
       ? elec?.files?.council_smd_results
       : elec?.files?.council_pr_results;
-    return lookupCSV(_allCsv, path);
+    return loadCSVPath(path);
   }
   if (level === "selfgov") {
     // Self-governing unit level for mayor — sub-election override (e.g. mayor runoff)
     if (isSubActive && vt === "smd" && sub?.files?.smd_results)
-      return lookupCSV(_allCsv, sub.files.smd_results);
+      return loadCSVPath(sub.files.smd_results);
     const path = vt === "smd" ? elec?.files?.smd_results : elec?.files?.pr_selfgov_results;
-    return lookupCSV(_allCsv, path);
+    return loadCSVPath(path);
   }
   if (isSubActive) {
     if (level === "precinct") {
       const subPrecinct = sub?.files?.smd_precinct_results ?? sub?.files?.pr_precinct_results;
-      if (subPrecinct) return lookupCSV(_allCsv,subPrecinct);
+      if (subPrecinct) return loadCSVPath(subPrecinct);
     }
     // Mayor district level: prefer Tbilisi-expanded district file if available
     if (ballotType === "mayor" && level === "district" && sub?.files?.smd_district_results)
-      return lookupCSV(_allCsv, sub.files.smd_district_results);
+      return loadCSVPath(sub.files.smd_district_results);
     const subPath = sub?.files?.smd_results ?? sub?.files?.pr_results ?? sub?.files?.results;
-    if (subPath) return lookupCSV(_allCsv,subPath);
+    if (subPath) return loadCSVPath(subPath);
   }
   if (level === "precinct") {
     const path = vt === "smd"
       ? (elec?.files?.smd_precinct_results ?? elec?.files?.smd_results)
       : (elec?.files?.pr_precinct_results  ?? elec?.files?.pr_results);
-    return lookupCSV(_allCsv,path);
+    return loadCSVPath(path);
   }
   // Mayor district level: use CEC-district-indexed file (Tbilisi expanded to districts 1–10)
   // instead of selfgov-indexed smd_results (where Tbilisi=1 would leave districts 2–10 uncoloured)
@@ -356,7 +384,7 @@ function loadResults(elec, vt, sub, level, ballotType) {
     : vt === "smd"          ? elec?.files?.smd_results
     : vt === "compensation" ? elec?.files?.compensation_results
     : elec?.files?.pr_results;
-  return lookupCSV(_allCsv,path);
+  return loadCSVPath(path);
 }
 
 function loadTurnout(elec, level) {
@@ -374,20 +402,20 @@ const _geoVt = isLocal ? "pr" : effectiveVoteType;
 const geoData  = electionVal ? loadGeoJSON(electionVal, _geoVt, "district") : null;
 const cartData = _allGeo[electionVal?.files?.cartogram] ?? null;
 
-// All CSV data is pre-loaded in the registries — lookups are synchronous
-const results              = electionVal ? loadResults(electionVal, effectiveVoteType, subVal, "district", ballotTypeVal)         : [];
+// Result CSVs are loaded lazily from the selected YAML paths.
+const results              = electionVal ? await loadResults(electionVal, effectiveVoteType, subVal, "district", ballotTypeVal)   : [];
 const turnoutData          = electionVal ? loadTurnout(electionVal, "district")                                                   : [];
 // Council-district intermediate layer (sakrebulo districts, council mode only)
 const councilDistrictGeoData = (electionVal && hasCouncilDistricts) ? loadGeoJSON(electionVal, _geoVt, "council_district") : null;
-const councilDistrictResults = (electionVal && hasCouncilDistricts) ? loadResults(electionVal, effectiveVoteType, subVal, "council_district", ballotTypeVal) : [];
+const councilDistrictResults = (electionVal && hasCouncilDistricts) ? await loadResults(electionVal, effectiveVoteType, subVal, "council_district", ballotTypeVal) : [];
 // Always load council SMD results for seat computation from the parent election (full results),
 // even when a sub-election (runoff) is active — seats reflect the elected-people list.
 const _allCouncilSMDResults = (electionVal && isCouncilMode && electionVal?.files?.council_smd_results)
-  ? lookupCSV(_allCsv, electionVal.files.council_smd_results)
+  ? await loadCSVPath(electionVal.files.council_smd_results)
   : councilDistrictResults;
 // Self-governing unit layer (local elections with selfgov_shape_file set)
 const selfgovGeoData = (electionVal && hasSelfGov) ? loadGeoJSON(electionVal, "pr", "selfgov") : null;
-const selfgovResults = (electionVal && hasSelfGov) ? loadResults(electionVal, effectiveVoteType, subVal, "selfgov", ballotTypeVal) : [];
+const selfgovResults = (electionVal && hasSelfGov) ? await loadResults(electionVal, effectiveVoteType, subVal, "selfgov", ballotTypeVal) : [];
 // Precinct layer — geo and results are lazy-loaded in election-map.js (excluded from registries)
 function _getPrecinctPaths(elec, vt, sub, ballotType) {
   if (!elec) return { geoPath: null, csvPath: null };
@@ -416,7 +444,7 @@ const precinctTurnout  = (electionVal && hasPrecinct) ? loadTurnout(electionVal,
 // Actual seat composition from elected-people list (council mode + mayor mode)
 const _needsSeatsData = isCouncilMode || (isLocal && ballotTypeVal === "mayor");
 const seatsData = (electionVal && _needsSeatsData && electionVal?.files?.seats)
-  ? lookupCSV(_allCsv, electionVal.files.seats)
+  ? await loadCSVPath(electionVal.files.seats)
   : [];
 ```
 
@@ -571,7 +599,7 @@ const turnoutByDistrict = new Map();
 // IDs (1-84). Use council PR results as the source so the district-layer choropleth can resolve
 // turnout by CEC district ID. PR results carry the same polling-day turnout columns.
 const _distTurnoutSource = (isCouncilMode && effectiveVoteType === "smd" && electionVal?.files?.council_pr_results)
-  ? lookupCSV(_allCsv, electionVal.files.council_pr_results)
+  ? await loadCSVPath(electionVal.files.council_pr_results)
   : results;
 const _hasInlineTurnout = _distTurnoutSource.length > 0 && _distTurnoutSource[0]?.registered != null;
 if (_hasInlineTurnout) {

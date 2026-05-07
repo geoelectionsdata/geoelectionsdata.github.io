@@ -1,6 +1,6 @@
 import L from "npm:leaflet";
 import * as d3 from "npm:d3";
-import {turnoutValue, turnoutNorm} from "./election-utils.js";
+import {turnoutValue, turnoutNorm, fetchTextAsset, fetchJSONAsset, councilSelfgovIdFromMajorId} from "./election-utils.js";
 
 // Module-level cache: survives buildElectionMap re-calls (one fetch per session)
 const _precinctRegistryCache = {
@@ -9,27 +9,6 @@ const _precinctRegistryCache = {
   csvManifest: null,
   csvByPath: new Map()
 };
-
-async function fetchTextAsset(path) {
-  const urls = [path];
-  if (!/^(?:[a-z]+:|\/)/i.test(path)) urls.push(`/_file/${path}`);
-
-  let lastError;
-  for (const url of urls) {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-      return await response.text();
-    } catch (error) {
-      lastError = error;
-    }
-  }
-  throw lastError;
-}
-
-async function fetchJSONAsset(path) {
-  return JSON.parse(await fetchTextAsset(path));
-}
 
 async function loadPrecinctGeo(path, registryUrl) {
   if (!path || !registryUrl) return null;
@@ -150,11 +129,6 @@ export async function buildElectionMap({
   // Stringify GeoJSON integer ids once — both winnerByDistrict and turnoutByDistrict
   // are keyed by string (from CSV), but GeoJSON feature.properties.id is an integer.
   function geoId(feature) { return String(feature.properties.id ?? feature.properties.major_id); }
-  function councilSelfgovIdFromMajorId(id) {
-    const n = Number(id);
-    const raw = n >= 10000 ? Math.floor(n / 10000) : Math.floor(n / 100);
-    return String(raw === 99 || (raw >= 1 && raw <= 10) ? 1 : raw);
-  }
   function councilSelfgovIdFromDistrictId(id) {
     const n = Number(id);
     return String(n >= 1 && n <= 10 ? 1 : n);
@@ -383,7 +357,7 @@ export async function buildElectionMap({
     function precinctExactKey(feature) {
       const p = feature?.properties ?? {};
       if (p.precinct_key != null && String(p.precinct_key).trim() !== "") return String(p.precinct_key).trim();
-      const smd = precinctKeyPart(p.MID ?? p.smd ?? p.major_id);
+      const smd = precinctKeyPart(p.MID ?? p.M_District ?? p.smd ?? p.major_id);
       const dd  = precinctKeyPart(p.District ?? p.district ?? p.district_id);
       const pp  = precinctKeyPart(p.Precinct ?? p.precinct ?? p.precinct_number);
       return smd && dd && pp ? `${smd}.${dd}.${pp}` : null;
@@ -410,13 +384,21 @@ export async function buildElectionMap({
       return p.district ?? p.district_id ?? p.District;
     }
 
+    function precinctMajorDistrict(feature) {
+      const p = feature?.properties ?? {};
+      return precinctKeyPart(p.MID ?? p.M_District ?? p.smd ?? p.major_id);
+    }
+
     function precinctParentId(feature, stationId) {
       const p = feature?.properties ?? {};
       if (isCouncilMode && effectiveVoteType === "smd") {
-        const mid = p.MID ?? p.major_id;
-        return mid != null ? String(Math.round(Number(mid))) : (_precinctToMajorId.get(stationId) ?? String(precinctRawDistrict(feature)));
+        return precinctMajorDistrict(feature) ?? _precinctToMajorId.get(stationId) ?? String(precinctRawDistrict(feature));
       }
       if (effectiveVoteType === "smd" && !isCouncilMode) {
+        if (electionVal?.type !== "local") {
+          const mid = precinctMajorDistrict(feature);
+          if (mid != null) return mid;
+        }
         const mayor = p.Mayor ?? p.selfgov_id;
         if (mayor != null) {
           const m = Number(mayor);

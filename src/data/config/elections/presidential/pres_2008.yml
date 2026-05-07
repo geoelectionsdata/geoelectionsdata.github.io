@@ -1,0 +1,114 @@
+id: pres_2008
+type: presidential
+sub_type: direct
+date: "2008-01-05"
+download_name:
+  en: "2008 Presidential Election"
+name:
+  en: "January 5, 2008 Elections of the President of Georgia"
+  ka: "საქართველოს პრეზიდენტის 2008 წლის 5 იანვრის არჩევნები"
+
+system:
+  pr:
+    enabled: true
+    shape_file: "data/shp/pres2008_districts.geojson"
+    precinct_shape_file: "data/shp/pres2008_precincts.geojson"
+  smd:
+    enabled: false
+  compensation:
+    enabled: false
+
+map_view:
+  center: [42.1, 43.5]
+  zoom: 7
+
+notes:
+  en: |
+    The January 5, 2008 presidential election was held as a direct nationwide vote
+    and was decided in one round. The district and precinct layers use the 2008
+    electoral geography, including districts that were under Georgian control
+    before the August 2008 war with Russia.
+  ka: |
+    2008 წლის 5 იანვრის საპრეზიდენტო არჩევნები პირდაპირი საერთო-სახალხო
+    კენჭისყრით გაიმართა და გამარჯვებული ერთ ტურში გამოვლინდა. ოლქებისა და
+    უბნების ფენები 2008 წლის საარჩევნო გეოგრაფიას იყენებს, მათ შორის იმ
+    ოლქებსაც, რომლებიც 2008 წლის აგვისტოს რუსეთთან ომამდე საქართველოს
+    კონტროლის ქვეშ იყო.
+
+candidates:
+  - id: gachechiladze
+    name:
+      en: "Levan Gachechiladze"
+      ka: "ლევან გაჩეჩილაძე"
+    party: independent
+    color: "#1565C0"
+    threshold_status: passed
+
+  - id: patarkatsishvili
+    name:
+      en: "Arkadi Patarkatsishvili"
+      ka: "არკადი პატარკაციშვილი"
+    party: initiative_group
+    color: "#6D4C41"
+    threshold_status: passed
+
+  - id: gamkrelidze
+    name:
+      en: "Davit Gamkrelidze"
+      ka: "დავით გამყრელიძე"
+    party: independent
+    color: "#7B1FA2"
+    threshold_status: passed
+
+  - id: natelashvili
+    name:
+      en: "Shalva Natelashvili"
+      ka: "შალვა ნათელაშვილი"
+    party: labour
+    color: "#ff7f00"
+    threshold_status: passed
+
+  - id: saakashvili
+    name:
+      en: "Mikheil Saakashvili"
+      ka: "მიხეილ სააკაშვილი"
+    party: unm
+    color: "#C62828"
+    threshold_status: passed
+
+  - id: maisashvili
+    name:
+      en: "Giorgi Maisashvili"
+      ka: "გიორგი მაისაშვილი"
+    party: initiative_group
+    color: "#00897B"
+    threshold_status: failed
+
+  - id: sarishvili_chanturia
+    name:
+      en: "Irina Sarishvili-Chanturia"
+      ka: "ირინა სარიშვილი-ჭანტურია"
+    party: initiative_group
+    color: "#ffff33"
+    threshold_status: failed
+
+sub_elections: []
+
+sources:
+  - name:
+      en: "National Democratic Institute"
+      ka: "ეროვნულ-დემოკრატიული ინსტიტუტი"
+
+files:
+  pr_results:          "data/results/pres2008.csv"
+  pr_precinct_results: "data/results/pres2008_precincts.csv"
+  candidates:          "data/candidates/pres2008_candidates.csv"
+  cartogram:           null
+
+turnout:
+  available: true
+  type: detailed
+  file: "data/turnout/pres2008_turnout.csv"
+  precinct_file: "data/turnout/pres2008_precincts_turnout.csv"
+  has_snapshots: true
+  has_lists: true

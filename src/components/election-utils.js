@@ -1,3 +1,26 @@
+// ── Asset fetching helpers ────────────────────────────────────────────────
+// Tries the path as-is first; for relative paths also tries the /_file/ prefix
+// that Observable Framework uses for static assets in the build output.
+export async function fetchTextAsset(path) {
+  const urls = [path];
+  if (!/^(?:[a-z]+:|\/)/i.test(path)) urls.push(`/_file/${path}`);
+  let lastError;
+  for (const url of urls) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+      return await response.text();
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
+export async function fetchJSONAsset(path) {
+  return JSON.parse(await fetchTextAsset(path));
+}
+
 // ── D'Hondt seat allocation ────────────────────────────────────────────────
 export function dhondtSeats(votesMap, totalSeats) {
   if (!totalSeats || votesMap.size === 0) return new Map();
@@ -67,6 +90,29 @@ export function turnoutNorm(td, metric, invalidMax) {
             : metric === "5pm"     ? 0.60
             : 1.0;
   return Math.min(1, v / max);
+}
+
+// ── Turnout percentage formatting ─────────────────────────────────────────
+// Returns all four turnout metrics as "XX.X%" strings (or null when unavailable).
+// Handles both combined CSV format (precomputed *_pct columns) and raw count columns.
+export function formatTurnoutPcts(td) {
+  if (!td) return {pct: null, noonPct: null, fivePct: null, invPct: null};
+  const fmt = v => v != null ? `${(v * 100).toFixed(1)}%` : null;
+  return {
+    pct:     fmt(td.turnout_pct ?? (td.voted       != null && td.registered > 0 ? td.voted       / td.registered : null)),
+    noonPct: fmt(td.noon_pct    ?? (td.voted_noon  != null && td.registered > 0 ? td.voted_noon  / td.registered : null)),
+    fivePct: fmt(td.five_pct    ?? (td.voted_5pm   != null && td.registered > 0 ? td.voted_5pm   / td.registered : null)),
+    invPct:  fmt(td.invalid_pct ?? (td.invalid_ballots != null && td.voted > 0  ? td.invalid_ballots / td.voted  : null)),
+  };
+}
+
+// ── Council district helpers ──────────────────────────────────────────────
+// Converts a council majoritarian district ID to its parent selfgov_id.
+// Tbilisi districts (IDs 1–10 and any "99" city code) all map to selfgov 1.
+export function councilSelfgovIdFromMajorId(id) {
+  const n   = Number(id);
+  const raw = n >= 10000 ? Math.floor(n / 10000) : Math.floor(n / 100);
+  return String(raw === 99 || (raw >= 1 && raw <= 10) ? 1 : raw);
 }
 
 // ── Seat helpers ──────────────────────────────────────────────────────────

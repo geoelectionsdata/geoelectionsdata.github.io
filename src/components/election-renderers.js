@@ -1,6 +1,6 @@
 import {html} from "npm:htl";
 import * as d3 from "npm:d3";
-import {seatsFor, partiesForFilter} from "./election-utils.js";
+import {seatsFor, partiesForFilter, councilSelfgovIdFromMajorId, formatTurnoutPcts} from "./election-utils.js";
 
 // Factory: returns all chart renderer functions bound to current reactive state.
 // Call once per reactive change:
@@ -14,6 +14,25 @@ export function makeRenderers({
   effectiveVoteType, results, seatFilter,
   _allCouncilSMDResults, _seatsMap, turnoutByDistrict, parties
 }) {
+
+  // ── Shared turnout row helpers (used by renderTurnoutPanel and renderPrecinctPanel) ──
+  function metricRow(metric, label, value, sub) {
+    if (!value) return "";
+    const isActive = (_mapCtrl.current?.currentTurnoutMetric ?? "final") === metric;
+    const el = html`<div class="turnout-metric-row${isActive ? " metric-row-active" : ""}" data-metric="${metric}">
+      <span class="metric-row-label" style="color:var(--muted);">${label}</span>
+      <span style="font-weight:700;">${value}${sub ? html`<span style="font-weight:400;color:var(--muted);font-size:0.74rem;margin-left:4px;">${sub}</span>` : ""}</span>
+    </div>`;
+    el.addEventListener("click", () => _mapCtrl.current?.setTurnoutMetric(metric));
+    return el;
+  }
+
+  function statRow(label, value, sub) {
+    return html`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--border);font-size:0.82rem;">
+      <span style="color:var(--muted);">${label}</span>
+      <span style="font-weight:700;">${value}${sub ? html`<span style="font-weight:400;color:var(--muted);font-size:0.75rem;margin-left:4px;">${sub}</span>` : ""}</span>
+    </div>`;
+  }
 
   // ── Shared back-to-national header for district / turnout panels ──────────
   function panelBackHeader(districtName) {
@@ -142,12 +161,6 @@ export function makeRenderers({
 
   // ── Update council seat chart imperatively on district click ──────────────
   // isSelfgov=true: distId is a selfgov_id; aggregate all majoritarian districts in that unit
-  function councilSelfgovIdFromMajorId(id) {
-    const n = Number(id);
-    const raw = n >= 10000 ? Math.floor(n / 10000) : Math.floor(n / 100);
-    return String(raw === 99 || (raw >= 1 && raw <= 10) ? 1 : raw);
-  }
-
   function updateCouncilSeats(distId, props, isSelfgov = false) {
     const chart = document.getElementById("council-seat-chart");
     if (!chart) return;
@@ -327,34 +340,7 @@ export function makeRenderers({
       </div>`;
     }
 
-    const activeMet = _mapCtrl.current?.currentTurnoutMetric ?? "final";
-
-    function metricRow(metric, label, value, sub) {
-      if (!value) return "";
-      const isActive = activeMet === metric;
-      const el = html`<div class="turnout-metric-row${isActive ? " metric-row-active" : ""}" data-metric="${metric}">
-        <span class="metric-row-label" style="color:var(--muted);">${label}</span>
-        <span style="font-weight:700;">${value}${sub ? html`<span style="font-weight:400;color:var(--muted);font-size:0.74rem;margin-left:4px;">${sub}</span>` : ""}</span>
-      </div>`;
-      el.addEventListener("click", () => _mapCtrl.current?.setTurnoutMetric(metric));
-      return el;
-    }
-
-    function statRow(label, value, sub) {
-      return html`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--border);font-size:0.82rem;">
-        <span style="color:var(--muted);">${label}</span>
-        <span style="font-weight:700;">${value}${sub ? html`<span style="font-weight:400;color:var(--muted);font-size:0.75rem;margin-left:4px;">${sub}</span>` : ""}</span>
-      </div>`;
-    }
-
-    const pct      = td.turnout_pct  != null ? `${(td.turnout_pct  * 100).toFixed(1)}%`
-                   : (td.voted != null && td.registered > 0) ? `${(td.voted / td.registered * 100).toFixed(1)}%` : null;
-    const noonPct  = td.noon_pct  != null ? `${(td.noon_pct  * 100).toFixed(1)}%`
-                   : (td.voted_noon != null && td.registered > 0) ? `${(td.voted_noon / td.registered * 100).toFixed(1)}%` : null;
-    const fivePct  = td.five_pct  != null ? `${(td.five_pct  * 100).toFixed(1)}%`
-                   : (td.voted_5pm  != null && td.registered > 0) ? `${(td.voted_5pm  / td.registered * 100).toFixed(1)}%` : null;
-    const invPct   = td.invalid_pct != null ? `${(td.invalid_pct * 100).toFixed(1)}%`
-                   : (td.invalid_ballots != null && td.voted > 0) ? `${(td.invalid_ballots / td.voted * 100).toFixed(1)}%` : null;
+    const {pct, noonPct, fivePct, invPct} = formatTurnoutPcts(td);
 
     return html`<div class="card results-panel" id="results-panel">
       ${isNational
@@ -376,7 +362,6 @@ export function makeRenderers({
   function renderPrecinctPanel(props, td, stationRows) {
     const pname = lang === "ka" ? props.name_ka : props.name_en;
     const turnoutCfg = electionVal?.turnout ?? {};
-    const activeMet  = _mapCtrl.current?.currentTurnoutMetric ?? "final";
     const isSMDPrec  = effectiveVoteType === "smd" || isPresidential;
 
     const _sortedRows = [...stationRows].sort((a, b) => b.vote_share - a.vote_share);
@@ -423,30 +408,7 @@ export function makeRenderers({
         </details>` : ""}
     ` : "";
 
-    function metricRow(metric, label, value, sub) {
-      if (!value) return "";
-      const isActive = activeMet === metric;
-      const el = html`<div class="turnout-metric-row${isActive ? " metric-row-active" : ""}" data-metric="${metric}">
-        <span class="metric-row-label" style="color:var(--muted);">${label}</span>
-        <span style="font-weight:700;">${value}${sub ? html`<span style="font-weight:400;color:var(--muted);font-size:0.74rem;margin-left:4px;">${sub}</span>` : ""}</span>
-      </div>`;
-      el.addEventListener("click", () => _mapCtrl.current?.setTurnoutMetric(metric));
-      return el;
-    }
-    function statRow(label, value) {
-      return html`<div style="display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.81rem;">
-        <span style="color:var(--muted);">${label}</span>
-        <span style="font-weight:700;">${value}</span>
-      </div>`;
-    }
-
-    const _pct     = td?.turnout_pct != null ? `${(td.turnout_pct * 100).toFixed(1)}%` : null;
-    const _noonPct = td?.noon_pct  != null ? `${(td.noon_pct  * 100).toFixed(1)}%`
-                   : (td?.voted_noon != null && td?.registered > 0) ? `${(td.voted_noon / td.registered * 100).toFixed(1)}%` : null;
-    const _fivePct = td?.five_pct  != null ? `${(td.five_pct  * 100).toFixed(1)}%`
-                   : (td?.voted_5pm  != null && td?.registered > 0) ? `${(td.voted_5pm  / td.registered * 100).toFixed(1)}%` : null;
-    const _invPct  = td?.invalid_pct != null ? `${(td.invalid_pct * 100).toFixed(1)}%`
-                   : (td?.invalid_ballots != null && td?.voted > 0) ? `${(td.invalid_ballots / td.voted * 100).toFixed(1)}%` : null;
+    const {pct: _pct, noonPct: _noonPct, fivePct: _fivePct, invPct: _invPct} = formatTurnoutPcts(td);
 
     const turnoutBlock = td ? html`
       <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin:10px 0 4px;padding-top:8px;border-top:1px solid var(--border);">

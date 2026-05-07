@@ -49,6 +49,9 @@ jobs:
       # ── Process raw election data ───────────────────────────────────────────
       # Each loader reads from src/data/raw/ and writes to src/data/results/
       # (and src/data/turnout/ where applicable). Run from project root.
+      - name: Process 2012 parliamentary data
+        run: Rscript src/loaders/process_parl2012.R
+
       - name: Process 2020 parliamentary data
         run: Rscript src/loaders/process_parl2020.R
 
@@ -76,6 +79,9 @@ jobs:
       - name: Process 2016 Adjara data
         run: Rscript src/loaders/process_adj2016.R
 
+      - name: Process 2008 presidential data
+        run: Rscript src/loaders/process_pres2008.R
+
       - name: Process 2018 presidential data
         run: Rscript src/loaders/process_pres2018.R
 
@@ -94,6 +100,12 @@ jobs:
         run: npm ci
 
       # ── Build download bundles (xlsx per election) ─────────────────────────
+      - name: Build pres2008 download bundle
+        run: node src/loaders/downloads/process_pres2008_download.js
+
+      - name: Build parl2012 download bundle
+        run: node src/loaders/downloads/process_parl2012_download.js
+
       - name: Build parl2024 download bundle
         run: node src/loaders/downloads/process_parl2024_download.js
 

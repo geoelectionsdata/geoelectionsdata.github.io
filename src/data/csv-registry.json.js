@@ -1,25 +1,20 @@
 /**
- * csv-registry.json.js — data loader
- * Walks all election YAMLs, loads every results CSV file (non-turnout) that
- * exists on disk, parses it with d3-dsv autoType, and outputs a combined JSON:
- * { "data/results/...csv": [ {col: val, ...}, ... ], ... }
- *
- * Observable Framework caches this output and invalidates it when source files change.
+ * csv-registry.json.js - data loader
+ * Emits a small YAML-derived manifest for non-precinct result CSV files.
+ * The selected CSV asset is fetched and parsed lazily by the page instead
+ * of bundling every election result into one large JSON payload.
  */
 
-import { csvParse, autoType } from "d3-dsv";
-import { loadElections, collectPaths, fileExists, readText } from "./config/registry-utils.js";
+import { collectExistingPaths } from "./config/registry-utils.js";
 
 const registry = {};
 
-for (const election of loadElections()) {
-  for (const p of collectPaths(election)) {
-    if (!p.endsWith(".csv")) continue;
-    if (p.startsWith("data/turnout/")) continue;
-    if (p.includes("_precincts")) continue;
-    if (registry[p] || !fileExists(p)) continue;
-    registry[p] = csvParse(readText(p), autoType);
-  }
+for (const p of collectExistingPaths(p =>
+  p.endsWith(".csv") &&
+  !p.startsWith("data/turnout/") &&
+  !p.includes("_precincts")
+)) {
+  registry[p] = p;
 }
 
 process.stdout.write(JSON.stringify(registry));

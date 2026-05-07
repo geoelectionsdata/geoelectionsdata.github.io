@@ -10,7 +10,10 @@ import {
 const headerContent = readFileSync("./src/components/header.html", "utf8");
 
 function dynamicAssetPaths() {
-  const paths = collectExistingPaths(p => (p.endsWith(".geojson") || p.endsWith(".csv")) && p.includes("_precincts"))
+  const paths = collectExistingPaths(p =>
+    (p.endsWith(".geojson") && p.includes("_precincts")) ||
+    (p.endsWith(".csv") && !p.startsWith("data/turnout/"))
+  )
     .map(p => `/${p}`);
   for (const entry of collectLegacyDownloadEntries({ excludeIds: new Set(["parl_2024"]) })) {
     paths.push(`/data/downloads/${entry.filename}`);

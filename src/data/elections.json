@@ -3382,6 +3382,400 @@
     }
   },
   {
+    "id": "parl_2012",
+    "type": "parliamentary",
+    "sub_type": "mixed",
+    "date": "2012-10-01",
+    "download_name": {
+      "en": "2012_Parliamentary_Elections"
+    },
+    "name": {
+      "en": "October 1, 2012 elections to the Parliament of Georgia",
+      "ka": "საქართველოს პარლამენტის 2012 წლის 1 ოქტომბრის არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 77,
+        "threshold_pct": 5,
+        "method": "dhondt",
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "precinct_shape_file": "data/shp/parl2012_pr_precincts.geojson"
+      },
+      "smd": {
+        "enabled": true,
+        "seats": 73,
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "precinct_shape_file": "data/shp/parl2012_pr_precincts.geojson"
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "map_view": {
+      "center": [
+        42.1,
+        43.5
+      ],
+      "zoom": 7
+    },
+    "notes": {
+      "en": "First time in Georgia's history, the 2012 parliamentary elections saw government change via elections. That said, campaign was extremely polarizing. Elections \nwere held under Georgia's mixed electoral system: 77 seats were distributed proportionally with a 5% threshold, and 73 seats were\nfilled in single-mandate majoritarian districts.\n",
+      "ka": "2012 წლის საპარლამენტო არჩევნების შედეგად, საქართველოში ხელისუფლება არჩევნების გზით პირველად შეიცვალა, თუმცა  პროცესი\nუკიდურესი პოლარიზაციის პირობებში წარიმართა. ხმის მიცემა შერეული საარჩევნო სისტემით გაიმართა:\n77 მანდატი პროპორციული წესით, 5%-იანი ბარიერის პირობებში განაწილდა, ხოლო\n73 მანდატი ერთმანდატიან მაჟორიტარულ ოლქებში.\n"
+    },
+    "parties": [
+      {
+        "id": "gd",
+        "alias": {
+          "en": "Bidzina Ivanishvili - Georgian Dream",
+          "ka": "ბიძინა ივანიშვილი - ქართული ოცნება"
+        },
+        "color": "#1565C0",
+        "threshold_status": "passed",
+        "seats_pr": 44,
+        "seats_smd": 41
+      },
+      {
+        "id": "unm",
+        "alias": {
+          "en": "United National Movement - More Benefit to People",
+          "ka": "ერთიანი ნაციონალური მოძრაობა - მეტი სარგებელი ხალხს"
+        },
+        "color": "#C62828",
+        "threshold_status": "passed",
+        "seats_pr": 33,
+        "seats_smd": 32
+      },
+      {
+        "id": "christian_democrats_2012",
+        "alias": {
+          "en": "Giorgi Targamadze - Christian-Democratic Movement",
+          "ka": "გიორგი თარგამაძე - ქრისტიან-დემოკრატიული გაერთიანება"
+        },
+        "color": "#F9A825",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "labour",
+        "alias": {
+          "en": "Shalva Natelashvili - Labour Party of Georgia",
+          "ka": "შალვა ნათელაშვილი - საქართველოს ლეიბორისტული პარტია"
+        },
+        "color": "#D32F2F",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "new_rights_2012",
+        "alias": {
+          "en": "New Rights",
+          "ka": "ახალი მემარჯვენეები"
+        },
+        "color": "#8E24AA",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "free_georgia",
+        "alias": {
+          "en": "Kakha Kukava - Free Georgia",
+          "ka": "კახა კუკავა - თავისუფალი საქართველო"
+        },
+        "color": "#00897B",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "fair_georgia_2012",
+        "alias": {
+          "en": "For a Fair Georgia",
+          "ka": "სამართლიანი საქართველოსთვის"
+        },
+        "color": "#6A1B9A",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "ndp_2012",
+        "alias": {
+          "en": "National-Democratic Party",
+          "ka": "ეროვნულ-დემოკრატიული პარტია"
+        },
+        "color": "#455A64",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "freedom_gamsakhurdia",
+        "alias": {
+          "en": "Freedom - Zviad Gamsakhurdia's Way",
+          "ka": "თავისუფლება - ზვიად გამსახურდიას გზა"
+        },
+        "color": "#546E7A",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "georgian_group",
+        "alias": {
+          "en": "Jondi Baghaturia - Georgian Troupe",
+          "ka": "ჯონდი ბაღათურია - ქართული დასი"
+        },
+        "color": "#33691E",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "peoples_party",
+        "alias": {
+          "en": "People's Party",
+          "ka": "სახალხო პარტია"
+        },
+        "color": "#795548",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "kostava_society",
+        "alias": {
+          "en": "Merab Kostava Society",
+          "ka": "მერაბ კოსტავას საზოგადოება"
+        },
+        "color": "#5D4037",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "future_georgia",
+        "alias": {
+          "en": "Future Georgia",
+          "ka": "მომავალი საქართველო"
+        },
+        "color": "#2E7D32",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "workers_socialist",
+        "alias": {
+          "en": "Georgian Workers' Council",
+          "ka": "საქართველოს მშრომელთა საბჭო"
+        },
+        "color": "#AD1457",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "sports_union_2012",
+        "alias": {
+          "en": "Union of Georgian Sportspeople",
+          "ka": "საქართველოს სპორტსმენთა კავშირი"
+        },
+        "color": "#0277BD",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "peoples_movement_2012",
+        "alias": {
+          "en": "People's Movement",
+          "ka": "სახალხო მოძრაობა"
+        },
+        "color": "#607D8B",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "initiative_group",
+        "alias": {
+          "en": "Initiative Group",
+          "ka": "საინიციატივო ჯგუფი"
+        },
+        "color": "#78909C",
+        "seats_pr": 0,
+        "seats_smd": 0
+      }
+    ],
+    "files": {
+      "pr_results": "data/results/parl2012_pr.csv",
+      "pr_precinct_results": "data/results/parl2012_pr_precincts.csv",
+      "smd_results": "data/results/parl2012_smd.csv",
+      "smd_precinct_results": "data/results/parl2012_smd_precincts.csv",
+      "party_lists": "data/candidates/parl2012_party_lists.csv",
+      "candidates": "data/candidates/parl2012_smd_candidates.csv",
+      "elected": "data/candidates/parl2012_elected.csv",
+      "annulled_precincts": "data/candidates/parl2012_annulled_precincts.csv",
+      "cartogram": null
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": "data/turnout/parl2012_turnout.csv",
+      "precinct_file": "data/turnout/parl2012_precincts_turnout.csv",
+      "has_snapshots": true,
+      "has_lists": true
+    },
+    "downloads": {
+      "available": true
+    },
+    "sources": [
+      {
+        "name": {
+          "en": "Public information requested from the Central Election Commission as part of the preparation of the National Democratic Institute's (NDI) election portal electionsdata.ge",
+          "ka": "„ეროვნული დემოკრატიული ინსტიტუტის\" (NDI) საარჩევნო პორტალის electionsdata.ge მომზადების ფარგლებში ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ]
+  },
+  {
+    "id": "pres_2008",
+    "type": "presidential",
+    "sub_type": "direct",
+    "date": "2008-01-05",
+    "download_name": {
+      "en": "2008 Presidential Election"
+    },
+    "name": {
+      "en": "January 5, 2008 Elections of the President of Georgia",
+      "ka": "საქართველოს პრეზიდენტის 2008 წლის 5 იანვრის არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "shape_file": "data/shp/pres2008_districts.geojson",
+        "precinct_shape_file": "data/shp/pres2008_precincts.geojson"
+      },
+      "smd": {
+        "enabled": false
+      },
+      "compensation": {
+        "enabled": false
+      }
+    },
+    "map_view": {
+      "center": [
+        42.1,
+        43.5
+      ],
+      "zoom": 7
+    },
+    "notes": {
+      "en": "The January 5, 2008 presidential election was held as a direct nationwide vote\nand was decided in one round. The district and precinct layers use the 2008\nelectoral geography, including districts that were under Georgian control\nbefore the August 2008 war with Russia.\n",
+      "ka": "2008 წლის 5 იანვრის საპრეზიდენტო არჩევნები პირდაპირი საერთო-სახალხო\nკენჭისყრით გაიმართა და გამარჯვებული ერთ ტურში გამოვლინდა. ოლქებისა და\nუბნების ფენები 2008 წლის საარჩევნო გეოგრაფიას იყენებს, მათ შორის იმ\nოლქებსაც, რომლებიც 2008 წლის აგვისტოს რუსეთთან ომამდე საქართველოს\nკონტროლის ქვეშ იყო.\n"
+    },
+    "candidates": [
+      {
+        "id": "gachechiladze",
+        "name": {
+          "en": "Levan Gachechiladze",
+          "ka": "ლევან გაჩეჩილაძე"
+        },
+        "party": "independent",
+        "color": "#1565C0",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "patarkatsishvili",
+        "name": {
+          "en": "Arkadi Patarkatsishvili",
+          "ka": "არკადი პატარკაციშვილი"
+        },
+        "party": "initiative_group",
+        "color": "#6D4C41",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "gamkrelidze",
+        "name": {
+          "en": "Davit Gamkrelidze",
+          "ka": "დავით გამყრელიძე"
+        },
+        "party": "independent",
+        "color": "#7B1FA2",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "natelashvili",
+        "name": {
+          "en": "Shalva Natelashvili",
+          "ka": "შალვა ნათელაშვილი"
+        },
+        "party": "labour",
+        "color": "#ff7f00",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "saakashvili",
+        "name": {
+          "en": "Mikheil Saakashvili",
+          "ka": "მიხეილ სააკაშვილი"
+        },
+        "party": "unm",
+        "color": "#C62828",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "maisashvili",
+        "name": {
+          "en": "Giorgi Maisashvili",
+          "ka": "გიორგი მაისაშვილი"
+        },
+        "party": "initiative_group",
+        "color": "#00897B",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "sarishvili_chanturia",
+        "name": {
+          "en": "Irina Sarishvili-Chanturia",
+          "ka": "ირინა სარიშვილი-ჭანტურია"
+        },
+        "party": "initiative_group",
+        "color": "#ffff33",
+        "threshold_status": "failed"
+      }
+    ],
+    "sub_elections": [],
+    "sources": [
+      {
+        "name": {
+          "en": "National Democratic Institute",
+          "ka": "ეროვნულ-დემოკრატიული ინსტიტუტი"
+        }
+      }
+    ],
+    "files": {
+      "pr_results": "data/results/pres2008.csv",
+      "pr_precinct_results": "data/results/pres2008_precincts.csv",
+      "candidates": "data/candidates/pres2008_candidates.csv",
+      "cartogram": null
+    },
+    "turnout": {
+      "available": true,
+      "type": "detailed",
+      "file": "data/turnout/pres2008_turnout.csv",
+      "precinct_file": "data/turnout/pres2008_precincts_turnout.csv",
+      "has_snapshots": true,
+      "has_lists": true
+    }
+  },
+  {
     "id": "parl_1919",
     "type": "parliamentary",
     "sub_type": "pr",
