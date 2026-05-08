@@ -1,0 +1,181 @@
+id: parl_2008
+type: parliamentary
+sub_type: mixed
+date: "2008-05-21"
+download_name:
+  en: "2008_Parliamentary_Elections"
+name:
+  en: "May 21, 2008 elections to the Parliament of Georgia"
+  ka: "საქართველოს პარლამენტის 2008 წლის 21 მაისის არჩევნები"
+
+system:
+  pr:
+    enabled: true
+    seats: 74
+    threshold_pct: 5.0
+    method: dhondt
+    shape_file: "data/shp/pres2008_districts.geojson"
+    precinct_shape_file: "data/shp/parl2008_pr_precinct.geojson"
+  smd:
+    enabled: true
+    seats: 76
+    shape_file: "data/shp/pres2008_districts.geojson"
+    precinct_shape_file: "data/shp/parl2008_pr_precinct.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+
+map_view:
+  center: [42.1, 43.5]
+  zoom: 7
+
+notes:
+  en: |
+    The May 21, 2008 parliamentary elections were held under Georgia's mixed
+    electoral system, with proportional party-list voting and single-mandate
+    majoritarian contests. While Mikheil Saakashvili's UNM was able to garner a supermajority in the parliament,
+    opposition was alleging irregularities in the electoral process. As the result, all opposition groups except Christian Demorats boycotted the parliament.
+  ka: |
+    2008 წლის 21 მაისის საპარლამენტო არჩევნები შერეული საარჩევნო სისტემით
+    გაიმართა: ამომრჩევლები ხმას აძლევდნენ როგორც პროპორციულ პარტიულ სიებს,
+    ასევე ერთმანდატიან მაჟორიტარულ კანდიდატებს. მართალია, მიხეილ სააკაშვილის „ერთიანმა ნაციონალურმა მოძრაობამ“ ხმების
+    უმეტესობა მიიღო, ოპოზიციური პარტიები საარჩვნო პროცესში არსებულ დარღვევებზე მიუთითებდნენ. შედეგად, „ქრისტიან-დემოკრატების“ გარდა,
+    ყველა ოპოზიციურმა პარტიამ ახლადარჩეულ პარლამენტს ბოიკოტი გამოუცხადა.
+
+parties:
+  - id: georgian_politics_2008
+    alias:
+      en: "Georgian Politics"
+      ka: "ქართული პოლიტიკა"
+    color: "#546E7A"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: republicans_2008
+    alias:
+      en: "Republican Party of Georgia"
+      ka: "საქართველოს რესპუბლიკური პარტია"
+    color: "#7B1FA2"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 2
+
+  - id: right_alliance_2008
+    alias:
+      en: "Right Alliance, Topadze - Industrialists"
+      ka: "მემარჯვენე ალიანსი, თოფაძე-მრეწველები"
+    color: "#8D6E63"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: labour
+    alias:
+      en: "Shalva Natelashvili - Labour Party of Georgia"
+      ka: "შალვა ნათელაშვილი - საქართველოს ლეიბორისტული პარტია"
+    color: "#ff7f00"
+    threshold_status: passed
+    seats_pr: 6
+    seats_smd: 0
+
+  - id: unm
+    alias:
+      en: "United National Movement - For a Victorious Georgia"
+      ka: "ერთიანი ნაციონალური მოძრაობა - გამარჯვებული საქართველოსთვის"
+    color: "#C62828"
+    threshold_status: passed
+    seats_pr: 47
+    seats_smd: 72
+
+  - id: sports_union_2008
+    alias:
+      en: "Union of Georgian Sportspeople"
+      ka: "საქართველოს სპორტსმენთა კავშირი"
+    color: "#0277BD"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: united_opposition_2008
+    alias:
+      en: "United Opposition"
+      ka: "გაერთიანებული ოპოზიცია"
+    color: "#1565C0"
+    threshold_status: passed
+    seats_pr: 15
+    seats_smd: 2
+
+  - id: radical_democrats_2008
+    alias:
+      en: "Radical-Democrats National Party"
+      ka: "რადიკალ-დემოკრატთა ნაციონალური პარტია"
+    color: "#455A64"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: christian_democratic_alliance_2008
+    alias:
+      en: "Christian-Democratic Alliance"
+      ka: "ქრისტიანულ-დემოკრატიული ალიანსი"
+    color: "#00897B"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: christian_democrats_2008
+    alias:
+      en: "Giorgi Targamadze - Christian Democrats"
+      ka: "გიორგი თარგამაძე - ქრისტიან-დემოკრატები"
+    color: "#6D4C41"
+    threshold_status: passed
+    seats_pr: 6
+    seats_smd: 0
+
+  - id: traditionalists
+    alias:
+      en: "Traditionalists - Our Georgia and Women's Party"
+      ka: "ტრადიციონალისტები - ჩვენი საქართველო და ქალთა პარტია"
+    color: "#827717"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: our_country_2008
+    alias:
+      en: "Our Country"
+      ka: "ჩვენი ქვეყანა"
+    color: "#2E7D32"
+    threshold_status: failed
+    seats_pr: 0
+    seats_smd: 0
+
+sub_elections: []
+
+files:
+  pr_results:           "data/results/parl2008_pr.csv"
+  pr_precinct_results:  "data/results/parl2008_pr_precincts.csv"
+  smd_results:          "data/results/parl2008_smd.csv"
+  smd_precinct_results: "data/results/parl2008_smd_precincts.csv"
+  party_lists:          "data/candidates/parl2008_party_lists.csv"
+  candidates:           "data/candidates/parl2008_smd_candidates.csv"
+  elected:              "data/candidates/parl2008_elected.csv"
+  annulled_precincts:   "data/candidates/parl2008_annulled_precincts.csv"
+  cartogram:            null
+
+turnout:
+  available: true
+  type: basic
+  file: "data/turnout/parl2008_turnout.csv"
+  precinct_file: "data/turnout/parl2008_precincts_turnout.csv"
+  has_snapshots: true
+  has_lists: true
+
+downloads:
+  available: true
+
+sources:
+  - name:
+      en: "National Democratic Institute"
+      ka: "ეროვნულ-დემოკრატიული ინსტიტუტი"

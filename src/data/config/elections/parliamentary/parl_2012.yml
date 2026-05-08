@@ -63,7 +63,7 @@ parties:
     alias:
       en: "Giorgi Targamadze - Christian-Democratic Movement"
       ka: "გიორგი თარგამაძე - ქრისტიან-დემოკრატიული გაერთიანება"
-    color: "#F9A825"
+    color: "#6D4C41"
     threshold_status: failed
     seats_pr: 0
     seats_smd: 0

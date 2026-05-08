@@ -52,6 +52,9 @@ jobs:
       - name: Process 2012 parliamentary data
         run: Rscript src/loaders/process_parl2012.R
 
+      - name: Process 2008 parliamentary data
+        run: Rscript src/loaders/process_parl2008.R
+
       - name: Process 2020 parliamentary data
         run: Rscript src/loaders/process_parl2020.R
 
@@ -102,6 +105,9 @@ jobs:
       # ── Build download bundles (xlsx per election) ─────────────────────────
       - name: Build pres2008 download bundle
         run: node src/loaders/downloads/process_pres2008_download.js
+
+      - name: Build parl2008 download bundle
+        run: node src/loaders/downloads/process_parl2008_download.js
 
       - name: Build parl2012 download bundle
         run: node src/loaders/downloads/process_parl2012_download.js

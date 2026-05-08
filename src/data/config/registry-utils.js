@@ -39,6 +39,7 @@ export function collectPaths(obj, out = new Set()) {
 export function diskPath(p) { return join(SRC, p); }
 export function fileExists(p) { return existsSync(diskPath(p)); }
 export function readText(p) { return readFileSync(diskPath(p), "utf8"); }
+export function isPrecinctPath(p) { return /_precincts?(?=\.|_|$)/.test(p); }
 
 export function collectExistingPaths(predicate = () => true) {
   const paths = new Set();

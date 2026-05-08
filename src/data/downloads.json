@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-07T22:27:14.866Z",
+  "generated": "2026-05-08T15:39:35.813Z",
   "files": [
     {
       "election_id": "adj_2016",
@@ -378,6 +378,20 @@
       "filename": "1919_Constituent_Assembly_Elections_main_19190214_data_202604222211119.xlsx",
       "sha": "ee347480763ab01a335a06db4331cdd90eb49c2e22c4849446f5c923f9bcf7ec",
       "size_bytes": 17461
+    },
+    {
+      "election_id": "parl_2008",
+      "election_type": "parliamentary",
+      "sub_id": "__main__",
+      "sub_type": "main",
+      "label_en": "May 21, 2008 elections to the Parliament of Georgia",
+      "label_ka": "საქართველოს პარლამენტის 2008 წლის 21 მაისის არჩევნები",
+      "sub_name_en": "Main elections",
+      "sub_name_ka": "ძირითადი კენჭისყრა",
+      "date": "2008-05-21",
+      "filename": "2008_Parliamentary_Elections_main_20080521_data_2026-05-08T15-24-37.xlsx",
+      "sha": "b2909e4b09b108ddf875e3bb9c51a1751dc7eff3cc946afd5cb2cdb0f9fb2305",
+      "size_bytes": 5003177
     },
     {
       "election_id": "parl_2012",

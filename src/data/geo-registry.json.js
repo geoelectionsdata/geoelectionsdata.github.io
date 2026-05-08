@@ -7,14 +7,14 @@
  * when any source file changes. No manual FileAttachment registration needed.
  */
 
-import { loadElections, collectPaths, fileExists, readText } from "./config/registry-utils.js";
+import { loadElections, collectPaths, fileExists, isPrecinctPath, readText } from "./config/registry-utils.js";
 
 const registry = {};
 
 for (const election of loadElections()) {
   for (const p of collectPaths(election)) {
     if (!p.endsWith(".geojson")) continue;
-    if (p.includes("_precincts")) continue;
+    if (isPrecinctPath(p)) continue;
     if (registry[p] || !fileExists(p)) continue;
     registry[p] = JSON.parse(readText(p));
   }
