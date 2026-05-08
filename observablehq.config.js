@@ -1,6 +1,6 @@
 // 1. Import the Node.js file system module
 import { existsSync, readFileSync } from "node:fs";
-import { collectExistingPaths } from "./src/data/config/registry-utils.js";
+import { collectExistingPaths, isPrecinctPath } from "./src/data/config/registry-utils.js";
 import {
   PARL2024_DOWNLOAD_FILENAME,
   collectLegacyDownloadEntries
@@ -11,7 +11,7 @@ const headerContent = readFileSync("./src/components/header.html", "utf8");
 
 function dynamicAssetPaths() {
   const paths = collectExistingPaths(p =>
-    (p.endsWith(".geojson") && p.includes("_precincts")) ||
+    (p.endsWith(".geojson") && isPrecinctPath(p)) ||
     (p.endsWith(".csv") && !p.startsWith("data/turnout/"))
   )
     .map(p => `/${p}`);
