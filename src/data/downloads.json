@@ -1,6 +1,20 @@
 {
-  "generated": "2026-05-08T19:18:55.749Z",
+  "generated": "2026-05-08T21:50:33.817Z",
   "files": [
+    {
+      "election_id": "adj_2008",
+      "election_type": "adjara",
+      "sub_id": "__main__",
+      "sub_type": "main",
+      "label_en": "November 3, 2008 elections to the Supreme Council of the Autonomous Republic of Adjara",
+      "label_ka": "აჭარის ავტონომიური რესპუბლიკის უმაღლესი საბჭოს 2008 წლის 3 ნოემბრის არჩევნები",
+      "sub_name_en": "Main elections",
+      "sub_name_ka": "ძირითადი კენჭისყრა",
+      "date": "2008-11-03",
+      "filename": "2008_Adjara_Supreme_Council_Elections_main_20081103_data_2026-05-08T21-50-22.xlsx",
+      "sha": "07e13e414e0bb789e6603ec30233939e8c84f443b12834efbad0013a71f66ceb",
+      "size_bytes": 375645
+    },
     {
       "election_id": "adj_2016",
       "election_type": "adjara",

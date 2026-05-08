@@ -3778,6 +3778,169 @@
     ]
   },
   {
+    "id": "adj_2008",
+    "type": "adjara",
+    "sub_type": "mixed",
+    "date": "2008-11-03",
+    "download_name": {
+      "en": "2008_Adjara_Supreme_Council_Elections"
+    },
+    "name": {
+      "en": "November 3, 2008 elections to the Supreme Council of the Autonomous Republic of Adjara",
+      "ka": "აჭარის ავტონომიური რესპუბლიკის უმაღლესი საბჭოს 2008 წლის 3 ნოემბრის არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 12,
+        "threshold_pct": 5,
+        "method": "dhondt",
+        "shape_file": "data/shp/adj2008_smd.geojson",
+        "precinct_shape_file": "data/shp/adj2008_pr_precincts.geojson"
+      },
+      "smd": {
+        "enabled": true,
+        "seats": 6,
+        "shape_file": "data/shp/adj2008_smd.geojson",
+        "precinct_shape_file": "data/shp/adj2008_pr_precincts.geojson"
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "map_view": {
+      "center": [
+        41.7225389,
+        42.1149651
+      ],
+      "zoom": 9
+    },
+    "notes": {
+      "en": "The November 3, 2008 elections to the Supreme Council of Adjara were held under a mixed electoral system, with proportional party-list voting and six single-member majoritarian districts.\n",
+      "ka": "აჭარის ავტონომიური რესპუბლიკის უმაღლესი საბჭოს 2008 წლის 3 ნოემბრის არჩევნები შერეული საარჩევნო სისტემით გაიმართა: ამომრჩევლები ხმას აძლევდნენ როგორც პროპორციულ პარტიულ სიებს, ასევე ექვს ერთმანდატიან მაჟორიტარულ ოლქში წარდგენილ კანდიდატებს.\n"
+    },
+    "parties": [
+      {
+        "id": "unm",
+        "alias": {
+          "en": "United National Movement",
+          "ka": "ერთიანი ნაციონალური მოძრაობა"
+        },
+        "color": "#C62828",
+        "threshold_status": "passed",
+        "seats_pr": 10,
+        "seats_smd": 5
+      },
+      {
+        "id": "christian_democrats_2008",
+        "alias": {
+          "en": "Giorgi Targamadze - Christian Democrats",
+          "ka": "გიორგი თარგამაძე - ქრისტიან-დემოკრატები"
+        },
+        "color": "#6D4C41",
+        "threshold_status": "passed",
+        "seats_pr": 2,
+        "seats_smd": 1
+      },
+      {
+        "id": "adj2008_chven_tviton",
+        "alias": {
+          "en": "We Ourselves",
+          "ka": "ჩვენ თვითონ"
+        },
+        "color": "#00897B",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "adj2008_united_communist",
+        "alias": {
+          "en": "United Communist Party of Georgia",
+          "ka": "საქართველოს ერთიანი კომუნისტური პარტია"
+        },
+        "color": "#B71C1C",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "adj2008_kartuli_dasi",
+        "alias": {
+          "en": "Georgian Group",
+          "ka": "ქართული დასი"
+        },
+        "color": "#33691E",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "industry_sakartvelo",
+        "alias": {
+          "en": "Industry Will Save Georgia",
+          "ka": "მრეწველობა გადაარჩენს საქართველოს"
+        },
+        "color": "#8D6E63",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "conservatives",
+        "alias": {
+          "en": "Conservative Party of Georgia",
+          "ka": "საქართველოს კონსერვატიული პარტია"
+        },
+        "color": "#37474F",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      },
+      {
+        "id": "adj2008_georgian_politics",
+        "alias": {
+          "en": "Georgian Politics",
+          "ka": "ქართული პოლიტიკა"
+        },
+        "color": "#546E7A",
+        "threshold_status": "failed",
+        "seats_pr": 0,
+        "seats_smd": 0
+      }
+    ],
+    "sub_elections": [],
+    "sources": [
+      {
+        "name": {
+          "en": "Public information requested from the Supreme Electoral Council of Adjara",
+          "ka": "აჭარის უმაღლესი საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "pr_results": "data/results/adj2008_pr.csv",
+      "pr_precinct_results": "data/results/adj2008_pr_precincts.csv",
+      "smd_results": "data/results/adj2008_smd.csv",
+      "smd_precinct_results": "data/results/adj2008_smd_precincts.csv",
+      "candidates": "data/candidates/adj2008_smd_candidates.csv",
+      "party_lists": "data/candidates/adj2008_party_lists.csv",
+      "cartogram": null
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": "data/turnout/adj2008_turnout.csv",
+      "precinct_file": "data/turnout/adj2008_precincts_turnout.csv",
+      "has_snapshots": true,
+      "has_lists": true
+    },
+    "downloads": {
+      "available": true
+    }
+  },
+  {
     "id": "parl_2008",
     "type": "parliamentary",
     "sub_type": "mixed",

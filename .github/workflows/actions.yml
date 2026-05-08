@@ -82,6 +82,9 @@ jobs:
       - name: Process 2016 Adjara data
         run: Rscript src/loaders/process_adj2016.R
 
+      - name: Process 2008 Adjara data
+        run: Rscript src/loaders/process_adj2008.R
+
       - name: Process 2008 presidential data
         run: Rscript src/loaders/process_pres2008.R
 
@@ -126,6 +129,9 @@ jobs:
 
       - name: Build adj2016 download bundle
         run: node src/loaders/downloads/process_adj2016_download.js
+
+      - name: Build adj2008 download bundle
+        run: node src/loaders/downloads/process_adj2008_download.js
 
       - name: Update download metadata sheets
         run: node src/loaders/downloads/update_metadata.js
