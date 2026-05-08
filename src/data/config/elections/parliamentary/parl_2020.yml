@@ -42,6 +42,9 @@ sub_elections:
     files:
       smd_results:          "data/results/parl2020_smd_runoff.csv"
       smd_precinct_results: "data/results/parl2020_smd_runoff_precincts.csv"
+    notes:
+      en: The second round of the 2020 parliamentary elections was held on November 21, 2020, with opposition candidates boycotting the elections.
+      ka: არჩევნების მეორე ტურს რომელიც 2020 წლის 21 ნოემბერს გაიმართა, ოპოზიციურმა კანდიდატებმა ბოიკოტი გამოუცხდეს.
 
 # threshold_status is official — not calculated from vote_share.
 # alias overrides the canonical party name from parties.yml for this election.

@@ -983,13 +983,13 @@ const container = html`
     ${viewMode === "turnout" ? html`
     <!-- Turnout mode: info card only, constrained to map column width -->
     <div style="max-width:680px; width:100%;">
-      ${renderElectionInfo(electionVal)}
+      ${renderElectionInfo(electionVal, subVal)}
     </div>
     ` : html`
     <div class="${(!isPresidential && !isPlebiscite) ? "elections-bottom" : ""}">
 
       <!-- LEFT: election notes/blurb from YAML -->
-      ${renderElectionInfo(electionVal)}
+      ${renderElectionInfo(electionVal, subVal)}
 
       <!-- RIGHT: seat distribution -->
       ${!isPresidential && !isPlebiscite ? html`

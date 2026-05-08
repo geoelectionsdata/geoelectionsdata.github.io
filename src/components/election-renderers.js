@@ -493,8 +493,12 @@ export function makeRenderers({
   }
 
   // ── Election info / blurb ─────────────────────────────────────────────────
-  function renderElectionInfo(elec) {
-    const notesRaw = elec?.notes?.[lang] ?? elec?.notes?.en ?? null;
+  function renderElectionInfo(elec, subElection = null) {
+    const noteForLang = notes => {
+      const raw = notes?.[lang] ?? notes?.en ?? null;
+      return typeof raw === "string" && raw.trim() === "" ? null : raw;
+    };
+    const notesRaw = noteForLang(subElection?.notes) ?? noteForLang(elec?.notes);
     if (!notesRaw) return "";
 
     const notesNode = document.createElement("div");

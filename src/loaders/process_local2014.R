@@ -45,6 +45,8 @@ dir.create(OUT_CANDIDATES, showWarnings = FALSE, recursive = TRUE)
 dir.create(OUT_CANDIDATE_CONFIG, showWarnings = FALSE, recursive = TRUE)
 dir.create(OUT_TURNOUT, showWarnings = FALSE, recursive = TRUE)
 
+REBUILD_GEO <- tolower(Sys.getenv("REBUILD_LOCAL2014_GEO", unset = "false")) %in% c("1", "true", "yes")
+
 CITY_SPLITS <- c("17" = 171L, "27" = 271L, "32" = 321L, "37" = 371L,
                  "44" = 441L, "60" = 601L, "67" = 671L)
 TBILISI_DISTRICTS <- 1:10
@@ -162,6 +164,10 @@ write_csv_utf8 <- function(df, path) {
 }
 
 write_geo_atomic <- function(x, path) {
+  if (!REBUILD_GEO) {
+    message("  Skipping GeoJSON write: ", path, " (set REBUILD_LOCAL2014_GEO=true to rebuild)")
+    return(invisible(FALSE))
+  }
   tmp <- tempfile(fileext = ".geojson")
   on.exit(unlink(tmp), add = TRUE)
   st_write(x, tmp, delete_dsn = TRUE, quiet = TRUE)
@@ -277,10 +283,14 @@ normalize_council_smd_geo <- function() {
   write_geo_atomic(smd, COUNCIL_SMD_GEO)
 }
 
-normalize_selfgov_geo()
 precinct_selfgov <- read_precinct_selfgov_lookup()
-normalize_precinct_geo(precinct_selfgov)
-normalize_council_smd_geo()
+if (REBUILD_GEO) {
+  normalize_selfgov_geo()
+  normalize_precinct_geo(precinct_selfgov)
+  normalize_council_smd_geo()
+} else {
+  message("Skipping 2014 base GeoJSON normalization; using existing shapefiles.")
+}
 
 read_result_sheet <- function(sheet, kind) {
   raw <- read_excel(RAW_RESULTS, sheet = sheet, col_names = FALSE)
@@ -1324,12 +1334,14 @@ normalize_geo_name <- function(x) {
     str_squish()
 }
 
-selfgov_lookup <- st_read(SELFGOV_GEO, quiet = TRUE) %>%
-  st_drop_geometry() %>%
+selfgov_props <- st_read(SELFGOV_GEO, quiet = TRUE) %>% st_drop_geometry()
+selfgov_id_col <- if ("District" %in% names(selfgov_props)) "District" else if ("selfgov_id" %in% names(selfgov_props)) "selfgov_id" else "id"
+selfgov_name_col <- if ("Ka_Name" %in% names(selfgov_props)) "Ka_Name" else "name_ka"
+selfgov_lookup <- selfgov_props %>%
   transmute(
-    selfgov_id = as.integer(District),
-    geo_name = normalize_geo_name(Ka_Name),
-    is_city = str_detect(Ka_Name, "^ქ\\.")
+    selfgov_id = as.integer(.data[[selfgov_id_col]]),
+    geo_name = normalize_geo_name(.data[[selfgov_name_col]]),
+    is_city = str_detect(.data[[selfgov_name_col]], "^ქ\\.")
   )
 
 extract_local_unit_name <- function(x) {

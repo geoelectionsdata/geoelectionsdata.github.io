@@ -11,7 +11,7 @@ const SRC          = path.join(process.cwd(), "src");
 const ELECTIONS_DIR = path.join(SRC, "data", "config", "elections");
 
 // Same featured election IDs and rotation logic as index.md
-const FEATURED_IDS = ["parl_2024", "parl_1919", "local_2025"];
+const FEATURED_IDS = ["parl_2024", "parl_1919", "pres_2018", "parl_2012"];
 
 function collectYmlFiles(dir) {
   const out = [];
