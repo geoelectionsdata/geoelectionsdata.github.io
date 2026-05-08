@@ -19,6 +19,7 @@ OUT_CANDIDATES <- Sys.getenv("OUT_CANDIDATES", unset = "src/data/candidates")
 RESULTS_FILE <- file.path(RAW_DIR, "2012 პარლამენტი მაჟორიტარული პროპორციული.xlsx")
 PARTY_LISTS_FILE <- file.path(RAW_DIR, "party_lists_2012_georgia_unified.xlsx")
 ELECTED_FILE <- file.path(RAW_DIR, "elected_shemajamebeli_2012.xlsx")
+BY2015_FILE <- file.path(RAW_DIR, "2015 შუალედური პარლამენტი.xlsx")
 
 SUM_COLS <- c(
   "main_list", "special_list", "voted_noon", "voted_5pm", "voted",
@@ -437,12 +438,134 @@ build_annulled_precincts <- function() {
     )
 }
 
+build_2015_byelection_candidates <- function() {
+  read_excel(BY2015_FILE, sheet = "კანდიდატები", guess_max = 100000, .name_repair = "unique") %>%
+    transmute(
+      electoral_district_id = as.integer(.data[["ოლქი"]]),
+      raw_vote_code = as.integer(.data[["პარტიის ნომერი"]]),
+      first_name = cell_str(.data[["სახელი"]]),
+      last_name = cell_str(.data[["გვარი"]]),
+      name_ka = str_squish(paste(first_name, last_name)),
+      party_label = cell_str(.data[["პარტიის სახელი"]]),
+      party_id = paste0("parl2012_2015_", electoral_district_id, "_", raw_vote_code)
+    ) %>%
+    filter(!is.na(electoral_district_id), !is.na(raw_vote_code), name_ka != "") %>%
+    arrange(electoral_district_id, raw_vote_code)
+}
+
+national_2015_party_id <- function(raw_vote_code) {
+  case_when(
+    raw_vote_code == 8L ~ "parl2012_2015_patriots",
+    raw_vote_code == 41L ~ "parl2012_2015_gd",
+    TRUE ~ "parl2012_2015_initiative_group"
+  )
+}
+
+build_2015_byelection_outputs <- function() {
+  raw <- read_excel(BY2015_FILE, sheet = "შედეგები", guess_max = 100000, .name_repair = "unique")
+  candidates <- build_2015_byelection_candidates()
+  vote_cols_raw <- grep("^vote_\\d+$", names(raw), value = TRUE)
+  code_map <- tibble(
+    raw_col = vote_cols_raw,
+    raw_vote_code = as.integer(str_remove(vote_cols_raw, "^vote_")),
+    vote_col = paste0("code_", raw_vote_code),
+    code_order = seq_along(vote_cols_raw)
+  )
+  votes <- as_tibble(
+    setNames(lapply(code_map$raw_col, function(col) cell_num(raw[[col]])), code_map$vote_col),
+    .name_repair = "minimal"
+  )
+
+  base <- tibble(
+    row_order = seq_len(nrow(raw)),
+    raw_precinct_id = as.integer(cell_num(raw[["id"]])),
+    electoral_district_id = as.integer(cell_num(raw[["ოლქის N"]])),
+    district_name_ka = cell_str(raw[["ოლქის დასახელება"]]),
+    precinct_number = as.integer(cell_num(raw[["უბნის N"]])),
+    attached_precinct = cell_str(raw[["მიმაგრებული უბანი"]]),
+    main_list = cell_num(raw[["ამომრჩეველთა რაოდენობა ერთიან სიაში"]]),
+    special_list = cell_num(raw[["ამომრჩეველთა რაოდენობა სპეციალურ სიაში"]]),
+    voted_noon = cell_num(raw[["მონაწილე 12 სთ."]]),
+    voted_5pm = cell_num(raw[["მონაწილე 17 სთ."]]),
+    voted = cell_num(raw[["არჩევნებში მონაწილეთა რაოდენობა"]]),
+    invalid_ballots = cell_num(raw[["ბათილი"]])
+  ) %>%
+    filter(!is.na(electoral_district_id), !is.na(precinct_number), precinct_number > 0) %>%
+    mutate(
+      precinct_id = if_else(
+        !is.na(raw_precinct_id) & raw_precinct_id > 0L,
+        raw_precinct_id,
+        electoral_district_id * 1000L + precinct_number
+      ),
+      precinct_key = as.character(precinct_id),
+      district_id = as.character(electoral_district_id),
+      valid_ballots = rowSums(as.data.frame(votes), na.rm = TRUE),
+      totalVotes = valid_ballots
+    )
+
+  wide <- bind_cols(base, votes) %>%
+    group_by(precinct_id, precinct_key, electoral_district_id, district_name_ka, precinct_number) %>%
+    summarise(
+      across(all_of(SUM_COLS), ~ sum(.x, na.rm = TRUE)),
+      across(all_of(code_map$vote_col), ~ sum(.x, na.rm = TRUE)),
+      precinct_order = min(row_order),
+      .groups = "drop"
+    )
+
+  long <- wide %>%
+    pivot_longer(all_of(code_map$vote_col), names_to = "vote_col", values_to = "votes") %>%
+    left_join(code_map %>% select(vote_col, raw_vote_code, code_order), by = "vote_col") %>%
+    left_join(
+      candidates %>% select(electoral_district_id, raw_vote_code, party_id, name_ka, party_label),
+      by = c("electoral_district_id", "raw_vote_code")
+    ) %>%
+    filter(!is.na(party_id), !is.na(name_ka))
+
+  national_totals <- sum_totals(wide)
+  national <- long %>%
+    mutate(
+      party_id = national_2015_party_id(raw_vote_code),
+      name_ka = "",
+      district_name_ka = "ეროვნული"
+    ) %>%
+    group_by(party_id, party_label, name_ka, district_name_ka) %>%
+    summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
+    mutate(district_id = "national") %>%
+    bind_cols(national_totals[rep(1, nrow(.)), ]) %>%
+    add_metrics() %>%
+    arrange(desc(votes))
+
+  district_totals <- sum_totals(wide, "electoral_district_id")
+  district <- long %>%
+    group_by(electoral_district_id, district_name_ka, raw_vote_code, code_order, party_id, name_ka, party_label) %>%
+    summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
+    left_join(district_totals, by = "electoral_district_id") %>%
+    mutate(district_id = as.character(electoral_district_id)) %>%
+    add_metrics() %>%
+    arrange(electoral_district_id, code_order)
+
+  precinct <- long %>%
+    mutate(
+      district_id = as.character(precinct_id),
+      electoral_district_id = as.character(electoral_district_id)
+    ) %>%
+    add_metrics() %>%
+    arrange(precinct_order, code_order)
+
+  list(
+    candidates = candidates,
+    district = bind_rows(national, district),
+    precinct = precinct
+  )
+}
+
 pr_raw <- read_raw_sheet("shedegebi2012_prop_ubn")
 smd_raw <- read_raw_sheet("shedegebi2012_major_ubn")
 candidate_lookup <- build_candidate_lookup()
 
 pr <- build_pr_outputs(pr_raw)
 smd <- build_smd_outputs(smd_raw, candidate_lookup)
+by2015 <- build_2015_byelection_outputs()
 
 PR_RESULT_COLS <- c(
   "district_id", "district_name_ka", "party_id", "votes", "vote_share", "registered", "voted",
@@ -468,6 +591,18 @@ SMD_PRECINCT_COLS <- c(
   "voted_noon", "voted_5pm", "turnout_pct", "noon_pct", "five_pct", "invalid_ballots", "invalid_pct"
 )
 
+BYELECTION_SMD_RESULT_COLS <- c(
+  "district_id", "district_name_ka", "party_id", "name_ka", "party_label", "votes", "vote_share", "registered", "voted",
+  "voted_noon", "voted_5pm", "main_list", "special_list",
+  "turnout_pct", "noon_pct", "five_pct", "invalid_ballots", "invalid_pct"
+)
+
+BYELECTION_SMD_PRECINCT_COLS <- c(
+  "precinct_id", "precinct_key", "district_id", "electoral_district_id", "district_name_ka", "precinct_number",
+  "party_id", "name_ka", "party_label", "votes", "vote_share", "registered", "voted",
+  "voted_noon", "voted_5pm", "turnout_pct", "noon_pct", "five_pct", "invalid_ballots", "invalid_pct"
+)
+
 TURNOUT_COLS <- c(
   "district_id", "vote_type", "district_name_ka", "registered", "voted", "turnout_pct",
   "voted_noon", "voted_5pm", "main_list", "special_list", "noon_pct", "five_pct",
@@ -484,6 +619,8 @@ write_csv_like_js(bind_rows(pr$national, pr$district), file.path(OUT_RESULTS, "p
 write_csv_like_js(pr$precinct, file.path(OUT_RESULTS, "parl2012_pr_precincts.csv"), PR_PRECINCT_COLS)
 write_csv_like_js(bind_rows(smd$national, smd$district), file.path(OUT_RESULTS, "parl2012_smd.csv"), SMD_RESULT_COLS)
 write_csv_like_js(smd$precinct, file.path(OUT_RESULTS, "parl2012_smd_precincts.csv"), SMD_PRECINCT_COLS)
+write_csv_like_js(by2015$district, file.path(OUT_RESULTS, "parl2012_2015_byelection_smd.csv"), BYELECTION_SMD_RESULT_COLS)
+write_csv_like_js(by2015$precinct, file.path(OUT_RESULTS, "parl2012_2015_byelection_smd_precincts.csv"), BYELECTION_SMD_PRECINCT_COLS)
 write_csv_like_js(pr$turnout_district, file.path(OUT_TURNOUT, "parl2012_turnout.csv"), TURNOUT_COLS)
 write_csv_like_js(pr$turnout_precinct, file.path(OUT_TURNOUT, "parl2012_precincts_turnout.csv"), TURNOUT_PRECINCT_COLS)
 

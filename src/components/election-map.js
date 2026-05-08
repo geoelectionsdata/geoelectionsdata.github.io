@@ -360,7 +360,8 @@ export async function buildElectionMap({
       const smd = precinctKeyPart(p.MID ?? p.M_District ?? p.smd ?? p.major_id);
       const dd  = precinctKeyPart(p.District ?? p.district ?? p.district_id);
       const pp  = precinctKeyPart(p.Precinct ?? p.precinct ?? p.precinct_number);
-      return smd && dd && pp ? `${smd}.${dd}.${pp}` : null;
+      if (smd && dd && pp) return `${smd}.${dd}.${pp}`;
+      return precinctStationId(feature);
     }
 
     function precinctResultKey(row) {

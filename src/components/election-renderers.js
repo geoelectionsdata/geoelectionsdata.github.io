@@ -275,7 +275,7 @@ export function makeRenderers({
       const color        = partyColor(r.party_id, electionVal?.id);
       const shareStr     = `${(r.vote_share * 100).toFixed(1)}%`;
       const countStr     = r.votes != null ? r.votes.toLocaleString() : "—";
-      const partyName    = getParty(r.party_id).name?.[lang] || r.party_id;
+      const partyName    = r.party_label || getParty(r.party_id).name?.[lang] || r.party_id;
       const candidateName = r.candidate_name || r.name_ka || null;
       const el = html`<tr class="dist-table-row" data-party-id="${r.party_id}" title="${t("elections.chart.click_filter") || "Click to filter map"}">
         <td style="vertical-align:middle;">
@@ -373,7 +373,7 @@ export function makeRenderers({
       const color        = partyColor(r.party_id, electionVal?.id);
       const shareStr     = `${(r.vote_share * 100).toFixed(1)}%`;
       const countStr     = r.votes != null ? r.votes.toLocaleString() : "—";
-      const pname_r      = getParty(r.party_id).name?.[lang] || r.party_id;
+      const pname_r      = r.party_label || getParty(r.party_id).name?.[lang] || r.party_id;
       const candidateName = r.candidate_name || r.name_ka || null;
       return html`<tr>
         <td style="vertical-align:middle;">

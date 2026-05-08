@@ -40,6 +40,27 @@ notes:
     77 მანდატი პროპორციული წესით, 5%-იანი ბარიერის პირობებში განაწილდა, ხოლო
     73 მანდატი ერთმანდატიან მაჟორიტარულ ოლქებში.
 
+sub_elections:
+  - id: parl_2012_2015_byelection
+    type: by_election
+    date: "2015-10-31"
+    download_key: "20151031"
+    name:
+      en: Sagarejo and Martvili by-elections (October 31, 2015)
+      ka: საგარეჯოსა და მარტვილის შუალედური არჩევნები (2015 წლის 31 ოქტომბერი)
+    notes:
+      en: |
+        By-elections were held on October 31, 2015 in single-mandate
+        majoritarian districts 11 (Sagarejo) and 65 (Martvili). No runoffs
+        were held.
+      ka: |
+        2015 წლის 31 ოქტომბერს შუალედური არჩევნები გაიმართა №11 საგარეჯოსა
+        და №65 მარტვილის ერთმანდატიან მაჟორიტარულ ოლქებში. მეორე ტური არ
+        ჩატარებულა.
+    files:
+      smd_results:          "data/results/parl2012_2015_byelection_smd.csv"
+      smd_precinct_results: "data/results/parl2012_2015_byelection_smd_precincts.csv"
+
 parties:
   - id: gd
     alias:
@@ -190,6 +211,97 @@ parties:
       en: "Initiative Group"
       ka: "საინიციატივო ჯგუფი"
     color: "#78909C"
+    seats_pr: 0
+    seats_smd: 0
+
+  # 2015 Sagarejo and Martvili by-election candidates
+  - id: parl2012_2015_gd
+    alias:
+      en: Georgian Dream
+      ka: ქართული ოცნება
+    color: "#1565C0"
+    threshold_status: notrun
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: parl2012_2015_patriots
+    alias:
+      en: Alliance of Patriots of Georgia
+      ka: საქართველოს პატრიოტთა ალიანსი
+    color: "#880E4F"
+    threshold_status: notrun
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: parl2012_2015_initiative_group
+    alias:
+      en: Initiative Group
+      ka: საინიციატივო ჯგუფი
+    color: "#78909C"
+    threshold_status: notrun
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: parl2012_2015_11_8
+    alias:
+      en: Alliance of Patriots of Georgia
+      ka: საქართველოს პატრიოტთა ალიანსი
+    color: "#880E4F"
+    threshold_status: notrun
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: parl2012_2015_11_41
+    alias:
+      en: Georgian Dream
+      ka: ქართული ოცნება
+    color: "#1565C0"
+    threshold_status: notrun
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: parl2012_2015_11_42
+    alias:
+      en: Initiative Group
+      ka: საინიციატივო ჯგუფი
+    color: "#78909C"
+    threshold_status: notrun
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: parl2012_2015_11_43
+    alias:
+      en: Initiative Group
+      ka: საინიციატივო ჯგუფი
+    color: "#43A047"
+    threshold_status: notrun
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: parl2012_2015_11_44
+    alias:
+      en: Initiative Group
+      ka: საინიციატივო ჯგუფი
+    color: "#5C6BC0"
+    threshold_status: notrun
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: parl2012_2015_65_8
+    alias:
+      en: Alliance of Patriots of Georgia
+      ka: საქართველოს პატრიოტთა ალიანსი
+    color: "#880E4F"
+    threshold_status: notrun
+    seats_pr: 0
+    seats_smd: 0
+
+  - id: parl2012_2015_65_41
+    alias:
+      en: Georgian Dream
+      ka: ქართული ოცნება
+    color: "#1565C0"
+    threshold_status: notrun
     seats_pr: 0
     seats_smd: 0
 

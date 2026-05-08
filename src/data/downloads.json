@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-08T16:16:24.570Z",
+  "generated": "2026-05-08T19:18:55.749Z",
   "files": [
     {
       "election_id": "adj_2016",
@@ -403,9 +403,23 @@
       "sub_name_en": "Main elections",
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2012-10-01",
-      "filename": "2012_Parliamentary_Elections_main_20121001_data_2026-05-07T19-44-43.xlsx",
-      "sha": "578d511c8f4ca075913483f32e7865e11fef912006f66dff67acfe6dd02b4603",
-      "size_bytes": 5816371
+      "filename": "2012_Parliamentary_Elections_main_20121001_data_2026-05-08T19-18-36.xlsx",
+      "sha": "36dfcc1acb63bf241cfb3cfcd1bb6f6cb40074f55a3c06581e640a4c8e454109",
+      "size_bytes": 5816462
+    },
+    {
+      "election_id": "parl_2012",
+      "election_type": "parliamentary",
+      "sub_id": "parl_2012_2015_byelection",
+      "sub_type": "by_election",
+      "label_en": "October 1, 2012 elections to the Parliament of Georgia",
+      "label_ka": "საქართველოს პარლამენტის 2012 წლის 1 ოქტომბრის არჩევნები",
+      "sub_name_en": "Sagarejo and Martvili by-elections (October 31, 2015)",
+      "sub_name_ka": "საგარეჯოსა და მარტვილის შუალედური არჩევნები (2015 წლის 31 ოქტომბერი)",
+      "date": "2015-10-31",
+      "filename": "2012_Parliamentary_Elections_by_election_20151031_20121001_data_2026-05-08T19-18-36.xlsx",
+      "sha": "af9a9f1a5ec3a4ee00607cd7a75722f70e2c014ab65c18687b40b81e5daf3ba3",
+      "size_bytes": 346275
     },
     {
       "election_id": "parl_2016",
