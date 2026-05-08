@@ -3457,7 +3457,7 @@
           "en": "Giorgi Targamadze - Christian-Democratic Movement",
           "ka": "გიორგი თარგამაძე - ქრისტიან-დემოკრატიული გაერთიანება"
         },
-        "color": "#F9A825",
+        "color": "#6D4C41",
         "threshold_status": "failed",
         "seats_pr": 0,
         "seats_smd": 0
@@ -3687,8 +3687,8 @@
       "zoom": 7
     },
     "notes": {
-      "en": "The May 21, 2008 parliamentary elections were held under Georgia's mixed\nelectoral system, with proportional party-list voting and single-mandate\nmajoritarian contests. The map uses the 2008 electoral geography, including\ndistricts that were under Georgian control before the August 2008 war with\nRussia.\n",
-      "ka": "2008 წლის 21 მაისის საპარლამენტო არჩევნები შერეული საარჩევნო სისტემით\nგაიმართა: ამომრჩევლები ხმას აძლევდნენ როგორც პროპორციულ პარტიულ სიებს,\nასევე ერთმანდატიან მაჟორიტარულ კანდიდატებს. რუკა იყენებს 2008 წლის\nსაარჩევნო გეოგრაფიას, მათ შორის იმ ოლქებსაც, რომლებიც 2008 წლის აგვისტოს\nრუსეთთან ომამდე საქართველოს კონტროლის ქვეშ იყო.\n"
+      "en": "The May 21, 2008 parliamentary elections were held under Georgia's mixed\nelectoral system, with proportional party-list voting and single-mandate\nmajoritarian contests. While Mikheil Saakashvili's UNM was able to garner a supermajority in the parliament,\nopposition was alleging irregularities in the electoral process. As the result, all opposition groups except Christian Demorats boycotted the parliament.\n",
+      "ka": "2008 წლის 21 მაისის საპარლამენტო არჩევნები შერეული საარჩევნო სისტემით\nგაიმართა: ამომრჩევლები ხმას აძლევდნენ როგორც პროპორციულ პარტიულ სიებს,\nასევე ერთმანდატიან მაჟორიტარულ კანდიდატებს. მართალია, მიხეილ სააკაშვილის „ერთიანმა ნაციონალურმა მოძრაობამ“ ხმების\nუმეტესობა მიიღო, ოპოზიციური პარტიები საარჩევნო პროცესში არსებულ დარღვევებზე მიუთითებდნენ. შედეგად, „ქრისტიან-დემოკრატების“ გარდა,\nყველა ოპოზიციურმა პარტიამ ახლადარჩეულ პარლამენტს ბოიკოტი გამოუცხადა.\n"
     },
     "parties": [
       {
@@ -3796,7 +3796,7 @@
           "en": "Giorgi Targamadze - Christian Democrats",
           "ka": "გიორგი თარგამაძე - ქრისტიან-დემოკრატები"
         },
-        "color": "#F9A825",
+        "color": "#6D4C41",
         "threshold_status": "passed",
         "seats_pr": 6,
         "seats_smd": 0

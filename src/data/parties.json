@@ -1,0 +1,1109 @@
+[
+  {
+    "id": "unity_development",
+    "name": {
+      "en": "Party of Unity and Development",
+      "ka": "საქართველოს ერთობისა და განვითარების პარტია"
+    },
+    "color": "#546E7A",
+    "type": "party"
+  },
+  {
+    "id": "european_democrats",
+    "name": {
+      "en": "European Democrats",
+      "ka": "ევროპელი დემოკრატები"
+    },
+    "color": "#0288D1",
+    "type": "party"
+  },
+  {
+    "id": "patriots",
+    "name": {
+      "en": "Alliance of Patriots of Georgia",
+      "ka": "საქართველოს პატრიოტთა ალიანსი"
+    },
+    "color": "#880E4F",
+    "type": "party"
+  },
+  {
+    "id": "our_georgia",
+    "name": {
+      "en": "Our United Georgia",
+      "ka": "ჩვენი გაერთიანებული საქართველო"
+    },
+    "color": "#2E7D32",
+    "type": "party"
+  },
+  {
+    "id": "change_georgia",
+    "name": {
+      "en": "Change Georgia",
+      "ka": "შეცვალე საქართველო"
+    },
+    "color": "#E65100",
+    "type": "party"
+  },
+  {
+    "id": "georgia_party",
+    "name": {
+      "en": "Georgia",
+      "ka": "საქართველო"
+    },
+    "color": "#283593",
+    "type": "party"
+  },
+  {
+    "id": "free_georgia",
+    "name": {
+      "en": "Free Georgia",
+      "ka": "თავისუფალი საქართველო"
+    },
+    "color": "#00695C",
+    "type": "party"
+  },
+  {
+    "id": "tribuna",
+    "name": {
+      "en": "Tribuna",
+      "ka": "ტრიბუნა"
+    },
+    "color": "#4A148C",
+    "type": "party"
+  },
+  {
+    "id": "chven",
+    "name": {
+      "en": "We",
+      "ka": "ჩვენ"
+    },
+    "color": "#AD1457",
+    "type": "party"
+  },
+  {
+    "id": "gakharia",
+    "name": {
+      "en": "For Georgia",
+      "ka": "გახარია საქართველოსთვის"
+    },
+    "color": "#00897B",
+    "type": "party"
+  },
+  {
+    "id": "left_alliance",
+    "name": {
+      "en": "Left Alliance",
+      "ka": "მემარცხენე ალიანსი"
+    },
+    "color": "#4E342E",
+    "type": "party"
+  },
+  {
+    "id": "georgian_unity",
+    "name": {
+      "en": "Georgian Unity",
+      "ka": "ქართველ ერთობა"
+    },
+    "color": "#5D4037",
+    "type": "party"
+  },
+  {
+    "id": "gd",
+    "name": {
+      "en": "Georgian Dream",
+      "ka": "ქართული ოცნება"
+    },
+    "color": "#1565C0",
+    "type": "party"
+  },
+  {
+    "id": "unm",
+    "name": {
+      "en": "United National Movement",
+      "ka": "ერთიანი ნაციონალური მოძრაობა"
+    },
+    "color": "#C62828",
+    "type": "party"
+  },
+  {
+    "id": "coalition_for_change",
+    "name": {
+      "en": "Coalition for Change",
+      "ka": "კოალიცია ცვლილებისთვის"
+    },
+    "color": "#E53935",
+    "type": "alliance"
+  },
+  {
+    "id": "unity",
+    "name": {
+      "en": "Unity — National Movement",
+      "ka": "ერთობა — ნაციონალური მოძრაობა"
+    },
+    "color": "#B71C1C",
+    "type": "bloc"
+  },
+  {
+    "id": "strong_georgia",
+    "name": {
+      "en": "Strong Georgia",
+      "ka": "ძლიერი საქართველო"
+    },
+    "color": "#6A1B9A",
+    "type": "bloc"
+  },
+  {
+    "id": "european_georgia",
+    "name": {
+      "en": "European Georgia",
+      "ka": "ევროპული საქართველო"
+    },
+    "color": "#0288D1",
+    "type": "party"
+  },
+  {
+    "id": "girchi",
+    "name": {
+      "en": "Girchi",
+      "ka": "გირჩი"
+    },
+    "color": "#F57F17",
+    "type": "party"
+  },
+  {
+    "id": "labour",
+    "name": {
+      "en": "Labour Party",
+      "ka": "შრომის პარტია"
+    },
+    "color": "#D32F2F",
+    "type": "party"
+  },
+  {
+    "id": "mkhedrioni_1992",
+    "name": {
+      "en": "Mkhedrioni / October 11 Bloc",
+      "ka": "მხედრიონი / 11 ოქტომბრის ბლოკი"
+    },
+    "color": "#4E342E",
+    "type": "bloc"
+  },
+  {
+    "id": "peace_1992",
+    "name": {
+      "en": "Peace Bloc",
+      "ka": "მშვიდობის ბლოკი"
+    },
+    "color": "#37474F",
+    "type": "bloc"
+  },
+  {
+    "id": "other_1992",
+    "name": {
+      "en": "Other (1992)",
+      "ka": "სხვა (1992)"
+    },
+    "color": "#9E9E9E",
+    "type": "other"
+  },
+  {
+    "id": "social_democrats_1919",
+    "name": {
+      "en": "Social Democratic Workers Party of Georgia",
+      "ka": "საქართველოს სოციალ-დემოკრატიული მუშათა პარტია"
+    },
+    "color": "#C62828",
+    "type": "party"
+  },
+  {
+    "id": "national_democrats_1919",
+    "name": {
+      "en": "National-Democratic Party of Georgia",
+      "ka": "საქართველოს ეროვნულ-დემოკრატიული პარტია"
+    },
+    "color": "#1B5E20",
+    "type": "party"
+  },
+  {
+    "id": "sr_1919",
+    "name": {
+      "en": "Socialist-Revolutionary Party of Georgia",
+      "ka": "საქართველოს სოციალისტ-რევოლუციონერთა პარტია"
+    },
+    "color": "#377eb8",
+    "type": "party"
+  },
+  {
+    "id": "dashnaks",
+    "name": {
+      "en": "Dashnaktsutyun",
+      "ka": "„დაშნაკცუთიუნ\""
+    },
+    "color": "#984ea3",
+    "type": "party"
+  },
+  {
+    "id": "federalists_1919",
+    "name": {
+      "en": "Socialist-Federalist Party of Georgia",
+      "ka": "საქართველოს სოციალისტ-ფედერალისტთა პარტია"
+    },
+    "color": "#00838F",
+    "type": "party"
+  },
+  {
+    "id": "muslim_1919",
+    "name": {
+      "en": "National Council of Muslims",
+      "ka": "მუსლიმთა ეროვნული საბჭო"
+    },
+    "color": "#2E7D32",
+    "type": "party"
+  },
+  {
+    "id": "raddem_1919",
+    "name": {
+      "en": "Radical-Democratic Party of Georgia",
+      "ka": "საქართველოს რადიკალ-დემოკრატთა პარტია"
+    },
+    "color": "#F9A825",
+    "type": "party"
+  },
+  {
+    "id": "natparty_1919",
+    "name": {
+      "en": "National Party of Georgia",
+      "ka": "საქართველოს ეროვნული პარტია"
+    },
+    "color": "#4527A0",
+    "type": "party"
+  },
+  {
+    "id": "left_federalists_1919",
+    "name": {
+      "en": "Leftist Socialist-Federalist Toilers Party",
+      "ka": "მემარცხენე სოციალისტ-ფედერალისტთა მაშვრალთა პარტია"
+    },
+    "color": "#00695C",
+    "type": "party"
+  },
+  {
+    "id": "rustaveli_1919",
+    "name": {
+      "en": "Shota Rustaveli Group",
+      "ka": "შოთა რუსთაველის ჯგუფი"
+    },
+    "color": "#6D4C41",
+    "type": "party"
+  },
+  {
+    "id": "indie_1919",
+    "name": {
+      "en": "Union of Independents (Non-partisans)",
+      "ka": "დამოუკიდებელთა (უპარტიო) კავშირი"
+    },
+    "color": "#546E7A",
+    "type": "party"
+  },
+  {
+    "id": "borchalo_1919",
+    "name": {
+      "en": "Group of Muslims of the Borchalo District",
+      "ka": "ბორჩალოს მაზრის მცხოვრებ მუსულმანთა ჯგუფი"
+    },
+    "color": "#558B2F",
+    "type": "party"
+  },
+  {
+    "id": "sdwpr_1919",
+    "name": {
+      "en": "Social Democratic Workers Party of Russia",
+      "ka": "რუსეთის სოციალ-დემოკრატთა მუშათა პარტია"
+    },
+    "color": "#880E4F",
+    "type": "party"
+  },
+  {
+    "id": "aesth_1919",
+    "name": {
+      "en": "Aesthetic League of Patriots",
+      "ka": "ესთეტიური ლიგა პატრიოტებისა"
+    },
+    "color": "#7B1FA2",
+    "type": "party"
+  },
+  {
+    "id": "hellenic_1919",
+    "name": {
+      "en": "Democratic Group of the Georgian Greeks",
+      "ka": "საქართველოს ელინთა დემოკრატიული ჯგუფი"
+    },
+    "color": "#1565C0",
+    "type": "party"
+  },
+  {
+    "id": "abkh_1919",
+    "name": {
+      "en": "Abkhazia National Party",
+      "ka": "აფხაზეთის ნაციონალური პარტია"
+    },
+    "color": "#33691E",
+    "type": "party"
+  },
+  {
+    "id": "mamuli_ena",
+    "name": {
+      "en": "Motherland, Language, Faith",
+      "ka": "მამული, ენა, სარწმუნოება"
+    },
+    "color": "#5D4037",
+    "type": "party"
+  },
+  {
+    "id": "conservatives_geo",
+    "name": {
+      "en": "Conservatives for Georgia",
+      "ka": "კონსერვატორები საქართველოსთვის"
+    },
+    "color": "#BF360C",
+    "type": "party"
+  },
+  {
+    "id": "greens_geo",
+    "name": {
+      "en": "Green Party of Georgia",
+      "ka": "მწვანეთა პარტია"
+    },
+    "color": "#388E3C",
+    "type": "party"
+  },
+  {
+    "id": "peoples_power",
+    "name": {
+      "en": "People's Power",
+      "ka": "სახალხო ხელისუფლება"
+    },
+    "color": "#1A237E",
+    "type": "party"
+  },
+  {
+    "id": "lelo",
+    "name": {
+      "en": "Lelo for Georgia",
+      "ka": "ლელო"
+    },
+    "color": "#00695C",
+    "type": "party"
+  },
+  {
+    "id": "droa",
+    "name": {
+      "en": "Droa",
+      "ka": "დროა"
+    },
+    "color": "#EF6C00",
+    "type": "party"
+  },
+  {
+    "id": "girchi_more_freedom",
+    "name": {
+      "en": "Girchi — More Freedom",
+      "ka": "გირჩი — მეტი თავისუფლება"
+    },
+    "color": "#F9A825",
+    "type": "party"
+  },
+  {
+    "id": "citizens",
+    "name": {
+      "en": "Citizens",
+      "ka": "მოქალაქეები"
+    },
+    "color": "#1565C0",
+    "type": "party"
+  },
+  {
+    "id": "third_force",
+    "name": {
+      "en": "Third Force",
+      "ka": "მესამე ძალა-სტრატეგია აღმაშენებელი"
+    },
+    "color": "#37474F",
+    "type": "party"
+  },
+  {
+    "id": "early_elections_coalition",
+    "name": {
+      "en": "Early Elections Coalition",
+      "ka": "ვადამდელი არჩევნები - ერთიანი საქართველო - დემოკრატიული მოძრაობა"
+    },
+    "color": "#B71C1C",
+    "type": "alliance"
+  },
+  {
+    "id": "law_justice",
+    "name": {
+      "en": "Law and Justice",
+      "ka": "კანონი და სამართალი"
+    },
+    "color": "#1A237E",
+    "type": "party"
+  },
+  {
+    "id": "new_christian_democrats",
+    "name": {
+      "en": "New Christian Democrats",
+      "ka": "ახალი ქრისტიანდემოკრატები"
+    },
+    "color": "#1B5E20",
+    "type": "party"
+  },
+  {
+    "id": "reformer",
+    "name": {
+      "en": "Reformer",
+      "ka": "რეფორმერი"
+    },
+    "color": "#4527A0",
+    "type": "party"
+  },
+  {
+    "id": "georgian_group",
+    "name": {
+      "en": "Georgian Group",
+      "ka": "ქართული დასი"
+    },
+    "color": "#33691E",
+    "type": "party"
+  },
+  {
+    "id": "european_socialists",
+    "name": {
+      "en": "European Socialists",
+      "ka": "ევროპელი სოციალისტები"
+    },
+    "color": "#C62828",
+    "type": "party"
+  },
+  {
+    "id": "progress_freedom",
+    "name": {
+      "en": "Progress and Freedom",
+      "ka": "პროგრესი და თავისუფლება"
+    },
+    "color": "#0277BD",
+    "type": "party"
+  },
+  {
+    "id": "development_party",
+    "name": {
+      "en": "Development Party",
+      "ka": "საქართველოს განვითარების პარტია"
+    },
+    "color": "#FF8F00",
+    "type": "party"
+  },
+  {
+    "id": "social_democrats",
+    "name": {
+      "en": "Social Democrats",
+      "ka": "საქართველოს სოციალ-დემოკრატიული პარტია"
+    },
+    "color": "#D81B60",
+    "type": "party"
+  },
+  {
+    "id": "free_choice",
+    "name": {
+      "en": "Free Choice",
+      "ka": "თავისუფალი არჩევანი - ახალი ალტერნატივა"
+    },
+    "color": "#00838F",
+    "type": "party"
+  },
+  {
+    "id": "social_justice",
+    "name": {
+      "en": "Social Justice",
+      "ka": "სოციალური სამართლიანობა"
+    },
+    "color": "#BF360C",
+    "type": "party"
+  },
+  {
+    "id": "workers_socialist",
+    "name": {
+      "en": "Workers-Socialist Party",
+      "ka": "მშრომელთა სოციალისტური პარტია"
+    },
+    "color": "#4E342E",
+    "type": "party"
+  },
+  {
+    "id": "nation_party",
+    "name": {
+      "en": "Nation's Party",
+      "ka": "ერი"
+    },
+    "color": "#5D4037",
+    "type": "party"
+  },
+  {
+    "id": "mechiauri_united",
+    "name": {
+      "en": "Mechiauri United",
+      "ka": "მეჭიაური გაერთიანებული"
+    },
+    "color": "#827717",
+    "type": "party"
+  },
+  {
+    "id": "freedom_gamsakhurdia",
+    "name": {
+      "en": "Freedom — Gamsakhurdia",
+      "ka": "თავისუფლება-ზვიად გამსახურდიას გზა"
+    },
+    "color": "#880E4F",
+    "type": "party"
+  },
+  {
+    "id": "face_plus",
+    "name": {
+      "en": "Face Plus",
+      "ka": "სახე+"
+    },
+    "color": "#006064",
+    "type": "party"
+  },
+  {
+    "id": "democrats_alliance",
+    "name": {
+      "en": "Alliance of Democrats",
+      "ka": "დემოკრატთა ალიანსი"
+    },
+    "color": "#283593",
+    "type": "alliance"
+  },
+  {
+    "id": "third_way",
+    "name": {
+      "en": "Third Way",
+      "ka": "მესამე გზა"
+    },
+    "color": "#558B2F",
+    "type": "party"
+  },
+  {
+    "id": "peoples_party",
+    "name": {
+      "en": "People's Party",
+      "ka": "სახალხო პარტია"
+    },
+    "color": "#4527A0",
+    "type": "party"
+  },
+  {
+    "id": "for_people",
+    "name": {
+      "en": "For the People",
+      "ka": "ხალხისთვის"
+    },
+    "color": "#AD1457",
+    "type": "party"
+  },
+  {
+    "id": "reformators",
+    "name": {
+      "en": "Reformers",
+      "ka": "რეფორმატორები"
+    },
+    "color": "#6A1B9A",
+    "type": "party"
+  },
+  {
+    "id": "burchuladze",
+    "name": {
+      "en": "State for the People — Paata Burchuladze",
+      "ka": "სახელმწიფო ხალხისთვის — პაატა ბურჭულაძე"
+    },
+    "color": "#607D8B",
+    "type": "party"
+  },
+  {
+    "id": "progressive_democratic_2016",
+    "name": {
+      "en": "Progressive Democratic Party",
+      "ka": "პროგრესულ-დემოკრატიული პარტია"
+    },
+    "color": "#9E9E9E",
+    "type": "party"
+  },
+  {
+    "id": "burjanadze_democratic",
+    "name": {
+      "en": "Burjanadze — Democrats",
+      "ka": "ბურჯანაძე-დემოკრატები"
+    },
+    "color": "#5C6BC0",
+    "type": "party"
+  },
+  {
+    "id": "republicans_2016",
+    "name": {
+      "en": "Republican Party of Georgia",
+      "ka": "საქართველოს რესპუბლიკური პარტია"
+    },
+    "color": "#FF7043",
+    "type": "party"
+  },
+  {
+    "id": "peoples_power_2016",
+    "name": {
+      "en": "People's Power",
+      "ka": "სახალხო ხელისფლება"
+    },
+    "color": "#9E9E9E",
+    "type": "party"
+  },
+  {
+    "id": "communist_stalinist",
+    "name": {
+      "en": "Stalinist Communist Party of Georgia",
+      "ka": "კომუნისტური პარტია (სტალინელები)"
+    },
+    "color": "#9E9E9E",
+    "type": "party"
+  },
+  {
+    "id": "peace_georgia_2016",
+    "name": {
+      "en": "Party for Peace",
+      "ka": "მშვიდობისა და ერთიანობის პარტია"
+    },
+    "color": "#9E9E9E",
+    "type": "party"
+  },
+  {
+    "id": "united_communist_2016",
+    "name": {
+      "en": "United Communist Party of Georgia (2016)",
+      "ka": "საქართველოს გაერთიანებული კომუნისტური პარტია"
+    },
+    "color": "#9E9E9E",
+    "type": "party"
+  },
+  {
+    "id": "georgia_2016",
+    "name": {
+      "en": "Georgia Party (2016)",
+      "ka": "საქართველო (2016)"
+    },
+    "color": "#9E9E9E",
+    "type": "party"
+  },
+  {
+    "id": "kostava_society",
+    "name": {
+      "en": "Merab Kostava Society",
+      "ka": "მერაბ კოსტავას საზოგადოება"
+    },
+    "color": "#9E9E9E",
+    "type": "party"
+  },
+  {
+    "id": "chvenni_peoples",
+    "name": {
+      "en": "Our People",
+      "ka": "ჩვენი ხალხი"
+    },
+    "color": "#9E9E9E",
+    "type": "party"
+  },
+  {
+    "id": "left_alliance_2016",
+    "name": {
+      "en": "Left Alliance (2016)",
+      "ka": "მემარცხენე ალიანსი (2016)"
+    },
+    "color": "#9E9E9E",
+    "type": "party"
+  },
+  {
+    "id": "national_forum",
+    "name": {
+      "en": "National Forum",
+      "ka": "ეროვნული ფორუმი"
+    },
+    "color": "#AB47BC",
+    "type": "party"
+  },
+  {
+    "id": "our_georgia_2016",
+    "name": {
+      "en": "Our Georgia (2016)",
+      "ka": "ჩვენი საქართველო (2016)"
+    },
+    "color": "#9E9E9E",
+    "type": "party"
+  },
+  {
+    "id": "vashadze_2017",
+    "name": {
+      "en": "Giorgi Vashadze — Unity New Georgia",
+      "ka": "გიორგი ვაშაძე — ერთობა ახალი საქართველო"
+    },
+    "color": "#0288D1",
+    "type": "bloc"
+  },
+  {
+    "id": "smd_only_42",
+    "name": {
+      "en": "Independent SMD Candidate",
+      "ka": "დამოუკიდებელი კანდიდატი"
+    },
+    "color": "#66BB6A",
+    "type": "independent"
+  },
+  {
+    "id": "smd_only_43",
+    "name": {
+      "en": "Independent SMD Candidate",
+      "ka": "დამოუკიდებელი კანდიდატი"
+    },
+    "color": "#80DEEA",
+    "type": "independent"
+  },
+  {
+    "id": "smd_only_44",
+    "name": {
+      "en": "Independent SMD Candidate",
+      "ka": "დამოუკიდებელი კანდიდატი"
+    },
+    "color": "#BDBDBD",
+    "type": "independent"
+  },
+  {
+    "id": "whites",
+    "name": {
+      "en": "Whites",
+      "ka": "თეთრები"
+    },
+    "color": "#78909C",
+    "type": "party"
+  },
+  {
+    "id": "democratic_movement",
+    "name": {
+      "en": "Burjanadze — United Georgia — Democratic Movement",
+      "ka": "ნინო ბურჯანაძე — ერთიანი საქართველო — დემოკრატიული მოძრაობა"
+    },
+    "color": "#5D4037",
+    "type": "bloc"
+  },
+  {
+    "id": "future_georgia",
+    "name": {
+      "en": "Future Georgia",
+      "ka": "მომავალი საქართველო"
+    },
+    "color": "#0277BD",
+    "type": "party"
+  },
+  {
+    "id": "mechiauri",
+    "name": {
+      "en": "Mechiauri — United Georgia",
+      "ka": "თამაზ მეჭიაური — ერთიანი საქართველოსთვის"
+    },
+    "color": "#00838F",
+    "type": "party"
+  },
+  {
+    "id": "greens",
+    "name": {
+      "en": "Green Party of Georgia",
+      "ka": "მწვანეთა პარტია"
+    },
+    "color": "#388E3C",
+    "type": "party"
+  },
+  {
+    "id": "free_georgia_movement",
+    "name": {
+      "en": "Movement for Free Georgia",
+      "ka": "მოძრაობა თავისუფალი საქართველოსთვის"
+    },
+    "color": "#0288D1",
+    "type": "party"
+  },
+  {
+    "id": "georgian_choice",
+    "name": {
+      "en": "Georgian Choice",
+      "ka": "ქართული არჩევანი"
+    },
+    "color": "#E65100",
+    "type": "party"
+  },
+  {
+    "id": "victorious_georgia",
+    "name": {
+      "en": "Victorious Georgia",
+      "ka": "გამარჯვებული საქართველო"
+    },
+    "color": "#1A237E",
+    "type": "party"
+  },
+  {
+    "id": "industry_sakartvelo",
+    "name": {
+      "en": "Industry Will Save Georgia",
+      "ka": "მრეწველობა გადაარჩენს საქართველოს"
+    },
+    "color": "#546E7A",
+    "type": "party"
+  },
+  {
+    "id": "alliance",
+    "name": {
+      "en": "Our Georgia — Solidarity Alliance",
+      "ka": "ჩვენი საქართველო — სოლიდარობის ალიანსი"
+    },
+    "color": "#7B1FA2",
+    "type": "bloc"
+  },
+  {
+    "id": "new_force",
+    "name": {
+      "en": "New Force",
+      "ka": "ახალი ძალა"
+    },
+    "color": "#006064",
+    "type": "party"
+  },
+  {
+    "id": "free_democrats",
+    "name": {
+      "en": "Free Democrats",
+      "ka": "თავისუფალი დემოკრატები"
+    },
+    "color": "#1565C0",
+    "type": "party"
+  },
+  {
+    "id": "justice",
+    "name": {
+      "en": "For Justice",
+      "ka": "სამართლიანობისთვის"
+    },
+    "color": "#4A148C",
+    "type": "party"
+  },
+  {
+    "id": "agmashenebeli",
+    "name": {
+      "en": "Strategy Agmashenebeli",
+      "ka": "სტრატეგია აღმაშენებელი"
+    },
+    "color": "#283593",
+    "type": "bloc"
+  },
+  {
+    "id": "roots",
+    "name": {
+      "en": "Georgian Roots",
+      "ka": "ქართული ფესვები"
+    },
+    "color": "#6D4C41",
+    "type": "party"
+  },
+  {
+    "id": "ndp_2020",
+    "name": {
+      "en": "National Democratic Party",
+      "ka": "ეროვნულ-დემოკრატიული პარტია"
+    },
+    "color": "#1B5E20",
+    "type": "party"
+  },
+  {
+    "id": "social_justice_2020",
+    "name": {
+      "en": "For Social Justice",
+      "ka": "სოციალური სამართლიანობისათვის"
+    },
+    "color": "#BF360C",
+    "type": "party"
+  },
+  {
+    "id": "zviads_way",
+    "name": {
+      "en": "Zviad's Way",
+      "ka": "ზვიადის გზა"
+    },
+    "color": "#4E342E",
+    "type": "party"
+  },
+  {
+    "id": "georgian_idea",
+    "name": {
+      "en": "Georgian Idea",
+      "ka": "ქართული იდეა"
+    },
+    "color": "#004D40",
+    "type": "party"
+  },
+  {
+    "id": "national_democrats",
+    "name": {
+      "en": "National Democratic Movement",
+      "ka": "ეროვნულ-დემოკრატიული მოძრაობა"
+    },
+    "color": "#33691E",
+    "type": "party"
+  },
+  {
+    "id": "social_democrats_2020",
+    "name": {
+      "en": "Social Democrats for Georgia's Development",
+      "ka": "სოციალ-დემოკრატები საქართველოს განვითარებისათვის"
+    },
+    "color": "#880E4F",
+    "type": "party"
+  },
+  {
+    "id": "conservatives",
+    "name": {
+      "en": "Conservative Party of Georgia",
+      "ka": "საქართველოს კონსერვატიული პარტია"
+    },
+    "color": "#37474F",
+    "type": "party"
+  },
+  {
+    "id": "choice_homeland_2020",
+    "name": {
+      "en": "Choice for the Homeland",
+      "ka": "არჩევანი სამშობლოსათვის"
+    },
+    "color": "#B71C1C",
+    "type": "party"
+  },
+  {
+    "id": "georgian_troupe",
+    "name": {
+      "en": "Georgian Troupe",
+      "ka": "ქართული დასი"
+    },
+    "color": "#6A1B9A",
+    "type": "party"
+  },
+  {
+    "id": "progressive_georgia",
+    "name": {
+      "en": "Progressive Georgia",
+      "ka": "პროგრესული საქართველო"
+    },
+    "color": "#D84315",
+    "type": "party"
+  },
+  {
+    "id": "veterans",
+    "name": {
+      "en": "Veterans' and Patriots' Political Movement",
+      "ka": "საქართველოს ძალოვან ვეტერანთა და პატრიოტთა პოლიტიკური მოძრაობა"
+    },
+    "color": "#455A64",
+    "type": "party"
+  },
+  {
+    "id": "euroatlantic_vector",
+    "name": {
+      "en": "Euro-Atlantic Vector",
+      "ka": "ევროატლანტიკური ვექტორი"
+    },
+    "color": "#1976D2",
+    "type": "party"
+  },
+  {
+    "id": "traditionalists",
+    "name": {
+      "en": "Traditionalists",
+      "ka": "ტრადიციონალისტები"
+    },
+    "color": "#827717",
+    "type": "party"
+  },
+  {
+    "id": "peoples_movement_2020",
+    "name": {
+      "en": "People's Movement — Christian Democrats",
+      "ka": "სახალხო მოძრაობა ქრისტიან-დემოკრატები"
+    },
+    "color": "#00796B",
+    "type": "party"
+  },
+  {
+    "id": "georgian_march",
+    "name": {
+      "en": "Georgian March",
+      "ka": "ქართული მარში"
+    },
+    "color": "#8D1A3A",
+    "type": "party"
+  },
+  {
+    "id": "motherland_2020",
+    "name": {
+      "en": "Motherland",
+      "ka": "მამულიშვილთა ორდენი სამშობლო"
+    },
+    "color": "#4527A0",
+    "type": "party"
+  },
+  {
+    "id": "independent",
+    "name": {
+      "en": "Independent",
+      "ka": "დამოუკიდებელი"
+    },
+    "color": "#546E7A",
+    "type": "independent"
+  },
+  {
+    "id": "initiative_group",
+    "name": {
+      "en": "Initiative Group",
+      "ka": "საინიციატივო ჯგუფი"
+    },
+    "color": "#78909C",
+    "type": "independent"
+  },
+  {
+    "id": "yes",
+    "name": {
+      "en": "Yes",
+      "ka": "კი"
+    },
+    "color": "#2E7D32",
+    "type": "option"
+  },
+  {
+    "id": "no",
+    "name": {
+      "en": "No",
+      "ka": "არა"
+    },
+    "color": "#C62828",
+    "type": "option"
+  },
+  {
+    "id": "other",
+    "name": {
+      "en": "Other parties",
+      "ka": "სხვა პარტიები"
+    },
+    "color": "#9E9E9E",
+    "type": "other"
+  }
+]
