@@ -71,10 +71,13 @@ export async function buildElectionMap({
   shareUrlForCurrentMap,
   invalidation
 }) {
-  // Restore saved view if we're staying on the same election (e.g. switching viewMode)
-  const _sameElec   = _mapState.elecId === electionVal?.id;
-  const _defCenter  = electionVal?.map_view?.center ?? [42.1, 43.0];
-  const _defZoom    = electionVal?.map_view?.zoom   ?? 7;
+  // Restore saved view if we're staying on the same election and ballot.
+  const _viewCfg    = (ballotTypeVal === "mayor" && electionVal?.map_view_mayor)
+    ? electionVal.map_view_mayor
+    : electionVal?.map_view;
+  const _sameElec   = _mapState.elecId === electionVal?.id && _mapState.ballotType === ballotTypeVal;
+  const _defCenter  = _viewCfg?.center ?? [42.1, 43.0];
+  const _defZoom    = _viewCfg?.zoom   ?? 7;
   const _initCenter = _sameElec ? _mapState.center : _defCenter;
   const _initZoom   = _sameElec ? _mapState.zoom   : _defZoom;
 
@@ -84,6 +87,7 @@ export async function buildElectionMap({
       _mapState.center = map.getCenter();
       _mapState.zoom   = map.getZoom();
       _mapState.elecId = electionVal?.id;
+      _mapState.ballotType = ballotTypeVal;
       map.remove();
     } catch(e) {}
   });
@@ -128,7 +132,10 @@ export async function buildElectionMap({
 
   // Stringify GeoJSON integer ids once — both winnerByDistrict and turnoutByDistrict
   // are keyed by string (from CSV), but GeoJSON feature.properties.id is an integer.
-  function geoId(feature) { return String(feature.properties.id ?? feature.properties.major_id); }
+  function geoId(feature) {
+    const p = feature?.properties ?? {};
+    return String(p.major_id ?? p.maj_id ?? p.id);
+  }
   function councilSelfgovIdFromDistrictId(id) {
     const n = Number(id);
     return String(n >= 1 && n <= 10 ? 1 : n);
@@ -143,12 +150,17 @@ export async function buildElectionMap({
   // Handles majoritarian GeoJSON (district_name_en + N + major) where name_en/name_ka are absent.
   function getFeatureName(feature, l = "en") {
     const p = feature?.properties ?? {};
+    const majorNum = p.major ?? p.majoritarian_district ?? (p.maj_id != null ? Number(p.maj_id) % 100 : null);
     if (l === "ka" && p.name_ka) return p.name_ka;
     if (p.name_en) return p.name_en;
     if (l === "ka" && p.district_name_ka != null && p.major != null) return `${p.district_name_ka} N${p.major}`;
     if (p.district_name_en != null && p.major != null) return `${p.district_name_en} N${p.major}`;
     if (l === "ka" && p.district_name_ka) return p.district_name_ka;
     if (p.district_name_en) return p.district_name_en;
+    if (l === "ka" && p.district_ka != null && majorNum != null) return `${p.district_ka} N${majorNum}`;
+    if (p.district_en != null && majorNum != null) return `${p.district_en} N${majorNum}`;
+    if (l === "ka" && p.district_ka) return p.district_ka;
+    if (p.district_en) return p.district_en;
     return null;
   }
 
@@ -160,6 +172,8 @@ export async function buildElectionMap({
     if (p.name_en) return p.name_en;
     if (l === "ka" && p.district_name_ka) return p.district_name_ka;
     if (p.district_name_en) return p.district_name_en;
+    if (l === "ka" && p.district_ka) return p.district_ka;
+    if (p.district_en) return p.district_en;
     return null;
   }
 
@@ -357,7 +371,7 @@ export async function buildElectionMap({
     function precinctExactKey(feature) {
       const p = feature?.properties ?? {};
       if (p.precinct_key != null && String(p.precinct_key).trim() !== "") return String(p.precinct_key).trim();
-      const smd = precinctKeyPart(p.MID ?? p.M_District ?? p.smd ?? p.major_id);
+      const smd = precinctKeyPart(p.MID ?? p.M_District ?? p.smd ?? p.major_id ?? p.maj_id);
       const dd  = precinctKeyPart(p.District ?? p.district ?? p.district_id);
       const pp  = precinctKeyPart(p.Precinct ?? p.precinct ?? p.precinct_number);
       if (smd && dd && pp) return `${smd}.${dd}.${pp}`;
@@ -387,7 +401,7 @@ export async function buildElectionMap({
 
     function precinctMajorDistrict(feature) {
       const p = feature?.properties ?? {};
-      return precinctKeyPart(p.MID ?? p.M_District ?? p.smd ?? p.major_id);
+      return precinctKeyPart(p.MID ?? p.M_District ?? p.smd ?? p.major_id ?? p.maj_id);
     }
 
     function precinctParentId(feature, stationId) {
@@ -419,7 +433,7 @@ export async function buildElectionMap({
         ? councilDistrictGeoData
         : activeGeo;
       const distFeat = nameGeo?.features?.find(f => {
-        const id = String(f.properties.id ?? f.properties.major_id);
+        const id = geoId(f);
         return id === parentDid || id === rawDist;
       });
       const distNameEn = (distFeat ? getDistrictBaseName(distFeat, "en") : null) ?? parentDid ?? rawDist;
@@ -554,7 +568,7 @@ export async function buildElectionMap({
               ? councilDistrictGeoData
               : activeGeo;
             const distFeat   = _nameGeo?.features?.find(f =>
-              String(f.properties.id ?? f.properties.major_id) === parentDid
+              geoId(f) === parentDid
             );
             const distNameEn = (distFeat ? getDistrictBaseName(distFeat, "en") : null) ?? parentDid;
             const distNameKa = (distFeat ? getDistrictBaseName(distFeat, "ka") : null) ?? distNameEn ?? parentDid;

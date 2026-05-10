@@ -1,0 +1,216 @@
+id: pres_2013
+type: presidential
+sub_type: direct
+date: "2013-10-27"
+download_name:
+  en: "2013 Presidential Election"
+name:
+  en: "October 27, 2013 Elections of the President of Georgia"
+  ka: "საქართველოს პრეზიდენტის 2013 წლის 27 ოქტომბრის არჩევნები"
+
+system:
+  pr:
+    enabled: true
+    shape_file: "data/shp/parl2024_pr.geojson"
+    precinct_shape_file: "data/shp/pres2013_precinct.geojson"
+  smd:
+    enabled: false
+  compensation:
+    enabled: false
+
+map_view:
+  center: [42.1, 43.5]
+  zoom: 7
+
+notes:
+  en: |
+    The October 27, 2013 presidential election was a direct nationwide vote and was decided in one round. These were first presidential elections following the constitional amendments according to which, the country shifted towards parliamentary model, with its president only holding a nominal power.
+  ka: |
+    2013 წლის 27 ოქტომბრის საპრეზიდენტო არჩევნები პირდაპირი საყოველთაო კენჭისყრით გაიმართა და გამარჯვებული ერთ ტურში გამოვლინდა. ეს გახლდათ პრეზიდენტის პირველი არჩევნები იმ საკონსტიტუციო ცვლილებების შემდგომ, რომლის თანახმადაც, ქვეყანა საპარლამენტო მმართველობაზე გადავიდა, პრეზიდენტს კი დიდწილად, მხოლოდ სიმბოლური ძალაუფლება დარჩა.
+
+candidates:
+  - id: giorgi_margvelashvili
+    name:
+      en: "Giorgi Margvelashvili"
+      ka: "გიორგი მარგველაშვილი"
+    party: gd
+    color: "#1565C0"
+    threshold_status: passed
+  - id: bakradze
+    name:
+      en: "Davit Bakradze"
+      ka: "დავით ბაქრაძე"
+    party: unm
+    color: "#C62828"
+    threshold_status: passed
+  - id: nino_burjanadze
+    name:
+      en: "Nino Burjanadze"
+      ka: "ნინო ბურჯანაძე"
+    party: burjanadze_democratic
+    color: "#7B1FA2"
+    threshold_status: passed
+  - id: natelashvili
+    name:
+      en: "Shalva Natelashvili"
+      ka: "შალვა ნათელაშვილი"
+    party: labour
+    color: "#ff7f00"
+    threshold_status: passed
+  - id: giorgi_targamadze
+    name:
+      en: "Giorgi Targamadze"
+      ka: "გიორგი თარგამაძე"
+    party: independent
+    color: "#6D4C41"
+    threshold_status: passed
+  - id: koba_davitashvili
+    name:
+      en: "Koba Davitashvili"
+      ka: "კობა დავითაშვილი"
+    party: independent
+    color: "#00897B"
+    threshold_status: passed
+  - id: zurab_kharatishvili
+    name:
+      en: "Zurab Kharatishvili"
+      ka: "ზურაბ ხარატიშვილი"
+    party: independent
+    color: "#455A64"
+    threshold_status: failed
+  - id: levan_chachua
+    name:
+      en: "Levan Chachua"
+      ka: "ლევან ჩაჩუა"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: nino_chanishvili
+    name:
+      en: "Nino Chanishvili"
+      ka: "ნინო ჭანიშვილი"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: sergo_javakhidze
+    name:
+      en: "Sergo Javakhidze"
+      ka: "სერგო ჯავახიძე"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: giorgi_liluashvili_2013
+    name:
+      en: "Giorgi Liluashvili"
+      ka: "გიორგი ლილუაშვილი"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: akaki_asatiani_2013
+    name:
+      en: "Akaki Asatiani"
+      ka: "აკაკი ასათიანი"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: mikheil_saluashvili
+    name:
+      en: "Mikheil Saluashvili"
+      ka: "მიხეილ სალუაშვილი"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: teimuraz_mzhavia
+    name:
+      en: "Teimuraz Mzhavia"
+      ka: "თეიმურაზ მჟავია"
+    party: independent
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: mamuka_melikishvili
+    name:
+      en: "Mamuka Melikishvili"
+      ka: "მამუკა მელიქიშვილი"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: giorgi_chikhladze
+    name:
+      en: "Giorgi Chikhladze"
+      ka: "გიორგი ჩიხლაძე"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: nestan_kirtadze
+    name:
+      en: "Nestan Kirtadze"
+      ka: "ნესტან კირთაძე"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: tamaz_bibiluri
+    name:
+      en: "Tamaz Bibiluri"
+      ka: "თამაზ ბიბილური"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: nugzar_avaliani
+    name:
+      en: "Nugzar Avaliani"
+      ka: "ნუგზარ ავალიანი"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: avtandil_margiani
+    name:
+      en: "Avtandil Margiani"
+      ka: "ავთანდილ მარგიანი"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: kartlos_gharibashvili
+    name:
+      en: "Kartlos Gharibashvili"
+      ka: "ქართლოს ღარიბაშვილი"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: teimuraz_bobokhidze
+    name:
+      en: "Teimuraz Bobokhidze"
+      ka: "თეიმურაზ ბობოხიძე"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+  - id: mamuka_chokhonelidze
+    name:
+      en: "Mamuka Chokhonelidze"
+      ka: "მამუკა ჭოხონელიძე"
+    party: initiative_group
+    color: "#9E9E9E"
+    threshold_status: failed
+
+sub_elections: []
+
+sources:
+  - name:
+      en: "Central Election Commission of Georgia; preliminary precinct data scraped from the CEC website"
+      ka: "საქართველოს ცენტრალური საარჩევნო კომისია; ცესკოს ვებგვერდიდან აღებული უბნის წინასწარი მონაცემები"
+
+files:
+  pr_results:          "data/results/pres2013.csv"
+  pr_precinct_results: "data/results/pres2013_precincts.csv"
+  candidates:          "data/candidates/pres2013_candidates.csv"
+  cartogram:           null
+
+turnout:
+  available: true
+  type: detailed
+  file: "data/turnout/pres2013_turnout.csv"
+  precinct_file: "data/turnout/pres2013_precincts_turnout.csv"
+  has_snapshots: true
+  has_lists: true
+
+downloads:
+  available: true

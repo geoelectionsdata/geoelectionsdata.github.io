@@ -3386,6 +3386,301 @@
     }
   },
   {
+    "id": "pres_2013",
+    "type": "presidential",
+    "sub_type": "direct",
+    "date": "2013-10-27",
+    "download_name": {
+      "en": "2013 Presidential Election"
+    },
+    "name": {
+      "en": "October 27, 2013 Elections of the President of Georgia",
+      "ka": "საქართველოს პრეზიდენტის 2013 წლის 27 ოქტომბრის არჩევნები"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "precinct_shape_file": "data/shp/pres2013_precinct.geojson"
+      },
+      "smd": {
+        "enabled": false
+      },
+      "compensation": {
+        "enabled": false
+      }
+    },
+    "map_view": {
+      "center": [
+        42.1,
+        43.5
+      ],
+      "zoom": 7
+    },
+    "notes": {
+      "en": "The October 27, 2013 presidential election was a direct nationwide vote and was decided in one round. These were first presidential elections following the constitional amendments according to which, the country shifted towards parliamentary model, with its president only holding a nominal power.\n",
+      "ka": "2013 წლის 27 ოქტომბრის საპრეზიდენტო არჩევნები პირდაპირი საყოველთაო კენჭისყრით გაიმართა და გამარჯვებული ერთ ტურში გამოვლინდა. ეს გახლდათ პრეზიდენტის პირველი არჩევნები იმ საკონსტიტუციო ცვლილებების შემდგომ, რომლის თანახმადაც, ქვეყანა საპარლამენტო მმართველობაზე გადავიდა, პრეზიდენტს კი დიდწილად, მხოლოდ სიმბოლური ძალაუფლება დარჩა.\n"
+    },
+    "candidates": [
+      {
+        "id": "giorgi_margvelashvili",
+        "name": {
+          "en": "Giorgi Margvelashvili",
+          "ka": "გიორგი მარგველაშვილი"
+        },
+        "party": "gd",
+        "color": "#1565C0",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "bakradze",
+        "name": {
+          "en": "Davit Bakradze",
+          "ka": "დავით ბაქრაძე"
+        },
+        "party": "unm",
+        "color": "#C62828",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "nino_burjanadze",
+        "name": {
+          "en": "Nino Burjanadze",
+          "ka": "ნინო ბურჯანაძე"
+        },
+        "party": "burjanadze_democratic",
+        "color": "#7B1FA2",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "natelashvili",
+        "name": {
+          "en": "Shalva Natelashvili",
+          "ka": "შალვა ნათელაშვილი"
+        },
+        "party": "labour",
+        "color": "#ff7f00",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "giorgi_targamadze",
+        "name": {
+          "en": "Giorgi Targamadze",
+          "ka": "გიორგი თარგამაძე"
+        },
+        "party": "independent",
+        "color": "#6D4C41",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "koba_davitashvili",
+        "name": {
+          "en": "Koba Davitashvili",
+          "ka": "კობა დავითაშვილი"
+        },
+        "party": "independent",
+        "color": "#00897B",
+        "threshold_status": "passed"
+      },
+      {
+        "id": "zurab_kharatishvili",
+        "name": {
+          "en": "Zurab Kharatishvili",
+          "ka": "ზურაბ ხარატიშვილი"
+        },
+        "party": "independent",
+        "color": "#455A64",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "levan_chachua",
+        "name": {
+          "en": "Levan Chachua",
+          "ka": "ლევან ჩაჩუა"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "nino_chanishvili",
+        "name": {
+          "en": "Nino Chanishvili",
+          "ka": "ნინო ჭანიშვილი"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "sergo_javakhidze",
+        "name": {
+          "en": "Sergo Javakhidze",
+          "ka": "სერგო ჯავახიძე"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "giorgi_liluashvili_2013",
+        "name": {
+          "en": "Giorgi Liluashvili",
+          "ka": "გიორგი ლილუაშვილი"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "akaki_asatiani_2013",
+        "name": {
+          "en": "Akaki Asatiani",
+          "ka": "აკაკი ასათიანი"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "mikheil_saluashvili",
+        "name": {
+          "en": "Mikheil Saluashvili",
+          "ka": "მიხეილ სალუაშვილი"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "teimuraz_mzhavia",
+        "name": {
+          "en": "Teimuraz Mzhavia",
+          "ka": "თეიმურაზ მჟავია"
+        },
+        "party": "independent",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "mamuka_melikishvili",
+        "name": {
+          "en": "Mamuka Melikishvili",
+          "ka": "მამუკა მელიქიშვილი"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "giorgi_chikhladze",
+        "name": {
+          "en": "Giorgi Chikhladze",
+          "ka": "გიორგი ჩიხლაძე"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "nestan_kirtadze",
+        "name": {
+          "en": "Nestan Kirtadze",
+          "ka": "ნესტან კირთაძე"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "tamaz_bibiluri",
+        "name": {
+          "en": "Tamaz Bibiluri",
+          "ka": "თამაზ ბიბილური"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "nugzar_avaliani",
+        "name": {
+          "en": "Nugzar Avaliani",
+          "ka": "ნუგზარ ავალიანი"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "avtandil_margiani",
+        "name": {
+          "en": "Avtandil Margiani",
+          "ka": "ავთანდილ მარგიანი"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "kartlos_gharibashvili",
+        "name": {
+          "en": "Kartlos Gharibashvili",
+          "ka": "ქართლოს ღარიბაშვილი"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "teimuraz_bobokhidze",
+        "name": {
+          "en": "Teimuraz Bobokhidze",
+          "ka": "თეიმურაზ ბობოხიძე"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      },
+      {
+        "id": "mamuka_chokhonelidze",
+        "name": {
+          "en": "Mamuka Chokhonelidze",
+          "ka": "მამუკა ჭოხონელიძე"
+        },
+        "party": "initiative_group",
+        "color": "#9E9E9E",
+        "threshold_status": "failed"
+      }
+    ],
+    "sub_elections": [],
+    "sources": [
+      {
+        "name": {
+          "en": "Central Election Commission of Georgia; preliminary precinct data scraped from the CEC website",
+          "ka": "საქართველოს ცენტრალური საარჩევნო კომისია; ცესკოს ვებგვერდიდან აღებული უბნის წინასწარი მონაცემები"
+        }
+      }
+    ],
+    "files": {
+      "pr_results": "data/results/pres2013.csv",
+      "pr_precinct_results": "data/results/pres2013_precincts.csv",
+      "candidates": "data/candidates/pres2013_candidates.csv",
+      "cartogram": null
+    },
+    "turnout": {
+      "available": true,
+      "type": "detailed",
+      "file": "data/turnout/pres2013_turnout.csv",
+      "precinct_file": "data/turnout/pres2013_precincts_turnout.csv",
+      "has_snapshots": true,
+      "has_lists": true
+    },
+    "downloads": {
+      "available": true
+    }
+  },
+  {
     "id": "parl_2012",
     "type": "parliamentary",
     "sub_type": "mixed",
@@ -3776,6 +4071,249 @@
         }
       }
     ]
+  },
+  {
+    "id": "local_2010",
+    "type": "local",
+    "date": "2010-05-30",
+    "download_name": {
+      "en": "2010_Local_Elections"
+    },
+    "name": {
+      "en": "2010 elections of municipal authorities",
+      "ka": "მუნიციპალიტეტის ორგანოთა 2010 წლის არჩევნები"
+    },
+    "notes": {
+      "en": "The 2010 local elections included Sakrebulo proportional contests and Sakrebulo single-member district contests across self-governing units. Direct mayoral voting was held only in Tbilisi.\n",
+      "ka": "2010 წლის ადგილობრივი თვითმმართველობის არჩევნებში ამომრჩევლები ირჩევდნენ საკრებულოს პროპორციული სიებით და საკრებულოს მაჟორიტარ წევრებს. მერის პირდაპირი არჩევნები მხოლოდ თბილისში გაიმართა.\n"
+    },
+    "system": {
+      "pr": {
+        "enabled": true,
+        "seats": 0,
+        "threshold_pct": 4,
+        "method": "dhondt",
+        "shape_file": "data/shp/parl2024_pr.geojson",
+        "selfgov_shape_file": "data/shp/selfgov_areas_2025.geojson",
+        "precinct_shape_file": "data/shp/local2010_precincts.geojson"
+      },
+      "smd": {
+        "enabled": true,
+        "seats": 1,
+        "shape_file": "data/shp/selfgov_areas_2025.geojson",
+        "precinct_shape_file": "data/shp/local2010_precincts.geojson"
+      },
+      "compensation": {
+        "enabled": false,
+        "shape_file": null
+      }
+    },
+    "map_view": {
+      "center": [
+        42.1,
+        43.5
+      ],
+      "zoom": 7
+    },
+    "map_view_mayor": {
+      "center": [
+        41.72,
+        44.79
+      ],
+      "zoom": 11
+    },
+    "council": {
+      "total_pr_seats": 756,
+      "total_smd_seats": 1023,
+      "shape_file": "data/shp/majoritarian_2010_major_id.geojson"
+    },
+    "sub_elections": [],
+    "parties": [
+      {
+        "id": "alliance_georgia_2010",
+        "threshold_status": "passed",
+        "color": "#1565C0",
+        "alias": {
+          "en": "Alliance for Georgia",
+          "ka": "ალიანსი საქართველოსთვის"
+        }
+      },
+      {
+        "id": "industry_sakartvelo",
+        "threshold_status": "passed",
+        "alias": {
+          "en": "Topadze - Industrialists",
+          "ka": "თოფაძე-მრეწველები"
+        }
+      },
+      {
+        "id": "unm",
+        "threshold_status": "passed",
+        "alias": {
+          "en": "United National Movement",
+          "ka": "ერთიანი ნაციონალური მოძრაობა"
+        }
+      },
+      {
+        "id": "sports_union_2010",
+        "threshold_status": "failed",
+        "color": "#0277BD",
+        "alias": {
+          "en": "Union of Georgian Sportspeople",
+          "ka": "საქართველოს სპორტსმენთა კავშირი"
+        }
+      },
+      {
+        "id": "national_council_2010",
+        "threshold_status": "passed",
+        "color": "#6A1B9A",
+        "alias": {
+          "en": "National Council",
+          "ka": "ეროვნული საბჭო"
+        }
+      },
+      {
+        "id": "radical_democrats_2008",
+        "threshold_status": "failed",
+        "alias": {
+          "en": "Radical-Democrats National Party",
+          "ka": "სრულიად საქართველოს რადიკალ-დემოკრატთა ნაციონალური პარტია"
+        }
+      },
+      {
+        "id": "christian_democrats_2010",
+        "threshold_status": "passed",
+        "color": "#6D4C41",
+        "alias": {
+          "en": "Giorgi Targamadze, Inga Grigolia - Christian-Democratic Union",
+          "ka": "გიორგი თარგამაძე, ინგა გრიგოლია – ქრისტიან-დემოკრატიული გაერთიანება"
+        }
+      },
+      {
+        "id": "our_country_2008",
+        "threshold_status": "failed",
+        "alias": {
+          "en": "Our Country",
+          "ka": "ჩვენი ქვეყანა"
+        }
+      },
+      {
+        "id": "future_georgia",
+        "threshold_status": "failed",
+        "alias": {
+          "en": "Future Georgia",
+          "ka": "მომავალი საქართველო"
+        }
+      },
+      {
+        "id": "freedom_2010",
+        "threshold_status": "passed",
+        "color": "#00897B",
+        "alias": {
+          "en": "Freedom",
+          "ka": "თავისუფლება"
+        }
+      },
+      {
+        "id": "future_party_2010",
+        "threshold_status": "failed",
+        "color": "#455A64",
+        "alias": {
+          "en": "Future Party",
+          "ka": "მომავლის პარტია"
+        }
+      },
+      {
+        "id": "national_democratic_2010",
+        "threshold_status": "failed",
+        "color": "#3949AB",
+        "alias": {
+          "en": "National Democratic Party",
+          "ka": "ეროვნულ-დემოკრატიული პარტია"
+        }
+      },
+      {
+        "id": "solidarity_2010",
+        "threshold_status": "failed",
+        "color": "#7B1FA2",
+        "alias": {
+          "en": "Solidarity",
+          "ka": "სოლიდარობა"
+        }
+      },
+      {
+        "id": "veterans_patriots_2010",
+        "threshold_status": "failed",
+        "color": "#795548",
+        "alias": {
+          "en": "Force Veterans, Patriots and Pensioners Political Movement",
+          "ka": "ძალოვანი ვეტერანების, პატრიოტთა და პენსიონერთა პოლიტიკური მოძრაობა"
+        }
+      },
+      {
+        "id": "tortladze_democratic_2010",
+        "threshold_status": "passed",
+        "color": "#546E7A",
+        "alias": {
+          "en": "Tortladze - Democratic Party",
+          "ka": "თორთლაძე – დემოკრატიული პარტია"
+        }
+      },
+      {
+        "id": "peoples_alliance_2010",
+        "threshold_status": "failed",
+        "color": "#2E7D32",
+        "alias": {
+          "en": "People's Alliance",
+          "ka": "სრულიად საქართველოს სახალხო ალიანსი"
+        }
+      },
+      {
+        "id": "ivanishvili_peoples_democrats_2010",
+        "threshold_status": "failed",
+        "color": "#8D6E63",
+        "alias": {
+          "en": "Ivanishvili - People's Democrats",
+          "ka": "ივანიშვილი – სახალხო დემოკრატები"
+        }
+      }
+    ],
+    "sources": [
+      {
+        "name": {
+          "en": "Freedom of Information (FOI) request from the Central Elections Commission of Georgia",
+          "ka": "ცენტრალური საარჩევნო კომისიიდან გამოთხოვნილი საჯარო ინფორმაცია"
+        }
+      }
+    ],
+    "files": {
+      "seats": "data/results/local2010_seats.csv",
+      "pr_results": "data/results/local2010_pr.csv",
+      "pr_selfgov_results": "data/results/local2010_pr_selfgov.csv",
+      "pr_precinct_results": "data/results/local2010_pr_precincts.csv",
+      "smd_results": "data/results/local2010_smd.csv",
+      "smd_district_results": "data/results/local2010_smd_districts.csv",
+      "smd_precinct_results": "data/results/local2010_smd_precincts.csv",
+      "council_smd_results": "data/results/local2010_council_smd.csv",
+      "council_smd_precinct_results": "data/results/local2010_council_smd_precincts.csv",
+      "council_pr_results": "data/results/local2010_pr.csv",
+      "council_pr_precinct_results": "data/results/local2010_pr_precincts.csv",
+      "candidates": "data/config/candidates/local/local_2010.yml",
+      "mayor_candidates": "data/candidates/local2010_mayor_candidates.csv",
+      "smd_candidates": "data/candidates/local2010_smd_candidates.csv",
+      "cartogram": null
+    },
+    "turnout": {
+      "available": true,
+      "type": "basic",
+      "file": null,
+      "precinct_file": null,
+      "has_snapshots": true,
+      "has_lists": false
+    },
+    "downloads": {
+      "available": true
+    }
   },
   {
     "id": "adj_2008",

@@ -1,0 +1,179 @@
+id: local_2010
+type: local
+date: "2010-05-30"
+download_name:
+  en: "2010_Local_Elections"
+name:
+  en: "2010 elections of municipal authorities"
+  ka: "მუნიციპალიტეტის ორგანოთა 2010 წლის არჩევნები"
+
+notes:
+  en: |
+    The 2010 local elections included Sakrebulo proportional contests and Sakrebulo single-member district contests across self-governing units. Direct mayoral voting was held only in Tbilisi.
+  ka: |
+    2010 წლის ადგილობრივი თვითმმართველობის არჩევნებში ამომრჩევლები ირჩევდნენ საკრებულოს პროპორციული სიებით და საკრებულოს მაჟორიტარ წევრებს. მერის პირდაპირი არჩევნები მხოლოდ თბილისში გაიმართა.
+
+system:
+  pr:
+    enabled: true
+    seats: 0
+    threshold_pct: 4.0
+    method: dhondt
+    shape_file: "data/shp/parl2024_pr.geojson"
+    selfgov_shape_file: "data/shp/selfgov_areas_2025.geojson"
+    precinct_shape_file: "data/shp/local2010_precincts.geojson"
+  smd:
+    enabled: true
+    seats: 1
+    shape_file: "data/shp/selfgov_areas_2025.geojson"
+    precinct_shape_file: "data/shp/local2010_precincts.geojson"
+  compensation:
+    enabled: false
+    shape_file: null
+
+map_view:
+  center: [42.1, 43.5]
+  zoom: 7
+
+map_view_mayor:
+  center: [41.72, 44.79]
+  zoom: 11
+
+council:
+  total_pr_seats: 756
+  total_smd_seats: 1023
+  shape_file: "data/shp/majoritarian_2010_major_id.geojson"
+
+sub_elections: []
+
+parties:
+  - id: alliance_georgia_2010
+    threshold_status: passed
+    color: "#1565C0"
+    alias:
+      en: "Alliance for Georgia"
+      ka: "ალიანსი საქართველოსთვის"
+  - id: industry_sakartvelo
+    threshold_status: passed
+    alias:
+      en: "Topadze - Industrialists"
+      ka: "თოფაძე-მრეწველები"
+  - id: unm
+    threshold_status: passed
+    alias:
+      en: "United National Movement"
+      ka: "ერთიანი ნაციონალური მოძრაობა"
+  - id: sports_union_2010
+    threshold_status: failed
+    color: "#0277BD"
+    alias:
+      en: "Union of Georgian Sportspeople"
+      ka: "საქართველოს სპორტსმენთა კავშირი"
+  - id: national_council_2010
+    threshold_status: passed
+    color: "#6A1B9A"
+    alias:
+      en: "National Council"
+      ka: "ეროვნული საბჭო"
+  - id: radical_democrats_2008
+    threshold_status: failed
+    alias:
+      en: "Radical-Democrats National Party"
+      ka: "სრულიად საქართველოს რადიკალ-დემოკრატთა ნაციონალური პარტია"
+  - id: christian_democrats_2010
+    threshold_status: passed
+    color: "#6D4C41"
+    alias:
+      en: "Giorgi Targamadze, Inga Grigolia - Christian-Democratic Union"
+      ka: "გიორგი თარგამაძე, ინგა გრიგოლია – ქრისტიან-დემოკრატიული გაერთიანება"
+  - id: our_country_2008
+    threshold_status: failed
+    alias:
+      en: "Our Country"
+      ka: "ჩვენი ქვეყანა"
+  - id: future_georgia
+    threshold_status: failed
+    alias:
+      en: "Future Georgia"
+      ka: "მომავალი საქართველო"
+  - id: freedom_2010
+    threshold_status: passed
+    color: "#00897B"
+    alias:
+      en: "Freedom"
+      ka: "თავისუფლება"
+  - id: future_party_2010
+    threshold_status: failed
+    color: "#455A64"
+    alias:
+      en: "Future Party"
+      ka: "მომავლის პარტია"
+  - id: national_democratic_2010
+    threshold_status: failed
+    color: "#3949AB"
+    alias:
+      en: "National Democratic Party"
+      ka: "ეროვნულ-დემოკრატიული პარტია"
+  - id: solidarity_2010
+    threshold_status: failed
+    color: "#7B1FA2"
+    alias:
+      en: "Solidarity"
+      ka: "სოლიდარობა"
+  - id: veterans_patriots_2010
+    threshold_status: failed
+    color: "#795548"
+    alias:
+      en: "Force Veterans, Patriots and Pensioners Political Movement"
+      ka: "ძალოვანი ვეტერანების, პატრიოტთა და პენსიონერთა პოლიტიკური მოძრაობა"
+  - id: tortladze_democratic_2010
+    threshold_status: passed
+    color: "#546E7A"
+    alias:
+      en: "Tortladze - Democratic Party"
+      ka: "თორთლაძე – დემოკრატიული პარტია"
+  - id: peoples_alliance_2010
+    threshold_status: failed
+    color: "#2E7D32"
+    alias:
+      en: "People's Alliance"
+      ka: "სრულიად საქართველოს სახალხო ალიანსი"
+  - id: ivanishvili_peoples_democrats_2010
+    threshold_status: failed
+    color: "#8D6E63"
+    alias:
+      en: "Ivanishvili - People's Democrats"
+      ka: "ივანიშვილი – სახალხო დემოკრატები"
+
+sources:
+  - name:
+      en: "National Democratic Institute"
+      ka: "ეროვნულ-დემოკრატიული ინსტიტუტი"
+
+files:
+  seats:                        "data/results/local2010_seats.csv"
+  pr_results:                   "data/results/local2010_pr.csv"
+  pr_selfgov_results:           "data/results/local2010_pr_selfgov.csv"
+  pr_precinct_results:          "data/results/local2010_pr_precincts.csv"
+  smd_results:                  "data/results/local2010_smd.csv"
+  smd_district_results:         "data/results/local2010_smd_districts.csv"
+  smd_precinct_results:         "data/results/local2010_smd_precincts.csv"
+  council_smd_results:          "data/results/local2010_council_smd.csv"
+  council_smd_precinct_results: "data/results/local2010_council_smd_precincts.csv"
+  council_pr_results:           "data/results/local2010_pr.csv"
+  council_pr_precinct_results:  "data/results/local2010_pr_precincts.csv"
+  candidates:                   "data/config/candidates/local/local_2010.yml"
+  mayor_candidates:             "data/candidates/local2010_mayor_candidates.csv"
+  smd_candidates:               "data/candidates/local2010_smd_candidates.csv"
+  cartogram:                    null
+
+turnout:
+  available: true
+  type: basic
+  file: null
+  precinct_file: null
+  has_snapshots: true
+  has_lists: false
+
+downloads:
+  available: true

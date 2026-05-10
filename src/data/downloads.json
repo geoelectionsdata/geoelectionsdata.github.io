@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-08T21:50:33.817Z",
+  "generated": "2026-05-10T22:15:02.164Z",
   "files": [
     {
       "election_id": "adj_2008",
@@ -84,6 +84,20 @@
       "filename": "2024_elections_to_the_Supreme_Council_of_the_Autonomous_Repu_main_20241026_data_202604222211119.xlsx",
       "sha": "73b8adc30f51e26d1033d69e6844e5ea61675778e714b5e9817da81cfcb30dad",
       "size_bytes": 76800
+    },
+    {
+      "election_id": "local_2010",
+      "election_type": "local",
+      "sub_id": "__main__",
+      "sub_type": "main",
+      "label_en": "2010 elections of municipal authorities",
+      "label_ka": "მუნიციპალიტეტის ორგანოთა 2010 წლის არჩევნები",
+      "sub_name_en": "Main elections",
+      "sub_name_ka": "ძირითადი კენჭისყრა",
+      "date": "2010-05-30",
+      "filename": "2010_Local_Elections_main_20100530_data_2026-05-10T22-14-43.xlsx",
+      "sha": "9e99d5e9fd68044d72df283aecba1a3f77aa0bf4bc57639567da36436ec0dc9f",
+      "size_bytes": 4903856
     },
     {
       "election_id": "local_2014",
@@ -518,6 +532,20 @@
       "filename": "2008_Presidential_Election_main_20080105_data_2026-05-07T22-27-03.xlsx",
       "sha": "8c376c462de1996aae35e46c6d2e35871470ff8a42fc9338d8b7952639c0578a",
       "size_bytes": 1988909
+    },
+    {
+      "election_id": "pres_2013",
+      "election_type": "presidential",
+      "sub_id": "__main__",
+      "sub_type": "main",
+      "label_en": "October 27, 2013 Elections of the President of Georgia",
+      "label_ka": "საქართველოს პრეზიდენტის 2013 წლის 27 ოქტომბრის არჩევნები",
+      "sub_name_en": "Main elections",
+      "sub_name_ka": "ძირითადი კენჭისყრა",
+      "date": "2013-10-27",
+      "filename": "2013_Presidential_Election_main_20131027_data_2026-05-10T19-53-35.xlsx",
+      "sha": "1c3b26c764da25357c3daba670d44f4db4621a0d6769f640e2864386b571c5d6",
+      "size_bytes": 6024111
     },
     {
       "election_id": "pres_2018",
