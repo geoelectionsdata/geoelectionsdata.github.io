@@ -50,13 +50,35 @@
   };
 
   // --- Update text ---
-  function updateUI(lang) {
+  let sharedDict = null;
+  async function loadSharedDict() {
+    if (sharedDict) return sharedDict;
+    try {
+      const response = await fetch(new URL("./data/config/translations.json", document.baseURI));
+      if (response.ok) sharedDict = await response.json();
+    } catch (_) {
+      sharedDict = null;
+    }
+    return sharedDict;
+  }
+
+  function applyLabels(lang, labels) {
     document.querySelectorAll("[data-nav]").forEach(el => {
       const key = el.getAttribute("data-nav");
-      if (navDict[lang]?.[key]) el.innerText = navDict[lang][key];
+      if (labels?.[key]) el.innerText = labels[key];
     });
+    const langBtn = document.getElementById("lang-toggle");
+    if (langBtn) langBtn.setAttribute("aria-label", labels?.["nav.switch_language"] || "Switch language");
+    const menuBtn = document.querySelector(".menu-toggle");
+    if (menuBtn) menuBtn.setAttribute("aria-label", labels?.["nav.toggle_navigation"] || "Toggle navigation");
     const btn = document.getElementById("lang-toggle");
     if (btn) btn.innerHTML = lang === "en" ? "🇬🇪 ქარ" : "🇬🇧 Eng";
+  }
+
+  async function updateUI(lang) {
+    applyLabels(lang, navDict[lang] || navDict.en);
+    const dict = await loadSharedDict();
+    applyLabels(lang, dict?.[lang] || navDict[lang] || navDict.en);
   }
 
   // --- Active nav link ---

@@ -161,6 +161,69 @@ p { line-height: 1.6; }
   fill: var(--dark);
 }
 
+/* ---- MAP TOOLTIPS ---- */
+.geda-map-tooltip {
+  max-width: 260px;
+  pointer-events: none;
+  white-space: normal;
+}
+
+.geda-map-tooltip .geda-tooltip-frame {
+  min-width: 150px;
+  max-width: 240px;
+}
+
+.geda-map-tooltip .geda-tooltip-title {
+  margin-bottom: 5px;
+  color: var(--dark);
+  font-family: var(--font-head);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  white-space: normal;
+}
+
+.geda-map-tooltip .geda-tooltip-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+.geda-map-tooltip .geda-tooltip-label {
+  color: #555;
+  flex: 0 0 auto;
+}
+
+.geda-map-tooltip .geda-tooltip-value {
+  font-weight: 600;
+  text-align: right;
+}
+
+.geda-map-tooltip .geda-tooltip-value-wrap {
+  max-width: 165px;
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: normal;
+}
+
+.geda-map-tooltip .geda-tooltip-subject {
+  margin-bottom: 5px;
+  max-width: 230px;
+  font-family: var(--font-head);
+  font-size: 0.59375rem;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: normal;
+  text-transform: uppercase;
+  white-space: normal;
+  word-break: normal;
+}
+
 /* ---- CARDS ---- */
 /* Observable Framework's .card override */
 .observablehq .card,

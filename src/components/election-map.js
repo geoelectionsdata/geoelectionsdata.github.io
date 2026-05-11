@@ -66,7 +66,7 @@ export async function buildElectionMap({
   _precinctGeoRegistryUrl, _precinctCsvRegistryUrl,
   seatsData, _districtRows, _allCouncilSMDResults, _invalidMax,
   _mapCtrl, _mapState, _turnoutMetricCtrl, _levelCtrl, _partyCtrl, mapContainer,
-  partyColor, passed,
+  getParty, partyColor, passed,
   renderTurnoutPanel, renderDistrictPanel, updateCouncilSeats,
   shareUrlForCurrentMap,
   invalidation
@@ -93,6 +93,13 @@ export async function buildElectionMap({
   });
 
   const map = L.map(mapContainer, {zoomControl: true}).setView(_initCenter, _initZoom);
+  function closeMapTooltip() {
+    map.eachLayer(layer => {
+      if (layer.getTooltip?.()) layer.closeTooltip();
+    });
+  }
+  map.on("movestart dragstart zoomstart", closeMapTooltip);
+  mapContainer.addEventListener("mouseleave", closeMapTooltip);
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -177,6 +184,173 @@ export async function buildElectionMap({
     return null;
   }
 
+  const _tooltipFallbacks = {
+    winner: "Leader",
+    subject: "Subject",
+    votes: "Votes",
+    share: "Share",
+    turnout: "Turnout",
+    count: "Count",
+    registered: "Registered",
+    noData: "No data"
+  };
+  function tooltipLabel(key, fallbackKey = key) {
+    return t(`elections.map.tooltip.${key}`) || _tooltipFallbacks[fallbackKey] || key;
+  }
+  const _tooltipLabels = {
+    winner: tooltipLabel("winner"),
+    subject: tooltipLabel("subject"),
+    votes: tooltipLabel("votes"),
+    share: tooltipLabel("share"),
+    turnout: tooltipLabel("turnout"),
+    count: tooltipLabel("count"),
+    registered: tooltipLabel("registered"),
+    noData: tooltipLabel("no_data", "noData")
+  };
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function formatCount(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return "—";
+    const formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 0}).format(Math.round(n));
+    return lang === "ka" ? formatted.replaceAll(",", " ") : formatted;
+  }
+
+  function formatPct(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? `${(n * 100).toFixed(1)}%` : "—";
+  }
+
+  function activePartyId() {
+    return _mapCtrl.current?.currentPartyId ?? _partyCtrl?.value ?? null;
+  }
+
+  function rowName(row) {
+    if (!row) return null;
+    const party = getParty?.(row.party_id);
+    return (lang === "ka" && (row.name_ka || row.candidate_name_ka))
+      || row.name_en
+      || row.name_ka
+      || row.candidate_name_ka
+      || row.candidate_name
+      || row.party_label
+      || party?.name?.[lang]
+      || party?.name?.en
+      || row.party_id;
+  }
+
+  function turnoutMetricDetails(td, metric) {
+    if (!td) return null;
+    if (metric === "noon") {
+      const pct = td.noon_pct ?? (td.registered > 0 ? td.voted_noon / td.registered : null);
+      return {label: t("elections.turnout.metric.noon") || "12:00", count: td.voted_noon, pct};
+    }
+    if (metric === "5pm") {
+      const pct = td.five_pct ?? (td.registered > 0 ? td.voted_5pm / td.registered : null);
+      return {label: t("elections.turnout.metric.5pm") || "17:00", count: td.voted_5pm, pct};
+    }
+    if (metric === "invalid") {
+      const pct = td.invalid_pct ?? (td.voted > 0 ? td.invalid_ballots / td.voted : null);
+      return {label: t("elections.turnout.metric.invalid") || "Invalid ballots", count: td.invalid_ballots, pct};
+    }
+    const pct = td.turnout_pct ?? (td.registered > 0 ? td.voted / td.registered : null);
+    return {label: t("elections.turnout.metric.final") || _tooltipLabels.turnout, count: td.voted, pct};
+  }
+
+  function tooltipFrame(title, rowsHtml) {
+    return `<div class="geda-tooltip-frame">
+      <div class="geda-tooltip-title">${escapeHtml(title)}</div>
+      ${rowsHtml}
+    </div>`;
+  }
+
+  function tooltipLine(label, value, options = {}) {
+    const valueClass = options.wrapValue ? "geda-tooltip-value geda-tooltip-value-wrap" : "geda-tooltip-value";
+    return `<div class="geda-tooltip-line">
+      <span class="geda-tooltip-label">${escapeHtml(label)}</span>
+      <span class="${valueClass}">${escapeHtml(value)}</span>
+    </div>`;
+  }
+
+  function tooltipSubject(value, color) {
+    return `<div class="geda-tooltip-subject" style="color:${escapeHtml(color || "#111111")};">${escapeHtml(value)}</div>`;
+  }
+
+  function buildTurnoutTooltip(title, td) {
+    const metric = turnoutMetricDetails(td, _turnoutMetricCtrl.value);
+    if (!metric) return tooltipFrame(title, `<div style="font-size:0.74rem;color:#666;">${_tooltipLabels.noData}</div>`);
+    return tooltipFrame(title, [
+      tooltipLine(metric.label, formatPct(metric.pct)),
+      tooltipLine(_tooltipLabels.count, formatCount(metric.count)),
+      tooltipLine(_tooltipLabels.registered, formatCount(td.registered))
+    ].join(""));
+  }
+
+  function selectTooltipResultRow(rows) {
+    const activeId = activePartyId();
+    if (activeId != null) return rows.find(r => String(r.party_id) === String(activeId)) ?? null;
+    return rows.reduce((best, row) => !best || (Number(row.vote_share) || 0) > (Number(best.vote_share) || 0) ? row : best, null);
+  }
+
+  function buildResultTooltipFromRows(title, rows) {
+    const activeId = activePartyId();
+    const row = selectTooltipResultRow(rows);
+    if (!row && activeId == null) return tooltipFrame(title, `<div style="font-size:0.74rem;color:#666;">${_tooltipLabels.noData}</div>`);
+
+    const fallbackParty = activeId != null ? getParty?.(activeId) : null;
+    const subject = rowName(row) || fallbackParty?.name?.[lang] || fallbackParty?.name?.en || activeId || _tooltipLabels.noData;
+    const subjectColor = partyColor(row?.party_id ?? activeId, electionVal?.id);
+    return tooltipFrame(title, [
+      tooltipSubject(subject, subjectColor),
+      tooltipLine(_tooltipLabels.votes, formatCount(row?.votes ?? 0)),
+      tooltipLine(_tooltipLabels.share, formatPct(row?.vote_share ?? 0))
+    ].join(""));
+  }
+
+  function buildAreaResultTooltip(title, rows, id) {
+    return buildResultTooltipFromRows(
+      title,
+      rows.filter(r => String(r.district_id) === String(id))
+    );
+  }
+
+  function withHoverOutline(layer) {
+    layer.on("mouseover", () => {
+      layer._gedaHoverStyle = {
+        color: layer.options?.color,
+        weight: layer.options?.weight,
+        opacity: layer.options?.opacity
+      };
+      if (layer.setStyle) layer.setStyle({color: "#111111", weight: 1.2, opacity: 1});
+      if (layer.bringToFront) layer.bringToFront();
+    });
+    layer.on("mouseout", () => {
+      const style = layer._gedaHoverStyle;
+      if (style && layer.setStyle) layer.setStyle(style);
+      layer._gedaHoverStyle = null;
+    });
+  }
+
+  function bindDynamicTooltip(layer, contentFn) {
+    withHoverOutline(layer);
+    layer.bindTooltip(() => contentFn(), {
+      className: "geda-map-tooltip",
+      direction: "top",
+      offset: [0, -6],
+      opacity: 0.96,
+      sticky: false
+    });
+    layer.on("mousedown", closeMapTooltip);
+  }
+
   const DISTRICT_HOLLOW  = {fillColor: "transparent", fillOpacity: 0, color: "#999", weight: 0.5};
   const SAKREBULO_HOLLOW = {fillColor: "transparent", fillOpacity: 0, color: "#bbb", weight: 0.8};
 
@@ -205,10 +379,12 @@ export async function buildElectionMap({
 
         if (isCouncilMode) updateCouncilSeatsForDistrict(did, f.properties);
       });
-      circle.bindTooltip(
-        `<strong>${lang === "ka" ? f.properties.name_ka : f.properties.name_en}</strong>`,
-        {sticky: true, className: "leaflet-tooltip"}
-      );
+      bindDynamicTooltip(circle, () => {
+        const title = (lang === "ka" ? f.properties.name_ka : f.properties.name_en) ?? did;
+        return viewMode === "turnout"
+          ? buildTurnoutTooltip(title, turnoutByDistrict.get(did))
+          : buildAreaResultTooltip(title, _districtRows, did);
+      });
     });
 
   } else {
@@ -224,10 +400,14 @@ export async function buildElectionMap({
             : renderDistrictPanel(did, feature.properties));
           if (isCouncilMode) updateCouncilSeatsForDistrict(did, feature.properties);
         });
-        layer.bindTooltip(
-          `<strong>${lang === "ka" ? feature.properties.name_ka : feature.properties.name_en}</strong>`,
-          {sticky: true}
-        );
+        bindDynamicTooltip(layer, () => {
+          const title = getFeatureName(feature, lang)
+            ?? (lang === "ka" ? feature.properties.name_ka : feature.properties.name_en)
+            ?? did;
+          return viewMode === "turnout"
+            ? buildTurnoutTooltip(title, turnoutByDistrict.get(did))
+            : buildAreaResultTooltip(title, _districtRows, did);
+        });
       }
     }).addTo(map);
 
@@ -304,10 +484,12 @@ export async function buildElectionMap({
               updateCouncilSeats(_sgId, _sgFeat?.properties ?? _props, true);
             }
           });
-          layer.bindTooltip(
-            `<strong>${getFeatureName(feature, lang)}</strong>`,
-            {sticky: true}
-          );
+          bindDynamicTooltip(layer, () => {
+            const title = getFeatureName(feature, lang) ?? did;
+            return viewMode === "turnout"
+              ? buildTurnoutTooltip(title, turnoutMap.get(did))
+              : buildAreaResultTooltip(title, councilDistrictResults, did);
+          });
         }
       });
     }
@@ -330,10 +512,12 @@ export async function buildElectionMap({
               : renderDistrictPanel(did, feature.properties, selfgovResults));
             if (isCouncilMode) updateCouncilSeats(did, feature.properties, true);
           });
-          layer.bindTooltip(
-            `<strong>${lang === "ka" ? feature.properties.name_ka : feature.properties.name_en}</strong>`,
-            {sticky: true}
-          );
+          bindDynamicTooltip(layer, () => {
+            const title = (lang === "ka" ? feature.properties.name_ka : feature.properties.name_en) ?? did;
+            return viewMode === "turnout"
+              ? buildTurnoutTooltip(title, turnoutMap.get(did))
+              : buildAreaResultTooltip(title, selfgovResults, did);
+          });
         }
       });
     }
@@ -612,10 +796,24 @@ export async function buildElectionMap({
               }
               updateCouncilSeatsForPrecinct(parentDid, stationId, enhancedProps);
             });
-            layer.bindTooltip(
-              `<strong>${lang === "ka" ? titleKa : titleEn}</strong>`,
-              {sticky: true}
-            );
+            bindDynamicTooltip(layer, () => {
+              const title = lang === "ka" ? titleKa : titleEn;
+              if (viewMode === "turnout") {
+                const td = _precinctTurnoutByStation.get(resultKey)
+                  ?? _precinctTurnoutByStation.get(stationId)
+                  ?? turnoutByDistrict.get(parentDid);
+                return buildTurnoutTooltip(title, td);
+              }
+              const stationRows = enrichPrecinctRows(
+                precinctResults.filter(r => precinctResultKey(r) === resultKey)
+              );
+              const fallbackRows = [
+                winnerByPrecinct.get(resultKey)
+                  ?? winnerByPrecinct.get(stationId)
+                  ?? winnerByDistrict.get(parentDid)
+              ].filter(Boolean);
+              return buildResultTooltipFromRows(title, stationRows.length ? stationRows : fallbackRows);
+            });
           }
         });
       } else {
@@ -660,10 +858,24 @@ export async function buildElectionMap({
               }
               updateCouncilSeatsForPrecinct(parentDid, stationId, enhancedProps);
             });
-            layer.bindTooltip(
-              `<strong>${lang === "ka" ? enhancedProps.name_ka : enhancedProps.name_en}</strong>`,
-              {sticky: true}
-            );
+            bindDynamicTooltip(layer, () => {
+              const title = lang === "ka" ? enhancedProps.name_ka : enhancedProps.name_en;
+              if (viewMode === "turnout") {
+                const td = _precinctTurnoutByStation.get(resultKey)
+                  ?? _precinctTurnoutByStation.get(stationId)
+                  ?? turnoutByDistrict.get(parentDid);
+                return buildTurnoutTooltip(title, td);
+              }
+              const stationRows = enrichPrecinctRows(
+                precinctResults.filter(r => precinctResultKey(r) === resultKey)
+              );
+              const fallbackRows = [
+                winnerByPrecinct.get(resultKey)
+                  ?? winnerByPrecinct.get(stationId)
+                  ?? winnerByDistrict.get(parentDid)
+              ].filter(Boolean);
+              return buildResultTooltipFromRows(title, stationRows.length ? stationRows : fallbackRows);
+            });
           }
         });
       }
@@ -697,6 +909,15 @@ export async function buildElectionMap({
       }
     }
 
+    function setLayerInteractivity(layerGroup, enabled) {
+      if (!layerGroup) return;
+      layerGroup.eachLayer(layer => {
+        layer.options.interactive = enabled;
+        const el = layer.getElement?.();
+        if (el) el.style.pointerEvents = enabled ? "" : "none";
+      });
+    }
+
     function applyLevel(levelId, controlDiv) {
       currentLevel = levelId;
       if (_levelCtrl) _levelCtrl.value = currentLevel;
@@ -704,25 +925,33 @@ export async function buildElectionMap({
       if (levelId === "selfgov" && selfgovLayer) {
         if (!map.hasLayer(selfgovLayer)) selfgovLayer.addTo(map);
         districtLayer.setStyle(DISTRICT_HOLLOW);
+        setLayerInteractivity(districtLayer, false);
+        setLayerInteractivity(selfgovLayer, true);
         if (councilDistrictLayer && map.hasLayer(councilDistrictLayer)) map.removeLayer(councilDistrictLayer);
         if (precinctLayer        && map.hasLayer(precinctLayer))        map.removeLayer(precinctLayer);
       } else if (levelId === "district") {
         districtLayer.setStyle(districtStyle);
+        setLayerInteractivity(districtLayer, true);
         if (selfgovLayer         && map.hasLayer(selfgovLayer))         map.removeLayer(selfgovLayer);
         if (councilDistrictLayer && map.hasLayer(councilDistrictLayer)) map.removeLayer(councilDistrictLayer);
         if (precinctLayer        && map.hasLayer(precinctLayer))        map.removeLayer(precinctLayer);
       } else if (levelId === "council_district" && councilDistrictLayer) {
         districtLayer.setStyle(DISTRICT_HOLLOW);
+        setLayerInteractivity(districtLayer, false);
         if (selfgovLayer && map.hasLayer(selfgovLayer)) map.removeLayer(selfgovLayer);
         if (!map.hasLayer(councilDistrictLayer)) councilDistrictLayer.addTo(map);
+        setLayerInteractivity(councilDistrictLayer, true);
         if (precinctLayer && map.hasLayer(precinctLayer)) map.removeLayer(precinctLayer);
       } else if (levelId === "precinct" && (precinctGeoPath || precinctCsvPath)) {
         _ensurePrecinctLayer().then(() => {
           if (!precinctLayer) return;
           districtLayer.setStyle(DISTRICT_HOLLOW);
+          setLayerInteractivity(districtLayer, false);
           if (selfgovLayer         && map.hasLayer(selfgovLayer))         map.removeLayer(selfgovLayer);
           if (councilDistrictLayer && map.hasLayer(councilDistrictLayer)) map.removeLayer(councilDistrictLayer);
           if (!map.hasLayer(precinctLayer)) precinctLayer.addTo(map);
+          setLayerInteractivity(precinctLayer, true);
+          precinctLayer.bringToFront?.();
           if (_mapCtrl.current?.currentPartyId) refreshPartyFilter();
           else if (_mapCtrl.current) _mapCtrl.current.updatePrecinctDots(null);
         });

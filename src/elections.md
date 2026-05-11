@@ -117,7 +117,7 @@ const hasSubElections = subElections.length > 0;
 // Plebiscite: questions only (no __main__ option), always start at first question
 const subElectionItems = isPlebisciteEarly
   ? subElections
-  : [{id: "__main__", name: {en: "Main election", ka: "ძირითადი კენჭისყრა"}}, ...subElections];
+  : [{id: "__main__", name: {en: t("elections.sub_election.main"), ka: t("elections.sub_election.main")}}, ...subElections];
 // All elections: sub-election shown as a dropdown in the top section
 const subElectionInput = Inputs.select(subElectionItems, {
   format: e => e.name?.[lang] || e.name?.en || e.id,
@@ -946,12 +946,14 @@ const container = html`
       <div class="filter-label">${t("elections.view_mode")}</div>
       ${viewModeInput}
     </div>` : ""}
-    ${!isIndirect ? html`
+    ${/* Map representation is hidden while cartogram views are being redesigned.
+    !isIndirect ? html`
     <div class="filter-item">
       <div class="filter-label">${t("elections.map_mode")}</div>
       ${mapModeInput}
     </div>
-` : ""}
+` : ""
+    */ ""}
     ${seatFilterOptions.length > 1 && !isPresidential && !isPlebiscite && !(isLocal && ballotTypeVal === "mayor") ? html`
     <div class="filter-item">
       <div class="filter-label">${t("elections.seat_filter")}</div>
@@ -1046,7 +1048,7 @@ await buildElectionMap({
   _precinctGeoRegistryUrl, _precinctCsvRegistryUrl,
   seatsData, _districtRows, _allCouncilSMDResults, _invalidMax,
   _mapCtrl, _mapState, _turnoutMetricCtrl, _levelCtrl, _partyCtrl, mapContainer,
-  partyColor, passed,
+  getParty, partyColor, passed,
   renderTurnoutPanel, renderDistrictPanel, updateCouncilSeats,
   shareUrlForCurrentMap,
   invalidation

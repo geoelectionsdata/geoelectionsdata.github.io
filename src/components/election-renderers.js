@@ -51,7 +51,10 @@ export function makeRenderers({
                         : isPlebiscite   ? "elections.plebiscite_results_title"
                         :                  "elections.party_list_title");
     if (viewMode === "turnout") {
-      return renderTurnoutPanel("national", {name_en: "National", name_ka: "ეროვნული"});
+      return renderTurnoutPanel("national", {
+        name_en: t("elections.results.national_unit"),
+        name_ka: t("elections.results.national_unit")
+      });
     }
     return html`<div class="card results-panel" id="results-panel">
       <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:0.75rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
@@ -79,7 +82,7 @@ export function makeRenderers({
       const pname    = d.party?.name?.[lang] || d.party_id;
       const isWinner = winnerId && d.party_id === winnerId;
       const el = html`
-        <div class="bar-row" data-party-id="${d.party_id}" style="cursor:pointer;" title="${t("elections.chart.click_filter") || "Click to filter map"}">
+        <div class="bar-row" data-party-id="${d.party_id}" style="cursor:pointer;" title="${t("elections.chart.click_filter")}">
           <div class="bar-label" title="${pname}">
             <span class="party-dot" style="background:${d.color};"></span>${pname}
             ${isWinner ? html`<span style="margin-left:4px; font-size:0.68rem; background:${d.color}; color:#fff; border-radius:3px; padding:1px 5px; vertical-align:middle;">✓</span>` : ""}
@@ -115,7 +118,7 @@ export function makeRenderers({
   function renderDots(parties, filter, elec) {
     const all = partiesForFilter(parties, filter, elec);
     const total = d3.sum(all, d => seatsFor(d, filter));
-    if (total === 0) return html`<p style="color:var(--muted); font-size:0.85rem; text-align:center;">No seat data</p>`;
+    if (total === 0) return html`<p style="color:var(--muted); font-size:0.85rem; text-align:center;">${t("elections.seats.no_data")}</p>`;
 
     const COLS = 10;
     return html`<div style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:6px; padding:0.4rem 0;">
@@ -144,7 +147,7 @@ export function makeRenderers({
 
     const all = partiesForFilter(nationalArray, filter, elec);
     if (d3.sum(all, d => seatsFor(d, filter)) === 0)
-      return html`<p style="color:var(--muted); font-size:0.85rem; text-align:center;">No seat data</p>`;
+      return html`<p style="color:var(--muted); font-size:0.85rem; text-align:center;">${t("elections.seats.no_data")}</p>`;
 
     const dots = [];
     for (const d of all) {
@@ -277,7 +280,7 @@ export function makeRenderers({
       const countStr     = r.votes != null ? r.votes.toLocaleString() : "—";
       const partyName    = r.party_label || getParty(r.party_id).name?.[lang] || r.party_id;
       const candidateName = r.candidate_name || r.name_ka || null;
-      const el = html`<tr class="dist-table-row" data-party-id="${r.party_id}" title="${t("elections.chart.click_filter") || "Click to filter map"}">
+      const el = html`<tr class="dist-table-row" data-party-id="${r.party_id}" title="${t("elections.chart.click_filter")}">
         <td style="vertical-align:middle;">
           <span class="party-dot" style="background:${color}; vertical-align:middle;"></span>
           ${isSMD && candidateName
@@ -299,7 +302,7 @@ export function makeRenderers({
       ${panelBackHeader(pname)}
       ${distId === "__precinct__" && props?.address_ka ? html`
         <div style="font-size:0.75rem; color:var(--muted); padding:0 0 8px 0;">
-          <span style="font-weight:600;">${t("elections.results.address") || "Address"}:</span>
+          <span style="font-weight:600;">${t("elections.results.address")}:</span>
           ${props.address_ka}
         </div>` : ""}
       <table class="dist-table">
@@ -354,7 +357,7 @@ export function makeRenderers({
       ${(turnoutCfg.has_snapshots || fivePct) && fivePct ? metricRow("5pm",  t("elections.turnout.5pm"),  fivePct,  td.voted_5pm  != null ? `(${td.voted_5pm.toLocaleString()})` : null)  : ""}
       ${turnoutCfg.has_lists && td.main_list    != null ? statRow(t("elections.turnout.main_list"),    td.main_list.toLocaleString())    : ""}
       ${turnoutCfg.has_lists && td.special_list != null ? statRow(t("elections.turnout.special_list"), td.special_list.toLocaleString()) : ""}
-      ${invPct ? metricRow("invalid", t("elections.turnout.invalid_pct") || "Invalid ballots", invPct, td.invalid_ballots != null ? `(${td.invalid_ballots.toLocaleString()})` : null) : ""}
+      ${invPct ? metricRow("invalid", t("elections.turnout.invalid_pct"), invPct, td.invalid_ballots != null ? `(${td.invalid_ballots.toLocaleString()})` : null) : ""}
     </div>`;
   }
 
@@ -421,14 +424,14 @@ export function makeRenderers({
       ${(turnoutCfg.has_snapshots || _fivePct) && _fivePct ? metricRow("5pm",  t("elections.turnout.5pm"),  _fivePct, td.voted_5pm  != null ? `(${td.voted_5pm.toLocaleString()})` : null)  : ""}
       ${turnoutCfg.has_lists && td.main_list    != null ? statRow(t("elections.turnout.main_list"),    td.main_list.toLocaleString())    : ""}
       ${turnoutCfg.has_lists && td.special_list != null ? statRow(t("elections.turnout.special_list"), td.special_list.toLocaleString()) : ""}
-      ${_invPct ? metricRow("invalid", t("elections.turnout.invalid_pct") || "Invalid ballots", _invPct, td.invalid_ballots != null ? `(${td.invalid_ballots.toLocaleString()})` : null) : ""}
+      ${_invPct ? metricRow("invalid", t("elections.turnout.invalid_pct"), _invPct, td.invalid_ballots != null ? `(${td.invalid_ballots.toLocaleString()})` : null) : ""}
     ` : "";
 
     return html`<div class="card results-panel" id="results-panel">
       ${panelBackHeader(pname)}
       ${props.address_ka ? html`
         <div style="font-size:0.74rem;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:4px;">
-          <span style="font-weight:600;">${t("elections.results.address") || "Address"}:</span> ${props.address_ka}
+          <span style="font-weight:600;">${t("elections.results.address")}:</span> ${props.address_ka}
         </div>` : ""}
       ${voteBlock}
       ${turnoutBlock}
@@ -477,7 +480,7 @@ export function makeRenderers({
             </div>` : ""}
           ${row.invalid_ballots != null ? html`
             <div style="font-size:0.78rem; color:var(--muted); margin-bottom:3px;">
-              ${t("elections.turnout.invalid_pct") || "Invalid"}: <strong>${row.invalid_pct != null ? `${(row.invalid_pct*100).toFixed(1)}%` : "—"}</strong>
+              ${t("elections.turnout.invalid_short")}: <strong>${row.invalid_pct != null ? `${(row.invalid_pct*100).toFixed(1)}%` : "—"}</strong>
               <span style="opacity:0.7;"> (${row.invalid_ballots.toLocaleString()})</span>
             </div>` : ""}
           ${turnoutCfg.has_lists && row.main_list != null ? html`

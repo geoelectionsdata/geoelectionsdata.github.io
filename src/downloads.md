@@ -19,31 +19,18 @@ const t = k => tr(dict, lang, k);
 
 ```js
 // ── Localised strings ──────────────────────────────────────────────────────
-const L = {
-  en: {
-    page_title:  "Data Downloads",
-    page_sub:    "Download structured election results as Excel files (.xlsx). Each file contains district-level and precinct-level results, turnout data, candidate lists, and citation metadata.",
-    generated:   "Files generated",
-    main_round:  "Main elections",
-    runoff:      "Runoff",
-    by_election: "By-election",
-    download:    "Download",
-    no_data:     "No download files are available yet.",
-    format_note: "Format: Excel (.xlsx) · Includes: district results, precinct results (where available), candidates, turnout, citation metadata",
-  },
-  ka: {
-    page_title:  "მონაცემების ჩამოტვირთვა",
-    page_sub:    "ჩამოტვირთეთ საარჩევნო შედეგები Excel-ის ფორმატში (.xlsx). თითოეული ფაილი შეიცავს საუბნო და საოლქო შედეგებს, აქტივობას, კანდიდატთა სიებს და მეტამონაცემებს.",
-    generated:   "ფაილების გენერირება",
-    main_round:  "ძირითადი კენჭისყრა",
-    runoff:      "მე-2 ტური",
-    by_election: "შუალ. არჩ.",
-    download:    "ჩამოტვ.",
-    no_data:     "ჩამოსატვირთი ფაილები ჯერ არ არის ხელმისაწვდომი.",
-    format_note: "ფორმატი: Excel (.xlsx) · მოიცავს: საუბნო და საოლქო შედეგებს (სადაც ხელმისაწვდომია), კანდიდატებს, აქტივობას, მეტამონაცემებს",
-  }
+const Lx = {
+  page_title:  t("data.downloads.page_title"),
+  page_sub:    t("data.downloads.page_sub"),
+  generated:   t("data.downloads.generated"),
+  main_round:  t("data.downloads.main_round"),
+  runoff:      t("data.downloads.runoff"),
+  by_election: t("data.downloads.by_election"),
+  download:    t("data.downloads.download"),
+  no_data:     t("data.downloads.no_data"),
+  files:       t("data.downloads.files"),
+  format_note: t("data.downloads.format_note")
 };
-const Lx = L[lang] ?? L.en;
 ```
 
 ```js
@@ -114,7 +101,7 @@ function renderElectionCard(elecId) {
     : `data/downloads/${entry.filename}`;
 
   const pills = entries.map(entry => html`
-    <a class="dl-pill" href="${fileUrl(entry)}" download="${entry.filename}" title="${entry.filename}">
+    <a class="dl-pill" href="${fileUrl(entry)}" download="${entry.filename}" title="${entry.filename}" aria-label="${Lx.download}: ${subLabel(entry)}">
       ${dlIcon()}
       <span class="dl-pill-label">${subLabel(entry)}</span>
       <span class="dl-pill-size">${formatSize(entry.size_bytes)}</span>
@@ -291,7 +278,7 @@ const page = html`
 
   <div class="dl-meta-row">
     <span>${Lx.generated}: ${formatGenerated(manifest.generated)}</span>
-    <span>${(manifest.files ?? []).length} files</span>
+    <span>${(manifest.files ?? []).length} ${Lx.files}</span>
   </div>
 
   ${hasFiles
