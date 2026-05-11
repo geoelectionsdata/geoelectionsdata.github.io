@@ -691,7 +691,8 @@ const _urlZoom = Number(_urlParams.get("z"));
 const _mapState = {
   center: Number.isFinite(_urlLat) && Number.isFinite(_urlLng) ? [_urlLat, _urlLng] : [42.1, 43.0],
   zoom: Number.isFinite(_urlZoom) ? _urlZoom : 7,
-  elecId: Number.isFinite(_urlLat) && Number.isFinite(_urlLng) && _electionCtrl.value ? _electionCtrl.value : null
+  elecId: Number.isFinite(_urlLat) && Number.isFinite(_urlLng) && _electionCtrl.value ? _electionCtrl.value : null,
+  ballotType: _ballotCtrl.value
 };
 ```
 

@@ -872,7 +872,7 @@ export async function buildElectionMap({
         const container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
         const btn = L.DomUtil.create("a", "", container);
         btn.href  = "#";
-        const _label = lang === "ka" ? "საქართველოს მასშტაბი" : "Zoom to Georgia";
+        const _label = t("elections.map.zoom_georgia");
         btn.title = _label;
         btn.setAttribute("role", "button");
         btn.setAttribute("aria-label", _label);
@@ -885,7 +885,7 @@ export async function buildElectionMap({
         });
         const tbilisiBtn = L.DomUtil.create("a", "", container);
         tbilisiBtn.href = "#";
-        const _tbilisiLabel = lang === "ka" ? "თბილისის მასშტაბი" : "Zoom to Tbilisi";
+        const _tbilisiLabel = t("elections.map.zoom_tbilisi");
         tbilisiBtn.title = _tbilisiLabel;
         tbilisiBtn.setAttribute("role", "button");
         tbilisiBtn.setAttribute("aria-label", _tbilisiLabel);
@@ -910,7 +910,7 @@ export async function buildElectionMap({
           const container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
           const btn = L.DomUtil.create("a", "", container);
           btn.href = "#";
-          const _label = lang === "ka" ? "ბმულის კოპირება" : "Copy share link";
+          const _label = t("elections.map.share_view");
           btn.title = _label;
           btn.setAttribute("role", "button");
           btn.setAttribute("aria-label", _label);
