@@ -12,7 +12,7 @@ const headerContent = readFileSync("./src/components/header.html", "utf8");
 function dynamicAssetPaths() {
   const paths = ["/data/config/translations.json"];
   paths.push(...collectExistingPaths(p =>
-    (p.endsWith(".geojson") && isPrecinctPath(p)) ||
+    p.endsWith(".geojson") ||
     (p.endsWith(".csv") && !p.startsWith("data/turnout/"))
   )
     .map(p => `/${p}`));
