@@ -685,9 +685,13 @@ function selectPartyOnMap(partyId) { _mapCtrl.current?.setPartyFilter(partyId); 
 
 // Persistent map view state — survives reactive re-renders so zoom/pan is preserved
 // when switching view mode (results ↔ turnout) without changing the election.
-const _urlLat = Number(_urlParams.get("lat"));
-const _urlLng = Number(_urlParams.get("lng"));
-const _urlZoom = Number(_urlParams.get("z"));
+function parseUrlNumber(name) {
+  const value = _urlParams.get(name);
+  return value == null || value === "" ? NaN : Number(value);
+}
+const _urlLat = parseUrlNumber("lat");
+const _urlLng = parseUrlNumber("lng");
+const _urlZoom = parseUrlNumber("z");
 const _mapState = {
   center: Number.isFinite(_urlLat) && Number.isFinite(_urlLng) ? [_urlLat, _urlLng] : [42.1, 43.0],
   zoom: Number.isFinite(_urlZoom) ? _urlZoom : 7,
@@ -743,7 +747,7 @@ const container = html`
   }
   .elections-main {
     display: grid;
-    grid-template-columns: minmax(0, 680px) 280px;
+    grid-template-columns: minmax(0, 900px) 300px;
     gap: 1rem;
     align-items: start;
   }
@@ -972,7 +976,7 @@ const container = html`
     <div class="elections-main" style="margin-bottom: 0.75rem;">
 
       <!-- MAP — mapContainer is a stable node embedded here so Leaflet survives re-renders -->
-      <div class="card" style="padding: 0; height: 380px; overflow: hidden; position: relative;">
+      <div class="card" style="padding: 0; height: 460px; overflow: hidden; position: relative;">
         ${mapContainer}
       </div>
 
@@ -985,7 +989,7 @@ const container = html`
     <!-- BOTTOM: election info (notes) + seat distribution -->
     ${viewMode === "turnout" ? html`
     <!-- Turnout mode: info card only, constrained to map column width -->
-    <div style="max-width:680px; width:100%;">
+    <div style="max-width:900px; width:100%;">
       ${renderElectionInfo(electionVal, subVal)}
     </div>
     ` : html`

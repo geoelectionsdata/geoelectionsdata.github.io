@@ -43,7 +43,7 @@ p { line-height: 1.6; }
 
 /* ---- LAYOUT WIDTH (overrides wide theme's 100vw; controls header + page content together) ---- */
 :root {
-  --observablehq-max-width: 1200px;
+  --observablehq-max-width: 1440px;
 }
 
 /* ---- HEADER ---- */
