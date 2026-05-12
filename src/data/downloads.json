@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-10T22:15:02.164Z",
+  "generated": "2026-05-12T18:55:55.071Z",
   "files": [
     {
       "election_id": "adj_2008",
@@ -11,9 +11,9 @@
       "sub_name_en": "Main elections",
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2008-11-03",
-      "filename": "2008_Adjara_Supreme_Council_Elections_main_20081103_data_2026-05-08T21-50-22.xlsx",
-      "sha": "07e13e414e0bb789e6603ec30233939e8c84f443b12834efbad0013a71f66ceb",
-      "size_bytes": 375645
+      "filename": "2008_Adjara_Supreme_Council_Elections_main_20081103_data_2026-05-12T18-36-54.xlsx",
+      "sha": "3c4b8d23caf396dc6b626406d4bc31b5030b991406295587dedd99244da86a3c",
+      "size_bytes": 376069
     },
     {
       "election_id": "adj_2016",
@@ -25,9 +25,9 @@
       "sub_name_en": "Main elections",
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2016-10-08",
-      "filename": "October_8,_2016_elections_to_the_Supreme_Council_of_the_Auto_main_20161008_data_2026-04-28T13-04-37.xlsx",
-      "sha": "814eb80544e9cb2d35184c8f9ccbbda983fcbd59d75a7f558218af4d64414fa1",
-      "size_bytes": 583479
+      "filename": "October_8,_2016_elections_to_the_Supreme_Council_of_the_Auto_main_20161008_data_2026-05-12T18-36-52.xlsx",
+      "sha": "eaadc0e2226ef19c72f051762296a1f4d033ebb6d7c045a8d041f29772c4a355",
+      "size_bytes": 583474
     },
     {
       "election_id": "adj_2016",
@@ -39,9 +39,9 @@
       "sub_name_en": "Second Round (October 30, 2016)",
       "sub_name_ka": "მეორე ტური (2016 წლის 30 ოქტომბერი)",
       "date": "2016-10-08",
-      "filename": "October_8,_2016_elections_to_the_Supreme_Council_of_the_Auto_runoff_20161008_data_2026-04-28T13-04-37.xlsx",
-      "sha": "edccb864d18245ccebe00a5a48450f23f44ecbdc7b27ed29635b74f4128a2b18",
-      "size_bytes": 57724
+      "filename": "October_8,_2016_elections_to_the_Supreme_Council_of_the_Auto_runoff_20161008_data_2026-05-12T18-36-52.xlsx",
+      "sha": "ab989b6aadd148d7df4f8cce94329f2b21019e373bffca820122f6209c2b89ef",
+      "size_bytes": 57719
     },
     {
       "election_id": "adj_2020",
@@ -53,9 +53,9 @@
       "sub_name_en": "Main elections",
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2020-10-31",
-      "filename": "October_31,_2020_elections_to_the_Supreme_Council_of_the_Aut_main_20201031_data_2026-04-27T21-46-16.xlsx",
-      "sha": "5d2c9e8d85db73149447accdd67888b317edd2cb4c001ca17d379b207275a637",
-      "size_bytes": 662519
+      "filename": "October_31,_2020_elections_to_the_Supreme_Council_of_the_Aut_main_20201031_data_2026-05-12T18-36-50.xlsx",
+      "sha": "1015d82890de68e39a8bfd49aa9bf1c217029f6896a30076767d4f8ffd9037a3",
+      "size_bytes": 745353
     },
     {
       "election_id": "adj_2020",
@@ -67,9 +67,9 @@
       "sub_name_en": "Second Round (November 21, 2020)",
       "sub_name_ka": "მეორე ტური (2020 წლის 21 ნოემბერი)",
       "date": "2020-10-31",
-      "filename": "October_31,_2020_elections_to_the_Supreme_Council_of_the_Aut_runoff_20201031_data_2026-04-27T21-46-16.xlsx",
-      "sha": "1f3a174847e216acf96927d549c0c75431a3c485dd48ba6335fe8bdcec7433cb",
-      "size_bytes": 43161
+      "filename": "October_31,_2020_elections_to_the_Supreme_Council_of_the_Aut_runoff_20201031_data_2026-05-12T18-36-50.xlsx",
+      "sha": "cd238f074dadcd0e4896a8677019fe7326ec0a15da1d51c7e89a3ecaa364bdbb",
+      "size_bytes": 49697
     },
     {
       "election_id": "adj_2024",
@@ -82,8 +82,8 @@
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2024-10-26",
       "filename": "2024_elections_to_the_Supreme_Council_of_the_Autonomous_Repu_main_20241026_data_202604222211119.xlsx",
-      "sha": "73b8adc30f51e26d1033d69e6844e5ea61675778e714b5e9817da81cfcb30dad",
-      "size_bytes": 76800
+      "sha": "7a4a77b7b2bc70948d9544a94e0a2366ebb13dc24cb4044568014e7f6e688198",
+      "size_bytes": 76804
     },
     {
       "election_id": "local_2010",
@@ -95,9 +95,9 @@
       "sub_name_en": "Main elections",
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2010-05-30",
-      "filename": "2010_Local_Elections_main_20100530_data_2026-05-10T22-14-43.xlsx",
-      "sha": "9e99d5e9fd68044d72df283aecba1a3f77aa0bf4bc57639567da36436ec0dc9f",
-      "size_bytes": 4903856
+      "filename": "2010_Local_Elections_main_20100530_data_2026-05-12T18-36-40.xlsx",
+      "sha": "419061e178d0f4f7b8251214e6a04e40e09bbf03a26a01a988e9ca1d111c4a25",
+      "size_bytes": 4904450
     },
     {
       "election_id": "local_2014",
@@ -109,9 +109,9 @@
       "sub_name_en": "Main elections",
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2014-06-15",
-      "filename": "2014_elections_of_municipal_authorities_main_20140615_data_2026-04-30T16-11-52.xlsx",
-      "sha": "978142cbd1296edc634de9ad7de1ad3eef5ba372a544bb7f41371702dfdaea05",
-      "size_bytes": 9553090
+      "filename": "2014_elections_of_municipal_authorities_main_20140615_data_2026-05-12T18-52-19.xlsx",
+      "sha": "097a049d869753f3038255419485995d1c643c44cdeb1fc7bd448c2c6875f846",
+      "size_bytes": 9532960
     },
     {
       "election_id": "local_2014",
@@ -123,9 +123,9 @@
       "sub_name_en": "Second Round",
       "sub_name_ka": "კენჭისყრის მეორე ტური",
       "date": "2014-07-12",
-      "filename": "2014_elections_of_municipal_authorities_runoff_20140615_data_2026-04-30T16-11-52.xlsx",
-      "sha": "d9eeefb6e71ce927019b82ee7d977c5fb76b1372857996cc8c69b4d1e32b0def",
-      "size_bytes": 226678
+      "filename": "2014_elections_of_municipal_authorities_runoff_20140615_data_2026-05-12T18-52-19.xlsx",
+      "sha": "49f1a16223515bdd23665942656712e7ff164e2f727302851e71e47fce9ddec4",
+      "size_bytes": 226673
     },
     {
       "election_id": "local_2014",
@@ -137,9 +137,9 @@
       "sub_name_en": "October 20, 2014 Sakrebulo by-election",
       "sub_name_ka": "2014 წლის 20 ოქტომბრის საკრებულოს შუალედური არჩევნები",
       "date": "2014-10-20",
-      "filename": "2014_elections_of_municipal_authorities_by_election_20141020_20140615_data_2026-04-30T16-11-52.xlsx",
-      "sha": "face357727015d766f5313411a89591f712c4d550d4b147ce5f47bee453c1e9f",
-      "size_bytes": 12469
+      "filename": "2014_elections_of_municipal_authorities_by_election_20141020_20140615_data_2026-05-12T18-52-19.xlsx",
+      "sha": "0d3d48df378adfc305c76168a603e4ba63ecf430aa47bf455466806da22198d3",
+      "size_bytes": 12466
     },
     {
       "election_id": "local_2014",
@@ -151,9 +151,9 @@
       "sub_name_en": "May 31, 2015 Sakrebulo by-election",
       "sub_name_ka": "2015 წლის 31 მაისის საკრებულოს შუალედური არჩევნები",
       "date": "2015-05-31",
-      "filename": "2014_elections_of_municipal_authorities_by_election_20150531_20140615_data_2026-04-30T16-11-52.xlsx",
-      "sha": "d35c2b3b51d108c8466031c6529ef6781a9b6ac54ed697e798a687af4a809e78",
-      "size_bytes": 15550
+      "filename": "2014_elections_of_municipal_authorities_by_election_20150531_20140615_data_2026-05-12T18-52-19.xlsx",
+      "sha": "34168e1d1700839971df403023fadf53c780b87654e456f9075a3f8a36b93f02",
+      "size_bytes": 14301
     },
     {
       "election_id": "local_2014",
@@ -165,9 +165,9 @@
       "sub_name_en": "October 31, 2015 Sakrebulo by-election",
       "sub_name_ka": "2015 წლის 31 ოქტომბრის საკრებულოს შუალედური არჩევნები",
       "date": "2015-10-31",
-      "filename": "2014_elections_of_municipal_authorities_by_election_20151031_20140615_data_2026-04-30T16-11-52.xlsx",
-      "sha": "9709b36b7d5ca05c85bb48a91efd59c3a70ce68133ab9c9a8c7c875020e1105d",
-      "size_bytes": 17598
+      "filename": "2014_elections_of_municipal_authorities_by_election_20151031_20140615_data_2026-05-12T18-52-19.xlsx",
+      "sha": "8442a3ce0fe7cb877df6cd85bc205c78a9dfe35be45243d91b72125d43378f6c",
+      "size_bytes": 15186
     },
     {
       "election_id": "local_2014",
@@ -179,9 +179,9 @@
       "sub_name_en": "January 28, 2016 Gardabani mayoral by-election",
       "sub_name_ka": "2016 წლის 28 იანვრის გარდაბნის მერის რიგგარეშე არჩევნები",
       "date": "2016-01-28",
-      "filename": "2014_elections_of_municipal_authorities_by_election_20160128_20140615_data_2026-04-30T16-11-52.xlsx",
-      "sha": "960a221c1e53877b55a434bd71cc1216ad021b968302ab5ee234e2bd27b30ba0",
-      "size_bytes": 20030
+      "filename": "2014_elections_of_municipal_authorities_by_election_20160128_20140615_data_2026-05-12T18-52-19.xlsx",
+      "sha": "761993485acb734d497e9d02cefc3bde8c7817facfb827027837074c0a7a80f1",
+      "size_bytes": 20027
     },
     {
       "election_id": "local_2014",
@@ -193,9 +193,9 @@
       "sub_name_en": "May 22, 2016 Sakrebulo by-election",
       "sub_name_ka": "2016 წლის 22 მაისის საკრებულოს შუალედური არჩევნები",
       "date": "2016-05-22",
-      "filename": "2014_elections_of_municipal_authorities_by_election_20160522_20140615_data_2026-04-30T16-11-52.xlsx",
-      "sha": "7b0c6b391f838f937c860cb688ec65f34331655532c6c98d1c031d18c4bf3e3b",
-      "size_bytes": 39105
+      "filename": "2014_elections_of_municipal_authorities_by_election_20160522_20140615_data_2026-05-12T18-52-19.xlsx",
+      "sha": "59df15af6e339511a5cfc81181f0b4357974463587883fa38ff4c542e67a6cfb",
+      "size_bytes": 39092
     },
     {
       "election_id": "local_2014",
@@ -207,9 +207,9 @@
       "sub_name_en": "October 8, 2016 Sakrebulo by-election",
       "sub_name_ka": "2016 წლის 8 ოქტომბრის საკრებულოს შუალედური არჩევნები",
       "date": "2016-10-08",
-      "filename": "2014_elections_of_municipal_authorities_by_election_20161008_20140615_data_2026-04-30T16-11-52.xlsx",
-      "sha": "19fb11d50f77f0594a02d0ce831d575150b8142abcdd9f68900f80987096ea4e",
-      "size_bytes": 91605
+      "filename": "2014_elections_of_municipal_authorities_by_election_20161008_20140615_data_2026-05-12T18-52-19.xlsx",
+      "sha": "5c1fd1fd617dddec5460033e39bfa7adb687c941f432d3af37ade83daf1f3636",
+      "size_bytes": 90739
     },
     {
       "election_id": "local_2014",
@@ -221,9 +221,9 @@
       "sub_name_en": "October 8, 2016 mayor/gamgebeli by-election",
       "sub_name_ka": "2016 წლის 8 ოქტომბრის მერის/გამგებლის რიგგარეშე არჩევნები",
       "date": "2016-10-08",
-      "filename": "2014_elections_of_municipal_authorities_by_election_20161008_mayor_20140615_data_2026-04-30T16-11-52.xlsx",
-      "sha": "9b4268ec2d58936c4f80bed5abb2d4ab7e0613d2e753d4a25b856541abc88426",
-      "size_bytes": 107059
+      "filename": "2014_elections_of_municipal_authorities_by_election_20161008_mayor_20140615_data_2026-05-12T18-52-19.xlsx",
+      "sha": "4b436fc9325571d916e1fe97c3edfdbf241f5792ac77fafc35ed3d99f67b90f5",
+      "size_bytes": 107056
     },
     {
       "election_id": "local_2014",
@@ -235,9 +235,9 @@
       "sub_name_en": "October 30, 2016 Sakrebulo by-election",
       "sub_name_ka": "2016 წლის 30 ოქტომბრის საკრებულოს შუალედური არჩევნები",
       "date": "2016-10-30",
-      "filename": "2014_elections_of_municipal_authorities_by_election_20161030_sakrebulo_20140615_data_2026-04-30T16-20-00.xlsx",
-      "sha": "0187fe5c91030a9af3227e4389bf9f2eeb31a94819f11f14f15d9e1e342bd54f",
-      "size_bytes": 15450
+      "filename": "2014_elections_of_municipal_authorities_by_election_20161030_sakrebulo_20140615_data_2026-05-12T18-52-19.xlsx",
+      "sha": "ffb196bcb622c9b334b1103b72cda5ed364e5a315c646b9c7a2e9c0230831244",
+      "size_bytes": 15448
     },
     {
       "election_id": "local_2014",
@@ -249,9 +249,9 @@
       "sub_name_en": "October 30, 2016 mayor/gamgebeli by-election runoff",
       "sub_name_ka": "2016 წლის 30 ოქტომბრის მერის/გამგებლის რიგგარეშე არჩევნების მეორე ტური",
       "date": "2016-10-30",
-      "filename": "2014_elections_of_municipal_authorities_runoff_20161030_mayor_20140615_data_2026-04-30T16-11-52.xlsx",
-      "sha": "c5332461060e929bd796c52bedd6264a25777170587ccc68c185ee81bb1b3ef0",
-      "size_bytes": 39867
+      "filename": "2014_elections_of_municipal_authorities_runoff_20161030_mayor_20140615_data_2026-05-12T18-52-19.xlsx",
+      "sha": "ec3617932b9600180d8bee653e2cbb48b098c4011ffadf1ba4f634a16f40c85b",
+      "size_bytes": 39863
     },
     {
       "election_id": "local_2017",
@@ -263,9 +263,9 @@
       "sub_name_en": "Main elections",
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2017-10-21",
-      "filename": "2017_elections_of_municipal_authorities_main_20171021_data_2026-04-26T12-41-30.xlsx",
-      "sha": "78b739fbaac07e0f6f17974f93acdf61f6378f3a971096e2e62a365bdd5bfd7a",
-      "size_bytes": 7154298
+      "filename": "2017_elections_of_municipal_authorities_main_20171021_data_2026-05-12T18-36-04.xlsx",
+      "sha": "2d589a98720c05192863289d14e8d6eafc61797f4c1638c8a36a63d701f1f928",
+      "size_bytes": 7628470
     },
     {
       "election_id": "local_2017",
@@ -277,9 +277,9 @@
       "sub_name_en": "Second Round",
       "sub_name_ka": "კენჭისყრის მეორე ტური",
       "date": "2017-10-21",
-      "filename": "2017_elections_of_municipal_authorities_runoff_20171021_data_2026-04-26T12-41-30.xlsx",
-      "sha": "8213f426b5b84dbdfef72abadcf81c0f359d6ddd9fd6e835203269a6b2e1a919",
-      "size_bytes": 52036
+      "filename": "2017_elections_of_municipal_authorities_runoff_20171021_data_2026-05-12T18-36-04.xlsx",
+      "sha": "6670f44a07b007e463c53047b947ce4581cf4ba28f6e9174c38df5870eaa62e5",
+      "size_bytes": 56950
     },
     {
       "election_id": "local_2017",
@@ -291,9 +291,9 @@
       "sub_name_en": "May 13, 2018 Zugdidi Sakrebulo by-election",
       "sub_name_ka": "2018 წლის 13 მაისის ზუგდიდის საკრებულოს შუალედური არჩევნები",
       "date": "2018-05-13",
-      "filename": "2017_elections_of_municipal_authorities_by_election_20180513_20171021_data_2026-04-30T18-22-00.xlsx",
-      "sha": "218c8ac69ea8d13d4b606823d1951b5093c414d80ae942c2782097062a011289",
-      "size_bytes": 10853
+      "filename": "2017_elections_of_municipal_authorities_by_election_20180513_20171021_data_2026-05-12T18-36-04.xlsx",
+      "sha": "6f3a1121028a22531e84e89b00341e09006680edcf22521654c6fa6e70dee664",
+      "size_bytes": 10852
     },
     {
       "election_id": "local_2017",
@@ -305,9 +305,9 @@
       "sub_name_en": "May 19, 2019 Local by-elections",
       "sub_name_ka": "2019 წლის 19 მაისის ადგილობრივი შუალედური და რიგგარეშე არჩევნები",
       "date": "2019-05-19",
-      "filename": "2017_elections_of_municipal_authorities_by_election_20190519_20171021_data_2026-04-30T18-22-00.xlsx",
-      "sha": "49525cf15c8b7598df92a57af419dacd198487c331f9a7905b438ee304aafb8a",
-      "size_bytes": 207344
+      "filename": "2017_elections_of_municipal_authorities_by_election_20190519_20171021_data_2026-05-12T18-36-04.xlsx",
+      "sha": "8cc0b06ddd76c04902b88e195c83a3b3c6dc5b735bdf015ded5f45044f355350",
+      "size_bytes": 207343
     },
     {
       "election_id": "local_2017",
@@ -319,9 +319,9 @@
       "sub_name_en": "October 27, 2019 Sakrebulo by-elections",
       "sub_name_ka": "2019 წლის 27 ოქტომბრის საკრებულოს შუალედური არჩევნები",
       "date": "2019-10-27",
-      "filename": "2017_elections_of_municipal_authorities_by_election_20191027_20171021_data_2026-04-30T18-22-00.xlsx",
-      "sha": "675000f9e9d9bb6ee3f8580715a3965be8384fa8cc9d980a8c8b5e85b8e39518",
-      "size_bytes": 11641
+      "filename": "2017_elections_of_municipal_authorities_by_election_20191027_20171021_data_2026-05-12T18-36-04.xlsx",
+      "sha": "5d689b7850e0f604f9e918367b7e6a1e653603b6875c93bc315aa1d3f2efe777",
+      "size_bytes": 11643
     },
     {
       "election_id": "local_2017",
@@ -333,8 +333,8 @@
       "sub_name_en": "October 31, 2020 local by-elections",
       "sub_name_ka": "2020 წლის 31 ოქტომბრის ადგილობრივი შუალედური არჩევნები",
       "date": "2020-10-31",
-      "filename": "2017_elections_of_municipal_authorities_by_election_20201031_20171021_data_2026-04-30T18-22-00.xlsx",
-      "sha": "8f863a1fc9a0dba2cc272a06d3b2a09bc1d6a7a0916c0e182c2da08e2de23f7b",
+      "filename": "2017_elections_of_municipal_authorities_by_election_20201031_20171021_data_2026-05-12T18-36-04.xlsx",
+      "sha": "8b1e7210c0f3fabd5327c3418f59703215aa660d42d4a1c49fc7edca10deb997",
       "size_bytes": 136516
     },
     {
@@ -347,9 +347,9 @@
       "sub_name_en": "November 21, 2020 mayoral runoff",
       "sub_name_ka": "2020 წლის 21 ნოემბრის მერის არჩევნების მეორე ტური",
       "date": "2020-11-21",
-      "filename": "2017_elections_of_municipal_authorities_runoff_20201121_20171021_data_2026-04-30T18-22-00.xlsx",
-      "sha": "e7161b2fd8869baa87d8a84b92a9d8943a7b33d3719cef3c101df8b261a9631a",
-      "size_bytes": 28652
+      "filename": "2017_elections_of_municipal_authorities_runoff_20201121_20171021_data_2026-05-12T18-36-04.xlsx",
+      "sha": "47384c90755455350142a13b27afe9f9524b51a862fb910a21b33199ab68c9d6",
+      "size_bytes": 28654
     },
     {
       "election_id": "local_2021",
@@ -362,8 +362,8 @@
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2021-10-02",
       "filename": "2021_elections_of_municipal_authorities_main_20211002_data_202604222211119.xlsx",
-      "sha": "40b1133dc4f2c4d8488ea038a91a95643564173803e4832aa93ac082cc8ef804",
-      "size_bytes": 3202708
+      "sha": "e14e0f2ec8dba654b49ca52b36560b4abd3cbe02b43e28bcc94566020e3857dd",
+      "size_bytes": 3202712
     },
     {
       "election_id": "local_2021",
@@ -376,8 +376,8 @@
       "sub_name_ka": "მეორე ტური",
       "date": "2021-10-02",
       "filename": "2021_elections_of_municipal_authorities_runoff_20211002_data_202604222211119.xlsx",
-      "sha": "db30d48bcaa65bf0a25dda017b5c401780240e159d30fcccc609ce6fc77e0f77",
-      "size_bytes": 1606487
+      "sha": "eefd5dce92fc788c3abc5785faad4a4b860bc9b4c99508944d39116d8597fbd5",
+      "size_bytes": 1606490
     },
     {
       "election_id": "local_2025",
@@ -390,8 +390,8 @@
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2025-04-12",
       "filename": "2025_elections_of_municipal_authorities_main_20250412_data_202604222211119.xlsx",
-      "sha": "6eb7824256f9ad0cef8bb4f4828343eb05dd783b553c260d730ad68f076bec07",
-      "size_bytes": 1769125
+      "sha": "b600fe8e1f423bd42e111a358019bb42ba347ac36b3a2997dd7e2f05ec5bdd09",
+      "size_bytes": 1769131
     },
     {
       "election_id": "parl_1919",
@@ -404,8 +404,8 @@
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "1919-02-14 - 1919-02-16",
       "filename": "1919_Constituent_Assembly_Elections_main_19190214_data_202604222211119.xlsx",
-      "sha": "ee347480763ab01a335a06db4331cdd90eb49c2e22c4849446f5c923f9bcf7ec",
-      "size_bytes": 17461
+      "sha": "e3387c38eae32b7019b7de88202034e0d7f0eafc37802ce21fe47d261a5cdbdd",
+      "size_bytes": 17466
     },
     {
       "election_id": "parl_2008",
@@ -417,9 +417,9 @@
       "sub_name_en": "Main elections",
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2008-05-21",
-      "filename": "2008_Parliamentary_Elections_main_20080521_data_2026-05-08T15-24-37.xlsx",
-      "sha": "b2909e4b09b108ddf875e3bb9c51a1751dc7eff3cc946afd5cb2cdb0f9fb2305",
-      "size_bytes": 5003177
+      "filename": "2008_Parliamentary_Elections_main_20080521_data_2026-05-12T18-35-36.xlsx",
+      "sha": "f8cdef126d302a22c3705939a325254c8e7111b4021a57e8b4bdb480d88cfffc",
+      "size_bytes": 5003782
     },
     {
       "election_id": "parl_2012",
@@ -431,9 +431,9 @@
       "sub_name_en": "Main elections",
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2012-10-01",
-      "filename": "2012_Parliamentary_Elections_main_20121001_data_2026-05-08T19-18-36.xlsx",
-      "sha": "36dfcc1acb63bf241cfb3cfcd1bb6f6cb40074f55a3c06581e640a4c8e454109",
-      "size_bytes": 5816462
+      "filename": "2012_Parliamentary_Elections_main_20121001_data_2026-05-12T18-35-47.xlsx",
+      "sha": "1634a1ccadf3b27871b4689cec9533504d45c77dc7e12c9816a9bf30c08b3028",
+      "size_bytes": 5817063
     },
     {
       "election_id": "parl_2012",
@@ -445,9 +445,9 @@
       "sub_name_en": "Sagarejo and Martvili by-elections (October 31, 2015)",
       "sub_name_ka": "საგარეჯოსა და მარტვილის შუალედური არჩევნები (2015 წლის 31 ოქტომბერი)",
       "date": "2015-10-31",
-      "filename": "2012_Parliamentary_Elections_by_election_20151031_20121001_data_2026-05-08T19-18-36.xlsx",
-      "sha": "af9a9f1a5ec3a4ee00607cd7a75722f70e2c014ab65c18687b40b81e5daf3ba3",
-      "size_bytes": 346275
+      "filename": "2012_Parliamentary_Elections_by_election_20151031_20121001_data_2026-05-12T18-35-47.xlsx",
+      "sha": "5ee2ae68c208d79b0636583d2e76d2d04241deb90d5f52280ef6edb69783ba75",
+      "size_bytes": 346498
     },
     {
       "election_id": "parl_2016",
@@ -460,8 +460,8 @@
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2016-10-08",
       "filename": "October_8,_2016_elections_to_the_Parliament_of_Georgia_main_20161008_data_202604222211119.xlsx",
-      "sha": "179e1a19f57eb3fb6cfcd398a808d624e2007004e3e56c666883b9a1950ffabf",
-      "size_bytes": 555612
+      "sha": "1351c8c9e5b0bdc45bf7e023ef1779b0fb4843fd6188a9dbfde7ab8d6a6cc2ef",
+      "size_bytes": 555615
     },
     {
       "election_id": "parl_2016",
@@ -474,8 +474,8 @@
       "sub_name_ka": "მეორე ტური (2016 წლის 30 ოქტომბერი)",
       "date": "2016-10-08",
       "filename": "October_8,_2016_elections_to_the_Parliament_of_Georgia_runoff_20161008_data_202604222211119.xlsx",
-      "sha": "febed238c57a67cea8595ec38586c743b1be2677cf1489747a97669293cf4fd7",
-      "size_bytes": 358273
+      "sha": "09895a2081d6b2eaa891fe64c113e6108d855d6a3142d82d0d2f234d9467083a",
+      "size_bytes": 358277
     },
     {
       "election_id": "parl_2020",
@@ -488,8 +488,8 @@
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2020-10-31",
       "filename": "October_31,_2020_elections_to_the_Parliament_of_Georgia_main_20201031_data_202604222211119.xlsx",
-      "sha": "b08640c10c0866de9021e5a6e210d291428f38a8d28734e3cbca49ae0ffcf90b",
-      "size_bytes": 3131671
+      "sha": "1c08293cbdf4f83dffafffb62d1c5c4fca1e0b690909249651d965efb044bc9e",
+      "size_bytes": 3131674
     },
     {
       "election_id": "parl_2020",
@@ -502,8 +502,8 @@
       "sub_name_ka": "მეორე ტური (2020 წლის 21 ნოემბერი)",
       "date": "2020-10-31",
       "filename": "October_31,_2020_elections_to_the_Parliament_of_Georgia_runoff_20201031_data_202604222211119.xlsx",
-      "sha": "ba30e056509e3c94913edd57fe4060408897dc19a5b546ce9709e498069bbc3b",
-      "size_bytes": 1878792
+      "sha": "7e5edf6030889fb03a0804ec577fe987c52907a11ad828ea1287b1e27172e490",
+      "size_bytes": 1878795
     },
     {
       "election_id": "parl_2024",
@@ -516,8 +516,8 @@
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2024-10-26",
       "filename": "parl_2024_main_20241026_data.xlsx",
-      "sha": "0be4ba3a22a04369ba7915524736fea51857e5b61c62c28f80b9b5d6aa426b03",
-      "size_bytes": 985666
+      "sha": "fca7336a1a2acd43f28a18284d52f8a07540153b1e9573531af63ff06299c1ef",
+      "size_bytes": 985661
     },
     {
       "election_id": "pres_2008",
@@ -529,9 +529,9 @@
       "sub_name_en": "Main elections",
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2008-01-05",
-      "filename": "2008_Presidential_Election_main_20080105_data_2026-05-07T22-27-03.xlsx",
-      "sha": "8c376c462de1996aae35e46c6d2e35871470ff8a42fc9338d8b7952639c0578a",
-      "size_bytes": 1988909
+      "filename": "2008_Presidential_Election_main_20080105_data_2026-05-12T18-35-16.xlsx",
+      "sha": "e91529530ce4f490b44c52086bc1272b1b0f6d42d9bf0e89526efe1cef8f40bf",
+      "size_bytes": 1989194
     },
     {
       "election_id": "pres_2013",
@@ -543,9 +543,9 @@
       "sub_name_en": "Main elections",
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2013-10-27",
-      "filename": "2013_Presidential_Election_main_20131027_data_2026-05-10T19-53-35.xlsx",
-      "sha": "1c3b26c764da25357c3daba670d44f4db4621a0d6769f640e2864386b571c5d6",
-      "size_bytes": 6024111
+      "filename": "2013_Presidential_Election_main_20131027_data_2026-05-12T18-35-21.xlsx",
+      "sha": "a688c2d0251a97790a9ac5f27aebfc0e9a7fd7c16731a4ca39bc9c28f3ecae95",
+      "size_bytes": 6024391
     },
     {
       "election_id": "pres_2018",
@@ -558,8 +558,8 @@
       "sub_name_ka": "ძირითადი კენჭისყრა",
       "date": "2018-10-28",
       "filename": "2018_Presidential_Election_main_20181028_data_202604222211119.xlsx",
-      "sha": "19eb40374277cd1e339efb64e3e4e7414261d9c8384ce844d4446ff532f6a474",
-      "size_bytes": 1023893
+      "sha": "b60ae6553996b929517022b95c7ef027afe0bf5e3760f2604ff709351d5b688e",
+      "size_bytes": 1023897
     },
     {
       "election_id": "pres_2018",
@@ -572,8 +572,8 @@
       "sub_name_ka": "2018 საპრეზიდენტო: მეორე ტური",
       "date": "2018-11-28",
       "filename": "2018_Presidential_Election_runoff_20181028_data_202604222211119.xlsx",
-      "sha": "9e496c05086edc07e9b59237cc04c91a8816f88e56ead95eab577639dd1a07b7",
-      "size_bytes": 452691
+      "sha": "9d35525f99fb4624292a048deca0fc5b5222811471d080fa33303911dad06bf3",
+      "size_bytes": 452695
     }
   ]
 }

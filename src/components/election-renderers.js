@@ -266,7 +266,12 @@ export function makeRenderers({
       : data.filter(r => String(r.district_id) === distId)
     ).sort((a, b) => b.vote_share - a.vote_share);
     const pname = lang === "ka" ? props.name_ka : props.name_en || distId;
-    const isSMD = effectiveVoteType === "smd" || isPresidential;
+    const candidateLabel = r => (lang === "ka" ? r.candidate_name_ka : r.candidate_name_en)
+      || r.candidate_name
+      || r.name_ka
+      || null;
+    const hasCandidateRows = rows.some(candidateLabel);
+    const isSMD = effectiveVoteType === "smd" || isPresidential || hasCandidateRows;
     const colHeader = isSMD ? t("elections.results.candidate")
                     : isPlebiscite ? t("elections.results.vote")
                     : t("elections.results.party");
@@ -279,7 +284,7 @@ export function makeRenderers({
       const shareStr     = `${(r.vote_share * 100).toFixed(1)}%`;
       const countStr     = r.votes != null ? r.votes.toLocaleString() : "—";
       const partyName    = r.party_label || getParty(r.party_id).name?.[lang] || r.party_id;
-      const candidateName = r.candidate_name || r.name_ka || null;
+      const candidateName = candidateLabel(r);
       const el = html`<tr class="dist-table-row" data-party-id="${r.party_id}" title="${t("elections.chart.click_filter")}">
         <td style="vertical-align:middle;">
           <span class="party-dot" style="background:${color}; vertical-align:middle;"></span>
@@ -365,11 +370,15 @@ export function makeRenderers({
   function renderPrecinctPanel(props, td, stationRows) {
     const pname = lang === "ka" ? props.name_ka : props.name_en;
     const turnoutCfg = electionVal?.turnout ?? {};
-    const isSMDPrec  = effectiveVoteType === "smd" || isPresidential;
 
     const _sortedRows = [...stationRows].sort((a, b) => b.vote_share - a.vote_share);
     const _topRows    = _sortedRows.slice(0, 5);
     const _moreRows   = _sortedRows.slice(5);
+    const candidateLabel = r => (lang === "ka" ? r.candidate_name_ka : r.candidate_name_en)
+      || r.candidate_name
+      || r.name_ka
+      || null;
+    const isSMDPrec  = effectiveVoteType === "smd" || isPresidential || _sortedRows.some(candidateLabel);
     const colHeader   = isSMDPrec ? t("elections.results.candidate") : t("elections.results.party");
 
     function voteRow(r) {
@@ -377,7 +386,7 @@ export function makeRenderers({
       const shareStr     = `${(r.vote_share * 100).toFixed(1)}%`;
       const countStr     = r.votes != null ? r.votes.toLocaleString() : "—";
       const pname_r      = r.party_label || getParty(r.party_id).name?.[lang] || r.party_id;
-      const candidateName = r.candidate_name || r.name_ka || null;
+      const candidateName = candidateLabel(r);
       return html`<tr>
         <td style="vertical-align:middle;">
           <span class="party-dot" style="background:${color};vertical-align:middle;"></span>

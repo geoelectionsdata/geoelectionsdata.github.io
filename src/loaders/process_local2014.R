@@ -131,6 +131,20 @@ cell_num <- function(x) {
   out
 }
 
+cell_int <- function(x) {
+  suppressWarnings(as.integer(as.numeric(as.character(x))))
+}
+
+pick_int <- function(df, cols) {
+  out <- rep(NA_integer_, nrow(df))
+  for (col in cols) {
+    if (col %in% names(df)) {
+      out <- coalesce(out, cell_int(df[[col]]))
+    }
+  }
+  out
+}
+
 parse_precinct_id <- function(district, precinct) {
   as.integer(district) * 1000L + as.integer(precinct)
 }
@@ -183,16 +197,41 @@ map_city_selfgov <- function(d) {
 
 normalize_selfgov_geo <- function() {
   selfgov <- st_read(SELFGOV_GEO, quiet = TRUE)
-  selfgov$id <- as.integer(selfgov$District)
-  selfgov$district_id <- as.integer(selfgov$District)
-  selfgov$selfgov_id <- as.integer(selfgov$District)
-  selfgov$name_en <- as.character(selfgov$En_Name)
-  selfgov$name_ka <- as.character(selfgov$Ka_Name)
+  props <- st_drop_geometry(selfgov)
+  selfgov_id <- pick_int(props, c("selfgov_id", "self_gov_id", "District", "id"))
+  selfgov$id <- selfgov_id
+  selfgov$district_id <- selfgov_id
+  selfgov$selfgov_id <- selfgov_id
+  if ("En_Name" %in% names(selfgov)) selfgov$name_en <- as.character(selfgov$En_Name)
+  if ("Ka_Name" %in% names(selfgov)) selfgov$name_ka <- as.character(selfgov$Ka_Name)
   write_geo_atomic(selfgov, SELFGOV_GEO)
 }
 
 read_precinct_selfgov_lookup <- function() {
   precincts <- st_read(PRECINCT_GEO, quiet = TRUE)
+  attrs <- st_drop_geometry(precincts)
+  precinct_id <- pick_int(attrs, c("id", "precinct_id", "PrecID"))
+  district_id <- coalesce(
+    pick_int(attrs, c("district_id", "District")),
+    as.integer(floor(precinct_id / 1000L))
+  )
+  precinct_number <- coalesce(
+    pick_int(attrs, c("precinct_number", "Precinct")),
+    as.integer(precinct_id %% 1000L)
+  )
+  selfgov_id <- pick_int(attrs, c("selfgov_id", "self_gov_id", "Mayor"))
+
+  if (all(!is.na(selfgov_id))) {
+    return(tibble(
+      precinct_id = precinct_id,
+      district_id = district_id,
+      precinct_number = precinct_number,
+      selfgov_id = selfgov_id
+    ) %>%
+      filter(!is.na(precinct_id)) %>%
+      distinct(precinct_id, .keep_all = TRUE))
+  }
+
   selfgov <- st_read(SELFGOV_GEO, quiet = TRUE)
 
   precincts <- st_make_valid(precincts)
@@ -206,7 +245,7 @@ read_precinct_selfgov_lookup <- function() {
   hit_codes <- vector("integer", length(hits))
 
   for (i in seq_along(hits)) {
-    raw_d <- as.integer(precincts$District[[i]])
+    raw_d <- district_id[[i]]
     city_code <- unname(CITY_SPLITS[as.character(raw_d)])
     allowed <- if (raw_d %in% TBILISI_DISTRICTS) {
       1L
@@ -215,58 +254,85 @@ read_precinct_selfgov_lookup <- function() {
     } else {
       c(raw_d, city_code)
     }
-    matched <- as.integer(selfgov$District[hits[[i]]])
+    matched <- pick_int(st_drop_geometry(selfgov[hits[[i]], ]), c("selfgov_id", "District", "id"))
     matched <- matched[matched %in% allowed]
-    hit_codes[[i]] <- if (length(matched)) matched[[1]] else map_city_selfgov(raw_d)
+    hit_codes[[i]] <- if (length(matched)) matched[[1]] else coalesce(selfgov_id[[i]], map_city_selfgov(raw_d))
   }
 
   tibble(
-    precinct_id = as.integer(precincts$PrecID),
-    district_id = as.integer(precincts$District),
-    precinct_number = as.integer(precincts$Precinct),
+    precinct_id = precinct_id,
+    district_id = district_id,
+    precinct_number = precinct_number,
     selfgov_id = hit_codes
   ) %>%
+    filter(!is.na(precinct_id)) %>%
     distinct(precinct_id, .keep_all = TRUE)
 }
 
 normalize_precinct_geo <- function(lookup) {
   precincts <- st_read(PRECINCT_GEO, quiet = TRUE)
   council_smd <- st_read(COUNCIL_SMD_GEO, quiet = TRUE)
-  if (st_crs(precincts) != st_crs(council_smd)) {
-    council_smd <- st_transform(council_smd, st_crs(precincts))
-  }
-  precinct_pts <- st_point_on_surface(st_geometry(st_make_valid(precincts)))
-  smd_hits <- st_intersects(precinct_pts, st_geometry(st_make_valid(council_smd)))
-  precinct_mid <- vapply(smd_hits, function(hit) {
-    if (!length(hit)) return(NA_integer_)
-    as.integer(council_smd$MID[[hit[[1]]]])
-  }, integer(1))
+  precinct_props <- st_drop_geometry(precincts)
+  precinct_id <- pick_int(precinct_props, c("id", "precinct_id", "PrecID"))
+  district_id <- coalesce(
+    pick_int(precinct_props, c("district_id", "District")),
+    as.integer(floor(precinct_id / 1000L))
+  )
+  precinct_number <- coalesce(
+    pick_int(precinct_props, c("precinct_number", "Precinct")),
+    as.integer(precinct_id %% 1000L)
+  )
+  precinct_mid <- pick_int(precinct_props, c("maj_id", "major_id", "MID"))
+
   missing_mid <- which(is.na(precinct_mid))
-  for (i in missing_mid) {
-    same_district <- council_smd %>% filter(as.integer(District) == as.integer(precincts$District[[i]]))
-    if (!nrow(same_district)) next
-    intersections <- suppressWarnings(st_intersection(
-      st_make_valid(same_district),
-      st_make_valid(precincts[i, ])
-    ))
-    if (!nrow(intersections)) next
-    areas <- as.numeric(st_area(intersections))
-    precinct_mid[[i]] <- as.integer(intersections$MID[[which.max(areas)]])
+  if (length(missing_mid)) {
+    if (st_crs(precincts) != st_crs(council_smd)) {
+      council_smd <- st_transform(council_smd, st_crs(precincts))
+    }
+    council_props <- st_drop_geometry(council_smd)
+    council_major_id <- pick_int(council_props, c("maj_id", "major_id", "MID", "id"))
+    council_selfgov_id <- pick_int(council_props, c("selfgov_id", "self_gov_id", "District", "district_id"))
+
+    precinct_pts <- st_point_on_surface(st_geometry(st_make_valid(precincts[missing_mid, ])))
+    smd_hits <- st_intersects(precinct_pts, st_geometry(st_make_valid(council_smd)))
+    for (j in seq_along(missing_mid)) {
+      i <- missing_mid[[j]]
+      hit <- smd_hits[[j]]
+      if (length(hit)) {
+        precinct_mid[[i]] <- council_major_id[[hit[[1]]]]
+        next
+      }
+      same_district <- council_smd[council_selfgov_id == district_id[[i]], ]
+      same_major_ids <- council_major_id[council_selfgov_id == district_id[[i]]]
+      if (!nrow(same_district)) next
+      intersections <- suppressWarnings(st_intersection(
+        st_make_valid(same_district),
+        st_make_valid(precincts[i, ])
+      ))
+      if (!nrow(intersections)) next
+      areas <- as.numeric(st_area(intersections))
+      precinct_mid[[i]] <- as.integer(same_major_ids[[which.max(areas)]])
+    }
   }
 
   precincts <- precincts %>%
-    select(-any_of(c("selfgov_id", "Mayor", "MID", "major_id"))) %>%
+    select(-any_of(c("PrecID", "District", "Precinct", "selfgov_id", "self_gov_id", "Mayor", "MID", "major_id", "maj_id", "district_id", "precinct_id", "precinct_number"))) %>%
     mutate(
-      id = as.integer(PrecID),
-      precinct_id = as.integer(PrecID),
-      district_id = as.integer(District),
-      precinct_number = as.integer(Precinct),
+      id = precinct_id,
+      precinct_id = precinct_id,
+      PrecID = precinct_id,
+      district_id = district_id,
+      District = district_id,
+      precinct_number = precinct_number,
+      Precinct = precinct_number,
+      maj_id = precinct_mid,
       MID = precinct_mid,
       major_id = precinct_mid
     ) %>%
     left_join(lookup %>% select(precinct_id, selfgov_id), by = "precinct_id") %>%
     mutate(
-      selfgov_id = coalesce(as.integer(selfgov_id), map_city_selfgov(District)),
+      selfgov_id = coalesce(as.integer(selfgov_id), map_city_selfgov(district_id)),
+      self_gov_id = selfgov_id,
       Mayor = selfgov_id
     )
   write_geo_atomic(precincts, PRECINCT_GEO)
@@ -274,12 +340,22 @@ normalize_precinct_geo <- function(lookup) {
 
 normalize_council_smd_geo <- function() {
   smd <- st_read(COUNCIL_SMD_GEO, quiet = TRUE)
-  smd$id <- as.integer(smd$MID)
-  smd$major_id <- as.integer(smd$MID)
-  smd$district_id <- as.integer(smd$District)
-  smd$major <- as.integer(smd$maj_dcode)
-  smd$name_en <- paste0("District ", smd$District, " N", smd$maj_dcode)
-  smd$name_ka <- paste0("District ", smd$District, " N", smd$maj_dcode)
+  props <- st_drop_geometry(smd)
+  major_id <- pick_int(props, c("maj_id", "major_id", "MID"))
+  major_id <- coalesce(major_id, pick_int(props, c("id")))
+  selfgov_id <- pick_int(props, c("selfgov_id", "self_gov_id", "District", "district_id"))
+  selfgov_id <- coalesce(selfgov_id, as.integer(floor(major_id / 100L)))
+  major_local <- coalesce(pick_int(props, c("major", "maj_dcode")), as.integer(major_id %% 100L))
+  smd$id <- major_id
+  smd$maj_id <- major_id
+  smd$MID <- major_id
+  smd$major_id <- major_id
+  smd$selfgov_id <- selfgov_id
+  smd$self_gov_id <- selfgov_id
+  smd$district_id <- selfgov_id
+  smd$major <- major_local
+  if (!"name_en" %in% names(smd)) smd$name_en <- paste0("District ", selfgov_id, " N", major_local)
+  if (!"name_ka" %in% names(smd)) smd$name_ka <- paste0("District ", selfgov_id, " N", major_local)
   write_geo_atomic(smd, COUNCIL_SMD_GEO)
 }
 
@@ -295,25 +371,45 @@ if (REBUILD_GEO) {
 read_result_sheet <- function(sheet, kind) {
   raw <- read_excel(RAW_RESULTS, sheet = sheet, col_names = FALSE)
   raw <- raw[, colSums(is.na(raw)) < nrow(raw)]
+  has_harmonized_ids <- identical(str_to_lower(cell_chr(raw[[1]][[1]])), "id")
 
   if (kind == "pr") {
     code_row <- raw[1, ]
     data <- raw[-1, ]
-    base <- list(district = 1L, precinct = 2L, main = 3L, special = 4L,
-                 noon = 5L, five = 6L, voted = 7L, received = 8L,
-                 party_start = 9L)
+    if (has_harmonized_ids) {
+      base <- list(id = 1L, selfgov = 2L, major_id = 3L, district = 4L,
+                   precinct = 5L, main = 6L, special = 7L, noon = 8L,
+                   five = 9L, voted = 10L, received = 11L, party_start = 12L)
+    } else {
+      base <- list(district = 1L, precinct = 2L, main = 3L, special = 4L,
+                   noon = 5L, five = 6L, voted = 7L, received = 8L,
+                   party_start = 9L)
+    }
   } else if (kind == "major") {
     code_row <- raw[2, ]
     data <- raw[-c(1, 2), ]
-    base <- list(district = 1L, major = 2L, sub = 3L, precinct = 4L,
-                 main = 5L, special = 6L, noon = 7L, five = 8L,
-                 voted = 9L, received = 10L, party_start = 11L)
+    if (has_harmonized_ids) {
+      base <- list(id = 1L, selfgov = 2L, major_id = 3L, district = 4L,
+                   major = 5L, sub = 6L, precinct = 7L, main = 8L,
+                   special = 9L, noon = 10L, five = 11L, voted = 12L,
+                   received = 13L, party_start = 14L)
+    } else {
+      base <- list(district = 1L, major = 2L, sub = 3L, precinct = 4L,
+                   main = 5L, special = 6L, noon = 7L, five = 8L,
+                   voted = 9L, received = 10L, party_start = 11L)
+    }
   } else {
     code_row <- raw[2, ]
     data <- raw[-c(1, 2), ]
-    base <- list(district = 1L, precinct = 2L, main = 3L, special = 4L,
-                 noon = 5L, five = 6L, voted = 7L, received = 8L,
-                 party_start = 9L)
+    if (has_harmonized_ids) {
+      base <- list(id = 1L, selfgov = 2L, major_id = 3L, district = 4L,
+                   precinct = 5L, main = 6L, special = 7L, noon = 8L,
+                   five = 9L, voted = 10L, received = 11L, party_start = 12L)
+    } else {
+      base <- list(district = 1L, precinct = 2L, main = 3L, special = 4L,
+                   noon = 5L, five = 6L, voted = 7L, received = 8L,
+                   party_start = 9L)
+    }
   }
 
   code_vals <- cell_chr(unlist(code_row, use.names = FALSE))
@@ -328,11 +424,15 @@ read_result_sheet <- function(sheet, kind) {
   district <- as.integer(cell_num(data[[base$district]]))
   precinct <- as.integer(cell_num(data[[base$precinct]]))
   keep <- !is.na(district) & district > 0 & !is.na(precinct) & precinct > 0
+  raw_precinct_id <- if (!is.null(base$id)) cell_int(data[[base$id]]) else parse_precinct_id(district, precinct)
+  raw_selfgov_id <- if (!is.null(base$selfgov)) cell_int(data[[base$selfgov]]) else rep(NA_integer_, length(district))
+  raw_major_id <- if (!is.null(base$major_id)) cell_int(data[[base$major_id]]) else rep(NA_integer_, length(district))
 
   wide <- tibble(
     district_raw = district[keep],
     precinct_number = precinct[keep],
-    precinct_id = parse_precinct_id(district[keep], precinct[keep]),
+    precinct_id = coalesce(raw_precinct_id[keep], parse_precinct_id(district[keep], precinct[keep])),
+    selfgov_id = raw_selfgov_id[keep],
     main_list = as.integer(cell_num(data[[base$main]])[keep]),
     special_list = as.integer(cell_num(data[[base$special]])[keep]),
     voted_noon = as.integer(cell_num(data[[base$noon]])[keep]),
@@ -350,7 +450,7 @@ read_result_sheet <- function(sheet, kind) {
       mutate(
         major_local = major,
         major_sub = sub,
-        major_id = district_raw * 100L + major_local
+        major_id = coalesce(raw_major_id[keep], district_raw * 100L + major_local)
       )
   }
 
@@ -450,22 +550,42 @@ candidate_name <- function(first, last) {
 }
 
 make_candidate_tables <- function() {
-  mayor <- read_excel(CANDIDATES_FILE, sheet = "mayor_gamgebeli") %>%
+  mayor_raw <- read_excel(CANDIDATES_FILE, sheet = "mayor_gamgebeli")
+  mayor <- mayor_raw %>%
+    mutate(
+      district_raw = coalesce(pick_int(., c("district_code", "district_id")), pick_int(., c("selfgov_id"))),
+      candidate_selfgov_id = pick_int(., c("selfgov_id"))
+    ) %>%
     transmute(
       election_type = if_else(office_type == "tbilisi_mayor", "mayor", office_type),
-      district_raw = as.integer(district_code),
-      district_id = if_else(office_type %in% c("mayor", "tbilisi_mayor"), map_city_selfgov(district_raw), district_raw),
+      district_raw,
+      district_id = coalesce(candidate_selfgov_id, if_else(office_type %in% c("mayor", "tbilisi_mayor"), map_city_selfgov(district_raw), district_raw)),
       party_num = as.character(candidate_number),
       party_id = party_id_for_num(party_num),
       name_ka = candidate_name(first_name, last_name),
       party_name = party_name
     )
 
-  major <- read_excel(CANDIDATES_FILE, sheet = "majoritarian candidates") %>%
+  major_raw <- read_excel(CANDIDATES_FILE, sheet = "majoritarian candidates")
+  valid_major_ids <- st_read(COUNCIL_SMD_GEO, quiet = TRUE) %>%
+    st_drop_geometry() %>%
+    pick_int(c("maj_id", "major_id", "MID", "id")) %>%
+    na.omit() %>%
+    as.integer()
+  major <- major_raw %>%
     mutate(
-      district_raw = as.integer(district_code),
-      major_local = as.integer(str_extract(smd_code, "(?<=\\.)\\d+$")),
-      major_id = district_raw * 100L + major_local
+      source_major_id = pick_int(., c("maj_id", "major_id")),
+      district_raw = coalesce(pick_int(., c("district_code", "district_id")), as.integer(floor(source_major_id / 100L))),
+      major_local = coalesce(as.integer(str_extract(if ("smd_code" %in% names(.)) smd_code else as.character(NA), "(?<=\\.)\\d+$")), source_major_id %% 100L),
+      direct_major_id = district_raw * 100L + major_local,
+      selfgov_major_id = map_city_selfgov(district_raw) * 100L + major_local,
+      major_id = case_when(
+        selfgov_major_id %in% valid_major_ids ~ selfgov_major_id,
+        direct_major_id %in% valid_major_ids ~ direct_major_id,
+        source_major_id %in% valid_major_ids ~ source_major_id,
+        !is.na(source_major_id) ~ source_major_id,
+        TRUE ~ direct_major_id
+      )
     ) %>%
     transmute(
       election_type = "council_smd",
@@ -476,15 +596,17 @@ make_candidate_tables <- function() {
       party_id = party_id_for_num(party_num),
       name_ka = candidate_name(first_name, last_name),
       party_name = party_name,
-      smd_code = smd_code
+      smd_code = if ("smd_code" %in% names(.)) smd_code else as.character(major_id)
     )
 
-  party_lists <- read_excel(CANDIDATES_FILE, sheet = "party lists") %>%
+  party_list_raw <- read_excel(CANDIDATES_FILE, sheet = "party lists")
+  party_lists <- party_list_raw %>%
     mutate(
-      district_raw = as.integer(district_code),
+      district_raw = pick_int(., c("district_code", "district_id", "selfgov_id")),
       district_id = if_else(district_type == "ქალაქის", map_city_selfgov(district_raw), district_raw),
       party_id = party_id_for_num(match_party_number_from_name(party_name))
     ) %>%
+    mutate(district_id = coalesce(pick_int(., c("selfgov_id")), district_id)) %>%
     transmute(
       district_id,
       district_type,
@@ -531,7 +653,8 @@ candidate_tables <- make_candidate_tables()
 attach_exec_candidate_names <- function(df, office_type) {
   lookup <- candidate_tables$mayor %>%
     filter(election_type == office_type) %>%
-    select(district_id, district_raw, party_num, name_ka)
+    select(district_id, district_raw, party_num, name_ka) %>%
+    distinct(district_id, district_raw, party_num, .keep_all = TRUE)
   if (office_type == "mayor") {
     df %>%
       left_join(lookup %>% select(district_id, party_num, name_ka),
@@ -547,7 +670,8 @@ attach_exec_candidate_names <- function(df, office_type) {
 
 attach_major_candidate_names <- function(df) {
   lookup <- candidate_tables$major %>%
-    select(major_id, party_num, name_ka)
+    select(major_id, party_num, name_ka) %>%
+    distinct(major_id, party_num, .keep_all = TRUE)
   df %>%
     left_join(lookup, by = c("major_id", "party_num")) %>%
     mutate(name_ka = coalesce(name_ka, ""))
@@ -621,19 +745,54 @@ read_byelection_candidates <- function(path, sheet) {
 
 make_precinct_geo_lookup <- function(path) {
   props <- st_read(path, quiet = TRUE) %>% st_drop_geometry()
-  if (!"id" %in% names(props)) props$id <- props$PrecID
-  if (!"PrecID" %in% names(props)) props$PrecID <- props$id
+  precinct_id <- pick_int(props, c("id", "precinct_id", "PrecID"))
+  source_major_id <- pick_int(props, c("maj_id", "major_id", "MID"))
+  district_raw <- coalesce(
+    pick_int(props, c("district_raw", "raw_district_id", "District", "district_id")),
+    as.integer(floor(precinct_id / 1000L))
+  )
+  precinct_number <- coalesce(
+    pick_int(props, c("precinct_number", "Precinct")),
+    as.integer(precinct_id %% 1000L)
+  )
 
-  props %>%
+  tibble(
+    precinct_id = precinct_id,
+    source_major_id = source_major_id,
+    district_raw = district_raw,
+    precinct_number = precinct_number
+  ) %>%
     transmute(
-      precinct_id = as.integer(coalesce(id, PrecID)),
-      source_major_id = as.integer(MID),
-      district_raw = as.integer(District),
-      precinct_number = as.integer(Precinct),
+      precinct_id = as.integer(precinct_id),
+      source_major_id = as.integer(source_major_id),
+      district_raw = as.integer(district_raw),
+      precinct_number = as.integer(precinct_number),
       precinct_key = paste(source_major_id, district_raw, precinct_number, sep = "."),
-      geo_major_id = as.integer(MID)
+      geo_major_id = as.integer(source_major_id)
     ) %>%
     distinct(source_major_id, district_raw, precinct_number, .keep_all = TRUE)
+}
+
+read_council_major_ids <- function() {
+  st_read(COUNCIL_SMD_GEO, quiet = TRUE) %>%
+    st_drop_geometry() %>%
+    pick_int(c("maj_id", "major_id", "MID", "id")) %>%
+    na.omit() %>%
+    as.integer()
+}
+
+canonical_council_major_id <- function(district_raw, major_local, geo_major_id, valid_major_ids) {
+  direct <- as.integer(district_raw) * 100L + as.integer(major_local)
+  selfgov_direct <- map_city_selfgov(district_raw) * 100L + as.integer(major_local)
+  geo_major_id <- as.integer(geo_major_id)
+
+  case_when(
+    selfgov_direct %in% valid_major_ids ~ selfgov_direct,
+    direct %in% valid_major_ids ~ direct,
+    geo_major_id %in% valid_major_ids ~ geo_major_id,
+    !is.na(geo_major_id) ~ geo_major_id,
+    TRUE ~ direct
+  )
 }
 
 parse_precinct_code <- function(precinct, lookup) {
@@ -674,10 +833,12 @@ write_byelection_precinct_geo <- function(df, source_geo, out_geo) {
       id = as.integer(precinct_id),
       PrecID = as.integer(precinct_id),
       MID = as.integer(major_id),
+      maj_id = as.integer(major_id),
       major_id = as.integer(major_id),
       district_id = as.integer(district_raw),
       raw_district_id = as.integer(district_raw),
       selfgov_id = as.integer(selfgov_id),
+      self_gov_id = as.integer(selfgov_id),
       Mayor = as.integer(selfgov_id)
     ) %>%
     select(-source_major_id)
@@ -695,10 +856,7 @@ read_council_smd_byelection <- function(path, candidate_sheet = NULL, party_map 
   precinct_major_lookup <- precinct_lookup %>%
     select(precinct_id, geo_major_id) %>%
     distinct(precinct_id, .keep_all = TRUE)
-  valid_major_ids <- st_read(COUNCIL_SMD_GEO, quiet = TRUE) %>%
-    st_drop_geometry() %>%
-    pull(MID) %>%
-    as.integer()
+  valid_major_ids <- read_council_major_ids()
   bind_rows(lapply(sheets, function(sheet) {
     raw <- read_excel(path, sheet = sheet, col_names = FALSE)
     raw <- raw[, colSums(is.na(raw)) < nrow(raw)]
@@ -748,11 +906,10 @@ read_council_smd_byelection <- function(path, candidate_sheet = NULL, party_map 
       mutate(
         registered = main_list + special_list,
         precinct_id = as.integer(precinct_id[keep]),
-        direct_major_id = district_raw * 100L + major_local,
         selfgov_id = map_city_selfgov(district_raw)
       ) %>%
       left_join(precinct_major_lookup, by = "precinct_id") %>%
-      mutate(major_id = if_else(direct_major_id %in% valid_major_ids, direct_major_id, coalesce(geo_major_id, direct_major_id))) %>%
+      mutate(major_id = canonical_council_major_id(district_raw, major_local, geo_major_id, valid_major_ids)) %>%
       select(-geo_major_id)
 
     votes <- as_tibble(data[keep, party_cols, drop = FALSE])
@@ -785,10 +942,7 @@ read_council_smd_precinct_code_byelection <- function(path, candidate_sheet = NU
   precinct_major_lookup <- precinct_lookup %>%
     select(precinct_id, geo_major_id) %>%
     distinct(precinct_id, .keep_all = TRUE)
-  valid_major_ids <- st_read(COUNCIL_SMD_GEO, quiet = TRUE) %>%
-    st_drop_geometry() %>%
-    pull(MID) %>%
-    as.integer()
+  valid_major_ids <- read_council_major_ids()
 
   bind_rows(lapply(sheets, function(sheet) {
     raw <- read_excel(path, sheet = sheet, col_names = FALSE)
@@ -830,11 +984,10 @@ read_council_smd_precinct_code_byelection <- function(path, candidate_sheet = NU
       left_join(contest_lookup, by = "district_raw") %>%
       mutate(
         registered = main_list + special_list,
-        direct_major_id = district_raw * 100L + major_local,
         selfgov_id = map_city_selfgov(district_raw)
       ) %>%
       left_join(precinct_major_lookup, by = "precinct_id") %>%
-      mutate(major_id = if_else(direct_major_id %in% valid_major_ids, direct_major_id, coalesce(geo_major_id, direct_major_id))) %>%
+      mutate(major_id = canonical_council_major_id(district_raw, major_local, geo_major_id, valid_major_ids)) %>%
       select(-geo_major_id)
 
     votes <- as_tibble(data[keep, party_cols, drop = FALSE])
@@ -1024,6 +1177,7 @@ write_exec_byelection_precinct_geo <- function(df, source_geo, out_geo) {
       district_id = as.integer(district_raw),
       raw_district_id = as.integer(district_raw),
       selfgov_id = as.integer(selfgov_id),
+      self_gov_id = as.integer(selfgov_id),
       Mayor = as.integer(selfgov_id)
     ) %>%
     select(-source_major_id)
@@ -1034,21 +1188,23 @@ write_exec_byelection_precinct_geo <- function(df, source_geo, out_geo) {
 
 cat("Reading result sheets...\n")
 pr <- read_result_sheet("PROP", "pr") %>%
-  left_join(precinct_selfgov %>% select(precinct_id, selfgov_id), by = "precinct_id") %>%
+  left_join(precinct_selfgov %>% select(precinct_id, lookup_selfgov_id = selfgov_id), by = "precinct_id") %>%
   mutate(
-    selfgov_id = coalesce(selfgov_id, map_city_selfgov(district_raw)),
+    selfgov_id = coalesce(selfgov_id, lookup_selfgov_id, map_city_selfgov(district_raw)),
     district_id = as.character(district_raw)
-  )
+  ) %>%
+  select(-lookup_selfgov_id)
 
 council_smd <- read_result_sheet("MAJOR_ubani", "major") %>%
-  left_join(precinct_selfgov %>% select(precinct_id, selfgov_id), by = "precinct_id") %>%
-  mutate(selfgov_id = coalesce(selfgov_id, map_city_selfgov(district_raw))) %>%
+  left_join(precinct_selfgov %>% select(precinct_id, lookup_selfgov_id = selfgov_id), by = "precinct_id") %>%
+  mutate(selfgov_id = coalesce(selfgov_id, lookup_selfgov_id, map_city_selfgov(district_raw))) %>%
+  select(-lookup_selfgov_id) %>%
   attach_major_candidate_names() %>%
   filter_to_contest_candidates(c("major_id", "party_num"))
 
 mayor_r1 <- read_result_sheet("MERI_I_TURI", "exec") %>%
   mutate(
-    selfgov_id = map_city_selfgov(district_raw),
+    selfgov_id = coalesce(selfgov_id, map_city_selfgov(district_raw)),
     district_id = as.character(selfgov_id),
     round = 1L
   ) %>%
@@ -1057,7 +1213,7 @@ mayor_r1 <- read_result_sheet("MERI_I_TURI", "exec") %>%
 
 gamg_r1 <- read_result_sheet("GAMG_I_TURI", "exec") %>%
   mutate(
-    selfgov_id = district_raw,
+    selfgov_id = coalesce(selfgov_id, district_raw),
     district_id = as.character(selfgov_id),
     round = 1L
   ) %>%
@@ -1068,7 +1224,7 @@ exec_r1 <- bind_rows(mayor_r1, gamg_r1)
 
 mayor_r2 <- read_result_sheet("MERI_II_TURI", "exec") %>%
   mutate(
-    selfgov_id = map_city_selfgov(district_raw),
+    selfgov_id = coalesce(selfgov_id, map_city_selfgov(district_raw)),
     district_id = as.character(selfgov_id),
     round = 2L
   ) %>%
@@ -1077,7 +1233,7 @@ mayor_r2 <- read_result_sheet("MERI_II_TURI", "exec") %>%
 
 gamg_r2 <- read_result_sheet("GAMG_II_TURI", "exec") %>%
   mutate(
-    selfgov_id = district_raw,
+    selfgov_id = coalesce(selfgov_id, district_raw),
     district_id = as.character(selfgov_id),
     round = 2L
   ) %>%
@@ -1335,7 +1491,7 @@ normalize_geo_name <- function(x) {
 }
 
 selfgov_props <- st_read(SELFGOV_GEO, quiet = TRUE) %>% st_drop_geometry()
-selfgov_id_col <- if ("District" %in% names(selfgov_props)) "District" else if ("selfgov_id" %in% names(selfgov_props)) "selfgov_id" else "id"
+selfgov_id_col <- if ("selfgov_id" %in% names(selfgov_props)) "selfgov_id" else if ("District" %in% names(selfgov_props)) "District" else "id"
 selfgov_name_col <- if ("Ka_Name" %in% names(selfgov_props)) "Ka_Name" else "name_ka"
 selfgov_lookup <- selfgov_props %>%
   transmute(
@@ -1388,12 +1544,18 @@ map_elected_selfgov <- function(local_unit) {
   out
 }
 
-elected <- read_excel(ELECTED_FILE, sheet = "elected politicians") %>%
+elected_raw <- read_excel(ELECTED_FILE, sheet = "elected politicians")
+elected_selfgov_ids <- pick_int(elected_raw, c("selfgov_id"))
+elected <- elected_raw %>%
   mutate(
     party_num = match_party_number_from_name(party_name),
     party_id = party_id_for_num(party_num),
     name_ka = candidate_name(first_name, last_name),
-    selfgov_ids = map_elected_selfgov(local_governing_unit)
+    selfgov_ids = Map(
+      function(raw_id, fallback) if (!is.na(raw_id)) raw_id else fallback,
+      elected_selfgov_ids,
+      map_elected_selfgov(local_governing_unit)
+    )
   )
 write_csv_utf8(
   elected %>% mutate(selfgov_id = vapply(selfgov_ids, function(x) paste(na.omit(x), collapse = ";"), character(1))) %>% select(-selfgov_ids),

@@ -122,7 +122,7 @@ export async function buildElectionMap({
   });
 
   function districtStyle(feature) {
-    const did = String(feature.properties.id);
+    const did = geoId(feature);
     if (viewMode === "turnout") {
       const td = turnoutByDistrict.get(did);
       if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.75, color: "#bbb", weight: 0.5};
@@ -137,11 +137,11 @@ export async function buildElectionMap({
     return {fillColor: lightened, fillOpacity: 0.85, color: "#ffffff", weight: 0.5};
   }
 
-  // Stringify GeoJSON integer ids once — both winnerByDistrict and turnoutByDistrict
-  // are keyed by string (from CSV), but GeoJSON feature.properties.id is an integer.
+  // Stringify GeoJSON integer ids once: result maps are keyed by string from CSV,
+  // while shape keys vary across vintages (`id`, `maj_id`, `major_id`, etc.).
   function geoId(feature) {
     const p = feature?.properties ?? {};
-    return String(p.major_id ?? p.maj_id ?? p.id);
+    return String(p.major_id ?? p.maj_id ?? p.MID ?? p.id ?? p.selfgov_id ?? p.self_gov_id);
   }
   function councilSelfgovIdFromDistrictId(id) {
     const n = Number(id);
@@ -357,7 +357,7 @@ export async function buildElectionMap({
   if (mapMode === "cartogram" && activeGeo.features[0]?.geometry?.type === "Point") {
     // Cartogram — proportional circles, no precinct overlay
     activeGeo.features.forEach(f => {
-      const did  = String(f.properties.id);
+      const did  = geoId(f);
       const winner = winnerByDistrict.get(did);
       let fillColor;
       if (viewMode === "turnout") {
