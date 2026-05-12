@@ -1,23 +1,19 @@
 /**
  * geo-registry.json.js — data loader
- * Walks all election YAMLs, loads every GeoJSON file that exists on disk,
- * and outputs a combined JSON object: { "data/shp/...geojson": <GeoJSON>, ... }
+ * Walks all election YAMLs and emits a small manifest of non-precinct
+ * GeoJSON files: { "data/shp/...geojson": "data/shp/...geojson", ... }.
  *
- * Observable Framework caches this output; it is invalidated automatically
- * when any source file changes. No manual FileAttachment registration needed.
+ * The client fetches the selected GeoJSON lazily. Keeping the actual geometry
+ * out of this registry avoids downloading/parsing every district layer when
+ * the elections page first opens.
  */
 
-import { loadElections, collectPaths, fileExists, isPrecinctPath, readText } from "./config/registry-utils.js";
+import { collectExistingPaths, isPrecinctPath } from "./config/registry-utils.js";
 
 const registry = {};
 
-for (const election of loadElections()) {
-  for (const p of collectPaths(election)) {
-    if (!p.endsWith(".geojson")) continue;
-    if (isPrecinctPath(p)) continue;
-    if (registry[p] || !fileExists(p)) continue;
-    registry[p] = JSON.parse(readText(p));
-  }
+for (const p of collectExistingPaths(p => p.endsWith(".geojson") && !isPrecinctPath(p))) {
+  registry[p] = p;
 }
 
 process.stdout.write(JSON.stringify(registry));

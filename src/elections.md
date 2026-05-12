@@ -256,7 +256,7 @@ const seatFilter = Generators.input(seatFilterInput);
 ```js
 // Data registries — auto-assembled from election YAMLs by data loaders.
 // To add a new election: create the YAML + data files, then restart dev server. No changes needed here.
-const _allGeo          = await FileAttachment("data/geo-registry.json").json();
+const _geoRegistryUrl  = await FileAttachment("data/geo-registry.json").url();
 const _csvRegistryUrl  = await FileAttachment("data/csv-registry.json").url();
 const _allTurnout      = await FileAttachment("data/turnout-registry.json").json();
 const _occupiedGeo     = await FileAttachment("data/shp/occupied_territories.geojson").json();
@@ -297,7 +297,12 @@ async function loadCSVPath(path) {
   return _csvRegistryCache.rowsByPath.get(assetPath);
 }
 
-function loadGeoJSON(elec, vt, level) {
+const _geoRegistryCache = {
+  manifest: null,
+  geoByPath: new Map()
+};
+
+async function loadGeoJSON(elec, vt, level) {
   let path;
   if (level === "council_district") {
     path = elec?.council?.shape_file;
@@ -315,7 +320,24 @@ function loadGeoJSON(elec, vt, level) {
          : vt === "compensation" ? elec?.system?.compensation?.shape_file
          : (elec?.system?.pr?.shape_file ?? elec?.system?.smd?.shape_file); // fallback for PR-disabled elections
   }
-  return _allGeo[path] ?? null;
+  if (!path) return null;
+
+  if (!_geoRegistryCache.manifest) {
+    _geoRegistryCache.manifest = await fetchJSONAsset(_geoRegistryUrl);
+  }
+
+  const assetPath = _geoRegistryCache.manifest[path];
+  if (!assetPath) return null;
+
+  if (!_geoRegistryCache.geoByPath.has(assetPath)) {
+    const promise = fetchJSONAsset(assetPath).catch(error => {
+      _geoRegistryCache.geoByPath.delete(assetPath);
+      throw error;
+    });
+    _geoRegistryCache.geoByPath.set(assetPath, promise);
+  }
+
+  return _geoRegistryCache.geoByPath.get(assetPath);
 }
 
 async function loadResults(elec, vt, sub, level, ballotType) {
@@ -399,14 +421,14 @@ function loadTurnout(elec, level) {
 // Mayor elections were previously using the SMD (selfgov) shapefile, which rendered selfgov
 // outlines instead of CEC electoral district outlines at the district level.
 const _geoVt = isLocal ? "pr" : effectiveVoteType;
-const geoData  = electionVal ? loadGeoJSON(electionVal, _geoVt, "district") : null;
-const cartData = _allGeo[electionVal?.files?.cartogram] ?? null;
+const geoData  = electionVal ? await loadGeoJSON(electionVal, _geoVt, "district") : null;
+const cartData = electionVal?.files?.cartogram ? await loadGeoJSON({system: {pr: {shape_file: electionVal.files.cartogram}}}, "pr", "district") : null;
 
 // Result CSVs are loaded lazily from the selected YAML paths.
 const results              = electionVal ? await loadResults(electionVal, effectiveVoteType, subVal, "district", ballotTypeVal)   : [];
 const turnoutData          = electionVal ? loadTurnout(electionVal, "district")                                                   : [];
 // Council-district intermediate layer (sakrebulo districts, council mode only)
-const councilDistrictGeoData = (electionVal && hasCouncilDistricts) ? loadGeoJSON(electionVal, _geoVt, "council_district") : null;
+const councilDistrictGeoData = (electionVal && hasCouncilDistricts) ? await loadGeoJSON(electionVal, _geoVt, "council_district") : null;
 const councilDistrictResults = (electionVal && hasCouncilDistricts) ? await loadResults(electionVal, effectiveVoteType, subVal, "council_district", ballotTypeVal) : [];
 // Always load council SMD results for seat computation from the parent election (full results),
 // even when a sub-election (runoff) is active — seats reflect the elected-people list.
@@ -414,7 +436,7 @@ const _allCouncilSMDResults = (electionVal && isCouncilMode && electionVal?.file
   ? await loadCSVPath(electionVal.files.council_smd_results)
   : councilDistrictResults;
 // Self-governing unit layer (local elections with selfgov_shape_file set)
-const selfgovGeoData = (electionVal && hasSelfGov) ? loadGeoJSON(electionVal, "pr", "selfgov") : null;
+const selfgovGeoData = (electionVal && hasSelfGov) ? await loadGeoJSON(electionVal, "pr", "selfgov") : null;
 const selfgovResults = (electionVal && hasSelfGov) ? await loadResults(electionVal, effectiveVoteType, subVal, "selfgov", ballotTypeVal) : [];
 // Precinct layer — geo and results are lazy-loaded in election-map.js (excluded from registries)
 function _getPrecinctPaths(elec, vt, sub, ballotType) {
