@@ -1,20 +1,19 @@
 #!/usr/bin/env node
 
 import ExcelJS from "exceljs";
-import fs from "node:fs";
 import path from "node:path";
 import {
   OUT_DIR,
-  PARL2024_DOWNLOAD_FILENAME,
   WORKBOOK_CREATOR,
   addMetadataSheet,
-  latestLegacyDownload,
-  mainSubElection,
+  existingBundleFilename,
   readAllElections,
-  readElection,
   subElections,
 } from "./shared.js";
 
+// Election-specific extras appended to the "About - Metadata" sheet.
+// Filename handling is generic (see shared.js#bundleFilename); only the
+// extra-rows table is per-election.
 function metadataOptions(election, sub) {
   if (election.id === "parl_2024" && (!sub || sub.id === "__main__")) {
     return {
@@ -29,22 +28,11 @@ function metadataOptions(election, sub) {
 function downloadTargets() {
   const targets = [];
   for (const election of readAllElections()) {
-    if (election.id === "parl_2024") continue;
     for (const sub of subElections(election)) {
-      const filename = latestLegacyDownload(election, sub);
+      const filename = existingBundleFilename(election, sub);
       if (filename) targets.push({ election, sub, filename });
     }
   }
-
-  const parl2024Path = path.join(OUT_DIR, PARL2024_DOWNLOAD_FILENAME);
-  if (fs.existsSync(parl2024Path)) {
-    targets.push({
-      election: readElection("parl_2024"),
-      sub: mainSubElection(),
-      filename: PARL2024_DOWNLOAD_FILENAME,
-    });
-  }
-
   return targets;
 }
 

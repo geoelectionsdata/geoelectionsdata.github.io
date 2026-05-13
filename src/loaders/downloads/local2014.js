@@ -1,80 +1,14 @@
 import ExcelJS from "exceljs";
-import fs from "node:fs";
-import path from "node:path";
-import { csvParse, autoType } from "d3-dsv";
 import {
-  OUT_DIR,
   WORKBOOK_CREATOR,
   addMetadataSheet,
-  downloadEntry,
-  legacyFilenamePrefix,
+  buildCsvSheet,
+  readCSV,
   readElection,
-  resolveSrcPath,
   subElections,
+  subElectionSheetLabel,
+  writeBundle,
 } from "./shared.js";
-
-const HDR_FILL = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1A3A5C" } };
-const HDR_FONT = { bold: true, color: { argb: "FFFFFFFF" }, size: 9, name: "Calibri" };
-const ALT_FILL = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF2F6FA" } };
-
-function readCSV(p) {
-  const full = resolveSrcPath(p);
-  if (!p || !fs.existsSync(full)) return [];
-  return csvParse(fs.readFileSync(full, "utf8"), autoType);
-}
-
-function safePct(v) {
-  if (v == null || v === "" || v === "NA") return "";
-  const n = Number(v);
-  return Number.isFinite(n) ? Number((n * 100).toFixed(2)) : "";
-}
-
-function styleHeader(row) {
-  row.height = 34;
-  row.eachCell(cell => {
-    cell.fill = HDR_FILL;
-    cell.font = HDR_FONT;
-    cell.alignment = { wrapText: true, vertical: "middle", horizontal: "center" };
-    cell.border = { bottom: { style: "medium", color: { argb: "FF4A7AAC" } } };
-  });
-}
-
-function finishSheet(sheet, widths) {
-  widths.forEach((w, i) => { if (w) sheet.getColumn(i + 1).width = w; });
-  sheet.views = [{ state: "frozen", ySplit: 1 }];
-  for (let r = 2; r <= sheet.rowCount; r++) {
-    if (r % 2 === 0) {
-      sheet.getRow(r).eachCell({ includeEmpty: false }, cell => {
-        if (!cell.fill?.fgColor) cell.fill = ALT_FILL;
-      });
-    }
-  }
-}
-
-function buildCsvSheet(wb, sheetName, rows) {
-  if (!rows.length) return;
-  const sheet = wb.addWorksheet(sheetName);
-  const keys = Object.keys(rows[0]);
-  styleHeader(sheet.addRow(keys));
-  for (const row of rows) {
-    sheet.addRow(keys.map(k => {
-      const v = row[k];
-      if ((/_pct$/.test(k) || k === "vote_share") && v != null && v !== "" && v !== "NA") return safePct(v);
-      return v ?? "";
-    }));
-  }
-  finishSheet(sheet, keys.map(k => Math.min(42, Math.max(10, k.length + 4))));
-}
-
-function buildMetadataSheet(wb, election, sub, generatedAt) {
-  addMetadataSheet(wb, election, sub, generatedAt);
-}
-
-function subElectionSheetLabel(sub) {
-  if (sub?.type === "by_election") return "By-election";
-  if (sub?.type === "runoff") return "Runoff";
-  return "Sub-election";
-}
 
 async function generateBundle(election, sub, generatedAt) {
   const isMain = !sub || sub.id === "__main__";
@@ -108,14 +42,8 @@ async function generateBundle(election, sub, generatedAt) {
     buildCsvSheet(wb, `Council ${label} - Precincts`, readCSV(files?.council_smd_precinct_results));
   }
 
-  buildMetadataSheet(wb, election, sub, generatedAt);
-
-  const prefix = legacyFilenamePrefix(election, sub);
-  const timestamp = generatedAt.toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  const filename = `${prefix}${timestamp}.xlsx`;
-  const outPath = path.join(OUT_DIR, filename);
-  await wb.xlsx.writeFile(outPath);
-  return downloadEntry(election, sub, filename);
+  addMetadataSheet(wb, election, sub, generatedAt);
+  return writeBundle(wb, election, sub);
 }
 
 export async function generateLocal2014Downloads({ generatedAt = new Date() } = {}) {

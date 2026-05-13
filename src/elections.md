@@ -68,17 +68,68 @@ const typeVal = Generators.input(typeInput);
 ```
 
 ```js
-// ── Election ID dropdown — filtered by type ───────────────────────────────
+// ── Chip-row input — generic widget used for both election and sub-election pickers ─
+// Custom DOM element with a `.value` property and "input" events, so
+// Generators.input() picks it up exactly like a native Inputs.select would.
+// `labelFn(item) -> { short, full }` controls the chip text and tooltip.
+function makeChipsInput(items, labelFn, initialValue) {
+  const container = html`<div class="year-chips" role="radiogroup"></div>`;
+  container.value = initialValue;
+  function render() {
+    container.innerHTML = "";
+    for (const item of items) {
+      const {short, full} = labelFn(item);
+      const isActive = container.value?.id === item.id;
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "year-chip" + (isActive ? " active" : "");
+      chip.textContent = short;
+      chip.title = full;
+      chip.setAttribute("role", "radio");
+      chip.setAttribute("aria-checked", isActive ? "true" : "false");
+      chip.setAttribute("aria-label", full);
+      chip.addEventListener("click", () => {
+        if (container.value?.id === item.id) return;
+        container.value = item;
+        render();
+        container.dispatchEvent(new Event("input"));
+      });
+      container.appendChild(chip);
+    }
+  }
+  render();
+  return container;
+}
+
+// Election chips: show only the year. If two elections share a year (e.g. an
+// early parliamentary election after dissolution), the colliding chips get a
+// month suffix so they remain distinguishable.
+function makeYearChipsInput(items, initialValue) {
+  const yearCounts = items.reduce((m, e) => {
+    const y = (e.date ?? "").slice(0, 4);
+    if (y) m.set(y, (m.get(y) ?? 0) + 1);
+    return m;
+  }, new Map());
+  function label(e) {
+    const full = e.name?.[lang] ?? e.name?.en ?? e.id;
+    const year = (e.date ?? "").slice(0, 4);
+    if (!year) return {short: e.id, full};
+    if ((yearCounts.get(year) ?? 0) <= 1) return {short: year, full};
+    const monthShort = new Date(e.date).toLocaleDateString(
+      lang === "ka" ? "ka-GE" : "en-US",
+      { month: "short" }
+    );
+    return {short: `${year} · ${monthShort}`, full};
+  }
+  return makeChipsInput(items, label, initialValue);
+}
+
 const filteredElections = elections
   .filter(e => e.type === typeVal)
   .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 
 const _restoredElec = filteredElections.find(e => e.id === _electionCtrl.value) ?? filteredElections[0];
-const electionInput = Inputs.select(
-  filteredElections,
-  { format: e => e.name?.[lang] || e.name?.en || e.id,
-    value: _restoredElec }
-);
+const electionInput = makeYearChipsInput(filteredElections, _restoredElec);
 electionInput.addEventListener("input", () => {
   _electionCtrl.value = electionInput.value?.id ?? null;
   updateUrlParams(
@@ -107,22 +158,85 @@ const ballotTypeVal = Generators.input(ballotTypeInput);
 ```
 
 ```js
-// ── Sub-election dropdown (runoffs etc.) — only if present ────────────────
+// ── Sub-election picker — chip row (runoffs / by-elections / repeated / etc.)
 const isPlebisciteEarly = electionVal?.type === "plebiscite"; // early flag for sub-election setup
 const subElections = isPlebisciteEarly
   ? (electionVal?.questions ?? [])
   : (electionVal?.sub_elections ?? []);
 const hasSubElections = subElections.length > 0;
 
-// Plebiscite: questions only (no __main__ option), always start at first question
+// Plebiscite: questions only (no __main__ option). All others: prepend a
+// synthetic "Main" entry so the user can return from a sub back to the parent.
 const subElectionItems = isPlebisciteEarly
   ? subElections
   : [{id: "__main__", name: {en: t("elections.sub_election.main"), ka: t("elections.sub_election.main")}}, ...subElections];
-// All elections: sub-election shown as a dropdown in the top section
-const subElectionInput = Inputs.select(subElectionItems, {
-  format: e => e.name?.[lang] || e.name?.en || e.id,
-  value: subElectionItems.find(e => e.id === _subCtrl.value) ?? subElectionItems[0]
-});
+
+// Chip label: "Main" stays plain; runoff/by-election/repeated get a localized
+// type prefix and a short month-year date so similar entries are distinguishable
+// (e.g. "By-election · May 2018" vs "By-election · Oct 2019"). For plebiscite
+// questions, fall back to the YAML name (no type info to lean on).
+function _subChipLabel(item) {
+  const full = item.name?.[lang] ?? item.name?.en ?? item.id;
+  if (item.id === "__main__") {
+    return {short: full, full};
+  }
+  if (!item.type) {
+    // Plebiscite question — keep the name; truncate the chip if very long.
+    const short = full.length > 26 ? full.slice(0, 24).trimEnd() + "…" : full;
+    return {short, full};
+  }
+  const date = item.date ?? electionVal?.date;
+  const dateLabel = date
+    ? new Date(date).toLocaleDateString(
+        lang === "ka" ? "ka-GE" : "en-US",
+        { month: "short", year: "numeric" }
+      )
+    : "";
+  const typeLabel = t(`elections.sub_type.${item.type}`) || item.type;
+  return {
+    short: dateLabel ? `${typeLabel} · ${dateLabel}` : typeLabel,
+    full
+  };
+}
+
+// Wraps a chip-row input in a <details> that shows the current selection in
+// its <summary>. Proxies `.value` and "input" events so the wrapper is a
+// drop-in replacement: external code (Generators.input, the click handler)
+// still sees a single element with the same surface as the bare chip widget.
+//
+// `defaultOpen` controls the initial expanded state. Useful default: open for
+// short lists (2-3 chips fit comfortably alongside everything else), collapsed
+// for long lists so they don't dominate the filter column. When defaultOpen
+// is false, picking a chip auto-collapses the details — letting it behave
+// like a dropdown picker.
+function wrapChipsInDetails(chipWidget, labelFn, defaultOpen) {
+  const summaryText = document.createElement("span");
+  summaryText.className = "chip-summary-text";
+  const summary = html`<summary class="chip-summary"></summary>`;
+  summary.appendChild(summaryText);
+  const details = html`<details class="chip-details">${summary}${chipWidget}</details>`;
+  if (defaultOpen) details.open = true;
+  Object.defineProperty(details, "value", {
+    get() { return chipWidget.value; },
+    set(v) { chipWidget.value = v; }
+  });
+  function refreshSummary() {
+    summaryText.textContent = chipWidget.value ? labelFn(chipWidget.value).short : "";
+  }
+  refreshSummary();
+  chipWidget.addEventListener("input", () => {
+    refreshSummary();
+    if (!defaultOpen) details.open = false;
+    details.dispatchEvent(new Event("input"));
+  });
+  return details;
+}
+
+const _restoredSub = subElectionItems.find(e => e.id === _subCtrl.value) ?? subElectionItems[0];
+const _subChipWidget = makeChipsInput(subElectionItems, _subChipLabel, _restoredSub);
+// Long sub-election lists (e.g. local_2017 has 7 items) collapse by default to
+// keep the filter column compact; short lists stay open for quick switching.
+const subElectionInput = wrapChipsInDetails(_subChipWidget, _subChipLabel, subElectionItems.length <= 3);
 subElectionInput.addEventListener("input", () => {
   _subCtrl.value = subElectionInput.value?.id ?? "__main__";
   updateUrlParams({sub: _subCtrl.value === "__main__" ? null : _subCtrl.value}, ["level", "party", "lat", "lng", "z"]);
@@ -256,46 +370,58 @@ const seatFilter = Generators.input(seatFilterInput);
 ```js
 // Data registries — auto-assembled from election YAMLs by data loaders.
 // To add a new election: create the YAML + data files, then restart dev server. No changes needed here.
-const _geoRegistryUrl  = await FileAttachment("data/geo-registry.json").url();
-const _csvRegistryUrl  = await FileAttachment("data/csv-registry.json").url();
-const _allTurnout      = await FileAttachment("data/turnout-registry.json").json();
-const _occupiedGeo     = await FileAttachment("data/shp/occupied_territories.geojson").json();
+const _geoRegistryUrl     = await FileAttachment("data/geo-registry.json").url();
+const _csvRegistryUrl     = await FileAttachment("data/csv-registry.json").url();
+const _turnoutRegistryUrl = await FileAttachment("data/turnout-registry.json").url();
+const _occupiedGeo        = await FileAttachment("data/shp/occupied_territories.geojson").json();
 // Precinct registries — fetched lazily on first precinct level activation.
 // The GeoJSON and CSV registries are YAML-derived manifests; selected precinct files are fetched separately.
 const _precinctGeoRegistryUrl = await FileAttachment("data/precinct-geo-registry.json").url();
 const _precinctCsvRegistryUrl = await FileAttachment("data/precinct-csv-registry.json").url();
 
-function lookupCSV(dataMap, path) {
-  return dataMap?.[path] ?? [];
-}
+// Generic manifest-backed CSV loader.
+// Used for both the main results registry and the turnout registry — each has
+// its own manifest URL + cache, but the fetch/parse logic is identical.
+// Cache is bounded with an LRU policy so long browsing sessions don't grow
+// unbounded — Maps iterate in insertion order, so re-inserting an entry on
+// hit moves it to the "newest" end and the oldest entry is the eviction target.
+const CSV_CACHE_MAX_ENTRIES = 20;
+function makeCsvManifestLoader(registryUrl) {
+  const cache = { manifest: null, rowsByPath: new Map() };
+  return async function loadByPath(path) {
+    if (!path) return [];
+    if (!cache.manifest) {
+      cache.manifest = await fetchJSONAsset(registryUrl);
+    }
+    const assetPath = cache.manifest[path];
+    if (!assetPath) return [];
 
-const _csvRegistryCache = {
-  manifest: null,
-  rowsByPath: new Map()
-};
+    // LRU touch — re-insertion moves the entry to the newest position.
+    if (cache.rowsByPath.has(assetPath)) {
+      const existing = cache.rowsByPath.get(assetPath);
+      cache.rowsByPath.delete(assetPath);
+      cache.rowsByPath.set(assetPath, existing);
+      return existing;
+    }
 
-async function loadCSVPath(path) {
-  if (!path) return [];
-
-  if (!_csvRegistryCache.manifest) {
-    _csvRegistryCache.manifest = await fetchJSONAsset(_csvRegistryUrl);
-  }
-
-  const assetPath = _csvRegistryCache.manifest[path];
-  if (!assetPath) return [];
-
-  if (!_csvRegistryCache.rowsByPath.has(assetPath)) {
+    // Miss: fetch + cache; evict oldest entries until under the cap.
     const promise = fetchTextAsset(assetPath)
       .then(text => d3.csvParse(text, d3.autoType))
       .catch(error => {
-        _csvRegistryCache.rowsByPath.delete(assetPath);
+        cache.rowsByPath.delete(assetPath);
         throw error;
       });
-    _csvRegistryCache.rowsByPath.set(assetPath, promise);
-  }
-
-  return _csvRegistryCache.rowsByPath.get(assetPath);
+    cache.rowsByPath.set(assetPath, promise);
+    while (cache.rowsByPath.size > CSV_CACHE_MAX_ENTRIES) {
+      const oldestKey = cache.rowsByPath.keys().next().value;
+      cache.rowsByPath.delete(oldestKey);
+    }
+    return promise;
+  };
 }
+
+const loadCSVPath     = makeCsvManifestLoader(_csvRegistryUrl);
+const loadTurnoutPath = makeCsvManifestLoader(_turnoutRegistryUrl);
 
 const _geoRegistryCache = {
   manifest: null,
@@ -409,36 +535,23 @@ async function loadResults(elec, vt, sub, level, ballotType) {
   return loadCSVPath(path);
 }
 
-function loadTurnout(elec, level) {
+async function loadTurnout(elec, level) {
   if (!elec?.turnout?.available) return [];
   const path = (level === "precinct" && elec.turnout.precinct_file)
     ? elec.turnout.precinct_file
     : elec.turnout.file;
-  return lookupCSV(_allTurnout,path);
+  return loadTurnoutPath(path);
 }
 
 // For all local modes, use PR shapefile (electoral districts) for the district layer.
 // Mayor elections were previously using the SMD (selfgov) shapefile, which rendered selfgov
 // outlines instead of CEC electoral district outlines at the district level.
 const _geoVt = isLocal ? "pr" : effectiveVoteType;
-const geoData  = electionVal ? await loadGeoJSON(electionVal, _geoVt, "district") : null;
-const cartData = electionVal?.files?.cartogram ? await loadGeoJSON({system: {pr: {shape_file: electionVal.files.cartogram}}}, "pr", "district") : null;
+// Seats CSV is consulted for the seat chart in council mode and mayor mode.
+const _needsSeatsData = isCouncilMode || (isLocal && ballotTypeVal === "mayor");
 
-// Result CSVs are loaded lazily from the selected YAML paths.
-const results              = electionVal ? await loadResults(electionVal, effectiveVoteType, subVal, "district", ballotTypeVal)   : [];
-const turnoutData          = electionVal ? loadTurnout(electionVal, "district")                                                   : [];
-// Council-district intermediate layer (sakrebulo districts, council mode only)
-const councilDistrictGeoData = (electionVal && hasCouncilDistricts) ? await loadGeoJSON(electionVal, _geoVt, "council_district") : null;
-const councilDistrictResults = (electionVal && hasCouncilDistricts) ? await loadResults(electionVal, effectiveVoteType, subVal, "council_district", ballotTypeVal) : [];
-// Always load council SMD results for seat computation from the parent election (full results),
-// even when a sub-election (runoff) is active — seats reflect the elected-people list.
-const _allCouncilSMDResults = (electionVal && isCouncilMode && electionVal?.files?.council_smd_results)
-  ? await loadCSVPath(electionVal.files.council_smd_results)
-  : councilDistrictResults;
-// Self-governing unit layer (local elections with selfgov_shape_file set)
-const selfgovGeoData = (electionVal && hasSelfGov) ? await loadGeoJSON(electionVal, "pr", "selfgov") : null;
-const selfgovResults = (electionVal && hasSelfGov) ? await loadResults(electionVal, effectiveVoteType, subVal, "selfgov", ballotTypeVal) : [];
-// Precinct layer — geo and results are lazy-loaded in election-map.js (excluded from registries)
+// Precinct paths — purely synchronous; resolved once per election + sub + vote-type change.
+// Precinct geo/results CSVs are lazy-loaded in election-map.js when the user picks the precinct level.
 function _getPrecinctPaths(elec, vt, sub, ballotType) {
   if (!elec) return { geoPath: null, csvPath: null };
   const isSubActive = sub?.id !== "__main__";
@@ -462,12 +575,48 @@ function _getPrecinctPaths(elec, vt, sub, ballotType) {
 }
 const { geoPath: precinctGeoPath, csvPath: precinctCsvPath } =
   electionVal ? _getPrecinctPaths(electionVal, effectiveVoteType, subVal, ballotTypeVal) : { geoPath: null, csvPath: null };
-const precinctTurnout  = (electionVal && hasPrecinct) ? loadTurnout(electionVal, "precinct") : [];
-// Actual seat composition from elected-people list (council mode + mayor mode)
-const _needsSeatsData = isCouncilMode || (isLocal && ballotTypeVal === "mayor");
-const seatsData = (electionVal && _needsSeatsData && electionVal?.files?.seats)
-  ? await loadCSVPath(electionVal.files.seats)
-  : [];
+
+// All async data loads run in parallel via Promise.all — the cell waits for the slowest
+// single fetch instead of the sum of all of them. Falls-back resolve immediately so the
+// shape of the destructured array is stable regardless of which optional layers exist.
+const [
+  geoData,
+  cartData,
+  results,
+  turnoutData,
+  councilDistrictGeoData,
+  councilDistrictResults,
+  _explicitCouncilSMD,
+  selfgovGeoData,
+  selfgovResults,
+  precinctTurnout,
+  seatsData
+] = electionVal
+  ? await Promise.all([
+      loadGeoJSON(electionVal, _geoVt, "district"),
+      electionVal.files?.cartogram
+        ? loadGeoJSON({system: {pr: {shape_file: electionVal.files.cartogram}}}, "pr", "district")
+        : Promise.resolve(null),
+      loadResults(electionVal, effectiveVoteType, subVal, "district", ballotTypeVal),
+      loadTurnout(electionVal, "district"),
+      hasCouncilDistricts ? loadGeoJSON(electionVal, _geoVt, "council_district")                                   : Promise.resolve(null),
+      hasCouncilDistricts ? loadResults(electionVal, effectiveVoteType, subVal, "council_district", ballotTypeVal) : Promise.resolve([]),
+      (isCouncilMode && electionVal.files?.council_smd_results)
+        ? loadCSVPath(electionVal.files.council_smd_results)
+        : Promise.resolve(null),
+      hasSelfGov ? loadGeoJSON(electionVal, "pr", "selfgov")                                                       : Promise.resolve(null),
+      hasSelfGov ? loadResults(electionVal, effectiveVoteType, subVal, "selfgov", ballotTypeVal)                   : Promise.resolve([]),
+      hasPrecinct ? loadTurnout(electionVal, "precinct")                                                           : Promise.resolve([]),
+      (_needsSeatsData && electionVal.files?.seats)
+        ? loadCSVPath(electionVal.files.seats)
+        : Promise.resolve([])
+    ])
+  : [null, null, [], [], null, [], null, null, [], [], []];
+
+// Council SMD seat composition: explicit `council_smd_results` file when present (so seats reflect
+// the elected-people list even during a runoff); else reuse the council-district results we already
+// loaded above. `_explicitCouncilSMD` is null when the file isn't applicable.
+const _allCouncilSMDResults = _explicitCouncilSMD ?? councilDistrictResults;
 ```
 
 ```js
@@ -705,6 +854,12 @@ const mapContainer = html`<div style="width:100%;height:100%;z-index:0;"></div>`
 const _mapCtrl = {current: null};
 function selectPartyOnMap(partyId) { _mapCtrl.current?.setPartyFilter(partyId); }
 
+// Stable renderer handle — the makeRenderers cell below mutates this on every
+// re-run (including on lang change) so callers that read from _renderers always
+// get the latest functions. The map cell references _renderers (not the individual
+// renderer names), which keeps it decoupled from lang and prevents needless rebuilds.
+const _renderers = {};
+
 // Persistent map view state — survives reactive re-renders so zoom/pan is preserved
 // when switching view mode (results ↔ turnout) without changing the election.
 function parseUrlNumber(name) {
@@ -799,6 +954,15 @@ const container = html`
   }
   .filter-item { margin-bottom: 1rem; }
 
+  /* Form fonts — explicit family so Georgian text uses the loaded BPG Arial
+     web font instead of whatever the browser picks for native form controls. */
+  .filter-panel select,
+  .filter-panel option,
+  .filter-panel input,
+  .filter-panel label {
+    font-family: "BPG Arial", "Calibri", system-ui, sans-serif;
+  }
+
   /* Modern select styling */
   .filter-panel select {
     appearance: none;
@@ -806,7 +970,6 @@ const container = html`
     width: 100%;
     padding: 7px 30px 7px 10px;
     font-size: 0.82rem;
-    font-family: inherit;
     color: var(--theme-foreground, #1a1a1a);
     background-color: var(--theme-background, #fff);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
@@ -827,6 +990,89 @@ const container = html`
     border-color: #6b9bd2;
     box-shadow: 0 0 0 3px rgba(107,155,210,0.18);
   }
+
+  /* Year chips — election picker. Drop-in replacement for the old long-name
+     dropdown; hover shows the full election name as a browser tooltip. */
+  .year-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .year-chip {
+    font-family: "BPG Arial", "Calibri", system-ui, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.1;
+    padding: 5px 11px;
+    border: 1.5px solid var(--border, #ddd);
+    border-radius: 999px;
+    background: var(--theme-background, #fff);
+    color: var(--theme-foreground, #1a1a1a);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .year-chip:hover {
+    border-color: #999;
+    background: rgba(0,0,0,0.04);
+  }
+  .year-chip.active {
+    background: var(--theme-foreground-focus, #1a3a5c);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .year-chip.active:hover {
+    filter: brightness(1.08);
+    background: var(--theme-foreground-focus, #1a3a5c);
+  }
+  .year-chip:focus-visible {
+    outline: 2px solid var(--theme-foreground-focus, #1a3a5c);
+    outline-offset: 2px;
+  }
+
+  /* Collapsible chip section — summary acts as a chip-shaped status line and
+     the disclosure toggle. Used for the sub-election picker so a long list
+     (runoffs + by-elections + repeats) doesn't dominate the filter column. */
+  .chip-details > summary {
+    list-style: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    font-family: "BPG Arial", "Calibri", system-ui, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.1;
+    padding: 5px 26px 5px 11px;
+    border: 1.5px solid var(--border, #ddd);
+    border-radius: 999px;
+    background: var(--theme-background, #fff);
+    color: var(--theme-foreground, #1a1a1a);
+    position: relative;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .chip-details > summary::-webkit-details-marker { display: none; }
+  .chip-details > summary::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    position: absolute;
+    right: 12px;
+    top: calc(50% - 5px);
+    transform: rotate(45deg);
+    transition: transform 0.15s ease, top 0.15s ease;
+  }
+  .chip-details[open] > summary::after {
+    transform: rotate(-135deg);
+    top: calc(50% - 2px);
+  }
+  .chip-details > summary:hover { border-color: #999; }
+  .chip-details > summary:focus-visible {
+    outline: 2px solid var(--theme-foreground-focus, #1a3a5c);
+    outline-offset: 2px;
+  }
+  .chip-details > .year-chips { margin-top: 6px; }
 
   /* Map level control */
   .leaflet-level-control {
@@ -1057,16 +1303,26 @@ display(container);
 
 ```js
 // ── MAP ────────────────────────────────────────────────────────────────────
-// Reactive deps — this cell re-runs when any of these change
-electionVal; voteTypeVal; effectiveVoteType; mapMode; viewMode; lang; isCouncilMode;
+// Reactive deps — this cell re-runs when any of these change.
+// `lang` is intentionally NOT in this list: language toggles refresh the existing
+// map imperatively via the cell below (calls _mapCtrl.current.setLang) so the map
+// isn't torn down, tiles aren't re-fetched, and zoom/pan/active filter are preserved.
+electionVal; voteTypeVal; effectiveVoteType; mapMode; viewMode; isCouncilMode;
 geoData; cartData; results; turnoutData; turnoutByDistrict;
 councilDistrictGeoData; councilDistrictResults;
 selfgovGeoData; selfgovResults;
 precinctGeoPath; precinctCsvPath; precinctTurnout;
 seatsData;
 
+// Initial language is read from localStorage directly (the same source getLang() uses)
+// so this cell doesn't depend on the reactive `lang` variable. The setLang cell below
+// catches up with any current-session change immediately after the map is built.
+const _initLang = (typeof window !== "undefined" && localStorage.getItem("app_lang")) || "ka";
+const _initT    = k => tr(dict, _initLang, k);
+
 await buildElectionMap({
-  t, lang, electionVal, voteTypeVal, effectiveVoteType, mapMode, viewMode, isCouncilMode, ballotTypeVal,
+  t: _initT, lang: _initLang,
+  electionVal, voteTypeVal, effectiveVoteType, mapMode, viewMode, isCouncilMode, ballotTypeVal,
   geoData, cartData, results, turnoutData, turnoutByDistrict,
   councilDistrictGeoData, councilDistrictResults,
   selfgovGeoData, selfgovResults,
@@ -1075,10 +1331,20 @@ await buildElectionMap({
   seatsData, _districtRows, _allCouncilSMDResults, _invalidMax,
   _mapCtrl, _mapState, _turnoutMetricCtrl, _levelCtrl, _partyCtrl, mapContainer,
   getParty, partyColor, passed,
-  renderTurnoutPanel, renderDistrictPanel, updateCouncilSeats,
+  renderers: _renderers,
   shareUrlForCurrentMap,
   invalidation
 });
+```
+
+```js
+// ── Language refresh (no map rebuild) ─────────────────────────────────────
+// This cell depends on `lang` and `t`. When the user toggles the language it runs
+// alone — the map cell above does NOT, because it no longer references `lang`.
+// setLang refreshes the legend; tooltip labels are refreshed for the next hover.
+{
+  _mapCtrl.current?.setLang?.(lang, t);
+}
 ```
 
 ```js
@@ -1101,5 +1367,15 @@ const {
   viewMode, isPresidential, isPlebiscite,
   effectiveVoteType, results, seatFilter,
   _allCouncilSMDResults, _seatsMap, turnoutByDistrict, parties
+});
+
+// Mirror the freshly-created renderer functions on the stable `_renderers` handle so
+// the map cell can read them lazily without taking a reactive dependency on lang.
+Object.assign(_renderers, {
+  panelBackHeader, renderNationalPanel, showNationalPanel,
+  renderBarChart, renderDots, renderCouncilDots, updateCouncilSeats,
+  renderSeatLegend, renderDistrictPanel, renderTurnoutPanel,
+  renderPrecinctPanel, renderTurnoutSummary, renderElectionInfo,
+  renderElectoralCollege
 });
 ```

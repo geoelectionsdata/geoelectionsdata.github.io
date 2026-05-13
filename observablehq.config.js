@@ -1,10 +1,7 @@
 // 1. Import the Node.js file system module
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { collectExistingPaths, isPrecinctPath } from "./src/data/config/registry-utils.js";
-import {
-  PARL2024_DOWNLOAD_FILENAME,
-  collectLegacyDownloadEntries
-} from "./src/loaders/downloads/shared.js";
+import { collectDownloadEntries } from "./src/loaders/downloads/shared.js";
 
 // 2. Read the file content (Path is relative to the project root)
 const headerContent = readFileSync("./src/components/header.html", "utf8");
@@ -12,16 +9,11 @@ const headerContent = readFileSync("./src/components/header.html", "utf8");
 function dynamicAssetPaths() {
   const paths = ["/data/config/translations.json"];
   paths.push(...collectExistingPaths(p =>
-    p.endsWith(".geojson") ||
-    (p.endsWith(".csv") && !p.startsWith("data/turnout/"))
+    p.endsWith(".geojson") || p.endsWith(".csv")
   )
     .map(p => `/${p}`));
-  for (const entry of collectLegacyDownloadEntries({ excludeIds: new Set(["parl_2024"]) })) {
+  for (const entry of collectDownloadEntries()) {
     paths.push(`/data/downloads/${entry.filename}`);
-  }
-  const parl2024Path = `./src/data/downloads/${PARL2024_DOWNLOAD_FILENAME}`;
-  if (existsSync(parl2024Path)) {
-    paths.push(`/data/downloads/${PARL2024_DOWNLOAD_FILENAME}`);
   }
   return [...new Set(paths)].sort();
 }

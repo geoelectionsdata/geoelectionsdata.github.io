@@ -1,23 +1,19 @@
 /**
  * turnout-registry.json.js — data loader
- * Walks all election YAMLs, loads every turnout CSV file that exists on disk,
- * parses it with d3-dsv autoType, and outputs a combined JSON:
- * { "data/turnout/...csv": [ {col: val, ...}, ... ], ... }
+ * Walks all election YAMLs and emits a tiny manifest of turnout CSV paths:
+ * { "data/turnout/...csv": "data/turnout/...csv", ... }.
  *
- * Observable Framework caches this output and invalidates it when source files change.
+ * The dashboard fetches the selected turnout CSV lazily. Keeping the actual
+ * row data out of this registry avoids downloading every election's turnout
+ * (~7.5 MB) on first page load.
  */
 
-import { csvParse, autoType } from "d3-dsv";
-import { loadElections, collectPaths, fileExists, readText } from "./config/registry-utils.js";
+import { collectExistingPaths } from "./config/registry-utils.js";
 
 const registry = {};
 
-for (const election of loadElections()) {
-  for (const p of collectPaths(election)) {
-    if (!p.startsWith("data/turnout/")) continue;
-    if (registry[p] || !fileExists(p)) continue;
-    registry[p] = csvParse(readText(p), autoType);
-  }
+for (const p of collectExistingPaths(p => p.startsWith("data/turnout/") && p.endsWith(".csv"))) {
+  registry[p] = p;
 }
 
 process.stdout.write(JSON.stringify(registry));

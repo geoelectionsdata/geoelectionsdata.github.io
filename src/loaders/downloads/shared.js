@@ -2,13 +2,13 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import yaml from "js-yaml";
+import { csvParse, autoType } from "d3-dsv";
 
 export const ROOT = process.cwd();
 export const SRC = path.join(ROOT, "src");
 export const ELECTIONS_DIR = path.join(SRC, "data", "config", "elections");
 export const PARTIES_YML = path.join(SRC, "data", "config", "parties.yml");
 export const OUT_DIR = path.join(SRC, "data", "downloads");
-export const PARL2024_DOWNLOAD_FILENAME = "parl_2024_main_20241026_data.xlsx";
 export const WORKBOOK_CREATOR = "GEDA - Georgia Election Data Archive";
 
 export function ensureDownloadsDir() {
@@ -97,10 +97,37 @@ export function dateToken(election) {
   return (election.date ?? "").split(/\s/)[0].replace(/-/g, "");
 }
 
-export function legacyFilenamePrefix(election, sub) {
-  const name = sanitize(election.download_name?.en ?? election.name?.en ?? election.id);
-  const subKey = sub?.download_key ? `_${sanitize(sub.download_key)}` : "";
-  return `${name}_${subTypeLabel(sub)}${subKey}_${dateToken(election)}_data_`;
+// Canonical bundle filename — deterministic, no timestamp. Each (election, sub)
+// has exactly one filename, so a regeneration overwrites the previous bundle and
+// no orphan timestamped files accumulate. Cache-busting is handled via the SHA
+// in the downloads manifest (downloads.json).
+//
+//   Main election:    {election.id}_main_{date_token}_data.xlsx
+//   Sub-election:     {sub.id}_{date_token}_data.xlsx
+//
+// The date_token comes from sub.date when present, otherwise from election.date.
+// sub.id is already unique across the project (it conventionally embeds the
+// parent election.id) so this collides only on intentional re-runs.
+export function bundleFilename(election, sub) {
+  const isMain = !sub || sub.id === "__main__";
+  const base = isMain ? `${election.id}_main` : sub.id;
+  const dateSrc = (!isMain && sub.date) ? sub : election;
+  return `${base}_${dateToken(dateSrc)}_data.xlsx`;
+}
+
+// Returns bundleFilename(election, sub) when the file exists on disk, else null.
+export function existingBundleFilename(election, sub) {
+  const filename = bundleFilename(election, sub);
+  return fs.existsSync(path.join(OUT_DIR, filename)) ? filename : null;
+}
+
+// Writes the workbook to its canonical path and returns the manifest entry.
+// Consolidates the last three lines of every loader.
+export async function writeBundle(wb, election, sub) {
+  const filename = bundleFilename(election, sub);
+  const outPath = path.join(OUT_DIR, filename);
+  await wb.xlsx.writeFile(outPath);
+  return downloadEntry(election, sub, filename);
 }
 
 export function mainSubElection() {
@@ -194,25 +221,15 @@ export function downloadEntry(election, sub, filename) {
   };
 }
 
-export function latestLegacyDownload(election, sub) {
-  if (!fs.existsSync(OUT_DIR)) return null;
-  const prefix = legacyFilenamePrefix(election, sub);
-  const files = fs.readdirSync(OUT_DIR)
-    .filter(f => f.endsWith(".xlsx") && f.startsWith(prefix))
-    .map(filename => {
-      const filePath = path.join(OUT_DIR, filename);
-      return { filename, mtimeMs: fs.statSync(filePath).mtimeMs };
-    })
-    .sort((a, b) => b.mtimeMs - a.mtimeMs || b.filename.localeCompare(a.filename));
-  return files[0]?.filename ?? null;
-}
-
-export function collectLegacyDownloadEntries({ excludeIds = new Set() } = {}) {
+// Builds the downloads manifest by walking every election + sub and checking
+// for a matching canonical bundle on disk. Used by both the build-time data
+// loader (downloads.json.js) and the dynamic-path generator in observablehq.config.js.
+export function collectDownloadEntries({ excludeIds = new Set() } = {}) {
   const entries = [];
   for (const election of readAllElections()) {
     if (excludeIds.has(election.id)) continue;
     for (const sub of subElections(election)) {
-      const filename = latestLegacyDownload(election, sub);
+      const filename = existingBundleFilename(election, sub);
       if (filename) entries.push(downloadEntry(election, sub, filename));
     }
   }
@@ -225,4 +242,81 @@ export function resolveSrcPath(p) {
 
 export function readJSON(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
+// ── CSV helpers ───────────────────────────────────────────────────────────
+
+// Reads a CSV file referenced by a src-relative path (e.g. "data/results/parl2024_pr.csv").
+// Returns [] for missing paths or non-existent files so callers can pass `files?.pr_results`
+// without null-checking. autoType numerifies numeric columns.
+export function readCSV(relPath) {
+  const full = resolveSrcPath(relPath);
+  if (!relPath || !fs.existsSync(full)) return [];
+  return csvParse(fs.readFileSync(full, "utf8"), autoType);
+}
+
+// ── XLSX styling helpers ──────────────────────────────────────────────────
+// Kept in sync across every download loader so bundles share the same visual:
+// dark-blue header bar, light-blue alternating row tint, frozen first row.
+
+export const HDR_FILL = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1A3A5C" } };
+export const HDR_FONT = { bold: true, color: { argb: "FFFFFFFF" }, size: 9, name: "Calibri" };
+export const ALT_FILL = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF2F6FA" } };
+
+export function styleHeader(row) {
+  row.height = 34;
+  row.eachCell(cell => {
+    cell.fill = HDR_FILL;
+    cell.font = HDR_FONT;
+    cell.alignment = { wrapText: true, vertical: "middle", horizontal: "center" };
+    cell.border = { bottom: { style: "medium", color: { argb: "FF4A7AAC" } } };
+  });
+}
+
+export function finishSheet(sheet, widths) {
+  widths.forEach((w, i) => { if (w) sheet.getColumn(i + 1).width = w; });
+  sheet.views = [{ state: "frozen", ySplit: 1 }];
+  for (let r = 2; r <= sheet.rowCount; r++) {
+    if (r % 2 === 0) {
+      sheet.getRow(r).eachCell({ includeEmpty: false }, cell => {
+        if (!cell.fill?.fgColor) cell.fill = ALT_FILL;
+      });
+    }
+  }
+}
+
+// Multiplies a 0–1 fraction by 100 with 2-decimal rounding for display.
+// Returns "" for missing or non-numeric input so the Excel cell shows blank.
+export function safePct(v) {
+  if (v == null || v === "" || v === "NA") return "";
+  const n = Number(v);
+  return Number.isFinite(n) ? Number((n * 100).toFixed(2)) : "";
+}
+
+// Generic CSV → sheet pass-through. Converts any `*_pct` column and the
+// `vote_share` column from a 0–1 fraction to a 0–100 percentage so the Excel
+// view is human-friendly. Other columns are written verbatim.
+export function buildCsvSheet(wb, sheetName, rows) {
+  if (!rows.length) return;
+  const sheet = wb.addWorksheet(sheetName);
+  const keys = Object.keys(rows[0]);
+  styleHeader(sheet.addRow(keys));
+  for (const row of rows) {
+    sheet.addRow(keys.map(k => {
+      const v = row[k];
+      if (/_pct$/.test(k) || k === "vote_share") return safePct(v);
+      return v ?? "";
+    }));
+  }
+  finishSheet(sheet, keys.map(k => Math.min(42, Math.max(10, k.length + 4))));
+}
+
+// Sheet-name label for sub-elections in local-election bundles. local_2014 only
+// knew the first three; local_2017 added "Repeated" — the canonical mapping
+// lives here so every loader uses the same vocabulary.
+export function subElectionSheetLabel(sub) {
+  if (sub?.type === "by_election") return "By-election";
+  if (sub?.type === "repeated")    return "Repeated";
+  if (sub?.type === "runoff")      return "Runoff";
+  return "Sub-election";
 }

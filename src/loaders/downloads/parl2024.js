@@ -1,19 +1,19 @@
 import ExcelJS from "exceljs";
 import fs from "node:fs";
-import path from "node:path";
 import { csvParse, autoType } from "d3-dsv";
 import {
-  OUT_DIR,
-  PARL2024_DOWNLOAD_FILENAME,
   WORKBOOK_CREATOR,
   addMetadataSheet,
   buildPartyLookup,
-  downloadEntry,
+  finishSheet,
   mainSubElection,
   readElection,
   readJSON,
   readParties,
   resolveSrcPath,
+  safePct,
+  styleHeader,
+  writeBundle,
 } from "./shared.js";
 
 const RESULTS_FILE = "data/results/parl2024_pr.csv";
@@ -59,11 +59,9 @@ const TURNOUT_COLS = [
   "invalid_pct",
 ];
 
-const HDR_FILL = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1A3A5C" } };
-const HDR_FONT = { bold: true, color: { argb: "FFFFFFFF" }, size: 9, name: "Calibri" };
-const ALT_FILL = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF2F6FA" } };
-
-function readCSV(filePath) {
+// parl2024 reads from absolute paths (raw xlsx + geojson + csv) — its own
+// readCsvAbs is kept separate from shared.js's relative-path readCSV.
+function readCsvAbs(filePath) {
   return csvParse(fs.readFileSync(filePath, "utf8"), autoType);
 }
 
@@ -82,12 +80,6 @@ function asNumber(value) {
   return Number.isFinite(n) ? n : null;
 }
 
-function safePct(value) {
-  if (value == null || value === "" || value === "NA") return "";
-  const n = Number(value);
-  return Number.isFinite(n) ? Number((n * 100).toFixed(2)) : "";
-}
-
 function coord(value) {
   if (value == null || value === "" || value === "NA") return "";
   const n = Number(value);
@@ -98,28 +90,6 @@ function districtCode(id) {
   if (id === "national") return "national";
   const n = Number(id);
   return Number.isFinite(n) ? String(n).padStart(2, "0") : String(id ?? "");
-}
-
-function styleHeader(row) {
-  row.height = 34;
-  row.eachCell(cell => {
-    cell.fill = HDR_FILL;
-    cell.font = HDR_FONT;
-    cell.alignment = { wrapText: true, vertical: "middle", horizontal: "center" };
-    cell.border = { bottom: { style: "medium", color: { argb: "FF4A7AAC" } } };
-  });
-}
-
-function finishSheet(sheet, widths) {
-  widths.forEach((w, i) => { if (w) sheet.getColumn(i + 1).width = w; });
-  sheet.views = [{ state: "frozen", ySplit: 1 }];
-  for (let r = 2; r <= sheet.rowCount; r++) {
-    if (r % 2 === 0) {
-      sheet.getRow(r).eachCell({ includeEmpty: false }, cell => {
-        if (!cell.fill?.fgColor) cell.fill = ALT_FILL;
-      });
-    }
-  }
 }
 
 function getCoords(props, geometry) {
@@ -521,8 +491,8 @@ export async function generateParl2024Download({ generatedAt = new Date() } = {}
   const partyLookup = buildPartyLookup(partiesRaw, election.parties ?? []);
   const partyIds = (election.parties ?? []).map(p => p.id).filter(Boolean);
 
-  const districtRows = readCSV(resolveSrcPath(RESULTS_FILE));
-  const precinctRows = readCSV(resolveSrcPath(PRECINCT_RESULTS_FILE));
+  const districtRows = readCsvAbs(resolveSrcPath(RESULTS_FILE));
+  const precinctRows = readCsvAbs(resolveSrcPath(PRECINCT_RESULTS_FILE));
   const districtGeo = readJSON(resolveSrcPath(DISTRICT_SHAPE_FILE));
   const precinctGeo = readJSON(resolveSrcPath(PRECINCT_SHAPE_FILE));
   const rawMeta = await readRawResultMetadata();
@@ -541,8 +511,5 @@ export async function generateParl2024Download({ generatedAt = new Date() } = {}
   buildRawSheet(wb, "Party List Validation", partyWorkbook.validation);
   buildRawSheet(wb, "Duplicate Source PDFs", partyWorkbook.duplicates);
   buildMetadataSheet(wb, election, generatedAt);
-
-  const outPath = path.join(OUT_DIR, PARL2024_DOWNLOAD_FILENAME);
-  await wb.xlsx.writeFile(outPath);
-  return downloadEntry(election, mainSubElection(), PARL2024_DOWNLOAD_FILENAME);
+  return writeBundle(wb, election, mainSubElection());
 }

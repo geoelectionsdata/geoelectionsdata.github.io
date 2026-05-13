@@ -1,6 +1,7 @@
 import L from "npm:leaflet";
 import * as d3 from "npm:d3";
 import {turnoutValue, turnoutNorm, fetchTextAsset, fetchJSONAsset, councilSelfgovIdFromMajorId} from "./election-utils.js";
+import {GEORGIA_OUTLINE_SVG, TBILISI_OUTLINE_SVG, SHARE_ICON_SVG, CHECK_ICON_SVG} from "./icons.js";
 
 // Module-level cache: survives buildElectionMap re-calls (one fetch per session)
 const _precinctRegistryCache = {
@@ -58,7 +59,7 @@ async function loadPrecinctCsv(path, registryUrl) {
 // Called from elections.md as an awaited async cell.
 // ctx must include all reactive state plus mutable handles and renderer functions.
 export async function buildElectionMap({
-  t, lang, electionVal, voteTypeVal, effectiveVoteType, mapMode, viewMode, isCouncilMode, ballotTypeVal,
+  t: _initT, lang: _initLang, electionVal, voteTypeVal, effectiveVoteType, mapMode, viewMode, isCouncilMode, ballotTypeVal,
   geoData, cartData, results, turnoutData, turnoutByDistrict,
   councilDistrictGeoData, councilDistrictResults,
   selfgovGeoData, selfgovResults,
@@ -67,10 +68,24 @@ export async function buildElectionMap({
   seatsData, _districtRows, _allCouncilSMDResults, _invalidMax,
   _mapCtrl, _mapState, _turnoutMetricCtrl, _levelCtrl, _partyCtrl, mapContainer,
   getParty, partyColor, passed,
-  renderTurnoutPanel, renderDistrictPanel, updateCouncilSeats,
+  renderers,
   shareUrlForCurrentMap,
   invalidation
 }) {
+  // Mutable `t` and `lang` so a language change can be applied imperatively
+  // via _mapCtrl.current.setLang(newLang, newT) without rebuilding the whole map.
+  // All in-function code that references `t` or `lang` reads these let-bindings,
+  // so re-rendering the legend after setLang() picks up the new values automatically.
+  let t    = _initT;
+  let lang = _initLang;
+
+  // Delegate wrappers — read the latest renderer functions from the `renderers` handle
+  // at call time, so panels opened after a language toggle pick up the refreshed
+  // translations even though the map cell did NOT re-run.
+  const renderTurnoutPanel  = (...args) => renderers.renderTurnoutPanel(...args);
+  const renderDistrictPanel = (...args) => renderers.renderDistrictPanel(...args);
+  const updateCouncilSeats  = (...args) => renderers.updateCouncilSeats(...args);
+
   // Restore saved view if we're staying on the same election and ballot.
   const _viewCfg    = (ballotTypeVal === "mayor" && electionVal?.map_view_mayor)
     ? electionVal.map_view_mayor
@@ -197,16 +212,22 @@ export async function buildElectionMap({
   function tooltipLabel(key, fallbackKey = key) {
     return t(`elections.map.tooltip.${key}`) || _tooltipFallbacks[fallbackKey] || key;
   }
-  const _tooltipLabels = {
-    winner: tooltipLabel("winner"),
-    subject: tooltipLabel("subject"),
-    votes: tooltipLabel("votes"),
-    share: tooltipLabel("share"),
-    turnout: tooltipLabel("turnout"),
-    count: tooltipLabel("count"),
-    registered: tooltipLabel("registered"),
-    noData: tooltipLabel("no_data", "noData")
-  };
+  // _tooltipLabels is mutated by setLang() so tooltips opened AFTER a language switch
+  // reflect the new translations. Bound (string) tooltip content stays in whichever
+  // language was active when the layer was added — accepted trade-off for now.
+  function _computeTooltipLabels() {
+    return {
+      winner:     tooltipLabel("winner"),
+      subject:    tooltipLabel("subject"),
+      votes:      tooltipLabel("votes"),
+      share:      tooltipLabel("share"),
+      turnout:    tooltipLabel("turnout"),
+      count:      tooltipLabel("count"),
+      registered: tooltipLabel("registered"),
+      noData:     tooltipLabel("no_data", "noData")
+    };
+  }
+  let _tooltipLabels = _computeTooltipLabels();
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -1106,8 +1127,7 @@ export async function buildElectionMap({
         btn.setAttribute("role", "button");
         btn.setAttribute("aria-label", _label);
         btn.style.cssText = "display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#444;";
-        // Georgia country outline (simplemaps.com)
-        btn.innerHTML = `<svg viewBox="0 0 1000 510" width="20" height="10" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg"><path d="M45.5 58.1l0.7-3.2 9.2-24.1 1.8-3 3.3-2.1 9.1-2.5 9.3 0 33.5 12.5 5.4 0.7 4.2-1.1 8.8-4.6 4.9-0.6 3.9 2 1.2 1 6.9 5.2 13.8 4.8 4.4 2.6 18.6 14.9 4.1 1.1 14.1-1.9 4.7 1 4.3 2.2 4.2 3.4 4.7 2.1 9.7-1.9 4.1 1.6 1.3 1.8 1.9 4.4 1.2 1.9 2 1.5 7.1 2.2 3.5 2.2 6.1 6.2 3.6 2 5 0.5 9.9-1.4 4.9 0.6 8.9 2.5 4.2 0.5 9.5-1.1 3.9 0.2 4 1.1 4.2 2.1 4.3 1.3 4.3 0.2 4.4-0.9 10.7-6 0.7-0.4 3.5-1.1 22.9-1.9 1.1 0.1 8.2 1.2 7.7 5.2 3.5 3.6 4 3.1 8.2 4.6 2.6 0.6 2-0.8 3.6-3.4 2.3-1.2 4.3-0.1 6.3-1.9 5.4 0.1 5.2 1.4 3.8 2.5 3.8 3.6 3.9 2.6 11.6 4.3 0 2.5-1 3-0.4 3 1.2 2 6.7 4.7 14.6 13.8 2.6 1.4 2.6 1.5 26 7.3 12.7 3.6 5.1 1.3 9.3 4.6 2.3 2 5.6 6.7 2.5 1.6 12.6 3.1 3.6 1.8 2.5 1.3 1.5 5.4-3.1 4.4-4.8 3.4-3.8 3.8-0.4 5.4 3.9 4.8 6.1 1.6 6.6 0.6 5.4 1.4 3.1 2.4 1.8 1.3 2.5 1.3 2.5-0.4 2.1-1.8 3.3-4.7 1.8-2 5.9-2.7 13-0.7 4.8-1.4 1.5-0.5 1.9-1.9 2.6-2.6 2.5-5.2 3.1-3.8 12.1-0.2 5.5-1.8 10.5-5.7 3.9-1.1 6.8-0.5 5.8 0.7 5.1 1.6 0.5 0.2 5 2.9 2.2 1.7 4 4.3 1.6 2.5 3.3 10.7 1.7 1.8 1.2-1.3 2.2-10.1 3.9-8.6 0.9-2.9 3.4-4.7 5.9 1.2 14.8 10.6 2.4 1.2 2.5 0.5 2.6-0.4 1.2-0.6 3.8-1.7 2.6-0.3 4.3 1.7 3.9 3.4 13.4 16.3 1.5 2.5 1.1 2.4 1.4 3.3 1.4 2.1 4.5 1.9 5.8-0.8 10.9-3.3 7.8 0.2 11.4 2 10.6 4.2 5.5 6.6 0 0.2-0.4 4.2-15.6 40.9 1.3 4.3 4.1 2.6 5.5 2.6 14.9 10.4 9.4 2.5 1.9 1.8 3.8 9.6 1.5 2 1.8 1 2.5 0.2 1-0.4 1.8-1.4 1.1-0.3 0.9 0.4 2.3 2 1.1 0.6 2.5-0.1 1.8-0.5 1.3 0.9 1 4 3.2 1.5 4.2 0.1 7.9-1.6 0.1 0 0-0.1 1.2-0.3 1.1-0.1 1.2 0.1 1.3 0.4 3.5 2.9 6 7.1 3.8 1.7 8.1 0.7 3.3 1.9 3.3 4.5-5.2 10.6-2.9 4.8-5.8 7.1-2 1.8-2.2 1-2.8 0.3-6.3-1.4-3 0.3-2.6 2.8-1.3 6.2 0.1 9.2 1.7 8.2 3.7 3 1.2-1 0.6-1.6 0.9-1.4 1.9-0.1 0.3 1 3 5.8 0.2 1.3 1.1 7.1 1.2 3.9 2.3 3 7.1 5 1.6 0.7 2.8 0.7 6.3 5.9 13.2 5.6 6.7 4 2.1 5 2.1-0.8 0.9 0.6 0.2 0.1 0.9 1.6 2.6 2.9 4.3 6.6 0.8 2.6-0.4 0.2-1.1-0.2-1.2 1.5-0.3 1.3-0.1 3.2-0.3 1.2-0.8 1.1-1.8 1.7-0.8 1.1-1.3 4.9-0.7 6.2-1.1 5.7-0.8 1.1-1.9 2.6-2.6 0.5-2.6-0.7-2.7-0.3-2.8 1.8-1.5 2.9-0.8 2.8-1.2 1.9-3 0.1-2.4-1.5-3.8-5.1-2.2-2-8.1-2.6-2.8-1.7-8-7.3-3.9-4.9-2.1-2.1-2.5-0.9-10.2 0.1-3 0.7-3.4 2.2-3.6 2.3-2.7 1-3.2 0.3-6.6-0.8-20.1-7.3-6.8-4.2-2.6-1.6-5.6-4.8-3.3-5.2 3-3.7 3.1-1.2 2-1-0.2-1.1-3.2-1.3-8.8-1.8-19.5-7.6-4.4-4.2-1.9-2.3-2-0.3-4.5 1.3-2.7 0.3-2.2-0.4-6.5-3.4-2.5-1.3-4.4-0.3-4.4 1.6-20.6 17-12.9 10.8-1.7 1-3 2.8-1.7 1.2-5.1 0.1-13.1-2-2.6 2.6 1.1 2.6 5.1 2.4 0.9 1.3 0.5 0.8-1.3 1.9-3.6 0.4-19.9-0.4-5.6-2.2-2.8-0.4-2.9 1.3-1.7 2.4-1.7 2.8-2 1.8-2.8-0.8-0.7-1.4-0.5-1.8-0.7-1.4-1.5 0.1-0.8 0.7-2.8 3-3.3 1-3-0.2-3-1.1-7.2-4.4-1.7-0.2-1.6 0.5-1.1 1-1 1.1-1.2 0.9-3.2 0.5-2.5-0.9-6.6-4.6-3.6-1.5-1.5 0-1.6 1.1-0.3 1.4-0.1 1.5-0.7 1.7-2.2 2.2-2.6 1.4-2.9 0.5-5.7-1.6-2.7 0.3-5.5 2.5-3.1 0.7 0 0.1-3 0.7-12.5 0.3-5.9 2.4-6.3 5.6-2.6 1.1-3.3 0.3-22.1-3.2-5.8 0.3-7.3 3-1.3 0.3-1.4-0.1-1.3-0.3 1.5-4.7-1.9-4.2-3.7-3.5-3.7-2.1-4.3-1.2-3.9 0.3-12.5 3.5-1.9-1.4-3.3-8-2.7-3.2-2.7-0.3-3 0.3-3.6-1.1 7.3-3.8 2-1.7 1.8-2.6-0.2-1-4-0.5-4.1-2-6.6-5.8-9.9-6.8-2-2.1-4.1-7.7-1-1.2-1.2-0.5-0.7-0.7-0.5-0.8-0.8-0.8-4-1.3-1.1-0.7-1.1-2-0.7-2.2-1-1.2-1.8 1.1-3.4 3.9-2.5-0.9-2.6-2.8-3.5-2.1 1.2-1.8 2.6-2.2 1.1-1.4 0.6-1.6 0.3-1.8 0.4-1.8 1.1-1.7-2.6-1.2-19-1.7-6.8 0.6-2.7 0.9-0.5 0.2-0.2 0.1-2.7 2.1-1.4 3-1.3 7.4-1.4 2.9-2.9 3.1-4.1 6.2-2.8 1.8-1.6 0.1-1.8 0.1-23.8-9.3-6.6 0.4-3.3-0.3-2.2-2.1-2-1.2-2 0-4.3 1.2-1.9-0.9-1.9-0.3-1.9 0.3-2 0.9-4.8 1.5-9.7-3.7-5.4 2.2-1.9 1.4-4.2 6.1-5.5 4.7-1.3 0.8-1.6-0.7-5.4-5.1-1.8-0.6-4-0.5-1.6-0.6-0.5-1.2 0-1.4 0.2-1.4-0.2-0.7-1.1 0-3.4 1.5-4 0.4-1.7-0.4-14.5-6.1 8.9-16 4-5.4 8.2-5.4 2.3-5.4 6.3-10.5 0.4-2.1 0-1.7 0.2-1.4 0.8-1.6 2.2-3.1 0.7-1.5 0.3-1.6 0-14.8 0-0.7-1.6-11.5-0.2-4.1-0.6-2.6-5.5-9.6-4.1-7.3-1.5-1.2-1.4-1.5-0.6-3.5-0.3-6.2-1.1-8.3-7.1-25.1-0.6-1.1-0.9-1.4-3.7-3.6-0.5-1.3-0.4-3.1-7-43-2.3-7.3-3.5-6.2-4.4-4.8-5.6-3.2-10.3-1.9-2.2-1.3-2.2-2-3.3-1.8-3.4-1.3-2.7-0.4-1.6 0.4-2.7 1.7-1.7 0.4-1.5-0.9-6.1-9.4-3.2-11.4-5.6-9.8-2.3-5.3-3.4 0.1-5.3 2.4-3.4-1.2-4-6.2-2.4-1.5-0.1-0.9-3.1-5.5-1-0.8-9.8-3.9-13.6-1.9-6.3 0.4-4.4 1.1-1.7 0.1-1.6-0.6-2.6-2.6-1.3-0.6-0.6-0.5-2.4-2.5-1.2-0.9-1.3-0.5-4.3-0.8-10.9-5.2-5-0.6-3.5 4.6-1.4-1.5-2-5-1.3-2.4-3-3.1-1.4-2.1 0.6-5.8-2.1-5.5-3-5-2.2-2.8-4.1-1.9-7.5-2.3-4.3-4.4-2-0.9-6.2-1-4.2-1.8-3.2-0.7z"/></svg>`;
+        btn.innerHTML = GEORGIA_OUTLINE_SVG;
         L.DomEvent.on(btn, "click", e => {
           L.DomEvent.preventDefault(e);
           map.setView([42.1, 43.0], 7);
@@ -1119,7 +1139,7 @@ export async function buildElectionMap({
         tbilisiBtn.setAttribute("role", "button");
         tbilisiBtn.setAttribute("aria-label", _tbilisiLabel);
         tbilisiBtn.style.cssText = "display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#444;text-decoration:none;";
-        tbilisiBtn.innerHTML = `<svg viewBox="403.98 288.718 2699.87 1899.822" width="17" height="17" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg"><path vector-effect="none" fill-rule="evenodd" d="M1285.44,2042.49 L1097.28,2005.25 L983.165,2014.44 L851.078,2006.01 L813.029,2038.73 L730.081,2051.67 L715.302,2039.2 L695.463,2059.25 L674.468,2060.2 L659.646,2031.95 L610.363,1996.92 L586.187,1898.98 L588.047,1862.41 L527.201,1853.79 L530.044,1812.21 L489.862,1776.02 L484.704,1740.88 L446.405,1710.8 L427.056,1643.36 L403.98,1625.94 L447.449,1587.01 L462.233,1595.55 L511.661,1566.53 L514.73,1581.97 L552.604,1564.44 L570.619,1574.32 L640.514,1564.1 L691.286,1579.26 L701.507,1568.05 L712.716,1574.32 L724.915,1556.51 L740.74,1563.77 L762.17,1560.14 L767.082,1548.27 L771.288,1544.59 L774.579,1543.24 L796.295,1549.11 L800.403,1523.58 L835.838,1508.41 L846.24,1488.45 L859.445,1491.68 L860.032,1472.9 L905.81,1441.5 L904.049,1425.07 L943.665,1425.07 L977.705,1398.33 L996.486,1402.76 L1021.43,1390.44 L1036.76,1347.42 L1055.25,1340.67 L1022.97,1326.59 L1012.99,1293.72 L966.921,1237.67 L922.903,1208.91 L1002.72,1127.57 L1037.94,1122.58 L1033.47,1095.23 L1013.06,1085.44 L1005.07,1065.95 L996.559,971.073 L937.282,960.509 L936.402,879.81 L816.743,786.81 L847.512,732.393 L820.803,713.488 L822.652,689.297 L833.129,680.515 L877.042,692.225 L881.973,663.874 L899.847,669.267 L902.158,650.931 L926.243,650.728 L921.021,640.556 L950.957,609.886 L1040.36,540.516 L1041.97,510.591 L1085.21,502.953 L1079.86,489.58 L1135.6,495.254 L1131.95,516.892 L1152.76,534.142 L1229.45,561.908 L1297.56,542.801 L1343.21,498.27 L1451.27,495.064 L1472.85,472.991 L1458.25,452.997 L1393.51,481.452 L1374.1,463.932 L1366.82,439.718 L1383.2,381.146 L1502.01,342.842 L1517.23,314.089 L1556.13,288.718 L1793.56,404.927 L1885.62,420.381 L2156.56,501.83 L2354.45,628.682 L2359.63,620.025 L2350.41,639.485 L2342.61,643.904 L2258.05,669.274 L2236.06,720.015 L2236.06,813.04 L2256.62,885.071 L2241.46,952.325 L2340.09,973.456 L2325.3,986.017 L2305.59,1021.52 L2355.97,1009.97 L2361.95,1026.97 L2384.92,1025.84 L2420.54,1011.59 L2475.02,934.615 L2500.45,921.531 L2572.65,959.846 L2594.41,946.275 L2630.4,994.309 L2708.97,1006.35 L2823.37,1057.92 L2838.25,1105.24 L2900.58,1190.91 L2925.4,1249.63 L2964.27,1261.41 L3024.3,1193.41 L3063.07,1271.76 L3094.33,1305.98 L3090.4,1342.27 L3070,1362.16 L3071.1,1403.78 L3093.25,1436.72 L3080.77,1469.5 L3102.66,1490.89 L3092.49,1520.64 L3103.85,1556.35 L3058.49,1632.89 L3002.96,1653.79 L2991.38,1670.44 L2989.79,1725.52 L2959.42,1759.95 L2962.76,1821.58 L2911.06,1868.28 L2854.85,1856.59 L2831.22,1902.06 L2788.6,1909.6 L2783.83,1931.63 L2731.19,1946.94 L2746.57,1998.68 L2737.36,2023.57 L2665.13,2036.55 L2591.47,2005.45 L2556.21,2029.27 L2490.23,2098.77 L2480.58,2188.54 L2393.71,2165.39 L2365.95,2173 L2360.23,2142.02 L2373.89,2074.28 L2355.18,2024.88 L2344.59,2038.81 L2263.3,2023.15 L2257.6,2013.84 L2283.64,1997.7 L2197.97,1961.41 L2170.32,1931.01 L2150.96,1955.72 L2122.96,1893.39 L2069.73,1903.75 L1790.38,1908.48 L1791.78,1926.87 L1757.47,1956.25 L1720.85,1937.37 L1680.82,1941.51 L1722.6,2034.07 L1767.55,2072.79 L1719.88,2101.39 L1726.81,2107.57 L1706.95,2145.8 L1681.13,2164.03 L1638.34,2067.77 L1606.46,2087.76 L1584.17,2070.87 L1574.27,2077.06 L1582.12,2099.34 L1487.29,2090.44 L1466.71,2115.94 L1456.48,2086.46 L1439.72,2090.74 L1433.71,2124.54 L1315.74,2026.87 L1285.44,2042.49"/></svg>`;
+        tbilisiBtn.innerHTML = TBILISI_OUTLINE_SVG;
         L.DomEvent.on(tbilisiBtn, "click", e => {
           L.DomEvent.preventDefault(e);
           zoomToTbilisi();
@@ -1132,8 +1152,6 @@ export async function buildElectionMap({
 
     // ── Share button (below Tbilisi zoom button, same gap as between controls) ─
     if (shareUrlForCurrentMap) {
-      const _shareIcon = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>`;
-      const _checkIcon = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
       const ShareControl = L.Control.extend({
         onAdd() {
           const container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
@@ -1144,15 +1162,15 @@ export async function buildElectionMap({
           btn.setAttribute("role", "button");
           btn.setAttribute("aria-label", _label);
           btn.style.cssText = "display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#444;text-decoration:none;";
-          btn.innerHTML = _shareIcon;
+          btn.innerHTML = SHARE_ICON_SVG;
           L.DomEvent.on(btn, "click", async e => {
             L.DomEvent.preventDefault(e);
             const url = shareUrlForCurrentMap();
             try {
               await navigator.clipboard.writeText(url);
-              btn.innerHTML = _checkIcon;
+              btn.innerHTML = CHECK_ICON_SVG;
               btn.style.color = "#2d7d46";
-              setTimeout(() => { btn.innerHTML = _shareIcon; btn.style.color = "#444"; }, 1200);
+              setTimeout(() => { btn.innerHTML = SHARE_ICON_SVG; btn.style.color = "#444"; }, 1200);
             } catch {
               window.prompt(_label, url);
             }
@@ -1170,6 +1188,20 @@ export async function buildElectionMap({
       currentTurnoutMetric: _turnoutMetricCtrl.value ?? "final",
       currentLevel,
       legendDiv: _legendCtrl.getContainer(),
+
+      // Imperative language refresh — called from a separate lang-only cell in elections.md
+      // so a language toggle does NOT invalidate the map cell (which would tear down Leaflet,
+      // re-fetch tiles, and rebuild every layer). Only the legend is re-rendered here; tooltip
+      // labels are refreshed for the next hover. Layer-bound static tooltips, button titles
+      // and the level-control labels stay in whichever language was active at build time —
+      // they catch up on the next election / vote-type switch.
+      setLang(newLang, newT) {
+        if (newLang === lang && newT === t) return;
+        lang = newLang;
+        t    = newT;
+        _tooltipLabels = _computeTooltipLabels();
+        if (this.legendDiv) this.legendDiv.innerHTML = buildLegendHTML(this.currentPartyId);
+      },
 
       getShareState() {
         const center = map.getCenter();
