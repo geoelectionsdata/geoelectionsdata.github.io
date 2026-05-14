@@ -20,6 +20,11 @@ system:
   compensation:
     enabled: false
     shape_file: null
+
+map_view:
+  default_level: district
+  default_vote_type: pr
+
 notes:
   en: |
     2024 parliamentary elections were held on October 26. Preceded by a heated campaign and an increased anti-Western rhetoric of the ruling Georgian Dream party, it featured a 5% electoral threshold for political parties. First time in history, voting machines were used in national elections, leading to allegations of vote rigging. As a result, oppositional political parties refused to recognize its results, and some refused to take up mandates. OSCE ODIHR's <a href="https://odihr.osce.org/odihr/elections/georgia/584029">observation mission final report</a> indicated repeated problems regarding vote secrecy, procedural inconsistencies, intimidation and pressure on voters.

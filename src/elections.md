@@ -257,8 +257,18 @@ const voteTypeOptions = [
   ...(hasComp ? ["compensation"] : [])
 ];
 
+// Default vote type — priority: URL ?vote=… > YAML map_view.default_vote_type > first option.
+// The YAML hint is ignored if it isn't a valid option for the current election
+// (e.g. an election with PR disabled can't default to "pr").
+const _yamlDefaultVote = electionVal?.map_view?.default_vote_type;
+const _initialVoteType = voteTypeOptions.includes(_voteCtrl.value)
+  ? _voteCtrl.value
+  : voteTypeOptions.includes(_yamlDefaultVote)
+    ? _yamlDefaultVote
+    : (voteTypeOptions[0] ?? "pr");
+
 const voteTypeInput = Inputs.radio(voteTypeOptions, {
-  value: voteTypeOptions.includes(_voteCtrl.value) ? _voteCtrl.value : (voteTypeOptions[0] ?? "pr"),
+  value: _initialVoteType,
   format: k => ({
     pr:           t("elections.vote_type.party_list"),
     smd:          t("elections.vote_type.smd"),
@@ -922,11 +932,78 @@ const container = html`
     align-items: start;
     width: 100%;
   }
+  /* Map row: two-column grid — map on the left, results panel on the right.
+     The panel only floats over the map when the user enters fullscreen mode
+     (see :fullscreen overrides further down). */
   .elections-main {
     display: grid;
     grid-template-columns: minmax(0, 900px) 300px;
     gap: 1rem;
     align-items: start;
+  }
+
+  /* ── Fullscreen mode ─────────────────────────────────────────────────────
+     When the user clicks the fullscreen button, the .elections-main wrapper
+     (which contains both the map card and the results panel) is the element
+     handed to the browser's Fullscreen API. Override the two-column grid so
+     the map fills the entire viewport, and float the panel as an overlay in
+     the bottom-right corner.
+
+     Explicit viewport sizing is intentional here: some browsers keep the
+     fullscreen element's document-flow dimensions unless we force the wrapper
+     and map card to the fullscreen viewport. */
+  .elections-main:fullscreen,
+  .elections-main:-webkit-full-screen,
+  .elections-main.map-fullscreen-active {
+    display: block;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    background: var(--theme-background, #fff);
+  }
+  .elections-main:fullscreen > .card:not(.results-panel),
+  .elections-main:-webkit-full-screen > .card:not(.results-panel),
+  .elections-main.map-fullscreen-active > .card:not(.results-panel) {
+    width: 100vw !important;
+    height: 100% !important;
+    margin: 0;
+    padding: 0 !important;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+  }
+  .elections-main:fullscreen > .card:not(.results-panel) > div,
+  .elections-main:-webkit-full-screen > .card:not(.results-panel) > div,
+  .elections-main.map-fullscreen-active > .card:not(.results-panel) > div {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  .elections-main:fullscreen > .results-panel,
+  .elections-main:-webkit-full-screen > .results-panel,
+  .elections-main.map-fullscreen-active > .results-panel {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    max-height: min(55vh, calc(100vh - 32px));
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+    background: var(--theme-background, #fff);
+  }
+  @media (max-width: 700px) {
+    .elections-main:fullscreen > .results-panel,
+    .elections-main:-webkit-full-screen > .results-panel,
+    .elections-main.map-fullscreen-active > .results-panel {
+      left: 16px;
+      width: auto;
+      max-height: 45vh;
+    }
   }
   .elections-bottom {
     display: grid;

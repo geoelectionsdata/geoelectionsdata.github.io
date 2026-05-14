@@ -133,6 +133,8 @@ parties:
 map_view:
   center: [41.7225389, 42.1149651]
   zoom: 9
+  default_level: district
+  default_vote_type: pr
 
 sources:
   - name:

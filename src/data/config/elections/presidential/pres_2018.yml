@@ -16,6 +16,11 @@ system:
     enabled: false
   compensation:
     enabled: false
+
+map_view:
+  default_level: district
+  default_vote_type: pr
+
 notes:
   en: |
     2018 presidential elections were the last elections when Georgians directly elected the country's president. First time in history, a runoff was needed to determine the winner. Salome Zourabichvili, who was running as an independent but was supported by the ruling Georgian Dream party, was elected as the country's first elected female president.

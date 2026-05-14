@@ -21,6 +21,11 @@ system:
   compensation:
     enabled: false
     shape_file: null
+
+map_view:
+  default_level: selfgov
+  default_vote_type: pr
+
 sub_elections: []
 notes:
   en: |

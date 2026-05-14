@@ -16,3 +16,9 @@ export const SHARE_ICON_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" f
 
 // Green checkmark, swapped in for ~1.2 s after the user copies the share link.
 export const CHECK_ICON_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+// Four corner brackets pointing outward — "enter fullscreen".
+export const FULLSCREEN_ENTER_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 9 4 4 9 4"/><polyline points="20 9 20 4 15 4"/><polyline points="4 15 4 20 9 20"/><polyline points="20 15 20 20 15 20"/></svg>`;
+
+// Four corner brackets pointing inward — "exit fullscreen".
+export const FULLSCREEN_EXIT_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><polyline points="14 20 14 14 20 14"/><polyline points="4 10 10 10 10 4"/></svg>`;

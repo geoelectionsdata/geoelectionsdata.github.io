@@ -28,6 +28,8 @@ system:
 map_view:
   center: [42.1, 43.5]
   zoom: 7
+  default_level: district
+  default_vote_type: pr
 
 notes:
   en: |
