@@ -1,7 +1,16 @@
 import L from "npm:leaflet";
 import * as d3 from "npm:d3";
 import {turnoutValue, turnoutNorm, fetchTextAsset, fetchJSONAsset, councilSelfgovIdFromMajorId} from "./election-utils.js";
-import {GEORGIA_OUTLINE_SVG, TBILISI_OUTLINE_SVG, SHARE_ICON_SVG, CHECK_ICON_SVG, FULLSCREEN_ENTER_SVG, FULLSCREEN_EXIT_SVG} from "./icons.js";
+import {
+  GEORGIA_OUTLINE_SVG,
+  TBILISI_OUTLINE_SVG,
+  SHARE_ICON_SVG,
+  CHECK_ICON_SVG,
+  FULLSCREEN_ENTER_SVG,
+  FULLSCREEN_EXIT_SVG,
+  PANEL_MINIMIZE_SVG,
+  PANEL_EXPAND_SVG
+} from "./icons.js";
 
 // Module-level cache: survives buildElectionMap re-calls (one fetch per session)
 const _precinctRegistryCache = {
@@ -1237,13 +1246,17 @@ export async function buildElectionMap({
     // each transition so Leaflet recomputes tile layout for the new viewport.
     const FullscreenControl = L.Control.extend({
       onAdd() {
+        const control = this;
         const container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
         const btn = L.DomUtil.create("a", "", container);
         btn.href = "#";
         btn.setAttribute("role", "button");
         btn.style.cssText = "display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#444;text-decoration:none;";
         let panelObserver = null;
+        let panelObserverTarget = null;
+        let panelObserverFrame = null;
         let zoomBoosted = false;
+        let panelCollapsed = false;
 
         // Fullscreen target: the layout wrapper holding both map + panel.
         // Falls back to mapContainer when the wrapper isn't present.
@@ -1266,6 +1279,66 @@ export async function buildElectionMap({
           delete el.dataset.mapFsStyle;
         };
         const setImportant = (el, prop, value) => el?.style?.setProperty(prop, value, "important");
+        function scheduleFullscreenLayout() {
+          if (panelObserverFrame != null) return;
+          panelObserverFrame = requestAnimationFrame(() => {
+            panelObserverFrame = null;
+            if (_fullscreenState.active || _isMapFs()) applyFullscreenLayout(true);
+          });
+        }
+        function watchFullscreenPanel(active) {
+          if (!active) {
+            if (panelObserver) panelObserver.disconnect();
+            panelObserver = null;
+            panelObserverTarget = null;
+            if (panelObserverFrame != null) {
+              cancelAnimationFrame(panelObserverFrame);
+              panelObserverFrame = null;
+            }
+            return;
+          }
+          if (typeof MutationObserver === "undefined") return;
+          const target = fsTarget();
+          if (panelObserver && panelObserverTarget === target) return;
+          if (panelObserver) panelObserver.disconnect();
+          panelObserver = new MutationObserver(scheduleFullscreenLayout);
+          panelObserver.observe(target, {childList: true});
+          panelObserverTarget = target;
+          control._panelObserver = panelObserver;
+        }
+        function decorateFullscreenPanel(panel, active) {
+          if (!panel) return;
+          panel.classList.toggle("results-panel-fullscreen", active);
+          panel.classList.toggle("results-panel-collapsed", active && panelCollapsed);
+
+          let toggle = panel.querySelector(":scope > .results-panel-toggle");
+          if (!active) {
+            if (toggle) toggle.remove();
+            panel.classList.remove("results-panel-fullscreen", "results-panel-collapsed");
+            return;
+          }
+
+          if (!toggle) {
+            toggle = document.createElement("button");
+            toggle.type = "button";
+            toggle.className = "results-panel-toggle";
+            toggle.addEventListener("click", e => {
+              e.preventDefault();
+              e.stopPropagation();
+              panelCollapsed = !panelCollapsed;
+              decorateFullscreenPanel(panel, true);
+              applyFullscreenLayout(true);
+            });
+            L.DomEvent.disableClickPropagation(toggle);
+            L.DomEvent.disableScrollPropagation(toggle);
+            panel.prepend(toggle);
+          }
+
+          toggle.innerHTML = panelCollapsed ? PANEL_EXPAND_SVG : PANEL_MINIMIZE_SVG;
+          const label = t(panelCollapsed ? "elections.map.expand_infobox" : "elections.map.minimize_infobox");
+          toggle.title = label;
+          toggle.setAttribute("aria-label", label);
+        }
         function zoomForFullscreenEntry() {
           setTimeout(() => {
             map.invalidateSize();
@@ -1279,8 +1352,11 @@ export async function buildElectionMap({
           const panel = target.querySelector(".results-panel");
           _fullscreenState.active = active;
           target.classList.toggle("map-fullscreen-active", active);
+          watchFullscreenPanel(active);
 
           if (!active) {
+            panelCollapsed = false;
+            decorateFullscreenPanel(panel, false);
             [panel, mapContainer, mapCard, target].forEach(restoreStyle);
             return;
           }
@@ -1312,15 +1388,19 @@ export async function buildElectionMap({
           setImportant(mapContainer, "height", "100%");
 
           if (panel) {
+            decorateFullscreenPanel(panel, true);
             Object.entries({
               position: "absolute",
               right: "16px",
               bottom: "16px",
               top: "auto",
-              width: "340px",
+              width: panelCollapsed ? "42px" : "340px",
+              height: panelCollapsed ? "42px" : "auto",
+              "min-height": "0",
               "max-width": "calc(100vw - 32px)",
-              "max-height": "min(55vh, calc(100vh - 32px))",
-              "overflow-y": "auto",
+              "max-height": panelCollapsed ? "42px" : "min(55vh, calc(100vh - 32px))",
+              "overflow-y": panelCollapsed ? "hidden" : "auto",
+              padding: panelCollapsed ? "6px" : "2.75rem 1.25rem 1.25rem",
               "z-index": "1000"
             }).forEach(([prop, value]) => setImportant(panel, prop, value));
           }
@@ -1340,17 +1420,15 @@ export async function buildElectionMap({
           // Give Leaflet a moment to settle into the new viewport then redraw tiles
           setTimeout(() => map.invalidateSize(), 120);
         }
-        syncIcon();
-
-        if (typeof MutationObserver !== "undefined") {
-          panelObserver = new MutationObserver(() => {
-            if (_fullscreenState.active || _isMapFs() || fsTarget().classList.contains("map-fullscreen-active")) {
-              applyFullscreenLayout(true);
-            }
-          });
-          panelObserver.observe(document.body, {childList: true, subtree: true});
-          this._panelObserver = panelObserver;
+        function handleFullscreenChange() {
+          if (!_fsEl()) {
+            zoomBoosted = false;
+            applyFullscreenLayout(false);
+          }
+          syncIcon();
         }
+        syncIcon();
+        this._cleanupPanelObserver = () => watchFullscreenPanel(false);
 
         L.DomEvent.on(btn, "click", e => {
           L.DomEvent.preventDefault(e);
@@ -1378,7 +1456,7 @@ export async function buildElectionMap({
         document.addEventListener("keydown", this._escapeListener);
 
         // Track changes (including Escape) — keep a ref so onRemove can detach.
-        this._fsListener = syncIcon;
+        this._fsListener = handleFullscreenChange;
         document.addEventListener("fullscreenchange", this._fsListener);
         document.addEventListener("webkitfullscreenchange", this._fsListener);
 
@@ -1386,7 +1464,8 @@ export async function buildElectionMap({
         return container;
       },
       onRemove() {
-        if (this._panelObserver) this._panelObserver.disconnect();
+        if (this._cleanupPanelObserver) this._cleanupPanelObserver();
+        else if (this._panelObserver) this._panelObserver.disconnect();
         if (this._escapeListener) document.removeEventListener("keydown", this._escapeListener);
         if (this._fsListener) {
           document.removeEventListener("fullscreenchange", this._fsListener);

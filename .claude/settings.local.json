@@ -280,7 +280,9 @@
       "Bash(awk 'NR>=1095 && NR<=1170' \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/components/election-map.js\")",
       "Bash(awk '{ print $5, $9 }')",
       "Bash(awk '{print $5, $9}')",
-      "Bash(grep -n '`' \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/elections.md\")"
+      "Bash(grep -n '`' \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/elections.md\")",
+      "Bash(awk 'NR>=926 && NR<=1100 {print NR\": \"$0}' \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/elections.md\")",
+      "Bash(grep '`')"
     ]
   }
 }

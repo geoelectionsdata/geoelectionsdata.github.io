@@ -996,6 +996,49 @@ const container = html`
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
     background: var(--theme-background, #fff);
   }
+  /* The toggle button gets the .results-panel-toggle class. It's hidden
+     by default and only shown when the panel is decorated for fullscreen
+     (the JS adds the .results-panel-fullscreen class to the panel — that
+     is the most reliable trigger because it does not depend on any
+     browser pseudo-class support).
+
+     Comma-separated selector lists that mix :fullscreen with the legacy
+     :-webkit-full-screen pseudo-class can get the WHOLE rule dropped in
+     some Chrome versions where -webkit-full-screen is no longer a valid
+     parser token. That is why these are class-based rules — they are
+     robust. */
+  .results-panel > .results-panel-toggle {
+    display: none;
+  }
+  .results-panel.results-panel-fullscreen > .results-panel-toggle {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--border, rgba(0,0,0,0.18));
+    border-radius: 4px;
+    background: var(--theme-background, #fff);
+    color: var(--theme-foreground, #222);
+    cursor: pointer;
+    z-index: 2;
+  }
+  .results-panel.results-panel-fullscreen > .results-panel-toggle:hover {
+    border-color: var(--theme-foreground-focus, #1a3a5c);
+    color: var(--theme-foreground-focus, #1a3a5c);
+  }
+  .results-panel.results-panel-fullscreen.results-panel-collapsed > :not(.results-panel-toggle) {
+    display: none !important;
+  }
+  .results-panel.results-panel-fullscreen.results-panel-collapsed > .results-panel-toggle {
+    top: 6px;
+    right: 6px;
+  }
   @media (max-width: 700px) {
     .elections-main:fullscreen > .results-panel,
     .elections-main:-webkit-full-screen > .results-panel,

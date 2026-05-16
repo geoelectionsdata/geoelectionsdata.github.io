@@ -22,3 +22,7 @@ export const FULLSCREEN_ENTER_SVG = `<svg viewBox="0 0 24 24" width="14" height=
 
 // Four corner brackets pointing inward — "exit fullscreen".
 export const FULLSCREEN_EXIT_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><polyline points="14 20 14 14 20 14"/><polyline points="4 10 10 10 10 4"/></svg>`;
+
+// Panel minimize/expand icons for the fullscreen results panel.
+export const PANEL_MINIMIZE_SVG = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="12" x2="18" y2="12"/></svg>`;
+export const PANEL_EXPAND_SVG = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="6" x2="12" y2="18"/><line x1="6" y1="12" x2="18" y2="12"/></svg>`;
