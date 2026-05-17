@@ -1039,6 +1039,16 @@ const container = html`
     top: 6px;
     right: 6px;
   }
+  /* On narrow screens the mobile media query below sets left: 16px on the
+     fullscreen panel so the expanded panel can stretch across the bottom of
+     the screen. When the panel is collapsed to a 42x42 px tile we must
+     cancel that left: 16px (or the tile would anchor to the left edge,
+     fighting the inline right: 16px set by JS). Class-only selector keeps
+     this rule isolated from any :fullscreen / :-webkit-full-screen parser
+     quirks. */
+  .results-panel.results-panel-fullscreen.results-panel-collapsed {
+    left: auto !important;
+  }
   @media (max-width: 700px) {
     .elections-main:fullscreen > .results-panel,
     .elections-main:-webkit-full-screen > .results-panel,
