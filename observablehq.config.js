@@ -33,8 +33,18 @@ export default {
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="custom-style.css">
     <link rel="icon" href="logo_ka-1.svg" type="image/svg" sizes="32x32">
-    <!-- Cloudflare Web Analytics -->
-    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "fe929cc11e5c47338413453d424732e0"}'></script>
+    <!-- Cloudflare Web Analytics — skipped on localhost / dev preview / file:// so dev traffic doesn't pollute stats. -->
+    <script>
+      (function () {
+        var h = (typeof location !== "undefined" && location.hostname) || "";
+        if (h === "localhost" || h === "127.0.0.1" || h === "" || h.endsWith(".local")) return;
+        var s = document.createElement("script");
+        s.defer = true;
+        s.src = "https://static.cloudflareinsights.com/beacon.min.js";
+        s.setAttribute("data-cf-beacon", '{"token": "fe929cc11e5c47338413453d424732e0"}');
+        document.head.appendChild(s);
+      })();
+    </script>
     <!-- End Cloudflare Web Analytics -->
   `,
   pages: [
