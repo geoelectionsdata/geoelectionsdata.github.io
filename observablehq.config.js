@@ -51,6 +51,7 @@ export default {
     {name: "Main", path: "/index"},
     {name: "Elections", path: "/elections"},
     {name: "Candidates", path: "/candidates"},
+    {name: "Parties", path: "/parties"},
     {name: "Data", path: "/downloads"},
     // {name: "Analysis", path: "/analysis"},
     {name: "About", path: "/about"}

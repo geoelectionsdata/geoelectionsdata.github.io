@@ -1,6 +1,17 @@
 # Party registry
 # Each party has a canonical id, name, default color, and type.
 # Election-specific aliases and color overrides are defined in election YAMLs.
+#
+# Optional fields used by the /parties page:
+#   category   — explicit categorisation for the page's filter chips.
+#                Values: stable | coalition | one_shot | historic | independent | option | other
+#                If omitted, the loader infers it: type=bloc|alliance → coalition;
+#                one election appearance → one_shot; ≥2 → stable.
+#   lineage    — string key grouping multiple party_ids that belong to the same
+#                continuous political identity (e.g. greens / greens_geo / greens_2014).
+#                Parties sharing a lineage collapse into one row on the /parties
+#                page. Default = the party's own id (= no grouping).
+#   logo       — path to a static logo asset (reserved; left null until logos exist).
 
 parties:
 
@@ -26,6 +37,7 @@ parties:
       ka: საქართველოს პატრიოტთა ალიანსი
     color: "#880E4F"
     type: party
+    category: stable
 
   - id: our_georgia
     name:
@@ -98,6 +110,7 @@ parties:
       ka: ქართული ოცნება
     color: "#1565C0"
     type: party
+    category: stable
 
   - id: unm
     name:
@@ -105,6 +118,8 @@ parties:
       ka: ერთიანი ნაციონალური მოძრაობა
     color: "#C62828"
     type: party
+    category: stable
+    lineage: unm
 
   - id: coalition_for_change
     name:
@@ -120,6 +135,7 @@ parties:
       ka: ერთობა — ნაციონალური მოძრაობა
     color: "#B71C1C"
     type: bloc
+    lineage: unm
 
   - id: strong_georgia
     name:
@@ -134,6 +150,7 @@ parties:
       ka: ევროპული საქართველო
     color: "#0288D1"
     type: party
+    category: stable
 
   - id: girchi
     name:
@@ -141,6 +158,7 @@ parties:
       ka: გირჩი
     color: "#F57F17"
     type: party
+    category: stable
 
   - id: labour
     name:
@@ -148,6 +166,7 @@ parties:
       ka: შრომის პარტია
     color: "#D32F2F"
     type: party
+    category: stable
 
   # ── 1992 parties ─────────────────────────────────────────────────────────
 
@@ -157,6 +176,7 @@ parties:
       ka: მხედრიონი / 11 ოქტომბრის ბლოკი
     color: "#4E342E"
     type: bloc
+    category: historic
 
   - id: peace_1992
     name:
@@ -164,6 +184,7 @@ parties:
       ka: მშვიდობის ბლოკი
     color: "#37474F"
     type: bloc
+    category: historic
 
   - id: other_1992
     name:
@@ -171,8 +192,11 @@ parties:
       ka: სხვა (1992)
     color: "#9E9E9E"
     type: other
+    category: historic
 
   # ── 1919 parties ─────────────────────────────────────────────────────────
+  # All entries below tagged `category: historic` so they're filterable
+  # separately from modern one-off parties.
 
   - id: social_democrats_1919
     name:
@@ -180,6 +204,7 @@ parties:
       ka: საქართველოს სოციალ-დემოკრატიული მუშათა პარტია
     color: "#C62828"
     type: party
+    category: historic
 
   - id: national_democrats_1919
     name:
@@ -187,6 +212,7 @@ parties:
       ka: საქართველოს ეროვნულ-დემოკრატიული პარტია
     color: "#1B5E20"
     type: party
+    category: historic
 
   - id: sr_1919
     name:
@@ -194,6 +220,7 @@ parties:
       ka: საქართველოს სოციალისტ-რევოლუციონერთა პარტია
     color: "#377eb8"
     type: party
+    category: historic
 
   - id: dashnaks
     name:
@@ -201,6 +228,7 @@ parties:
       ka: „დაშნაკცუთიუნ"
     color: "#984ea3"
     type: party
+    category: historic
 
   - id: federalists_1919
     name:
@@ -208,6 +236,7 @@ parties:
       ka: საქართველოს სოციალისტ-ფედერალისტთა პარტია
     color: "#00838F"
     type: party
+    category: historic
 
   - id: muslim_1919
     name:
@@ -215,6 +244,7 @@ parties:
       ka: მუსლიმთა ეროვნული საბჭო
     color: "#2E7D32"
     type: party
+    category: historic
 
   - id: raddem_1919
     name:
@@ -222,6 +252,7 @@ parties:
       ka: საქართველოს რადიკალ-დემოკრატთა პარტია
     color: "#F9A825"
     type: party
+    category: historic
 
   - id: natparty_1919
     name:
@@ -229,6 +260,7 @@ parties:
       ka: საქართველოს ეროვნული პარტია
     color: "#4527A0"
     type: party
+    category: historic
 
   - id: left_federalists_1919
     name:
@@ -236,6 +268,7 @@ parties:
       ka: მემარცხენე სოციალისტ-ფედერალისტთა მაშვრალთა პარტია
     color: "#00695C"
     type: party
+    category: historic
 
   - id: rustaveli_1919
     name:
@@ -243,6 +276,7 @@ parties:
       ka: შოთა რუსთაველის ჯგუფი
     color: "#6D4C41"
     type: party
+    category: historic
 
   - id: indie_1919
     name:
@@ -250,6 +284,7 @@ parties:
       ka: დამოუკიდებელთა (უპარტიო) კავშირი
     color: "#546E7A"
     type: party
+    category: historic
 
   - id: borchalo_1919
     name:
@@ -257,6 +292,7 @@ parties:
       ka: ბორჩალოს მაზრის მცხოვრებ მუსულმანთა ჯგუფი
     color: "#558B2F"
     type: party
+    category: historic
 
   - id: sdwpr_1919
     name:
@@ -264,6 +300,7 @@ parties:
       ka: რუსეთის სოციალ-დემოკრატთა მუშათა პარტია
     color: "#880E4F"
     type: party
+    category: historic
 
   - id: aesth_1919
     name:
@@ -271,6 +308,7 @@ parties:
       ka: ესთეტიური ლიგა პატრიოტებისა
     color: "#7B1FA2"
     type: party
+    category: historic
 
   - id: hellenic_1919
     name:
@@ -278,6 +316,7 @@ parties:
       ka: საქართველოს ელინთა დემოკრატიული ჯგუფი
     color: "#1565C0"
     type: party
+    category: historic
 
   - id: abkh_1919
     name:
@@ -285,6 +324,7 @@ parties:
       ka: აფხაზეთის ნაციონალური პარტია
     color: "#33691E"
     type: party
+    category: historic
 
   # ── 2025 local election parties ──────────────────────────────────────────
 
@@ -308,6 +348,7 @@ parties:
       ka: მწვანეთა პარტია
     color: "#388E3C"
     type: party
+    lineage: greens
 
   - id: peoples_power
     name:
@@ -666,6 +707,7 @@ parties:
       ka: მწვანეთა პარტია
     color: "#388E3C"
     type: party
+    lineage: greens
 
   - id: free_georgia_movement
     name:

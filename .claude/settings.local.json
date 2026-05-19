@@ -301,7 +301,11 @@
       "Bash(xxd)",
       "Bash(grep -rE \"font-family|^a\\\\s*{|^a,|^a:|nav\\\\s+a|html\\\\s+a\" node_modules/@observablehq/framework/dist)",
       "Bash(grep -nE \"font-family|^a\\\\s*\\\\{|^a,\" node_modules/@observablehq/framework/dist/style/default.css node_modules/@observablehq/framework/dist/style/layout.css)",
-      "Bash(rm tmp_det.json)"
+      "Bash(rm tmp_det.json)",
+      "Bash(node src/data/parties-index.json.js)",
+      "Bash(rm tmp_pidx.json)",
+      "Bash(node src/data/parties-details.json.js)",
+      "Bash(rm tmp_pdet.json)"
     ]
   }
 }

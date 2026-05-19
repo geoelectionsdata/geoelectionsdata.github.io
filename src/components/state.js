@@ -13,6 +13,7 @@ function updateGlobalNavbar(lang) {
       "nav.main": "Main",
       "nav.elections": "Elections",
       "nav.candidates": "Candidates",
+      "nav.parties": "Parties",
       "nav.data": "Data",
       "nav.analysis": "Analysis"
     },
@@ -21,6 +22,7 @@ function updateGlobalNavbar(lang) {
       "nav.main": "მთავარი",
       "nav.elections": "არჩევნები",
       "nav.candidates": "კანდიდატები",
+      "nav.parties": "პარტიები",
       "nav.data": "მონაცემები",
       "nav.analysis": "ანალიზი"
     }
