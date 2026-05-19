@@ -19,6 +19,63 @@
   --shadow-hover: 0 4px 14px rgba(0,0,0,0.12);
   --font-head:   'BPG Arial Caps', sans-serif;
   --font-body:   'BPG Arial', sans-serif;
+
+  /* ── Override Observable Framework's stock font stacks ────────────────────
+     OF's theme defines `--serif` (Source Serif 4 …) and `--sans-serif`
+     (system stack ending in Segoe UI). It then uses them on `body`, tables,
+     inputs, headers, footers, sidebar, etc. None of those defaults contain
+     Georgian glyphs, so every "uncustomized" element on the page falls back
+     to Segoe for Georgian text. Prepending BPG Arial[/Caps] keeps OF's
+     Latin/emoji fallbacks intact while making BPG the first choice for
+     anything that inherits from the OF defaults. */
+  --serif:
+    'BPG Arial',
+    "Source Serif 4",
+    "Iowan Old Style",
+    "Apple Garamond",
+    "Palatino Linotype",
+    "Times New Roman",
+    "Droid Serif",
+    Times, serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  --sans-serif:
+    'BPG Arial',
+    -apple-system,
+    BlinkMacSystemFont,
+    "avenir next", avenir,
+    helvetica, "helvetica neue",
+    ubuntu, roboto, noto,
+    "segoe ui", arial,
+    sans-serif;
+}
+
+/* Keep @font-face in CSS as the first line of defense. In dev, this stylesheet
+   is served from the site root; in the built site, Observable serves it from
+   _file/, so the ../fonts/ path points back to the copied static font assets. */
+@font-face {
+  font-family: 'BPG Arial Caps';
+  src:
+    url("../fonts/bpg-arial-caps-webfont.woff2") format("woff2"),
+    url("fonts/bpg-arial-caps-webfont.woff2") format("woff2"),
+    url("../fonts/bpg-arial-caps-webfont.ttf") format("truetype"),
+    url("fonts/bpg-arial-caps-webfont.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'BPG Arial';
+  src:
+    url("../fonts/bpg-arial-webfont.woff2") format("woff2"),
+    url("fonts/bpg-arial-webfont.woff2") format("woff2"),
+    url("../fonts/bpg-arial-webfont.ttf") format("truetype"),
+    url("fonts/bpg-arial-webfont.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
 }
 
 /* ---- TYPOGRAPHY ---- */
@@ -98,15 +155,29 @@ p { line-height: 1.6; }
   display: flex;
   gap: 0;
   align-items: center;
+  font-family: var(--font-head);
+}
+
+/* Each menu item is wrapped in an <h2> for semantic heading hierarchy.
+   Reset the heading's default block layout so it acts as a transparent
+   flex item — the <a> inside provides all the visible styling. */
+.top-nav h2 {
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: 1;
+  display: flex;
+  align-items: stretch;
 }
 
 .top-nav a {
   text-decoration: none;
   color: var(--muted);
+  font-family: var(--font-head);
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
   padding: 0.4rem 0.5rem;
   border-radius: var(--radius);
   border-bottom: 2px solid transparent;
@@ -486,6 +557,7 @@ details[open] .acc-icon {
 }
 
 .input-group label {
+  font-family: var(--font-head);
   font-weight: 700;
   font-size: 0.82rem;
   letter-spacing: 0.04em;
@@ -497,6 +569,7 @@ details[open] .acc-icon {
 
 /* ---- STAT / METRIC DISPLAY ---- */
 .stat-label {
+  font-family: var(--font-head);
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;

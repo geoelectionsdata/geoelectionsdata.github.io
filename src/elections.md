@@ -39,6 +39,8 @@ const _voteCtrl     = {value: _urlParams.get("vote") ?? null};
 const _mapModeCtrl  = {value: _urlParams.get("map") ?? "geographic"};
 const _levelCtrl    = {value: _urlParams.get("level") ?? null};
 const _partyCtrl    = {value: _urlParams.get("party") ?? null};
+const _selectedUnitLevelCtrl = {value: _urlParams.get("unit_level") ?? null};
+const _selectedUnitCtrl      = {value: _urlParams.get("unit") ?? null};
 
 function updateUrlParams(updates = {}, deletes = []) {
   const p = new URLSearchParams(window.location.search);
@@ -47,6 +49,10 @@ function updateUrlParams(updates = {}, deletes = []) {
     if (value == null || value === "" || value === "__default__") p.delete(key);
     else p.set(key, value);
   }
+  if (deletes.includes("unit_level")) _selectedUnitLevelCtrl.value = null;
+  if (deletes.includes("unit")) _selectedUnitCtrl.value = null;
+  if (Object.prototype.hasOwnProperty.call(updates, "unit_level")) _selectedUnitLevelCtrl.value = updates.unit_level ?? null;
+  if (Object.prototype.hasOwnProperty.call(updates, "unit")) _selectedUnitCtrl.value = updates.unit ?? null;
   const query = p.toString();
   history.replaceState(null, "", `${window.location.pathname}${query ? "?" + query : ""}${window.location.hash}`);
 }
@@ -62,7 +68,7 @@ const typeInput = Inputs.select(
 );
 typeInput.addEventListener("input", () => {
   _typeCtrl.value = typeInput.value;
-  updateUrlParams({type: typeInput.value}, ["election", "sub", "ballot", "vote", "view", "metric", "map", "level", "party", "lat", "lng", "z"]);
+  updateUrlParams({type: typeInput.value}, ["election", "sub", "ballot", "vote", "view", "metric", "map", "level", "party", "unit_level", "unit", "lat", "lng", "z"]);
 });
 const typeVal = Generators.input(typeInput);
 ```
@@ -134,7 +140,7 @@ electionInput.addEventListener("input", () => {
   _electionCtrl.value = electionInput.value?.id ?? null;
   updateUrlParams(
     {election: electionInput.value?.id ?? null},
-    ["sub", "ballot", "vote", "view", "metric", "map", "level", "party", "lat", "lng", "z"]
+    ["sub", "ballot", "vote", "view", "metric", "map", "level", "party", "unit_level", "unit", "lat", "lng", "z"]
   );
 });
 const electionVal = Generators.input(electionInput);
@@ -152,7 +158,7 @@ const ballotTypeInput = Inputs.radio(
 );
 ballotTypeInput.addEventListener("input", () => {
   _ballotCtrl.value = ballotTypeInput.value;
-  updateUrlParams({ballot: isLocal ? ballotTypeInput.value : null}, ["level", "party", "lat", "lng", "z"]);
+  updateUrlParams({ballot: isLocal ? ballotTypeInput.value : null}, ["level", "party", "unit_level", "unit", "lat", "lng", "z"]);
 });
 const ballotTypeVal = Generators.input(ballotTypeInput);
 ```
@@ -239,7 +245,7 @@ const _subChipWidget = makeChipsInput(subElectionItems, _subChipLabel, _restored
 const subElectionInput = wrapChipsInDetails(_subChipWidget, _subChipLabel, subElectionItems.length <= 3);
 subElectionInput.addEventListener("input", () => {
   _subCtrl.value = subElectionInput.value?.id ?? "__main__";
-  updateUrlParams({sub: _subCtrl.value === "__main__" ? null : _subCtrl.value}, ["level", "party", "lat", "lng", "z"]);
+  updateUrlParams({sub: _subCtrl.value === "__main__" ? null : _subCtrl.value}, ["level", "party", "unit_level", "unit", "lat", "lng", "z"]);
 });
 const subVal = Generators.input(subElectionInput);
 ```
@@ -277,7 +283,7 @@ const voteTypeInput = Inputs.radio(voteTypeOptions, {
 });
 voteTypeInput.addEventListener("input", () => {
   _voteCtrl.value = voteTypeInput.value;
-  updateUrlParams({vote: voteTypeInput.value}, ["level", "party", "lat", "lng", "z"]);
+  updateUrlParams({vote: voteTypeInput.value}, ["level", "party", "unit_level", "unit", "lat", "lng", "z"]);
 });
 const voteTypeVal = Generators.input(voteTypeInput);
 ```
@@ -315,7 +321,7 @@ const mapModeInput = Inputs.radio([
 });
 mapModeInput.addEventListener("input", () => {
   _mapModeCtrl.value = mapModeInput.value;
-  updateUrlParams({map: mapModeInput.value === "geographic" ? null : mapModeInput.value}, ["level", "party", "lat", "lng", "z"]);
+  updateUrlParams({map: mapModeInput.value === "geographic" ? null : mapModeInput.value}, ["level", "party", "unit_level", "unit", "lat", "lng", "z"]);
 });
 const mapMode = Generators.input(mapModeInput);
 ```
@@ -350,7 +356,7 @@ const viewModeInput = Inputs.radio(["results", "turnout"], {
 });
 viewModeInput.addEventListener("input", () => {
   _viewModeCtrl.value = viewModeInput.value;
-  updateUrlParams({view: viewModeInput.value === "results" ? null : viewModeInput.value}, ["party"]);
+  updateUrlParams({view: viewModeInput.value === "results" ? null : viewModeInput.value}, ["party", "unit_level", "unit"]);
 });
 const viewMode = Generators.input(viewModeInput);
 ```
@@ -901,6 +907,10 @@ function shareUrlForCurrentMap() {
   if (mapMode && mapMode !== "geographic") p.set("map", mapMode);
   if (mapState.level) p.set("level", mapState.level);
   if (mapState.party) p.set("party", mapState.party);
+  if (mapState.unitLevel && mapState.unit) {
+    p.set("unit_level", mapState.unitLevel);
+    p.set("unit", mapState.unit);
+  }
   if (mapState.metric && mapState.metric !== "final") p.set("metric", mapState.metric);
   if (Number.isFinite(mapState.lat) && Number.isFinite(mapState.lng)) {
     p.set("lat", mapState.lat.toFixed(5));
@@ -1270,9 +1280,44 @@ const container = html`
   .below-threshold-details .dist-table { margin-top: 4px; }
 
   /* District results table */
-  .dist-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  .dist-table th { color: var(--muted); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid var(--border); padding: 4px 6px; text-align: left; }
-  .dist-table td { padding: 5px 6px; border-bottom: 1px solid var(--border); }
+  .dist-table {
+    width: 100%;
+    max-width: none;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .dist-table thead { display: table-header-group; }
+  .dist-table tbody { display: table-row-group; }
+  .dist-table tr { display: table-row; }
+  .dist-table th,
+  .dist-table td {
+    box-sizing: border-box;
+    padding: 5px 6px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .dist-table th {
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 2px solid var(--border);
+    text-align: left;
+  }
+  .dist-table th:first-child,
+  .dist-table td:first-child {
+    width: 68%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  .dist-table th:last-child,
+  .dist-table td:last-child {
+    width: 32%;
+    text-align: right;
+    white-space: nowrap;
+  }
   .dist-table tr:last-child td { border-bottom: none; }
   .party-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; flex-shrink: 0; }
 
@@ -1459,7 +1504,8 @@ await buildElectionMap({
   precinctGeoPath, precinctCsvPath, precinctTurnout,
   _precinctGeoRegistryUrl, _precinctCsvRegistryUrl,
   seatsData, _districtRows, _allCouncilSMDResults, _invalidMax,
-  _mapCtrl, _mapState, _turnoutMetricCtrl, _levelCtrl, _partyCtrl, mapContainer,
+  _mapCtrl, _mapState, _turnoutMetricCtrl, _levelCtrl, _partyCtrl,
+  _selectedUnitLevelCtrl, _selectedUnitCtrl, updateUrlParams, mapContainer,
   getParty, partyColor, passed,
   renderers: _renderers,
   shareUrlForCurrentMap,

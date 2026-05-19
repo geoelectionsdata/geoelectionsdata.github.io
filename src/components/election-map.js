@@ -79,7 +79,8 @@ export async function buildElectionMap({
   precinctGeoPath, precinctCsvPath, precinctTurnout,
   _precinctGeoRegistryUrl, _precinctCsvRegistryUrl,
   seatsData, _districtRows, _allCouncilSMDResults, _invalidMax,
-  _mapCtrl, _mapState, _turnoutMetricCtrl, _levelCtrl, _partyCtrl, mapContainer,
+  _mapCtrl, _mapState, _turnoutMetricCtrl, _levelCtrl, _partyCtrl,
+  _selectedUnitLevelCtrl, _selectedUnitCtrl, updateUrlParams, mapContainer,
   getParty, partyColor, passed,
   renderers,
   shareUrlForCurrentMap,
@@ -267,6 +268,56 @@ export async function buildElectionMap({
     return _mapCtrl.current?.currentPartyId ?? _partyCtrl?.value ?? null;
   }
 
+  let currentSelectedUnitLevel = _selectedUnitLevelCtrl?.value ?? null;
+  let currentSelectedUnit      = _selectedUnitCtrl?.value ?? null;
+  const selectionHandlers = new Map();
+  const selectionKey = (level, id) => `${level ?? ""}:${String(id ?? "")}`;
+
+  function setSelectedUnit(level, id, {updateUrl = true} = {}) {
+    currentSelectedUnitLevel = level || null;
+    currentSelectedUnit = id == null ? null : String(id);
+    if (_selectedUnitLevelCtrl) _selectedUnitLevelCtrl.value = currentSelectedUnitLevel;
+    if (_selectedUnitCtrl) _selectedUnitCtrl.value = currentSelectedUnit;
+    if (_mapCtrl.current) {
+      _mapCtrl.current.currentSelectedUnitLevel = currentSelectedUnitLevel;
+      _mapCtrl.current.currentSelectedUnit = currentSelectedUnit;
+    }
+    if (updateUrl && typeof updateUrlParams === "function") {
+      updateUrlParams(
+        {level: currentSelectedUnitLevel, unit_level: currentSelectedUnitLevel, unit: currentSelectedUnit},
+        []
+      );
+    }
+  }
+
+  function clearSelectedUnit({updateUrl = true} = {}) {
+    currentSelectedUnitLevel = null;
+    currentSelectedUnit = null;
+    if (_selectedUnitLevelCtrl) _selectedUnitLevelCtrl.value = null;
+    if (_selectedUnitCtrl) _selectedUnitCtrl.value = null;
+    if (_mapCtrl.current) {
+      _mapCtrl.current.currentSelectedUnitLevel = null;
+      _mapCtrl.current.currentSelectedUnit = null;
+    }
+    if (updateUrl && typeof updateUrlParams === "function") {
+      updateUrlParams({}, ["unit_level", "unit"]);
+    }
+  }
+
+  function registerSelection(level, id, handler) {
+    if (level && id != null && typeof handler === "function") {
+      selectionHandlers.set(selectionKey(level, id), handler);
+    }
+  }
+
+  function applySelection(level, id, {updateUrl = true} = {}) {
+    const handler = selectionHandlers.get(selectionKey(level, id));
+    if (!handler) return false;
+    handler();
+    setSelectedUnit(level, id, {updateUrl});
+    return true;
+  }
+
   function rowName(row) {
     if (!row) return null;
     const party = getParty?.(row.party_id);
@@ -405,14 +456,16 @@ export async function buildElectionMap({
         [f.geometry.coordinates[1], f.geometry.coordinates[0]],
         { radius: (f.properties.radius_km ?? 10) * 1000, fillColor, fillOpacity: 0.85, color: "#fff", weight: 0.5 }
       ).addTo(map);
-      circle.on("click", () => {
+      const selectDistrict = () => {
         const panel = document.getElementById("results-panel");
         if (panel) panel.replaceWith(viewMode === "turnout"
           ? renderTurnoutPanel(did, f.properties)
           : renderDistrictPanel(did, f.properties));
 
         if (isCouncilMode) updateCouncilSeatsForDistrict(did, f.properties);
-      });
+      };
+      registerSelection("district", did, selectDistrict);
+      circle.on("click", () => applySelection("district", did));
       bindDynamicTooltip(circle, () => {
         const title = (lang === "ka" ? f.properties.name_ka : f.properties.name_en) ?? did;
         return viewMode === "turnout"
@@ -427,13 +480,15 @@ export async function buildElectionMap({
       style: districtStyle,
       onEachFeature(feature, layer) {
         const did = geoId(feature);
-        layer.on("click", () => {
+        const selectDistrict = () => {
           const panel = document.getElementById("results-panel");
           if (panel) panel.replaceWith(viewMode === "turnout"
             ? renderTurnoutPanel(did, feature.properties)
             : renderDistrictPanel(did, feature.properties));
           if (isCouncilMode) updateCouncilSeatsForDistrict(did, feature.properties);
-        });
+        };
+        registerSelection("district", did, selectDistrict);
+        layer.on("click", () => applySelection("district", did));
         layer.on("dblclick", e => {
           L.DomEvent.stop(e);
           drillDownOnDoubleClick(layer);
@@ -510,7 +565,7 @@ export async function buildElectionMap({
             name_en: getFeatureName(feature, "en"),
             name_ka: getFeatureName(feature, "ka") ?? getFeatureName(feature, "en")
           };
-          layer.on("click", () => {
+          const selectCouncilDistrict = () => {
             const panel = document.getElementById("results-panel");
             if (panel) panel.replaceWith(viewMode === "turnout"
               ? renderTurnoutPanel(did, _props, turnoutMap)
@@ -521,7 +576,9 @@ export async function buildElectionMap({
               const _sgFeat = selfgovGeoData?.features?.find(f => String(f.properties.id) === _sgId);
               updateCouncilSeats(_sgId, _sgFeat?.properties ?? _props, true);
             }
-          });
+          };
+          registerSelection("council_district", did, selectCouncilDistrict);
+          layer.on("click", () => applySelection("council_district", did));
           layer.on("dblclick", e => {
             L.DomEvent.stop(e);
             drillDownOnDoubleClick(layer);
@@ -547,13 +604,15 @@ export async function buildElectionMap({
         style: sgStyle,
         onEachFeature(feature, layer) {
           const did = geoId(feature);
-          layer.on("click", () => {
+          const selectSelfgov = () => {
             const panel = document.getElementById("results-panel");
             if (panel) panel.replaceWith(viewMode === "turnout"
               ? renderTurnoutPanel(did, feature.properties, turnoutMap)
               : renderDistrictPanel(did, feature.properties, selfgovResults));
             if (isCouncilMode) updateCouncilSeats(did, feature.properties, true);
-          });
+          };
+          registerSelection("selfgov", did, selectSelfgov);
+          layer.on("click", () => applySelection("selfgov", did));
           layer.on("dblclick", e => {
             L.DomEvent.stop(e);
             drillDownOnDoubleClick(layer);
@@ -807,7 +866,7 @@ export async function buildElectionMap({
             const titleKa    = `${distNameKa} N${stationNum}`;
             const titleEn    = `${distNameEn} N${stationNum}`;
 
-            layer.on("click", () => {
+            const selectPrecinct = () => {
               const panel = document.getElementById("results-panel");
               if (!panel) return;
               const enhancedProps = {
@@ -841,7 +900,10 @@ export async function buildElectionMap({
                 panel.replaceWith(renderDistrictPanel("__precinct__", enhancedProps, stationRows));
               }
               updateCouncilSeatsForPrecinct(parentDid, stationId, enhancedProps);
-            });
+            };
+            registerSelection("precinct", resultKey, selectPrecinct);
+            if (resultKey !== stationId) registerSelection("precinct", stationId, selectPrecinct);
+            layer.on("click", () => applySelection("precinct", resultKey));
             bindDynamicTooltip(layer, () => {
               const title = lang === "ka" ? titleKa : titleEn;
               if (viewMode === "turnout") {
@@ -891,7 +953,7 @@ export async function buildElectionMap({
             const resultKey = precinctFeatureResultKey(feature) ?? stationId;
             const parentDid = precinctParentId(feature, stationId);
             const enhancedProps = precinctDisplayProps(feature, stationId, parentDid);
-            layer.on("click", () => {
+            const selectPrecinct = () => {
               const panel = document.getElementById("results-panel");
               if (!panel) return;
               if (viewMode === "turnout") {
@@ -903,7 +965,10 @@ export async function buildElectionMap({
                 panel.replaceWith(renderDistrictPanel("__precinct__", enhancedProps, stationRows));
               }
               updateCouncilSeatsForPrecinct(parentDid, stationId, enhancedProps);
-            });
+            };
+            registerSelection("precinct", resultKey, selectPrecinct);
+            if (resultKey !== stationId) registerSelection("precinct", stationId, selectPrecinct);
+            layer.on("click", () => applySelection("precinct", resultKey));
             bindDynamicTooltip(layer, () => {
               const title = lang === "ka" ? enhancedProps.name_ka : enhancedProps.name_en;
               if (viewMode === "turnout") {
@@ -970,7 +1035,7 @@ export async function buildElectionMap({
         map.fitBounds(bounds.pad(0.1), {maxZoom: 14, animate: true, duration: 0.5});
       }
       if (precinctGeoPath || precinctCsvPath) {
-        applyLevel("precinct", _levelControlDiv);
+        applyLevel("precinct", _levelControlDiv, {clearSelection: true});
       }
     }
 
@@ -989,10 +1054,12 @@ export async function buildElectionMap({
       });
     }
 
-    function applyLevel(levelId, controlDiv) {
+    function applyLevel(levelId, controlDiv, {clearSelection = false, updateUrl = true} = {}) {
       currentLevel = levelId;
       if (_levelCtrl) _levelCtrl.value = currentLevel;
       if (_mapCtrl.current) _mapCtrl.current.currentLevel = currentLevel;
+      if (updateUrl && typeof updateUrlParams === "function") updateUrlParams({level: currentLevel}, []);
+      if (clearSelection) clearSelectedUnit();
       if (levelId === "selfgov" && selfgovLayer) {
         if (!map.hasLayer(selfgovLayer)) selfgovLayer.addTo(map);
         districtLayer.setStyle(DISTRICT_HOLLOW);
@@ -1050,14 +1117,35 @@ export async function buildElectionMap({
           if (lvl.id === currentLevel) item.classList.add("lc-active");
           if (multiLevel) {
             item.classList.add("lc-clickable");
-            L.DomEvent.on(item, "click", () => applyLevel(lvl.id, div));
+            L.DomEvent.on(item, "click", () => applyLevel(lvl.id, div, {clearSelection: true}));
           }
         });
         return div;
       }
     });
     new LevelControl({ position: "topright" }).addTo(map);
-    applyLevel(currentLevel, null);
+    applyLevel(currentLevel, null, {updateUrl: false});
+
+    function restoreSelectedUnitFromUrl() {
+      if (!currentSelectedUnitLevel || !currentSelectedUnit) return;
+      if (!availableLevels.some(lvl => lvl.id === currentSelectedUnitLevel)) return;
+
+      const restorePanel = () => {
+        applySelection(currentSelectedUnitLevel, currentSelectedUnit, {updateUrl: false});
+      };
+
+      if (currentSelectedUnitLevel === "precinct" && (precinctGeoPath || precinctCsvPath)) {
+        _ensurePrecinctLayer().then(() => {
+          applyLevel("precinct", _levelControlDiv, {updateUrl: false});
+          setTimeout(restorePanel, 0);
+        });
+      } else {
+        if (currentSelectedUnitLevel !== currentLevel) {
+          applyLevel(currentSelectedUnitLevel, _levelControlDiv, {updateUrl: false});
+        }
+        setTimeout(restorePanel, 0);
+      }
+    }
 
     // ── Party filter: lookups for district, selfgov, and precinct vote shares ─
     function addShare(shareMap, areaId, partyId, voteShare) {
@@ -1480,6 +1568,8 @@ export async function buildElectionMap({
       currentPartyId: null,
       currentTurnoutMetric: _turnoutMetricCtrl.value ?? "final",
       currentLevel,
+      currentSelectedUnitLevel,
+      currentSelectedUnit,
       legendDiv: _legendCtrl.getContainer(),
 
       // Imperative language refresh — called from a separate lang-only cell in elections.md
@@ -1504,6 +1594,8 @@ export async function buildElectionMap({
           z: map.getZoom(),
           level: currentLevel,
           party: this.currentPartyId,
+          unitLevel: this.currentSelectedUnitLevel,
+          unit: this.currentSelectedUnit,
           metric: this.currentTurnoutMetric
         };
       },
@@ -1658,6 +1750,7 @@ export async function buildElectionMap({
     if (viewMode !== "turnout" && _partyCtrl?.value) {
       _mapCtrl.current.setPartyFilter(_partyCtrl.value, true);
     }
+    restoreSelectedUnitFromUrl();
   }
 
   setTimeout(() => map.invalidateSize(), 150);

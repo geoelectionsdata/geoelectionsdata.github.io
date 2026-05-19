@@ -8,6 +8,12 @@ const headerContent = readFileSync("./src/components/header.html", "utf8");
 
 function dynamicAssetPaths() {
   const paths = ["/data/config/translations.json"];
+  paths.push(
+    "/fonts/bpg-arial-caps-webfont.woff2",
+    "/fonts/bpg-arial-caps-webfont.ttf",
+    "/fonts/bpg-arial-webfont.woff2",
+    "/fonts/bpg-arial-webfont.ttf"
+  );
   paths.push(...collectExistingPaths(p =>
     p.endsWith(".geojson") || p.endsWith(".csv")
   )
@@ -31,7 +37,7 @@ export default {
   pages: [
     {name: "Main", path: "/index"},
     {name: "Elections", path: "/elections"},
-    // {name: "Candidates", path: "/candidates"},
+    {name: "Candidates", path: "/candidates"},
     {name: "Data", path: "/downloads"},
     // {name: "Analysis", path: "/analysis"},
     {name: "About", path: "/about"}

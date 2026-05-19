@@ -282,7 +282,26 @@
       "Bash(awk '{print $5, $9}')",
       "Bash(grep -n '`' \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/elections.md\")",
       "Bash(awk 'NR>=926 && NR<=1100 {print NR\": \"$0}' \"D:/Dropbox \\(Personal\\)/My projects/Elections/ge_elections_dashboard/wireframe/observable_framework/elections_data/src/elections.md\")",
-      "Bash(grep '`')"
+      "Bash(grep '`')",
+      "Bash(node src/data/candidates-index.json.js)",
+      "Bash(node -e \"const j=JSON.parse\\(require\\('fs'\\).readFileSync\\('/tmp/cidx.json','utf8'\\)\\); console.log\\('elections:',j.elections.length,'clusters:',j.clusters.length,'appearances:',j.stats.appearance_count\\); console.log\\('Sample cluster:',JSON.stringify\\(j.clusters[1000]??j.clusters[0],null,2\\)\\);\")",
+      "Bash(echo \"exit=$?\")",
+      "Bash(gzip -c tmp_idx.json)",
+      "Bash(awk '{print \"gzip:\", $1, \"bytes\"}')",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('src/data/config/translations.json','utf8'\\)\\); console.log\\('valid'\\)\")",
+      "Bash(node src/data/candidates-details.json.js)",
+      "Bash(rm -rf dist-test)",
+      "Bash(timeout 120 npx observable build --output dist-test)",
+      "Bash(npx observable *)",
+      "Bash(rm -f tmp_det.json)",
+      "Bash(rm tmp_idx.json)",
+      "Bash(grep -oE '<table class=\"cand-table\">.{0,2000}' dist/candidates.html)",
+      "Bash(ls dist/_file/fonts/)",
+      "Bash(ls dist/fonts/)",
+      "Bash(xxd)",
+      "Bash(grep -rE \"font-family|^a\\\\s*{|^a,|^a:|nav\\\\s+a|html\\\\s+a\" node_modules/@observablehq/framework/dist)",
+      "Bash(grep -nE \"font-family|^a\\\\s*\\\\{|^a,\" node_modules/@observablehq/framework/dist/style/default.css node_modules/@observablehq/framework/dist/style/layout.css)",
+      "Bash(rm tmp_det.json)"
     ]
   }
 }

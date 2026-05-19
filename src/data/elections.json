@@ -28,6 +28,10 @@
         "shape_file": null
       }
     },
+    "map_view": {
+      "default_level": "selfgov",
+      "default_vote_type": "pr"
+    },
     "sub_elections": [],
     "notes": {
       "en": "2025 local elections were boycotted by major opposition political parties. It had the lowest turnout and the highest share of invalid ballots registered in history. No international monitoring missions were invited to attend elections.\n",
@@ -323,7 +327,9 @@
         41.7225389,
         42.1149651
       ],
-      "zoom": 9
+      "zoom": 9,
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "sources": [
       {
@@ -381,6 +387,10 @@
         "enabled": false,
         "shape_file": null
       }
+    },
+    "map_view": {
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "notes": {
       "en": "2024 parliamentary elections were held on October 26. Preceded by a heated campaign and an increased anti-Western rhetoric of the ruling Georgian Dream party, it featured a 5% electoral threshold for political parties. First time in history, voting machines were used in national elections, leading to allegations of vote rigging. As a result, oppositional political parties refused to recognize its results, and some refused to take up mandates. OSCE ODIHR's <a href=\"https://odihr.osce.org/odihr/elections/georgia/584029\">observation mission final report</a> indicated repeated problems regarding vote secrecy, procedural inconsistencies, intimidation and pressure on voters.\n",
@@ -643,6 +653,10 @@
         "enabled": false,
         "shape_file": null
       }
+    },
+    "map_view": {
+      "default_level": "selfgov",
+      "default_vote_type": "pr"
     },
     "council": {
       "total_pr_seats": 0,
@@ -939,7 +953,9 @@
         41.7225389,
         42.1149651
       ],
-      "zoom": 9
+      "zoom": 9,
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "notes": {
       "en": "The 2020 elections to the Supreme Council of Adjara were held in parallel with the 2020 parliamentary elections. Members were elected through proportional lists and three single-member majoritarian districts. Majoritarian races in Batumi and the Khelvachauri-Keda-Shuakhevi-Khulo district went to a runoff; Kobuleti-Khelvachauri was decided in the first round.\n",
@@ -1154,7 +1170,9 @@
         42.1,
         43.5
       ],
-      "zoom": 7
+      "zoom": 7,
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "notes": {
       "en": "The 2020 parliamentary elections were held under a reduced 1% proportional threshold and consolidated majoritarian districts. On November 21, 2020, a second round was held in 17 majoritarian electoral districts; however, the opposition candidates who advanced to the second round boycotted the elections. As a result, \"Georgian Dream\" obtained a simple majority in the parliament. Opposition parties initially disputed the results and refused to enter the parliament, but the boycott ended after an agreement was reached through the mediation of European Council President Charles Michel in April 2021.\n",
@@ -1585,6 +1603,10 @@
         "enabled": false
       }
     },
+    "map_view": {
+      "default_level": "district",
+      "default_vote_type": "pr"
+    },
     "notes": {
       "en": "2018 presidential elections were the last elections when Georgians directly elected the country's president. First time in history, a runoff was needed to determine the winner. Salome Zourabichvili, who was running as an independent but was supported by the ruling Georgian Dream party, was elected as the country's first elected female president.\n",
       "ka": "2018 წლის საპრეზიდენტო არჩევნები გახლდათ უკანასკნელი, როდესაც საქართველოს მოსახლეობამ პრეზიდენტი პირდაპირი წესით აირჩია. პირველად ისტორიაში, გამარჯვებულის გამოსავლენად საჭირო მეორე ტურის ჩატარება გახდა. სალომე ზურაბიშვილი, რომელიც კენჭს როგორც დამოუკიდებელი კანდიდატი, ისე იყრიდა, საქართველოს პირველი არჩეული ქალი პრეზიდენტი გახდა.\n"
@@ -1911,6 +1933,10 @@
         "shape_file": null
       }
     },
+    "map_view": {
+      "default_level": "selfgov",
+      "default_vote_type": "pr"
+    },
     "council": {
       "total_pr_seats": 0,
       "total_smd_seats": 0,
@@ -2192,7 +2218,9 @@
         41.7225389,
         42.1149651
       ],
-      "zoom": 9
+      "zoom": 9,
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "notes": {
       "en": "The 2016 elections to the Supreme Council of Adjara were held in parallel with the 2016 parliamentary elections. Members were elected through proportional lists and six single-member majoritarian districts. A second round was held for the majoritarian races.\n",
@@ -2370,7 +2398,9 @@
         42.1,
         43.5
       ],
-      "zoom": 7
+      "zoom": 7,
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "notes": {
       "en": "The 2016 parliamentary elections were held under Georgia's mixed electoral system: 77 seats were distributed proportionally (5% threshold) and 73 seats were filled through single-mandate majoritarian districts. Оnly Georgian Dream, the United National Movement, and the Alliance of Patriots crossed the threshold. A second round of majoritarian elections was held on October 30, 2016, in 45 districts where no candidate received a majority in the first round. Georgian Dream, following the victory in elections, was able to garner constitutional majority.\n",
@@ -2932,6 +2962,10 @@
         "shape_file": null
       }
     },
+    "map_view": {
+      "default_level": "selfgov",
+      "default_vote_type": "pr"
+    },
     "council": {
       "total_pr_seats": 1035,
       "total_smd_seats": 1047,
@@ -3415,7 +3449,9 @@
         42.1,
         43.5
       ],
-      "zoom": 7
+      "zoom": 7,
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "notes": {
       "en": "The October 27, 2013 presidential election was a direct nationwide vote and was decided in one round. These were first presidential elections following the constitional amendments according to which, the country shifted towards parliamentary model, with its president only holding a nominal power.\n",
@@ -3717,7 +3753,9 @@
         42.1,
         43.5
       ],
-      "zoom": 7
+      "zoom": 7,
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "notes": {
       "en": "First time in Georgia's history, the 2012 parliamentary elections saw government change via elections. That said, campaign was extremely polarizing. Elections \nwere held under Georgia's mixed electoral system: 77 seats were distributed proportionally with a 5% threshold, and 73 seats were\nfilled in single-mandate majoritarian districts.\n",
@@ -4113,7 +4151,9 @@
         42.1,
         43.5
       ],
-      "zoom": 7
+      "zoom": 7,
+      "default_level": "selfgov",
+      "default_vote_type": "pr"
     },
     "map_view_mayor": {
       "center": [
@@ -4352,7 +4392,9 @@
         41.7225389,
         42.1149651
       ],
-      "zoom": 9
+      "zoom": 9,
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "notes": {
       "en": "The November 3, 2008 elections to the Supreme Council of Adjara were held under a mixed electoral system, with proportional party-list voting and six single-member majoritarian districts.\n",
@@ -4515,7 +4557,9 @@
         42.1,
         43.5
       ],
-      "zoom": 7
+      "zoom": 7,
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "notes": {
       "en": "The May 21, 2008 parliamentary elections were held under Georgia's mixed\nelectoral system, with proportional party-list voting and single-mandate\nmajoritarian contests. While Mikheil Saakashvili's UNM was able to garner a supermajority in the parliament,\nopposition was alleging irregularities in the electoral process. As the result, all opposition groups except Christian Demorats boycotted the parliament.\n",
@@ -4717,7 +4761,9 @@
         42.1,
         43.5
       ],
-      "zoom": 7
+      "zoom": 7,
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "notes": {
       "en": "The January 5, 2008 presidential election was held as a direct nationwide vote\nand was decided in one round. The district and precinct layers use the 2008\nelectoral geography, including districts that were under Georgian control\nbefore the August 2008 war with Russia.\n",
@@ -4845,6 +4891,10 @@
         "enabled": false,
         "shape_file": null
       }
+    },
+    "map_view": {
+      "default_level": "district",
+      "default_vote_type": "pr"
     },
     "notes": {
       "en": "In 1919, Democratic Republic of Georgia elected its first parliament, Constituent Assembly.\n",
