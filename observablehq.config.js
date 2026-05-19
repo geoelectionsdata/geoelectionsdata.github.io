@@ -33,6 +33,9 @@ export default {
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="custom-style.css">
     <link rel="icon" href="logo_ka-1.svg" type="image/svg" sizes="32x32">
+    <!-- Cloudflare Web Analytics -->
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "fe929cc11e5c47338413453d424732e0"}'></script>
+    <!-- End Cloudflare Web Analytics -->
   `,
   pages: [
     {name: "Main", path: "/index"},
