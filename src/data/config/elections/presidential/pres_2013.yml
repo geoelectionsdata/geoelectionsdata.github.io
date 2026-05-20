@@ -63,7 +63,7 @@ candidates:
     name:
       en: "Giorgi Targamadze"
       ka: "გიორგი თარგამაძე"
-    party: independent
+    party: christian_democratic_movement
     color: "#6D4C41"
     threshold_status: passed
   - id: koba_davitashvili

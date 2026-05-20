@@ -124,13 +124,44 @@ function buildElectionPartyMap(election) {
   return m;
 }
 
+// Normalize Georgian party labels for fuzzy matching: lowercase, strip the
+// various flavours of Georgian / typographic quotes, collapse dashes and
+// whitespace. This lets us match e.g.
+//   "საარჩევნო ბლოკი „ბაქრაძე, უგულავა-ევროპული საქართველო""
+// against the registry name
+//   "ევროპული საქართველო"
+// despite the bloc-prefix and the quoted-form differences.
+function normPartyLabel(s) {
+  return (s ?? "")
+    .toString()
+    .toLowerCase()
+    .replace(/[„""""''«»]/g, "")
+    .replace(/[-‒–—―]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function partyIdFromLabel(label, electionPartyMap) {
   if (!label) return null;
-  const norm = label.toString().trim().replace(/\s+/g, " ");
+  const norm = normPartyLabel(label);
+  // Stage 1: try the election's own party map (aliases override registry).
   for (const [pid, names] of Object.entries(electionPartyMap)) {
     if (!names.name_ka) continue;
-    const nk = names.name_ka.trim();
+    const nk = normPartyLabel(names.name_ka);
+    if (!nk) continue;
     if (norm === nk || norm.includes(nk) || nk.includes(norm)) return pid;
+  }
+  // Stage 2: fall through to the global registry. Some XLSX labels carry
+  // names that the election YAML alias has rewritten (e.g. registry says
+  // "ევროპული საქართველო" but the election alias says
+  // "ევროპული საქართველო-მოძრაობა თავისუფლებისთვის"); the XLSX may match
+  // the registry root better.
+  for (const pid of Object.keys(electionPartyMap)) {
+    const reg = partyRegistry[pid];
+    if (!reg?.name_ka) continue;
+    const rk = normPartyLabel(reg.name_ka);
+    if (!rk) continue;
+    if (norm === rk || norm.includes(rk) || rk.includes(norm)) return pid;
   }
   return null;
 }
@@ -267,6 +298,55 @@ function makeAppearance(o) {
   };
 }
 
+// Read the local-2017 PR list + elected sheets from the
+// adg_2017_candidates_unified.xlsx raw file. Returns
+//   { prRows: [{selfgov_id, party_label, list_order, first_name, last_name}], electedNames: Set<"first__last"> }
+async function read2017LocalXlsx() {
+  const path = join(ROOT, "data/raw/adg_2017_candidates_unified.xlsx");
+  if (!existsSync(path)) return { prRows: [], electedNames: new Set() };
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(path);
+
+  // PR list candidates
+  const prRows = [];
+  const prWs = wb.getWorksheet("PR candidates");
+  if (prWs) {
+    const hdr = prWs.getRow(1).values.slice(1);
+    for (let i = 2; i <= prWs.rowCount; i++) {
+      const row = prWs.getRow(i).values.slice(1);
+      const rec = Object.fromEntries(hdr.map((h, j) => [h, row[j]]));
+      const first = rec.name?.toString().trim();
+      const last = rec.last_name?.toString().trim();
+      if (!first && !last) continue;
+      prRows.push({
+        selfgov_id: rec.district_number != null ? String(rec.district_number) : null,
+        party_label: rec.party_list_name?.toString().trim() ?? null,
+        list_order: Number(rec.order_id) || null,
+        first_name: first,
+        last_name: last,
+        partisanship: rec.partisanship?.toString().trim() ?? null
+      });
+    }
+  }
+
+  // Elected politicians — covers PR, SMD, mayor in one sheet
+  const electedNames = new Set();
+  const elWs = wb.getWorksheet("elected politicians");
+  if (elWs) {
+    const hdr = elWs.getRow(1).values.slice(1);
+    for (let i = 2; i <= elWs.rowCount; i++) {
+      const row = elWs.getRow(i).values.slice(1);
+      const rec = Object.fromEntries(hdr.map((h, j) => [h, row[j]]));
+      const first = rec.name?.toString().trim() ?? "";
+      const last = rec.last_name?.toString().trim() ?? "";
+      if (!first && !last) continue;
+      electedNames.add(`${normalizeName(first)}__${normalizeName(last)}`);
+    }
+  }
+
+  return { prRows, electedNames };
+}
+
 async function read2024PrListXlsx() {
   const path = join(ROOT, "data/raw/party_lists_2024_georgia_unified.xlsx");
   if (!existsSync(path)) return [];
@@ -373,6 +453,18 @@ export async function buildCandidates() {
     const electedKeys = loadElectedKeys(election.files);
     const year = yearFromId(election.id);
     const f = election.files ?? {};
+
+    // Special-case raw-XLSX ingestion for elections whose candidate data lives
+    // in a not-yet-converted XLSX. Currently only local_2017 — the XLSX
+    // carries the sakrebulo PR list (12.9k rows) + a unified elected-politicians
+    // sheet that covers mayor / SMD / PR winners. Loaded once per pass; the
+    // elected names are unioned into electedKeys BEFORE the YAML candidate
+    // roster is processed, so `elected: true` is correct for both branches.
+    let xlsx2017 = null;
+    if (election.id === "local_2017") {
+      xlsx2017 = await read2017LocalXlsx();
+      for (const k of xlsx2017.electedNames) electedKeys.add(k);
+    }
 
     if (f.party_lists) {
       // For local elections, the PR list is per selfgov unit — pass the selfgov
@@ -524,6 +616,46 @@ export async function buildCandidates() {
           elected: electedKeys.has(electedKey)
         });
         ap.first_name = first_name; ap.last_name = last_name; ap.name_ka = name_ka;
+        appearances.push(ap);
+      }
+    }
+
+    // local_2017 sakrebulo PR list — sourced from adg_2017 XLSX. The local
+    // YAML roster only covers mayor / sakrebulo_smd, so PR candidates would
+    // otherwise be absent. Each row is one PR-list slot inside a selfgov unit.
+    if (election.id === "local_2017" && xlsx2017) {
+      const selfgovShape = election.system?.pr?.selfgov_shape_file
+                       ?? election.system?.smd?.shape_file ?? null;
+      for (const r of xlsx2017.prRows) {
+        const first_name = r.first_name ?? "";
+        const last_name = r.last_name ?? "";
+        if (!first_name && !last_name) continue;
+        const pid = partyIdFromLabel(r.party_label, partyMap);
+        const partyNames = pid ? partyMap[pid] : null;
+        const did = r.selfgov_id;
+        const district = selfgovShape ? lookupDistrict(selfgovShape, did) : {};
+        const electedKey = `${normalizeName(first_name)}__${normalizeName(last_name)}`;
+        const ap = makeAppearance({
+          election_id: "local_2017",
+          election_type: "local",
+          election_year: 2017,
+          vote_type: "pr",
+          party_id: pid,
+          party_label_ka: partyNames?.name_ka ?? r.party_label ?? null,
+          party_label_en: partyNames?.name_en ?? null,
+          list_order: r.list_order,
+          district_id: did,
+          district_name_ka: district.name_ka ?? null,
+          district_name_en: district.name_en ?? null,
+          district_lat: district.lat ?? null,
+          district_lng: district.lng ?? null,
+          district_zoom: district.zoom ?? null,
+          elected: electedKeys.has(electedKey),
+          notes: r.partisanship && r.partisanship !== r.party_label ? r.partisanship : null
+        });
+        ap.first_name = first_name;
+        ap.last_name = last_name;
+        ap.name_ka = `${first_name} ${last_name}`.trim();
         appearances.push(ap);
       }
     }

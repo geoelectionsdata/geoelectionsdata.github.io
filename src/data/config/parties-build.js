@@ -55,15 +55,16 @@ function yearFromId(id) {
   return m ? Number(m[1]) : null;
 }
 
-// Heuristic when explicit `category` is absent.
+// Heuristic when explicit `category` is absent. Only four user-facing
+// buckets now: party | coalition | historic | (and a few aux buckets that
+// don't get their own filter chip — independent | option | other).
 function inferCategory(party, electionCount) {
   if (party.type === "bloc" || party.type === "alliance") return "coalition";
   if (party.type === "independent") return "independent";
   if (party.type === "option") return "option";
   if (party.type === "other") return "other";
   if (electionCount === 0) return "other";
-  if (electionCount === 1) return "one_shot";
-  return "stable";
+  return "party";
 }
 
 // ─── load registry + lineage map ────────────────────────────────────────────
@@ -249,7 +250,8 @@ export async function buildParties() {
         peak_election: null,
         total_candidates: 0,
         total_elected: 0,
-        total_seats: 0
+        total_seats: 0,
+        total_won: 0
       };
       byLineage.set(lid, lin);
     }
@@ -278,6 +280,14 @@ export async function buildParties() {
       lin.type = lin.type ?? reg.type ?? "party";
     }
 
+    // `won` = best estimate of seats/positions secured by this party in this
+    // election. YAML `seats_pr + seats_smd` is authoritative when present
+    // (parliamentary/Adjara); local YAMLs lack it, so the candidate-level
+    // elected_count (from per-election elected.csv) is the fallback. Take
+    // max() so neither source under-counts the other.
+    const seatsYaml = (entry.seats_pr ?? 0) + (entry.seats_smd ?? 0);
+    const won = Math.max(seatsYaml, entry.elected_count ?? 0);
+
     // Append the appearance.
     lin.appearances.push({
       election_id: entry.election_id,
@@ -287,6 +297,7 @@ export async function buildParties() {
       party_label_en: entry.party_label_en,
       seats_pr: entry.seats_pr ?? 0,
       seats_smd: entry.seats_smd ?? 0,
+      won,
       threshold_status: entry.threshold_status ?? null,
       vote_share: entry.vote_share ?? null,
       candidate_count: entry.candidate_count ?? 0,
@@ -311,10 +322,12 @@ export async function buildParties() {
     lin.total_candidates += entry.candidate_count ?? 0;
     lin.total_elected += entry.elected_count ?? 0;
     lin.total_seats += (entry.seats_pr ?? 0) + (entry.seats_smd ?? 0);
+    lin.total_won += won;
   }
 
   // Finalise lineage records.
-  const lineages = [...byLineage.values()].map(l => {
+  const registeredIds = new Set(Object.keys(registry));
+  const lineagesAll = [...byLineage.values()].map(l => {
     const ids = [...l.ids];
     const appearances = l.appearances.sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
     const electionCount = new Set(appearances.map(a => a.election_id)).size;
@@ -344,6 +357,7 @@ export async function buildParties() {
       candidate_count: l.total_candidates,
       elected_count: l.total_elected,
       seat_count: l.total_seats,
+      won_count: l.total_won,
       first_year: l.first_year === Infinity ? null : l.first_year,
       last_year: l.latest_year === -Infinity ? null : l.latest_year,
       peak_share: l.peak_share || null,
@@ -354,14 +368,23 @@ export async function buildParties() {
     };
   });
 
-  // Sort: stable parties first (most recent activity), then coalitions, then
-  // historic, then one_shot, then everything else; alphabetical fallback.
-  const catOrder = { stable: 0, coalition: 1, historic: 2, one_shot: 3, independent: 4, option: 5, other: 6 };
+  // Noise filter — by-election ballot-position pseudo-parties (ids like
+  // `parl2012_2015_*_42`, `mtatsminda_2019_9`, `zugdidi_2018_*`) and lone
+  // presidential candidate "initiative groups" (lowercase-name ids that are
+  // really one person) clutter the list. Keep a lineage only if its id is
+  // registered in parties.yml OR it has enough candidates to be a real
+  // political vehicle (≥ 5).
+  const lineages = lineagesAll.filter(l =>
+    registeredIds.has(l.lineage_id) || (l.candidate_count ?? 0) >= 5
+  );
+
+  // Sort by peak PR vote share descending. Ties broken by total candidates
+  // (i.e. bigger party fielded more people), then by name.
   lineages.sort((a, b) => {
-    const ca = catOrder[a.category] ?? 9;
-    const cb = catOrder[b.category] ?? 9;
-    if (ca !== cb) return ca - cb;
-    if ((b.last_year ?? 0) !== (a.last_year ?? 0)) return (b.last_year ?? 0) - (a.last_year ?? 0);
+    const pa = a.peak_share ?? 0;
+    const pb = b.peak_share ?? 0;
+    if (pb !== pa) return pb - pa;
+    if ((b.candidate_count ?? 0) !== (a.candidate_count ?? 0)) return (b.candidate_count ?? 0) - (a.candidate_count ?? 0);
     return (a.name_en ?? "").localeCompare(b.name_en ?? "", "en");
   });
 

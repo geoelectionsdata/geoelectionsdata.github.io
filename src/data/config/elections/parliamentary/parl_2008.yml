@@ -126,15 +126,6 @@ parties:
     seats_pr: 0
     seats_smd: 0
 
-  - id: christian_democrats_2008
-    alias:
-      en: "Giorgi Targamadze - Christian Democrats"
-      ka: "გიორგი თარგამაძე - ქრისტიან-დემოკრატები"
-    color: "#6D4C41"
-    threshold_status: passed
-    seats_pr: 6
-    seats_smd: 0
-
   - id: traditionalists
     alias:
       en: "Traditionalists - Our Georgia and Women's Party"

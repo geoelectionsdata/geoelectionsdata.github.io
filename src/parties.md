@@ -74,7 +74,7 @@ searchInput.addEventListener("input", () => stateWidget.setQuery(searchInput.val
 
 // Category filter chips. Defined once; the active styling updates via a
 // reactive cell that adds/removes a class.
-const FILTERS = ["all", "stable", "coalition", "one_shot", "historic"];
+const FILTERS = ["all", "party", "coalition", "historic"];
 const filterRow = html`<div class="cand-filter-row">${
   FILTERS.map(f => html`<button type="button" class="cand-chip" data-filter="${f}">${t("parties.filter." + f)}</button>`)
 }</div>`;
@@ -496,7 +496,7 @@ function renderPartyAppearances(lineage, appearances) {
       <span>${t("parties.last_year")}: <strong>${lineage.last_year ?? "—"}</strong></span>
       <span>${t("parties.col_elections")}: <strong>${lineage.election_count}</strong></span>
       <span>${t("parties.col_candidates")}: <strong>${formatInt(lineage.candidate_count)}</strong></span>
-      <span>${t("parties.elected_total")}: <strong>${formatInt(lineage.elected_count)}</strong></span>
+      <span>${t("parties.elected_total")}: <strong>${formatInt(lineage.won_count)}</strong></span>
       <span>${candidatesLink}</span>
     </div>
   `;
@@ -511,9 +511,16 @@ function renderPartyAppearances(lineage, appearances) {
       <div class="cand-table-cell" role="cell">${electionName(ap.election_id)}</div>
       <div class="cand-table-cell" role="cell">${ap.party_label_ka ?? ap.party_label_en ?? ""}</div>
       <div class="cand-table-cell num" role="cell">${formatVoteShare(ap.vote_share)}</div>
-      <div class="cand-table-cell num" role="cell">${(ap.seats_pr ?? 0) + (ap.seats_smd ?? 0) || ""}</div>
+      <div class="cand-table-cell num" role="cell">${ap.won || ""}</div>
       <div class="cand-table-cell num" role="cell">${formatInt(ap.candidate_count)}</div>
-      <div class="cand-table-cell" role="cell">${ap.threshold_status ? t("parties.threshold." + ap.threshold_status) : ""}</div>
+      <div class="cand-table-cell" role="cell">${
+        // Threshold only meaningful for parliamentary elections — local has
+        // per-selfgov thresholds, so showing a single national status would
+        // be misleading.
+        ap.threshold_status && electionById.get(ap.election_id)?.type === "parliamentary"
+          ? t("parties.threshold." + ap.threshold_status)
+          : ""
+      }</div>
       <div class="cand-table-cell" role="cell">${ap.election_id
         ? html`<a href="${mapUrlForAppearance(ap, lineage)}" target="_blank" rel="noopener">${t("candidates.view_on_map")}</a>`
         : ""}</div>

@@ -177,36 +177,6 @@ parties:
     threshold_status: failed
     alias:
       ka: "შალვა ნათელაშვილი - საქართველოს ლეიბორისტული პარტია"
-  - id: peoples_authority_2016
-    threshold_status: failed
-    color: "#7CB342"
-    alias:
-      en: "People's Authority"
-      ka: "სახალხო ხელისუფლება"
-  - id: free_democrats
-    threshold_status: failed
-    color: "#1565C0"
-    alias:
-      en: "Free Democrats"
-      ka: "თავისუფალი დემოკრატები"
-  - id: burchuladze
-    threshold_status: failed
-    color: "#7E57C2"
-    alias:
-      en: "Paata Burchuladze - State for the People"
-      ka: "პაატა ბურჭულაძე - სახელმწიფო ხალხისთვის"
-  - id: republicans_2016
-    threshold_status: failed
-    color: "#26A69A"
-    alias:
-      en: "Republicans"
-      ka: "უსუფაშვილი - რესპუბლიკელები"
-  - id: national_forum
-    threshold_status: failed
-    color: "#8D6E63"
-    alias:
-      en: "National Forum"
-      ka: "ეროვნული ფორუმი"
   - id: nonparliamentary_opposition_2014
     threshold_status: failed
     color: "#00897B"

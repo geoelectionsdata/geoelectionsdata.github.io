@@ -22,6 +22,7 @@ const slim = {
     candidate_count:  l.candidate_count,
     elected_count:    l.elected_count,
     seat_count:       l.seat_count,
+    won_count:        l.won_count,
     first_year:       l.first_year,
     last_year:        l.last_year,
     peak_share:       l.peak_share,

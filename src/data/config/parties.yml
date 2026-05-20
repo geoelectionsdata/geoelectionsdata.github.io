@@ -4,9 +4,11 @@
 #
 # Optional fields used by the /parties page:
 #   category   — explicit categorisation for the page's filter chips.
-#                Values: stable | coalition | one_shot | historic | independent | option | other
-#                If omitted, the loader infers it: type=bloc|alliance → coalition;
-#                one election appearance → one_shot; ≥2 → stable.
+#                Values: party | coalition | historic | independent | option | other
+#                Only `party`, `coalition`, `historic` get their own filter chip;
+#                the others fall under "All" only. If omitted, the loader infers:
+#                type=bloc|alliance → coalition; type=independent → independent;
+#                type=option → option; otherwise → party.
 #   lineage    — string key grouping multiple party_ids that belong to the same
 #                continuous political identity (e.g. greens / greens_geo / greens_2014).
 #                Parties sharing a lineage collapse into one row on the /parties
@@ -30,6 +32,7 @@ parties:
       ka: ევროპელი დემოკრატები
     color: "#0288D1"
     type: party
+    lineage: european_democrats
 
   - id: patriots
     name:
@@ -37,7 +40,7 @@ parties:
       ka: საქართველოს პატრიოტთა ალიანსი
     color: "#880E4F"
     type: party
-    category: stable
+    category: party
 
   - id: our_georgia
     name:
@@ -110,7 +113,7 @@ parties:
       ka: ქართული ოცნება
     color: "#1565C0"
     type: party
-    category: stable
+    category: party
 
   - id: unm
     name:
@@ -118,7 +121,7 @@ parties:
       ka: ერთიანი ნაციონალური მოძრაობა
     color: "#C62828"
     type: party
-    category: stable
+    category: party
     lineage: unm
 
   - id: coalition_for_change
@@ -150,7 +153,7 @@ parties:
       ka: ევროპული საქართველო
     color: "#0288D1"
     type: party
-    category: stable
+    category: party
 
   - id: girchi
     name:
@@ -158,15 +161,15 @@ parties:
       ka: გირჩი
     color: "#F57F17"
     type: party
-    category: stable
+    category: party
 
   - id: labour
     name:
       en: Labour Party
-      ka: შრომის პარტია
+      ka: ლეიბორისტული პარტია
     color: "#D32F2F"
     type: party
-    category: stable
+    category: party
 
   # ── 1992 parties ─────────────────────────────────────────────────────────
 
@@ -393,6 +396,7 @@ parties:
       ka: მესამე ძალა-სტრატეგია აღმაშენებელი
     color: "#37474F"
     type: party
+    lineage: third_force
 
   - id: early_elections_coalition
     name:
@@ -428,6 +432,7 @@ parties:
       ka: ქართული დასი
     color: "#33691E"
     type: party
+    lineage: georgian_group
 
   - id: european_socialists
     name:
@@ -491,6 +496,7 @@ parties:
       ka: მეჭიაური გაერთიანებული
     color: "#827717"
     type: party
+    lineage: mechiauri
 
   - id: freedom_gamsakhurdia
     name:
@@ -563,6 +569,7 @@ parties:
       ka: ბურჯანაძე-დემოკრატები
     color: "#5C6BC0"
     type: party
+    lineage: burjanadze
 
   - id: republicans_2016
     name:
@@ -570,6 +577,7 @@ parties:
       ka: საქართველოს რესპუბლიკური პარტია
     color: "#FF7043"
     type: party
+    lineage: republicans
 
   - id: peoples_power_2016
     name:
@@ -649,6 +657,7 @@ parties:
       ka: გიორგი ვაშაძე — ერთობა ახალი საქართველო
     color: "#0288D1"
     type: bloc
+    lineage: third_force
 
   - id: smd_only_42
     name:
@@ -686,6 +695,7 @@ parties:
       ka: ნინო ბურჯანაძე — ერთიანი საქართველო — დემოკრატიული მოძრაობა
     color: "#5D4037"
     type: bloc
+    lineage: burjanadze
 
   - id: future_georgia
     name:
@@ -700,6 +710,7 @@ parties:
       ka: თამაზ მეჭიაური — ერთიანი საქართველოსთვის
     color: "#00838F"
     type: party
+    lineage: mechiauri
 
   - id: greens
     name:
@@ -771,6 +782,7 @@ parties:
       ka: სტრატეგია აღმაშენებელი
     color: "#283593"
     type: bloc
+    lineage: third_force
 
   - id: roots
     name:
@@ -841,6 +853,7 @@ parties:
       ka: ქართული დასი
     color: "#6A1B9A"
     type: party
+    lineage: georgian_group
 
   - id: progressive_georgia
     name:
@@ -890,6 +903,22 @@ parties:
       ka: მამულიშვილთა ორდენი სამშობლო
     color: "#4527A0"
     type: party
+    
+  - id: christian_democrats_2008
+    name:
+      en: Christian Democratic Movement
+      ka: ქრისტიან დემოკრატიული მოძრაობა
+    color: "#6D4C41"
+    type: party
+    lineage: christian_democratic_movement
+
+  - id: christian_democrats_2012
+    name:
+      en: "Giorgi Targamadze - Christian-Democratic Movement"
+      ka: "გიორგი თარგამაძე - ქრისტიან-დემოკრატიული გაერთიანება"
+    color: "#6D4C41"
+    type: party
+    lineage: christian_democratic_movement
 
   # ── SMD independents ──────────────────────────────────────────────────────
 
@@ -922,6 +951,84 @@ parties:
       ka: "არა"
     color: "#C62828"
     type: option
+
+  # ── Promoted from election YAML aliases (pre-2014 lineage anchors) ────────
+  # These ids previously lived only as election-specific aliases in
+  # parl_*/local_*/adj_*.yml. Promoted to the registry so they participate in
+  # lineage grouping on the /parties page. Colors mirror the election alias.
+
+  - id: christian_democrats_2010
+    name:
+      en: Targamadze, Grigolia — Christian-Democratic Union
+      ka: გიორგი თარგამაძე, ინგა გრიგოლია – ქრისტიან-დემოკრატიული გაერთიანება
+    color: "#6D4C41"
+    type: party
+    lineage: christian_democratic_movement
+
+  - id: alliance_georgia_2010
+    name:
+      en: Alliance for Georgia
+      ka: ალიანსი საქართველოსთვის
+    color: "#1565C0"
+    type: alliance
+    category: coalition
+
+  - id: burjanadze_united_opposition_2014
+    name:
+      en: Nino Burjanadze — United Opposition
+      ka: ნინო ბურჯანაძე — ერთიანი ოპოზიცია
+    color: "#7B1FA2"
+    type: bloc
+    category: coalition
+    lineage: burjanadze
+
+  - id: republicans_2008
+    name:
+      en: Republican Party of Georgia
+      ka: საქართველოს რესპუბლიკური პარტია
+    color: "#FF7043"
+    type: party
+    lineage: republicans
+
+  - id: adj2008_chven_tviton
+    name:
+      en: We Ourselves
+      ka: ჩვენ თვითონ
+    color: "#00897B"
+    type: party
+    lineage: european_democrats
+
+  - id: adj2008_kartuli_dasi
+    name:
+      en: Georgian Group
+      ka: ქართული დასი
+    color: "#33691E"
+    type: party
+    lineage: georgian_group
+
+  - id: national_democratic_2010
+    name:
+      en: National-Democratic Party
+      ka: ეროვნულ-დემოკრატიული პარტია
+    color: "#3949AB"
+    type: party
+    lineage: national_democratic_party
+
+  - id: ndp_2012
+    name:
+      en: National-Democratic Party
+      ka: ეროვნულ-დემოკრატიული პარტია
+    color: "#455A64"
+    type: party
+    lineage: national_democratic_party
+
+  - id: national_democratic_2014
+    name:
+      en: National-Democratic Party (NDP)
+      ka: ეროვნულ-დემოკრატიული პარტია (ედპ)
+    color: "#3949AB"
+    type: party
+    lineage: national_democratic_party
 
   # ── Generic fallback ──────────────────────────────────────────────────────
 
