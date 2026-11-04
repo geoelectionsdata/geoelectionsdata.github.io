@@ -171,18 +171,41 @@ function loadResults(relPath) {
 }
 
 function indexSmdResults(rows) {
-  const idx = {};
-  if (!rows) return idx;
-  for (const r of rows) {
+  const idx = new Map();
+  for (const r of rows ?? []) {
     const did = r.district_id ?? r.major_id ?? r.electoral_district_id ?? r.smd_code ?? r.maj_id;
     const pid = r.party_id;
-    if (!did || !pid) continue;
-    idx[`${did}__${pid}`] = {
-      votes: Number(r.votes ?? r.votes_total ?? 0) || 0,
-      vote_share: Number(r.vote_share ?? 0) || 0
-    };
+    if (!did || did === "national") continue;
+    const key = String(did).trim();
+    if (!idx.has(key)) idx.set(key, []);
+    idx.get(key).push(r);
   }
   return idx;
+}
+
+function matchSmdResult(index, district, candidate) {
+  const rows = index?.get(district) ?? [];
+  const normalize = value => String(value ?? "").normalize("NFC").trim().replace(/\s+/g, " ").toLowerCase();
+  const name = normalize(candidate.name_ka || `${candidate.first_name} ${candidate.last_name}`);
+  const number = String(candidate.ballot_number || candidate.party_code || "").trim();
+  const party = candidate.party_id;
+  const numbered = rows.filter(r => {
+    const code = String(r.ballot_number || r.candidate_number || r.party_num || "").trim();
+    return number && code === number && (!party || !r.party_id || r.party_id === party);
+  });
+  const named = rows.filter(r => name && normalize(r.name_ka) === name);
+  const partyRows = party ? rows.filter(r => r.party_id === party) : [];
+  if (numbered.length === 1 && named.length === 1 && numbered[0] !== named[0]) return null;
+  const hit = numbered.length === 1 ? numbered[0]
+    : named.length === 1 ? named[0]
+    : partyRows.length === 1 && !/independent|initiative/i.test(party)
+      && !normalize(partyRows[0].name_ka)
+      && !(number && (partyRows[0].ballot_number || partyRows[0].candidate_number || partyRows[0].party_num))
+      ? partyRows[0] : null;
+  if (!hit) return null;
+  const metric = value => value == null || String(value).trim() === "" || !Number.isFinite(Number(value))
+    ? null : Number(value);
+  return {votes: metric(hit.votes ?? hit.votes_total), vote_share: metric(hit.vote_share)};
 }
 
 function indexPresResults(rows) {
@@ -321,13 +344,10 @@ function appearanceFromCanonicalRow(row, election, sub, partyMap, shapeForVoteTy
     district_zoom      = geo.zoom ?? null;
   }
 
-  // Votes / vote share: joined from results CSVs by (district_id, party_id) for
-  // SMD and (party_id) for presidential.
+  // SMD votes are scoped to the contest and matched within its district.
   let votes = null, vote_share = null;
   if (vote_type === "smd" || vote_type === "council_smd") {
-    const idx = smdResultsIdx ?? {};
-    const key = (districtId != null && party_id) ? `${districtId}__${party_id}` : null;
-    const hit = key ? idx[key] : null;
+    const hit = matchSmdResult(smdResultsIdx[vote_type], districtId, row);
     if (hit) { votes = hit.votes; vote_share = hit.vote_share; }
   } else if (vote_type === "presidential" && party_id) {
     const hit = presResultsIdx?.[party_id];
@@ -419,10 +439,6 @@ export async function buildCandidates() {
     if (!election?.id) continue;
     const partyMap = buildElectionPartyMap(election);
 
-    // Pre-load PR + SMD result indexes once per election (used by ALL subs).
-    const smdResultsIdx = indexSmdResults(election.files?.smd_results ? loadResults(election.files.smd_results) : null);
-    const presResultsIdx = indexPresResults(election.files?.pr_results ? loadResults(election.files.pr_results) : null);
-
     // Process __main__ election + each sub-election uniformly.
     const subs = [{ id: "__main__", sub: null }];
     for (const sub of (election.sub_elections ?? [])) {
@@ -430,6 +446,13 @@ export async function buildCandidates() {
     }
 
     for (const { sub } of subs) {
+      const files = (sub ?? election).files ?? {};
+      const smdResultsIdx = {
+        smd: election.type === "local" ? null : indexSmdResults(loadResults(files.smd_results)),
+        council_smd: indexSmdResults(loadResults(files.council_smd_results))
+      };
+      if (election.type === "local") smdResultsIdx.smd = smdResultsIdx.council_smd;
+      const presResultsIdx = indexPresResults(loadResults(files.pr_results));
       // Read each candidate-roster slot.
       for (const slot of SLOTS) {
         const csvPath = canonicalSlotPath(election, sub, slot);

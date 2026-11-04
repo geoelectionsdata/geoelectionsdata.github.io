@@ -17,7 +17,8 @@ source("src/loaders/R/common/io.R")
 
 RESULTS_DIR    <- "src/data/results"
 CANDIDATES_DIR <- "src/data/candidates"
-REPORT_DIR     <- "reports"
+args <- commandArgs(trailingOnly = TRUE)
+REPORT_DIR     <- if (length(args)) args[[1]] else "reports"
 dir.create(REPORT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 # Canonical candidate rosters are named {election_id}_{slot}.csv where the

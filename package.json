@@ -2,6 +2,8 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "test": "node scripts/test-districts.js && node scripts/check-translations.js && node scripts/check-loader-shadows.js",
+    "prebuild": "node scripts/check-loader-shadows.js",
     "clean": "rimraf src/.observablehq/cache",
     "build": "observable build",
     "dev": "observable preview",

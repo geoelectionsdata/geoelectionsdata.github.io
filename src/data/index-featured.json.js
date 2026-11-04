@@ -6,11 +6,12 @@
 import fs   from "node:fs";
 import path from "node:path";
 import yaml from "js-yaml";
+import {csvParse} from "d3-dsv";
 
 const SRC          = path.join(process.cwd(), "src");
 const ELECTIONS_DIR = path.join(SRC, "data", "config", "elections");
 
-// Same featured election IDs and rotation logic as index.md
+// Priority order for the featured election. A stable choice keeps builds reproducible.
 const FEATURED_IDS = ["parl_2024", "parl_1919", "pres_2018", "parl_2012"];
 
 function collectYmlFiles(dir) {
@@ -42,32 +43,19 @@ if (!pool.length) {
   process.exit(0);
 }
 
-// Same daily rotation as index.md
-const featured = pool[Math.floor(Date.now() / 86400000) % pool.length];
+const featured = pool[0];
 
 // Load GeoJSON
 const geoPath = path.join(SRC, featured.system.pr.shape_file);
 const geo = JSON.parse(fs.readFileSync(geoPath, "utf8"));
 
 // Load and parse CSV
-function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
-  if (lines.length < 2) return [];
-  const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
-  return lines.slice(1).map(line => {
-    const vals = line.split(",").map(v => v.trim().replace(/^"|"$/g, ""));
-    const obj = {};
-    headers.forEach((h, i) => {
-      const v = vals[i] ?? "";
-      const n = Number(v);
-      obj[h] = v !== "" && !isNaN(n) ? n : v;
-    });
-    return obj;
-  });
-}
-
 const csvPath = path.join(SRC, featured.files.pr_results);
-const csv = parseCSV(fs.readFileSync(csvPath, "utf8"));
+const csv = csvParse(fs.readFileSync(csvPath, "utf8"), row => ({
+  ...row,
+  votes: Number(row.votes),
+  vote_share: Number(row.vote_share)
+}));
 
 process.stdout.write(JSON.stringify({
   electionId: featured.id,

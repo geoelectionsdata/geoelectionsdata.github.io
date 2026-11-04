@@ -2,10 +2,13 @@ name: Rebuild
 
 on:
   push:
-    branches: [main]
-  schedule:
-    - cron: "0 0 * * *" # daily at midnight UTC
+    branches: [main, codex/linux-regeneration-audit]
   workflow_dispatch:
+    inputs:
+      audit_only:
+        description: "Run the regeneration audit and checks without publishing"
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -49,6 +52,12 @@ jobs:
       # ── Process raw election data ───────────────────────────────────────────
       # Each loader reads from src/data/raw/ and writes to src/data/results/
       # (and src/data/turnout/ where applicable). Run from project root.
+      - name: Snapshot data for regeneration audit
+        run: |
+          baseline="$RUNNER_TEMP/geda-data-baseline"
+          mkdir -p "$baseline"
+          cp -a src/data/{results,turnout,candidates,config,shp} "$baseline/"
+
       - name: Process 2012 parliamentary data
         run: Rscript src/loaders/process_parl2012.R
 
@@ -110,6 +119,15 @@ jobs:
 
       - name: Install Node dependencies
         run: npm ci
+
+      - name: Report regenerated data differences
+        run: node scripts/compare-regenerated-data.js src/data "$RUNNER_TEMP/geda-data-baseline"
+
+      - name: Check dashboard contracts
+        run: |
+          npm test
+          Rscript scripts/test-districts.R
+          Rscript scripts/validate-canonical.R "${RUNNER_TEMP}/canonical-report"
 
       # ── Build download bundles (xlsx per election) ─────────────────────────
       - name: Build pres2008 download bundle
@@ -199,13 +217,16 @@ jobs:
 
       # ── Deploy ─────────────────────────────────────────────────────────────
       - name: Configure GitHub Pages
+        if: ${{ github.ref == 'refs/heads/main' && !inputs.audit_only }}
         uses: actions/configure-pages@v3
 
       - name: Upload GitHub Pages artifact
+        if: ${{ github.ref == 'refs/heads/main' && !inputs.audit_only }}
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
       - name: Deploy to GitHub Pages
+        if: ${{ github.ref == 'refs/heads/main' && !inputs.audit_only }}
         id: deployment
         uses: actions/deploy-pages@v4
