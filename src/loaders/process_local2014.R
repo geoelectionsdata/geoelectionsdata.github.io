@@ -1484,7 +1484,8 @@ write_csv_utf8(turnout_precinct, "src/data/turnout/local2014_precincts_turnout.c
 
 cat("Writing candidate and elected files...\n")
 write_csv_utf8(candidate_tables$party_lists, file.path(OUT_CANDIDATES, "local2014_party_lists.csv"))
-write_csv_utf8(candidate_tables$mayor, file.path(OUT_CANDIDATES, "local2014_mayor_gamgebeli_candidates.csv"))
+# The checked-in mayor/gamgebeli CSV is an archive for migrate-candidates.js.
+# Active results still use candidate_tables$mayor for candidate-name joins.
 write_csv_utf8(candidate_tables$major, file.path(OUT_CANDIDATES, "local2014_smd_candidates.csv"))
 
 normalize_geo_name <- function(x) {
