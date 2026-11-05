@@ -15,6 +15,7 @@ suppressPackageStartupMessages({
 })
 
 args <- commandArgs(trailingOnly = TRUE)
+source("src/loaders/R/common/precinct_results.R")
 args <- args[args != "--args"]
 RAW_DIR <- Sys.getenv("RAW_DIR", unset = "src/data/raw")
 OUT_DIR <- if (length(args) >= 1) args[[1]] else Sys.getenv("OUT_RESULTS", unset = "src/data/results")
@@ -179,16 +180,25 @@ sum_totals <- function(df, group_cols = NULL) {
   }
 }
 
-add_metrics <- function(df) {
+add_turnout_metrics <- function(df) {
   df %>%
     mutate(
       registered = main_list + special_list,
-      vote_share = safe_ratio(votes, totalVotes),
       turnout_pct = safe_ratio(voted, registered),
       noon_pct = safe_ratio(voted_noon, registered),
       five_pct = safe_ratio(voted_5pm, registered),
       invalid_pct = safe_ratio(invalid_ballots, voted)
     )
+}
+
+add_metrics <- function(df) {
+  df %>% add_turnout_metrics() %>% mutate(vote_share = safe_ratio(votes, totalVotes))
+}
+
+# Each call is scoped to one ballot, round, and reporting level. SMD subjects
+# use their ballot code, not party affiliation, as their identity.
+ballot_legacy_view <- function(results, turnout, unit_keys, subject_col = "code") {
+  join_ballot_results(results, add_turnout_metrics(turnout), subject_col, safe_ratio, unit_keys)
 }
 
 attach_totals <- function(df, totals) {
@@ -300,11 +310,8 @@ write_csv_like_js(
 )
 
 pr_precinct <- pr_long %>%
-  mutate(
-    district_id = as.character(precinct_id),
-    registered = main_list + special_list
-  ) %>%
-  add_metrics()
+  transmute(precinct_id, district_id = as.character(precinct_id), party_id, votes) %>%
+  ballot_legacy_view(select(pr_base, precinct_id, all_of(SUM_COLS)), "precinct_id", "party_id")
 
 PR_PRECINCT_COLS <- c(
   "precinct_id", "district_id", "party_id", "votes", "vote_share",
@@ -373,10 +380,12 @@ smd_national <- smd_national_code_votes %>%
     district_id = "national",
     name_ka = ""
   ) %>%
-  attach_totals(smd_national_totals) %>%
-  mutate(totalVotes = sum(votes, na.rm = TRUE)) %>%
-  add_metrics() %>%
   arrange(code_order)
+smd_national <- ballot_legacy_view(
+  smd_national,
+  mutate(smd_national_totals, district_id = "national", totalVotes = sum(smd_national$votes, na.rm = TRUE)),
+  "district_id", subject_col = "party_id"
+)
 
 smd_district_totals <- sum_totals(smd_base, "smd")
 
@@ -385,10 +394,9 @@ smd_district <- smd_long %>%
   filter(votes != 0, !is.na(party_id)) %>%
   group_by(smd, code, code_order, party_id, name_ka) %>%
   summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
-  left_join(smd_district_totals, by = "smd") %>%
   mutate(district_id = as.character(smd)) %>%
-  add_metrics() %>%
-  arrange(smd, code_order)
+  arrange(smd, code_order) %>%
+  ballot_legacy_view(smd_district_totals, "smd")
 
 SMD_RESULT_COLS <- c(
   "district_id", "party_id", "name_ka", "votes", "vote_share", "registered", "voted",
@@ -406,7 +414,8 @@ smd_precinct <- smd_long %>%
   left_join(candidate_lookup %>% select(smd, code, party_id, name_ka), by = c("smd", "code")) %>%
   filter(votes != 0, !is.na(party_id)) %>%
   mutate(district_id = as.character(precinct_id)) %>%
-  add_metrics()
+  select(-all_of(SUM_COLS)) %>%
+  ballot_legacy_view(select(smd_base, smd, precinct_id, all_of(SUM_COLS)), c("smd", "precinct_id"))
 
 SMD_PRECINCT_COLS <- c(
   "precinct_id", "district_id", "party_id", "name_ka", "votes", "vote_share", "registered", "voted",
@@ -469,9 +478,8 @@ runoff_national <- runoff_long %>%
     district_id = "national",
     name_ka = ""
   ) %>%
-  attach_totals(runoff_national_totals) %>%
-  add_metrics() %>%
-  arrange(code_order)
+  arrange(code_order) %>%
+  ballot_legacy_view(mutate(runoff_national_totals, district_id = "national"), "district_id")
 
 runoff_district_totals <- sum_totals(runoff_base, "smd")
 
@@ -480,13 +488,12 @@ runoff_district <- runoff_long %>%
   group_by(smd, code, code_order, party_id) %>%
   summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
   left_join(candidate_lookup %>% select(smd, code, name_ka), by = c("smd", "code")) %>%
-  left_join(runoff_district_totals, by = "smd") %>%
   mutate(
     district_id = as.character(smd),
     name_ka = replace_na(name_ka, "")
   ) %>%
-  add_metrics() %>%
-  arrange(smd, code_order)
+  arrange(smd, code_order) %>%
+  ballot_legacy_view(runoff_district_totals, "smd")
 
 RUNOFF_RESULT_COLS <- SMD_RESULT_COLS
 
@@ -503,7 +510,8 @@ runoff_precinct <- runoff_long %>%
     district_id = as.character(precinct_id),
     name_ka = replace_na(name_ka, "")
   ) %>%
-  add_metrics()
+  select(-all_of(SUM_COLS)) %>%
+  ballot_legacy_view(select(runoff_base, smd, precinct_id, all_of(SUM_COLS)), c("smd", "precinct_id"))
 
 RUNOFF_PRECINCT_COLS <- SMD_PRECINCT_COLS
 

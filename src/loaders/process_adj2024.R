@@ -16,6 +16,7 @@ suppressPackageStartupMessages({
 })
 
 args <- commandArgs(trailingOnly = TRUE)
+source("src/loaders/R/common/precinct_results.R")
 args <- args[args != "--args"]
 
 RAW_DIR <- Sys.getenv("RAW_DIR", unset = "src/data/raw")
@@ -131,15 +132,18 @@ sum_totals <- function(df, group_cols = NULL) {
   }
 }
 
-attach_metrics <- function(df) {
+add_turnout_metrics <- function(df) {
   df %>%
     mutate(
-      vote_share = safe_ratio(votes, totalVotes),
       turnout_pct = safe_ratio(voted, registered),
       noon_pct = safe_ratio(noon, registered),
       five_pct = safe_ratio(fivepm, registered),
       invalid_pct = safe_ratio(invalid, voted)
     )
+}
+
+attach_metrics <- function(df) {
+  df %>% add_turnout_metrics() %>% mutate(vote_share = safe_ratio(votes, totalVotes))
 }
 
 cat("Reading:", RAW_FILE, "\n")
@@ -206,8 +210,14 @@ district_results <- party_long %>%
     invalid_pct
   )
 
-precinct_results <- party_long %>%
-  attach_metrics() %>%
+precinct_votes <- party_long %>%
+  select(precinct_id, row_order, party_id, party_order, votes)
+precinct_measures <- precincts %>%
+  add_turnout_metrics() %>%
+  transmute(precinct_id, totalVotes, registered, voted, voted_noon = noon,
+            voted_5pm = fivepm, turnout_pct, noon_pct, five_pct,
+            invalid_ballots = invalid, invalid_pct)
+precinct_results <- join_precinct_results(precinct_votes, precinct_measures, "party_id", safe_ratio) %>%
   arrange(row_order, party_order) %>%
   transmute(
     precinct_id,
@@ -217,12 +227,12 @@ precinct_results <- party_long %>%
     vote_share,
     registered,
     voted,
-    voted_noon = noon,
-    voted_5pm = fivepm,
+    voted_noon,
+    voted_5pm,
     turnout_pct,
     noon_pct,
     five_pct,
-    invalid_ballots = invalid,
+    invalid_ballots,
     invalid_pct
   )
 

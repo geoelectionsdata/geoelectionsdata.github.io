@@ -13,6 +13,7 @@ suppressPackageStartupMessages({
 })
 
 args <- commandArgs(trailingOnly = TRUE)
+source("src/loaders/R/common/precinct_results.R")
 args <- args[args != "--args"]
 
 RAW_DIR <- Sys.getenv("RAW_DIR", unset = "src/data/raw")
@@ -179,16 +180,28 @@ attach_totals <- function(df, totals) {
   df
 }
 
-add_metrics <- function(df) {
+add_turnout_metrics <- function(df) {
   df %>%
     mutate(
       registered = main_list + special_list,
-      vote_share = safe_ratio(votes, totalVotes),
       turnout_pct = safe_ratio(voted, registered),
       noon_pct = safe_ratio(voted_noon, registered),
       five_pct = safe_ratio(voted_5pm, registered),
       invalid_pct = safe_ratio(invalid_ballots, voted)
     )
+}
+
+add_metrics <- function(df) {
+  df %>% add_turnout_metrics() %>% mutate(vote_share = safe_ratio(votes, totalVotes))
+}
+
+build_precinct_output <- function(votes, turnout) {
+  precinct_votes <- votes %>%
+    mutate(district_id = as.character(precinct_id)) %>%
+    select(smd, dd, pp, precinct_id, precinct_key, district_id,
+           code, code_order, party_id, any_of("name_ka"), votes) %>%
+    arrange(smd, dd, pp, code_order)
+  join_precinct_results(precinct_votes, add_turnout_metrics(turnout), "code", safe_ratio)
 }
 
 party_id_from_label <- function(label) {
@@ -336,10 +349,7 @@ pr_district <- pr_long %>%
   add_metrics() %>%
   arrange(dd, code_order)
 
-pr_precinct <- pr_long %>%
-  mutate(district_id = as.character(precinct_id)) %>%
-  add_metrics() %>%
-  arrange(smd, dd, pp, code_order)
+pr_precinct <- build_precinct_output(pr_long, pr_base)
 
 PR_RESULT_COLS <- c(
   "district_id", "party_id", "votes", "vote_share", "registered", "voted",
@@ -387,9 +397,7 @@ smd_district <- smd_long %>%
 
 smd_precinct <- smd_long %>%
   filter(votes != 0, !is.na(party_id)) %>%
-  mutate(district_id = as.character(precinct_id)) %>%
-  add_metrics() %>%
-  arrange(smd, dd, pp, code_order)
+  build_precinct_output(smd_base)
 
 SMD_RESULT_COLS <- c(
   "district_id", "party_id", "name_ka", "votes", "vote_share", "registered", "voted",
@@ -433,9 +441,7 @@ runoff_district <- runoff_long %>%
 
 runoff_precinct <- runoff_long %>%
   filter(votes != 0) %>%
-  mutate(district_id = as.character(precinct_id)) %>%
-  add_metrics() %>%
-  arrange(smd, dd, pp, code_order)
+  build_precinct_output(runoff_base)
 
 write_csv_like_js(bind_rows(runoff_national, runoff_district), file.path(OUT_RESULTS, "adj2016_smd_runoff.csv"), SMD_RESULT_COLS)
 write_csv_like_js(runoff_precinct, file.path(OUT_RESULTS, "adj2016_smd_runoff_precincts.csv"), SMD_PRECINCT_COLS)

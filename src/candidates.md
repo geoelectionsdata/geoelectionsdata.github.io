@@ -6,6 +6,8 @@ toc: false
 
 ```js
 import {getLang, tr} from "./components/state.js";
+import {candidateDetailPath} from "./components/candidate-detail-paths.js";
+import {fetchJSONAsset} from "./components/election-utils.js";
 
 const dict  = await FileAttachment("data/config/translations.json").json();
 const index = await FileAttachment("data/candidates-index.json").json();
@@ -24,7 +26,10 @@ function electionName(electionId) {
 }
 
 function inlinePartyLabelMap(c) {
-  return new Map((c.pl || []).map(p => [p.i, p]));
+  return new Map((c.pl || []).map(p => {
+    const label = typeof p === "number" ? index.party_labels[p] : p;
+    return [label.i, label];
+  }));
 }
 
 // Resolve a party's display name. Inline (election-specific) labels in
@@ -48,64 +53,46 @@ function voteTypeLabel(voteType) {
   return t(`candidates.vote_type.${voteType}`) || voteType;
 }
 
-// Appearance entries store election + vote_type as integer indices into the
-// top-level `index.elections` and `index.vote_types` arrays (saves ~1.5 MB
-// raw versus repeating the string ids 90,000+ times). Resolve via the
-// arrays; the resolvers tolerate already-decoded strings too, so existing
-// callers that still pass the string form keep working.
-const electionAtIdx = (i) => {
-  if (typeof i === "string") return electionById.get(i);
-  return index.elections[i];
-};
-const voteTypeAtIdx = (i) => {
-  if (typeof i === "string") return i;
-  return index.vote_types?.[i] ?? "";
-};
-
-function appearanceElectionId(a) {
-  return typeof a.e === "string" ? a.e : (index.elections[a.e]?.id ?? "");
-}
-function appearanceVoteType(a) {
-  return typeof a.v === "string" ? a.v : (index.vote_types?.[a.v] ?? "");
-}
-
 // "<election name>, <vote-type> (<district>)" — used both in display and the
 // search corpus. The district suffix is shown when present (e.g. for local
 // PR/SMD list candidacies in a specific self-gov unit).
 function appearanceLabel(a) {
-  const election = electionAtIdx(a.e);
+  const [e, v, district] = Array.isArray(a) ? a : [a.e, a.v, a.d];
+  const election = typeof e === "string" ? electionById.get(e) : index.elections[e];
   const ename = election ? ((lang === "ka" ? election.name_ka : election.name_en) ?? election.id) : "";
-  const vlabel = voteTypeLabel(appearanceVoteType(a));
+  const vlabel = voteTypeLabel(typeof v === "string" ? v : (index.vote_types?.[v] ?? ""));
   const head = vlabel ? `${ename}, ${vlabel}` : ename;
-  return a.d ? `${head} (${a.d})` : head;
+  const districtName = typeof district === "number" ? index.district_names[district] : district;
+  return districtName ? `${head} (${districtName})` : head;
 }
 ```
 
 ```js
-// ── Search corpus per cluster: pre-built once, used on every keystroke.
+// ── Search corpus per cluster: build each scope on first use, then reuse it.
 //    Split into two scopes so the user can opt-in via checkboxes:
 //      nameCorpus[i]  — candidate first/last name plus appearance context
 //                       (election name, vote type, district). Appearance
 //                       context stays here because it describes the candidate,
 //                       not the party.
 //      partyCorpus[i] — party labels only (Georgian + English + party_id).
-const nameCorpus = [];
-const partyCorpus = [];
-for (const c of index.clusters) {
-  const inlineLabels = inlinePartyLabelMap(c);
-  const partyNames = (c.ps || []).map(pid => {
-    const p = index.parties?.[pid];
-    const inline = inlineLabels.get(pid);
-    // Inline pl entries only carry fields that DIFFER from the registry, so
-    // we want BOTH sources in the search corpus: inline catches election-
-    // specific aliases ("Bloc: UNM — United Opposition"), registry catches
-    // the canonical form ("United National Movement"). Falsy / missing
-    // fields stringify as "" and contribute nothing.
-    return `${inline?.k ?? ""} ${inline?.e ?? ""} ${p?.name_ka ?? ""} ${p?.name_en ?? ""} ${pid ?? ""}`;
-  }).join(" ");
-  const apLabels = (c.a || []).map(appearanceLabel).join(" ");
-  nameCorpus.push(`${c.f ?? ""} ${c.l ?? ""} ${apLabels}`.toLowerCase());
-  partyCorpus.push(partyNames.toLowerCase());
+let nameCorpus;
+let partyCorpus;
+function getNameCorpus() {
+  return nameCorpus ??= index.clusters.map(c => {
+    const apLabels = (c.a || []).map(appearanceLabel).join(" ");
+    return `${c.f ?? ""} ${c.l ?? ""} ${apLabels}`.toLowerCase();
+  });
+}
+function getPartyCorpus() {
+  return partyCorpus ??= index.clusters.map(c => {
+    const inlineLabels = inlinePartyLabelMap(c);
+    return (c.ps || []).map(pid => {
+      const p = index.parties?.[pid];
+      const inline = inlineLabels.get(pid);
+      // Search both election-specific aliases and the canonical party label.
+      return `${inline?.k ?? ""} ${inline?.e ?? ""} ${p?.name_ka ?? ""} ${p?.name_en ?? ""} ${pid ?? ""}`;
+    }).join(" ").toLowerCase();
+  });
 }
 ```
 
@@ -470,11 +457,13 @@ function renderAppearancesTable(cluster, appearances) {
     // each of 56k iterations.
     const useName  = scopes.has("name");
     const useParty = scopes.has("party");
+    const names = useName ? getNameCorpus() : null;
+    const partyNames = useParty ? getPartyCorpus() : null;
     const out = [];
-    for (let i = 0; i < nameCorpus.length; i++) {
+    for (let i = 0; i < index.clusters.length; i++) {
       // Per-cluster haystack: union of the active scope corpuses.
-      const haystack = (useName  ? nameCorpus[i]  : "") +
-                       (useParty ? (" " + partyCorpus[i]) : "");
+      const haystack = (names ? names[i] : "") +
+                       (partyNames ? (" " + partyNames[i]) : "");
       let ok = true;
       for (const term of effectiveTerms) {
         if (!haystack.includes(term)) { ok = false; break; }
@@ -585,12 +574,25 @@ function renderAppearancesTable(cluster, appearances) {
 ```
 
 ```js
-// ── Lazy-load details the first time any candidate is expanded ──────────────
-let _detailsPromise = null;
-function ensureDetails() {
-  if (!_detailsPromise) _detailsPromise = FileAttachment("data/candidates-details.json").json();
-  return _detailsPromise;
+// ── Fetch each candidate detail bucket at most once ──────────────────────────
+const detailShards = new Map();
+function loadDetailShard(path) {
+  if (!detailShards.has(path)) {
+    detailShards.set(path, fetchJSONAsset(path).catch(error => {
+      detailShards.delete(path);
+      throw error;
+    }));
+  }
+  return detailShards.get(path);
 }
-const details = (state.expanded && state.expanded.size > 0) ? await ensureDetails() : null;
+```
+
+```js
+const details = state.expanded?.size
+  ? Object.fromEntries(await Promise.all([...state.expanded].map(async id => {
+      const shard = await loadDetailShard(candidateDetailPath(id));
+      return [id, shard[id] ?? []];
+    })))
+  : null;
 ```
 

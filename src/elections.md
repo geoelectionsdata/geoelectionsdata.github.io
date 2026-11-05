@@ -8,7 +8,9 @@ toc: false
 import L from "npm:leaflet";
 import * as d3 from "npm:d3";
 import {getLang, tr} from "./components/state.js";
-import {dhondtSeats, makePartyLookup, turnoutValue, turnoutNorm, seatsFor, partiesForFilter, fetchTextAsset, fetchJSONAsset} from "./components/election-utils.js";
+import {dhondtSeats, makePartyLookup, turnoutValue, turnoutNorm, seatsFor, partiesForFilter} from "./components/election-utils.js";
+import {makeCsvManifestLoader, makeManifestLoader} from "./components/election-assets.js";
+import {makeElectionCsvParser} from "./components/election-csv.js";
 import {makeRenderers} from "./components/election-renderers.js";
 import {buildElectionMap} from "./components/election-map.js";
 
@@ -395,54 +397,10 @@ const _occupiedGeo        = await FileAttachment("data/shp/occupied_territories.
 const _precinctGeoRegistryUrl = await FileAttachment("data/precinct-geo-registry.json").url();
 const _precinctCsvRegistryUrl = await FileAttachment("data/precinct-csv-registry.json").url();
 
-// Generic manifest-backed CSV loader.
-// Used for both the main results registry and the turnout registry — each has
-// its own manifest URL + cache, but the fetch/parse logic is identical.
-// Cache is bounded with an LRU policy so long browsing sessions don't grow
-// unbounded — Maps iterate in insertion order, so re-inserting an entry on
-// hit moves it to the "newest" end and the oldest entry is the eviction target.
-const CSV_CACHE_MAX_ENTRIES = 20;
-function makeCsvManifestLoader(registryUrl) {
-  const cache = { manifest: null, rowsByPath: new Map() };
-  return async function loadByPath(path) {
-    if (!path) return [];
-    if (!cache.manifest) {
-      cache.manifest = await fetchJSONAsset(registryUrl);
-    }
-    const assetPath = cache.manifest[path];
-    if (!assetPath) return [];
-
-    // LRU touch — re-insertion moves the entry to the newest position.
-    if (cache.rowsByPath.has(assetPath)) {
-      const existing = cache.rowsByPath.get(assetPath);
-      cache.rowsByPath.delete(assetPath);
-      cache.rowsByPath.set(assetPath, existing);
-      return existing;
-    }
-
-    // Miss: fetch + cache; evict oldest entries until under the cap.
-    const promise = fetchTextAsset(assetPath)
-      .then(text => d3.csvParse(text, d3.autoType))
-      .catch(error => {
-        cache.rowsByPath.delete(assetPath);
-        throw error;
-      });
-    cache.rowsByPath.set(assetPath, promise);
-    while (cache.rowsByPath.size > CSV_CACHE_MAX_ENTRIES) {
-      const oldestKey = cache.rowsByPath.keys().next().value;
-      cache.rowsByPath.delete(oldestKey);
-    }
-    return promise;
-  };
-}
-
-const loadCSVPath     = makeCsvManifestLoader(_csvRegistryUrl);
-const loadTurnoutPath = makeCsvManifestLoader(_turnoutRegistryUrl);
-
-const _geoRegistryCache = {
-  manifest: null,
-  geoByPath: new Map()
-};
+const parseCsv = makeElectionCsvParser(d3);
+const loadCSVPath = makeCsvManifestLoader(_csvRegistryUrl, parseCsv, 20);
+const loadTurnoutPath = makeCsvManifestLoader(_turnoutRegistryUrl, parseCsv, 20);
+const loadGeometryPath = makeManifestLoader(_geoRegistryUrl);
 
 async function loadGeoJSON(elec, vt, level) {
   let path;
@@ -462,24 +420,7 @@ async function loadGeoJSON(elec, vt, level) {
          : vt === "compensation" ? elec?.system?.compensation?.shape_file
          : (elec?.system?.pr?.shape_file ?? elec?.system?.smd?.shape_file); // fallback for PR-disabled elections
   }
-  if (!path) return null;
-
-  if (!_geoRegistryCache.manifest) {
-    _geoRegistryCache.manifest = await fetchJSONAsset(_geoRegistryUrl);
-  }
-
-  const assetPath = _geoRegistryCache.manifest[path];
-  if (!assetPath) return null;
-
-  if (!_geoRegistryCache.geoByPath.has(assetPath)) {
-    const promise = fetchJSONAsset(assetPath).catch(error => {
-      _geoRegistryCache.geoByPath.delete(assetPath);
-      throw error;
-    });
-    _geoRegistryCache.geoByPath.set(assetPath, promise);
-  }
-
-  return _geoRegistryCache.geoByPath.get(assetPath);
+  return loadGeometryPath(path);
 }
 
 async function loadResults(elec, vt, sub, level, ballotType) {

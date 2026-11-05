@@ -13,12 +13,12 @@ system:
     threshold_pct: 5.0
     method: dhondt
     shape_file: "data/shp/parl2024_pr.geojson"
-    precinct_shape_file: "data/shp/parl2016_pr_precincts.geojson"
+    precinct_shape_file: "data/shp/parl2016_pr_precincts_display.geojson"
   smd:
     enabled: true
     seats: 73
     shape_file: "data/shp/parl2016_smd.geojson"
-    precinct_shape_file: "data/shp/parl2016_pr_precincts.geojson"
+    precinct_shape_file: "data/shp/parl2016_pr_precincts_display.geojson"
   compensation:
     enabled: false
     shape_file: null

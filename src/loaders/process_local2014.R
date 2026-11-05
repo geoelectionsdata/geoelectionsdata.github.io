@@ -36,10 +36,11 @@ BY2016_OCT_PRECINCT_GEO <- "src/data/shp/local2014_2016_oct_precincts.geojson"
 BY2016_OCT30_PRECINCT_GEO <- "src/data/shp/local2014_2016_oct30_precincts.geojson"
 BY2016_OCT_MAYOR_PRECINCT_GEO <- "src/data/shp/local2014_2016_oct_mayor_precincts.geojson"
 
-OUT_RESULTS <- "src/data/results"
-OUT_CANDIDATES <- "src/data/candidates"
-OUT_CANDIDATE_CONFIG <- "src/data/config/candidates/local"
-OUT_TURNOUT <- "src/data/turnout"
+OUT_RESULTS <- Sys.getenv("OUT_RESULTS", unset = "src/data/results")
+source("src/loaders/R/common/precinct_results.R")
+OUT_CANDIDATES <- Sys.getenv("OUT_CANDIDATES", unset = "src/data/candidates")
+OUT_CANDIDATE_CONFIG <- Sys.getenv("OUT_CANDIDATE_CONFIG", unset = "src/data/config/candidates/local")
+OUT_TURNOUT <- Sys.getenv("OUT_TURNOUT", unset = "src/data/turnout")
 dir.create(OUT_RESULTS, showWarnings = FALSE, recursive = TRUE)
 dir.create(OUT_CANDIDATES, showWarnings = FALSE, recursive = TRUE)
 dir.create(OUT_CANDIDATE_CONFIG, showWarnings = FALSE, recursive = TRUE)
@@ -518,31 +519,30 @@ add_national <- function(df, id_col = "district_id", id_value = "national", incl
 }
 
 make_precinct_results <- function(df, id_cols, include_party_num = FALSE, include_name = FALSE) {
-  out <- df %>%
-    group_by(across(all_of(c(id_cols, "precinct_id", "party_id",
-                            if (include_party_num) "party_num" else NULL,
-                            if (include_name && "name_ka" %in% names(df)) "name_ka" else NULL)))) %>%
-    summarise(
-      votes = sum(votes, na.rm = TRUE),
-      registered = first(registered),
-      voted = first(voted),
-      voted_noon = first(voted_noon),
-      voted_5pm = first(voted_5pm),
-      invalid_ballots = first(invalid_ballots),
-      .groups = "drop"
-    ) %>%
-    group_by(across(all_of(c(id_cols, "precinct_id")))) %>%
-    mutate(totalVotes = sum(votes, na.rm = TRUE)) %>%
-    ungroup() %>%
+  unit <- c(id_cols, "precinct_id")
+  subjects <- c("party_id", if (include_party_num) "party_num",
+                if (include_name && "name_ka" %in% names(df)) "name_ka")
+  counts <- c("registered", "voted", "voted_noon", "voted_5pm", "invalid_ballots")
+  votes <- df %>%
+    group_by(across(all_of(c(unit, subjects)))) %>%
+    summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop")
+  denominators <- votes %>%
+    group_by(across(all_of(unit))) %>%
+    summarise(totalVotes = sum(votes, na.rm = TRUE), .groups = "drop")
+  turnout <- df %>%
+    group_by(across(all_of(unit))) %>%
+    summarise(across(all_of(counts), first), .groups = "drop") %>%
+    left_join(denominators, by = unit, relationship = "one-to-one") %>%
     mutate(
-      vote_share = if_else(totalVotes > 0, round6(votes / totalVotes), 0),
       turnout_pct = if_else(registered > 0, round6(voted / registered), 0),
       noon_pct = if_else(registered > 0, round6(voted_noon / registered), 0),
       five_pct = if_else(registered > 0, round6(voted_5pm / registered), 0),
       invalid_pct = if_else(voted > 0, round6(invalid_ballots / voted), 0)
-    ) %>%
-    select(-totalVotes)
-  out
+    )
+  ratio <- function(votes, total) if_else(total > 0, round6(votes / total), 0)
+  join_precinct_results(votes, turnout, subjects, ratio, unit) %>%
+    select(all_of(c(unit, subjects)), votes, all_of(counts), vote_share,
+           turnout_pct, noon_pct, five_pct, invalid_pct)
 }
 
 candidate_name <- function(first, last) {
@@ -1479,8 +1479,8 @@ turnout_precinct <- turnout_base %>%
     invalid_pct = if_else(voted > 0, round6(invalid_ballots / voted), 0)
   )
 
-write_csv_utf8(turnout_district, "src/data/turnout/local2014_turnout.csv")
-write_csv_utf8(turnout_precinct, "src/data/turnout/local2014_precincts_turnout.csv")
+write_csv_utf8(turnout_district, file.path(OUT_TURNOUT, "local2014_turnout.csv"))
+write_csv_utf8(turnout_precinct, file.path(OUT_TURNOUT, "local2014_precincts_turnout.csv"))
 
 cat("Writing candidate and elected files...\n")
 write_csv_utf8(candidate_tables$party_lists, file.path(OUT_CANDIDATES, "local2014_party_lists.csv"))

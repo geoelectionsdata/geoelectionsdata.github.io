@@ -8,11 +8,11 @@
  * the elections page first opens.
  */
 
-import { collectExistingPaths, isPrecinctPath } from "./config/registry-utils.js";
+import { collectExistingPaths } from "./config/registry-utils.js";
 
 const registry = {};
 
-for (const p of collectExistingPaths(p => p.endsWith(".geojson") && !isPrecinctPath(p))) {
+for (const p of collectExistingPaths("geometry")) {
   registry[p] = p;
 }
 

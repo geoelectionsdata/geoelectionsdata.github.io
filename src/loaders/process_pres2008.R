@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
 })
 
 RAW_DIR <- Sys.getenv("RAW_DIR", unset = "src/data/raw")
+source("src/loaders/R/common/precinct_results.R")
 RES_DIR <- Sys.getenv("OUT_RESULTS", unset = "src/data/results")
 TURN_DIR <- Sys.getenv("OUT_TURNOUT", unset = "src/data/turnout")
 CAND_DIR <- Sys.getenv("OUT_CANDIDATES", unset = "src/data/candidates")
@@ -134,16 +135,14 @@ candidate_names <- read_excel(RAW_FILE, sheet = "candidates", guess_max = 100000
   ) %>%
   left_join(CANDIDATES, by = "code")
 
-precinct_long <- raw %>%
+precinct_votes <- raw %>%
   select(
     precinct_id, district_id, district_name_en, precinct_number,
-    registered, voted, voted_noon, voted_5pm, main_list, special_list,
-    turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct, totalVotes,
     all_of(CANDIDATES$vote_col)
   ) %>%
   pivot_longer(all_of(CANDIDATES$vote_col), names_to = "vote_col", values_to = "votes") %>%
-  left_join(CANDIDATES %>% select(party_id, vote_col), by = "vote_col") %>%
-  mutate(vote_share = safe_ratio(votes, totalVotes)) %>%
+  left_join(CANDIDATES %>% select(party_id, vote_col), by = "vote_col")
+precinct_long <- join_precinct_results(precinct_votes, raw, "vote_col", safe_ratio) %>%
   arrange(precinct_id, desc(votes))
 
 district_totals <- raw %>%

@@ -24,6 +24,8 @@ suppressPackageStartupMessages({
 })
 
 RAW_FILE <- "src/data/raw/2024.26.10 - პარლამენტი.xlsx"
+source("src/loaders/R/common/precinct_results.R")
+OUT_DIR <- Sys.getenv("OUT_RESULTS", unset = "src/data/results")
 
 # Maps ballot number (column prefix in Excel) -> canonical party_id in parties.yml
 PARTY_MAP <- c(
@@ -115,7 +117,8 @@ district_votes <- long %>%
   group_by(district_id = as.character(district_num), party_id) %>%
   summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
   group_by(district_id) %>%
-  mutate(vote_share = round(votes / sum(votes), 6)) %>%
+  mutate(valid_vote_denominator = sum(votes),
+         vote_share = round(votes / valid_vote_denominator, 6)) %>%
   ungroup()
 
 district_turnout <- stations %>%
@@ -137,10 +140,6 @@ district_turnout <- stations %>%
     invalid_pct = round(invalid_ballots / voted, 6)
   )
 
-district_out <- district_votes %>%
-  left_join(district_turnout, by = "district_id") %>%
-  arrange(as.integer(district_id), desc(votes))
-
 # ─────────────────────────────────────────────────────────────────────────────
 # 4. NATIONAL AGGREGATE ROWS  (district_id = "national")
 # ─────────────────────────────────────────────────────────────────────────────
@@ -161,36 +160,15 @@ national_totals <- stations %>%
     invalid_pct = round(invalid_ballots / voted, 6)
   )
 
-national_out <- long %>%
+national_votes <- long %>%
   group_by(party_id) %>%
   summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
   mutate(
     district_id = "national",
-    vote_share  = round(votes / sum(votes), 6),
-    registered   = national_totals$registered,
-    voted        = national_totals$voted,
-    voted_noon   = national_totals$voted_noon,
-    voted_5pm    = national_totals$voted_5pm,
-    main_list    = national_totals$main_list,
-    special_list = national_totals$special_list,
-    turnout_pct     = national_totals$turnout_pct,
-    noon_pct        = national_totals$noon_pct,
-    five_pct        = national_totals$five_pct,
-    invalid_ballots = national_totals$invalid_ballots,
-    invalid_pct     = national_totals$invalid_pct
+    valid_vote_denominator = sum(votes),
+    vote_share = round(votes / valid_vote_denominator, 6)
   ) %>%
-  arrange(desc(votes)) %>%
-  select(district_id, party_id, votes, vote_share,
-         registered, voted, voted_noon, voted_5pm, main_list, special_list,
-         turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
-
-district_out_all <- bind_rows(
-  district_out %>%
-    select(district_id, party_id, votes, vote_share,
-           registered, voted, voted_noon, voted_5pm, main_list, special_list,
-           turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct),
-  national_out
-)
+  arrange(desc(votes))
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. PRECINCT-LEVEL RESULTS + TURNOUT
@@ -206,12 +184,14 @@ precinct_votes <- long %>%
   ) %>%
   summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop") %>%
   group_by(precinct_id) %>%
-  mutate(vote_share = round(votes / sum(votes), 6)) %>%
+  mutate(valid_vote_denominator = sum(votes),
+         vote_share = round(votes / valid_vote_denominator, 6)) %>%
   ungroup()
 
 precinct_turnout <- stations %>%
   transmute(
     precinct_id     = precinct_id,
+    district_id     = as.character(district_num),
     registered      = registered,
     voted           = voted_total,
     voted_noon      = voted_noon,
@@ -223,9 +203,36 @@ precinct_turnout <- stations %>%
     invalid_pct     = round(coalesce(invalid_ballots, 0) / voted_total, 6)
   )
 
-precinct_out <- precinct_votes %>%
-  left_join(precinct_turnout, by = "precinct_id") %>%
-  arrange(precinct_id, desc(votes)) %>%
+# Scope the normalized rows to the contest and level; only the legacy view
+# repeats turnout fields per ballot subject.
+identify <- function(rows, precinct = FALSE) {
+  rows %>% mutate(
+    election_id = "parl_2024",
+    sub_id = "__main__",
+    ballot = "pr",
+    level = if (precinct) "precinct" else if_else(district_id == "national", "national", "district"),
+    unit_id = if (precinct) as.character(precinct_id) else district_id
+  )
+}
+unit_key <- c("election_id", "sub_id", "ballot", "level", "unit_id")
+normalized_results <- bind_rows(
+  identify(bind_rows(district_votes %>% arrange(as.integer(district_id), desc(votes)), national_votes)),
+  identify(precinct_votes %>% arrange(precinct_id, desc(votes)), precinct = TRUE)
+) %>%
+  select(all_of(unit_key), subject_id = party_id, votes, valid_vote_denominator, vote_share)
+normalized_turnout <- bind_rows(
+  identify(bind_rows(district_turnout, mutate(national_totals, district_id = "national"))),
+  identify(precinct_turnout, precinct = TRUE)
+)
+legacy <- join_ballot_turnout(normalized_results, normalized_turnout, "subject_id", unit_key) %>%
+  rename(party_id = subject_id)
+district_out_all <- legacy %>%
+  filter(level != "precinct") %>%
+  select(district_id, party_id, votes, vote_share,
+         registered, voted, voted_noon, voted_5pm, main_list, special_list,
+         turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
+precinct_out <- legacy %>%
+  filter(level == "precinct") %>%
   select(precinct_id, district_id, party_id, votes, vote_share,
          registered, voted, voted_noon, voted_5pm,
          turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
@@ -233,16 +240,16 @@ precinct_out <- precinct_votes %>%
 # ─────────────────────────────────────────────────────────────────────────────
 # 6. WRITE OUTPUTS
 # ─────────────────────────────────────────────────────────────────────────────
-dir.create("src/data/results", showWarnings = FALSE, recursive = TRUE)
+dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
-write.csv(district_out_all, "src/data/results/parl2024_pr.csv",
+write.csv(district_out_all, file.path(OUT_DIR, "parl2024_pr.csv"),
           row.names = FALSE, fileEncoding = "UTF-8")
-write.csv(precinct_out,     "src/data/results/parl2024_pr_precincts.csv",
+write.csv(precinct_out,     file.path(OUT_DIR, "parl2024_pr_precincts.csv"),
           row.names = FALSE, fileEncoding = "UTF-8")
 
 cat("\nDone.\n")
 cat(sprintf("  District results: %d rows, %d districts\n",
-            nrow(district_out), n_distinct(district_out$district_id)))
+            nrow(district_votes), n_distinct(district_votes$district_id)))
 cat(sprintf("  Precinct results: %d rows, %d precincts\n",
             nrow(precinct_out), n_distinct(precinct_out$precinct_id)))
 cat(sprintf("\n  National turnout: %.1f%%  (%s / %s)\n",
@@ -250,5 +257,5 @@ cat(sprintf("\n  National turnout: %.1f%%  (%s / %s)\n",
             format(national_totals$voted,      big.mark = ","),
             format(national_totals$registered, big.mark = ",")))
 cat(sprintf("  National GD share: %.1f%%  (%s votes)\n",
-            national_out$vote_share[national_out$party_id == "gd"] * 100,
-            format(national_out$votes[national_out$party_id == "gd"], big.mark = ",")))
+            national_votes$vote_share[national_votes$party_id == "gd"] * 100,
+            format(national_votes$votes[national_votes$party_id == "gd"], big.mark = ",")))

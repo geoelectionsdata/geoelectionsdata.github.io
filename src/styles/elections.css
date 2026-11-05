@@ -590,6 +590,12 @@
    party-filter restyling, and we want the selection accent to survive
    all of that. A thin black dashed outline reads cleanly on top of any
    fill colour without competing with the choropleth gradient. */
+.geda-hovered:not(.geda-selected) {
+  stroke: #111111;
+  stroke-width: 1.2px;
+  stroke-opacity: 1;
+}
+
 path.geda-selected,
 circle.geda-selected {
   stroke: #111 !important;

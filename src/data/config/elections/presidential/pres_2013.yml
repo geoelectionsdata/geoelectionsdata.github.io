@@ -12,7 +12,7 @@ system:
   pr:
     enabled: true
     shape_file: "data/shp/parl2024_pr.geojson"
-    precinct_shape_file: "data/shp/pres2013_precinct.geojson"
+    precinct_shape_file: "data/shp/pres2013_precinct_display.geojson"
   smd:
     enabled: false
   compensation:

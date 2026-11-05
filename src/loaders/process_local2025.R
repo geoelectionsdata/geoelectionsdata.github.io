@@ -12,8 +12,9 @@ suppressPackageStartupMessages({
 
 # ── Paths ──────────────────────────────────────────────────────────────────
 EXCEL        <- "src/data/raw/2025.04.10 - საკრებულო და მერი.xlsx"
-OUT_RESULTS  <- "src/data/results"
-OUT_CANDS    <- "src/data/config/candidates/local"
+OUT_RESULTS  <- Sys.getenv("OUT_RESULTS", unset = "src/data/results")
+source("src/loaders/R/common/precinct_results.R")
+OUT_CANDS    <- Sys.getenv("OUT_CANDIDATES", unset = "src/data/config/candidates/local")
 dir.create(OUT_RESULTS, showWarnings = FALSE, recursive = TRUE)
 dir.create(OUT_CANDS,   showWarnings = FALSE, recursive = TRUE)
 
@@ -141,14 +142,8 @@ summarise_to_level <- function(df_long, group_var) {
     group_by(across(all_of(c(group_var, "party_id")))) %>%
     summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop")
 
-  valid_totals <- party_agg %>%
-    group_by(across(all_of(group_var))) %>%
-    summarise(total_valid = sum(votes), .groups = "drop")
-
-  party_agg %>%
-    left_join(valid_totals, by = group_var) %>%
-    left_join(turnout_agg,  by = group_var) %>%
-    mutate(vote_share = round(votes / total_valid, 6)) %>%
+  ratio <- function(votes, total) round(votes / total, 6)
+  join_aggregated_party_results(party_agg, turnout_agg, group_var, ratio) %>%
     rename(district_id = all_of(group_var)) %>%
     select(district_id, party_id, votes, vote_share,
            registered, voted, voted_noon, voted_5pm,
@@ -226,30 +221,7 @@ pr_selfgov <- summarise_to_level(pr_long, "selfgov_id") %>%
   add_national()
 write_csv_utf8(pr_selfgov, file.path(OUT_RESULTS, "local2025_pr_selfgov.csv"))
 
-pr_prec <- pr_long %>%
-  group_by(precinct_id, district, party_id) %>%
-  summarise(
-    votes           = sum(votes, na.rm = TRUE),
-    registered      = first(registered),
-    voted           = first(voted),
-    voted_noon      = first(voted_noon),
-    voted_5pm       = first(voted_5pm),
-    invalid_ballots = first(invalid_ballots),
-    .groups = "drop"
-  ) %>%
-  group_by(precinct_id) %>%
-  mutate(vote_share = round(votes / sum(votes), 6)) %>%
-  ungroup() %>%
-  mutate(
-    turnout_pct = round(voted / registered, 6),
-    noon_pct    = round(voted_noon / registered, 6),
-    five_pct    = round(voted_5pm / registered, 6),
-    invalid_pct = round(invalid_ballots / voted, 6)
-  ) %>%
-  rename(district_id = district) %>%
-  select(precinct_id, district_id, party_id, votes, vote_share,
-         registered, voted, voted_noon, voted_5pm,
-         turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
+pr_prec <- local_precinct_results(pr_long)
 write_csv_utf8(pr_prec, file.path(OUT_RESULTS, "local2025_pr_precincts.csv"))
 
 # ── 2. Mayoral (SMD by self-governing unit) ────────────────────────────────
@@ -299,30 +271,7 @@ smd_districts <- smd_dist %>%
 write_csv_utf8(smd_districts, file.path(OUT_RESULTS, "local2025_smd_districts.csv"))
 cat("  Written:", file.path(OUT_RESULTS, "local2025_smd_districts.csv"), "\n")
 
-smd_prec <- smd_long %>%
-  group_by(precinct_id, selfgov_id, party_id) %>%
-  summarise(
-    votes           = sum(votes, na.rm = TRUE),
-    registered      = first(registered),
-    voted           = first(voted),
-    voted_noon      = first(voted_noon),
-    voted_5pm       = first(voted_5pm),
-    invalid_ballots = first(invalid_ballots),
-    .groups = "drop"
-  ) %>%
-  filter(votes > 0) %>%
-  group_by(precinct_id) %>%
-  mutate(vote_share = round(votes / sum(votes), 6)) %>%
-  ungroup() %>%
-  mutate(
-    turnout_pct = round(voted / registered, 6),
-    noon_pct    = round(voted_noon / registered, 6),
-    five_pct    = round(voted_5pm / registered, 6),
-    invalid_pct = round(invalid_ballots / voted, 6)
-  ) %>%
-  select(precinct_id, selfgov_id, party_id, votes, vote_share,
-         registered, voted, voted_noon, voted_5pm,
-         turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
+smd_prec <- local_precinct_results(smd_long, parent = "selfgov_id", positive_only = TRUE)
 write_csv_utf8(smd_prec, file.path(OUT_RESULTS, "local2025_smd_precincts.csv"))
 
 # ── 3. Majoritarian (Sakrebulo SMD) ───────────────────────────────────────
@@ -432,31 +381,7 @@ maj_final <- bind_rows(maj_nat, maj_dist)
 write_csv_utf8(maj_final, file.path(OUT_RESULTS, "local2025_council_smd.csv"))
 
 # Majoritarian precincts
-maj_prec <- maj_long %>%
-  group_by(precinct_id, major_id, party_id) %>%
-  summarise(
-    votes           = sum(votes, na.rm = TRUE),
-    registered      = first(registered),
-    voted           = first(voted),
-    voted_noon      = first(voted_noon),
-    voted_5pm       = first(voted_5pm),
-    invalid_ballots = first(invalid_ballots),
-    .groups = "drop"
-  ) %>%
-  filter(votes > 0) %>%
-  group_by(precinct_id, major_id) %>%
-  mutate(vote_share = round(votes / sum(votes), 6)) %>%
-  ungroup() %>%
-  mutate(
-    turnout_pct = round(voted / registered, 6),
-    noon_pct    = round(voted_noon / registered, 6),
-    five_pct    = round(voted_5pm / registered, 6),
-    invalid_pct = round(invalid_ballots / voted, 6)
-  ) %>%
-  rename(district_id = major_id) %>%
-  select(precinct_id, district_id, party_id, votes, vote_share,
-         registered, voted, voted_noon, voted_5pm,
-         turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct)
+maj_prec <- local_precinct_results(maj_long, parent = "major_id", positive_only = TRUE)
 write_csv_utf8(maj_prec, file.path(OUT_RESULTS, "local2025_council_smd_precincts.csv"))
 
 # ── 4. Candidate YAML ──────────────────────────────────────────────────────

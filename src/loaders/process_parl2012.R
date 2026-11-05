@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
 })
 
 args <- commandArgs(trailingOnly = TRUE)
+source("src/loaders/R/common/precinct_results.R")
 args <- args[args != "--args"]
 
 RAW_DIR <- Sys.getenv("RAW_DIR", unset = "src/data/raw")
@@ -266,12 +267,13 @@ build_pr_outputs <- function(pr_raw) {
     mutate(district_id = as.character(electoral_district_id)) %>%
     add_metrics()
 
-  pr_precinct <- pr_long %>%
+  precinct_votes <- pr_long %>%
     mutate(
       district_id = as.character(precinct_id),
       electoral_district_id = as.character(electoral_district_id)
     ) %>%
-    add_metrics() %>%
+    select(precinct_id, district_id, electoral_district_id, district_name_ka,
+           precinct_number, precinct_order, code, party_id, votes) %>%
     arrange(precinct_order, match(code, PR_CODES))
 
   turnout_district <- bind_rows(
@@ -294,6 +296,8 @@ build_pr_outputs <- function(pr_raw) {
     ) %>%
     add_turnout_metrics() %>%
     arrange(precinct_order)
+
+  pr_precinct <- join_precinct_results(precinct_votes, turnout_precinct, "code", safe_ratio)
 
   list(
     wide = pr_wide,
@@ -351,14 +355,18 @@ build_smd_outputs <- function(smd_raw, candidate_lookup) {
     mutate(district_id = as.character(electoral_district_id)) %>%
     add_metrics()
 
-  smd_precinct <- smd_long %>%
+  smd_precinct_votes <- smd_long %>%
     filter(votes != 0 | !is.na(name_ka)) %>%
     mutate(
       district_id = as.character(precinct_id),
       electoral_district_id = as.character(electoral_district_id)
     ) %>%
-    add_metrics() %>%
+    select(precinct_id, district_id, electoral_district_id, district_name_ka,
+           precinct_number, precinct_order, raw_vote_code, party_id, name_ka, votes) %>%
     arrange(precinct_order, raw_vote_code)
+  smd_precinct <- join_precinct_results(
+    smd_precinct_votes, add_turnout_metrics(smd_wide), "raw_vote_code", safe_ratio
+  )
 
   list(
     wide = smd_wide,
@@ -544,13 +552,15 @@ build_2015_byelection_outputs <- function() {
     add_metrics() %>%
     arrange(electoral_district_id, code_order)
 
-  precinct <- long %>%
+  precinct_votes <- long %>%
     mutate(
       district_id = as.character(precinct_id),
       electoral_district_id = as.character(electoral_district_id)
     ) %>%
-    add_metrics() %>%
+    select(precinct_id, precinct_key, district_id, electoral_district_id, district_name_ka,
+           precinct_number, precinct_order, raw_vote_code, code_order, party_id, name_ka, party_label, votes) %>%
     arrange(precinct_order, code_order)
+  precinct <- join_precinct_results(precinct_votes, add_turnout_metrics(wide), "raw_vote_code", safe_ratio)
 
   list(
     candidates = candidates,

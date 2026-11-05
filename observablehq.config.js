@@ -1,6 +1,7 @@
 // 1. Import the Node.js file system module
 import { readFileSync } from "node:fs";
-import { collectExistingPaths, isPrecinctPath } from "./src/data/config/registry-utils.js";
+import { collectExistingPaths } from "./src/data/config/registry-utils.js";
+import { candidateDetailPaths } from "./src/components/candidate-detail-paths.js";
 import { collectDownloadEntries } from "./src/loaders/downloads/shared.js";
 
 // 2. Read the file content (Path is relative to the project root)
@@ -14,10 +15,8 @@ function dynamicAssetPaths() {
     "/fonts/bpg-arial-webfont.woff2",
     "/fonts/bpg-arial-webfont.ttf"
   );
-  paths.push(...collectExistingPaths(p =>
-    p.endsWith(".geojson") || p.endsWith(".csv")
-  )
-    .map(p => `/${p}`));
+  paths.push(...collectExistingPaths().map(p => `/${p}`));
+  paths.push(...candidateDetailPaths.map(p => `/${p}`));
   for (const entry of collectDownloadEntries()) {
     paths.push(`/data/downloads/${entry.filename}`);
   }
@@ -31,6 +30,7 @@ export default {
   header: headerContent,
   head: `
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.css">
     <link rel="stylesheet" href="custom-style.css">
     <!-- Per-page styles (REFACTOR_PLAN §4): class names are page-prefixed or
          verified collision-free, so global loading is safe. cand-shared.css
@@ -70,8 +70,6 @@ export default {
     {name: "About", path: "/about"}
   ],
   dynamicPaths: dynamicAssetPaths,
-  theme: "air", // "air", "cotton", "ink", or "near-midnight"
-  pager: false, // Turn off next/prev buttons for a dashboard feel
   // The app’s title; used in the sidebar and webpage titles.
   title: "არჩევნები საქართველოში",
   // The pages and sections in the sidebar. If you don’t specify this option,

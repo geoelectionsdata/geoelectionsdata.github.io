@@ -12,7 +12,7 @@ import { collectExistingPaths } from "./config/registry-utils.js";
 
 const registry = {};
 
-for (const p of collectExistingPaths(p => p.startsWith("data/turnout/") && p.endsWith(".csv"))) {
+for (const p of collectExistingPaths("turnout")) {
   registry[p] = p;
 }
 

@@ -37,7 +37,10 @@ export function makeRenderers({
   // ── Shared back-to-national header for district / turnout panels ──────────
   function panelBackHeader(districtName) {
     const btn = html`<button style="background:none;border:none;cursor:pointer;font-size:0.75rem;color:var(--theme-foreground-focus);padding:0;display:inline-flex;align-items:center;gap:3px;line-height:1;">← ${t("elections.results.national")}</button>`;
-    btn.addEventListener("click", showNationalPanel);
+    btn.addEventListener("click", () => {
+      _mapCtrl.current?.clearSelectedUnit?.();
+      showNationalPanel();
+    });
     return html`<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);">
       ${btn}
       <span style="color:var(--border);">|</span>

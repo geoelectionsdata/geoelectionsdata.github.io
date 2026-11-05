@@ -23,12 +23,12 @@ system:
     method: dhondt
     shape_file: "data/shp/parl2024_pr.geojson"
     selfgov_shape_file: "data/shp/selfgov_areas_2025.geojson"
-    precinct_shape_file: "data/shp/local2017_precincts.geojson"
+    precinct_shape_file: "data/shp/local2017_precincts_display.geojson"
   smd:
     enabled: true
     seats: 64                       # 64 self-governing units
     shape_file: "data/shp/selfgov_areas_2025.geojson"
-    precinct_shape_file: "data/shp/local2017_precincts.geojson"
+    precinct_shape_file: "data/shp/local2017_precincts_display.geojson"
   compensation:
     enabled: false
     shape_file: null

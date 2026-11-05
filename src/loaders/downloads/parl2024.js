@@ -1,6 +1,5 @@
 import ExcelJS from "exceljs";
 import fs from "node:fs";
-import { csvParse, autoType } from "d3-dsv";
 import {
   WORKBOOK_CREATOR,
   addMetadataSheet,
@@ -8,6 +7,7 @@ import {
   finishSheet,
   mainSubElection,
   readElection,
+  readCSV,
   readJSON,
   readParties,
   resolveSrcPath,
@@ -58,12 +58,6 @@ const TURNOUT_COLS = [
   "invalid_ballots",
   "invalid_pct",
 ];
-
-// parl2024 reads from absolute paths (raw xlsx + geojson + csv) — its own
-// readCsvAbs is kept separate from shared.js's relative-path readCSV.
-function readCsvAbs(filePath) {
-  return csvParse(fs.readFileSync(filePath, "utf8"), autoType);
-}
 
 function asText(value) {
   if (value == null) return "";
@@ -491,8 +485,11 @@ export async function generateParl2024Download({ generatedAt = new Date() } = {}
   const partyLookup = buildPartyLookup(partiesRaw, election.parties ?? []);
   const partyIds = (election.parties ?? []).map(p => p.id).filter(Boolean);
 
-  const districtRows = readCsvAbs(resolveSrcPath(RESULTS_FILE));
-  const precinctRows = readCsvAbs(resolveSrcPath(PRECINCT_RESULTS_FILE));
+  const districtRows = readCSV(RESULTS_FILE);
+  const precinctRows = readCSV(PRECINCT_RESULTS_FILE);
+  if (!districtRows.length || !precinctRows.length) {
+    throw new Error("Missing or empty 2024 parliamentary results CSV");
+  }
   const districtGeo = readJSON(resolveSrcPath(DISTRICT_SHAPE_FILE));
   const precinctGeo = readJSON(resolveSrcPath(PRECINCT_SHAPE_FILE));
   const rawMeta = await readRawResultMetadata();

@@ -1,5 +1,6 @@
 .DS_Store
 /dist/
+/tmp/
 node_modules/
 yarn-error.log
 .claude/

@@ -12,9 +12,10 @@ suppressPackageStartupMessages({
 
 EXCEL       <- "src/data/raw/2010_ადგილობრივი.xlsx"
 SEATS_EXCEL <- "src/data/raw/seat_distribution_2010.xlsx"
-OUT_RESULTS <- "src/data/results"
-OUT_CANDS_YAML <- "src/data/config/candidates/local"
-OUT_CANDS_CSV <- "src/data/candidates"
+source("src/loaders/R/common/precinct_results.R")
+OUT_RESULTS <- Sys.getenv("OUT_RESULTS", unset = "src/data/results")
+OUT_CANDS_YAML <- Sys.getenv("OUT_CANDIDATE_CONFIG", unset = "src/data/config/candidates/local")
+OUT_CANDS_CSV <- Sys.getenv("OUT_CANDIDATES", unset = "src/data/candidates")
 
 dir.create(OUT_RESULTS, showWarnings = FALSE, recursive = TRUE)
 dir.create(OUT_CANDS_YAML, showWarnings = FALSE, recursive = TRUE)
@@ -147,14 +148,8 @@ summarise_to_level <- function(df_long, group_var) {
     group_by(across(all_of(c(group_var, "party_id")))) %>%
     summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop")
 
-  totals <- party %>%
-    group_by(across(all_of(group_var))) %>%
-    summarise(total_valid = sum(votes, na.rm = TRUE), .groups = "drop")
-
-  party %>%
-    left_join(totals, by = group_var) %>%
-    left_join(turnout, by = group_var) %>%
-    mutate(vote_share = round(safe_ratio(votes, total_valid), 6)) %>%
+  ratio <- function(votes, total) round(safe_ratio(votes, total), 6)
+  join_aggregated_party_results(party, turnout, group_var, ratio) %>%
     rename(district_id = all_of(group_var)) %>%
     select(
       district_id, party_id, votes, vote_share,
@@ -211,30 +206,33 @@ add_national <- function(df) {
   bind_rows(nat[names(df)], df)
 }
 
-summarise_precinct <- function(df_long, parent_var) {
-  df_long %>%
-    group_by(precinct_id, across(all_of(parent_var)), party_id) %>%
-    summarise(
-      votes = sum(votes, na.rm = TRUE),
-      registered = first(registered),
-      voted = first(voted),
-      voted_noon = first(voted_noon),
-      voted_5pm = first(voted_5pm),
-      invalid_ballots = first(invalid_ballots),
-      .groups = "drop"
-    ) %>%
-    group_by(precinct_id, across(all_of(parent_var))) %>%
-    mutate(vote_share = round(safe_ratio(votes, sum(votes, na.rm = TRUE)), 6)) %>%
-    ungroup() %>%
+summarise_precinct <- function(df_long, parent_var, mayor = FALSE) {
+  unit_key <- c("precinct_id", parent_var)
+  turnout <- df_long %>%
+    select(all_of(unit_key), registered, voted, voted_noon, voted_5pm, invalid_ballots) %>%
+    distinct(across(all_of(unit_key)), .keep_all = TRUE) %>%
     mutate(
       turnout_pct = round(safe_ratio(voted, registered), 6),
       noon_pct = round(safe_ratio(voted_noon, registered), 6),
       five_pct = round(safe_ratio(voted_5pm, registered), 6),
       invalid_pct = round(safe_ratio(invalid_ballots, voted), 6)
-    ) %>%
-    rename(district_id = all_of(parent_var)) %>%
+    )
+  results <- df_long %>%
+    group_by(across(all_of(unit_key)), party_id) %>%
+    summarise(votes = sum(votes, na.rm = TRUE), .groups = "drop")
+  if (mayor) results <- filter(results, votes > 0)
+  share_key <- if (mayor) "precinct_id" else unit_key
+  denominators <- results %>%
+    group_by(across(all_of(share_key))) %>%
+    summarise(totalVotes = sum(votes, na.rm = TRUE), .groups = "drop")
+  turnout <- left_join(turnout, denominators, by = share_key, relationship = "many-to-one")
+  ratio <- function(votes, total) round(safe_ratio(votes, total), 6)
+  results <- join_ballot_results(results, turnout, "party_id", ratio, unit_key)
+  parent_col <- if (mayor) parent_var else "district_id"
+  results %>%
+    rename(!!parent_col := all_of(parent_var)) %>%
     select(
-      precinct_id, district_id, party_id, votes, vote_share,
+      precinct_id, all_of(parent_col), party_id, votes, vote_share,
       registered, voted, voted_noon, voted_5pm,
       turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct
     )
@@ -290,32 +288,7 @@ mayor_districts <- mayor_results %>%
   arrange(district_id, party_id)
 write_csv_utf8(mayor_districts, file.path(OUT_RESULTS, "local2010_smd_districts.csv"))
 
-mayor_prec <- mayor_long %>%
-  group_by(precinct_id, selfgov_id, party_id) %>%
-  summarise(
-    votes = sum(votes, na.rm = TRUE),
-    registered = first(registered),
-    voted = first(voted),
-    voted_noon = first(voted_noon),
-    voted_5pm = first(voted_5pm),
-    invalid_ballots = first(invalid_ballots),
-    .groups = "drop"
-  ) %>%
-  filter(votes > 0) %>%
-  group_by(precinct_id) %>%
-  mutate(vote_share = round(safe_ratio(votes, sum(votes, na.rm = TRUE)), 6)) %>%
-  ungroup() %>%
-  mutate(
-    turnout_pct = round(safe_ratio(voted, registered), 6),
-    noon_pct = round(safe_ratio(voted_noon, registered), 6),
-    five_pct = round(safe_ratio(voted_5pm, registered), 6),
-    invalid_pct = round(safe_ratio(invalid_ballots, voted), 6)
-  ) %>%
-  select(
-    precinct_id, selfgov_id, party_id, votes, vote_share,
-    registered, voted, voted_noon, voted_5pm,
-    turnout_pct, noon_pct, five_pct, invalid_ballots, invalid_pct
-  )
+mayor_prec <- summarise_precinct(mayor_long, "selfgov_id", mayor = TRUE)
 write_csv_utf8(mayor_prec, file.path(OUT_RESULTS, "local2010_smd_precincts.csv"))
 
 write_csv_utf8(

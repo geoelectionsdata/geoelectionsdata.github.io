@@ -17,6 +17,7 @@ suppressPackageStartupMessages({
 })
 
 args <- commandArgs(trailingOnly = TRUE)
+source("src/loaders/R/common/precinct_results.R")
 args <- args[args != "--args"]
 RAW_DIR <- Sys.getenv("RAW_DIR", unset = "src/data/raw")
 OUT_DIR <- if (length(args) >= 1) args[[1]] else Sys.getenv("OUT_RESULTS", unset = "src/data/results")
@@ -194,16 +195,30 @@ sum_totals <- function(df, group_cols = NULL) {
   }
 }
 
-add_metrics <- function(df) {
+add_turnout_metrics <- function(df) {
   df %>%
     mutate(
       registered = main_list + special_list,
-      vote_share = safe_ratio(votes, totalVotes),
       turnout_pct = safe_ratio(voted, registered),
       noon_pct = safe_ratio(voted_noon, registered),
       five_pct = safe_ratio(voted_5pm, registered),
       invalid_pct = safe_ratio(invalid_ballots, voted)
     )
+}
+
+add_metrics <- function(df) {
+  df %>% add_turnout_metrics() %>% mutate(vote_share = safe_ratio(votes, totalVotes))
+}
+
+precinct_legacy_view <- function(votes, turnout, subject_col) {
+  unit_key <- function(rows) mutate(rows, precinct_key = paste(smd, dd, pp, sep = "."))
+  measures <- turnout %>% unit_key() %>% add_turnout_metrics()
+  precinct_votes <- votes %>%
+    unit_key() %>%
+    mutate(district_id = as.character(precinct_id)) %>%
+    select(precinct_id, precinct_key, smd, dd, pp, district_id, party_id,
+           any_of(c("name_ka", "code", "code_order")), precinct_order, votes)
+  join_precinct_results(precinct_votes, measures, subject_col, safe_ratio, "precinct_key")
 }
 
 attach_totals <- function(df, totals) {
@@ -274,7 +289,7 @@ process_smd_by_election <- function(raw, prefix, result_file, precinct_file) {
   ) %>%
     mutate(valid_ballots = totalVotes) %>%
     filter(valid_precinct) %>%
-    add_precinct_ids(shape_lookup) %>%
+    add_precinct_ids() %>%
     select(row_order, smd, dd, pp, precinct_id, all_of(SUM_COLS))
 
   valid_idx <- which(pc$valid_precinct)
@@ -302,12 +317,7 @@ process_smd_by_election <- function(raw, prefix, result_file, precinct_file) {
     add_metrics() %>%
     arrange(smd, code_order)
 
-  precinct <- long %>%
-    mutate(
-      district_id = as.character(precinct_id),
-      precinct_key = paste(smd, dd, pp, sep = ".")
-    ) %>%
-    add_metrics() %>%
+  precinct <- precinct_legacy_view(long, base, "code") %>%
     arrange(precinct_order, code_order)
 
   result_cols <- c(
@@ -343,36 +353,30 @@ validate_party_ids <- function() {
   }
 }
 
-load_precinct_shape_lookup <- function(path) {
+validate_precinct_shape <- function(path) {
   geo <- jsonlite::fromJSON(path, simplifyDataFrame = FALSE)
   rows <- lapply(geo$features, function(feature) {
     props <- feature$properties
     tibble(
       smd = as.integer(props$MID),
-      dd = as.integer(props$District),
-      pp = as.integer(props$Precinct),
-      shape_id = as.integer(round(as.numeric(props$id)))
+      dd = as.integer(if (is.null(props$District)) props$district else props$District),
+      pp = as.integer(if (is.null(props$Precinct)) props$precinct else props$Precinct)
     )
   })
 
-  bind_rows(rows) %>%
-    filter(!is.na(smd), !is.na(dd), !is.na(pp), !is.na(shape_id)) %>%
-    group_by(smd, dd, pp) %>%
-    summarise(shape_id = first(shape_id), .groups = "drop")
+  keys <- bind_rows(rows)
+  if (anyNA(keys) || anyDuplicated(keys)) stop("Invalid or duplicate 2016 precinct geometry key")
+  invisible(keys)
 }
 
-add_precinct_ids <- function(base, shape_lookup) {
-  base %>%
-    left_join(shape_lookup, by = c("smd", "dd", "pp")) %>%
-    mutate(
-      precinct_id = coalesce(shape_id, smd * 100000L + dd * 1000L + pp)
-    ) %>%
-    select(-shape_id)
+add_precinct_ids <- function(base) {
+  if (any(base$dd >= 100 | base$pp >= 1000, na.rm = TRUE)) stop("Precinct code exceeds the 2016 ID format")
+  base %>% mutate(precinct_id = smd * 100000L + dd * 1000L + pp)
 }
 
 aggregate_precincts <- function(base, votes, vote_cols) {
   bind_cols(base, votes) %>%
-    group_by(precinct_id, smd, dd) %>%
+    group_by(precinct_id, smd, dd, pp) %>%
     summarise(
       precinct_order = min(row_order, na.rm = TRUE),
       across(all_of(c(SUM_COLS, vote_cols)), ~ sum(.x, na.rm = TRUE)),
@@ -391,7 +395,7 @@ aggregate_precincts_exact <- function(base, votes, vote_cols) {
 }
 
 validate_party_ids()
-shape_lookup <- load_precinct_shape_lookup(PRECINCT_SHAPE_FILE)
+validate_precinct_shape(PRECINCT_SHAPE_FILE)
 
 first_round_file <- find_raw_file("პირველი ტური")
 runoff_file <- find_raw_file("მეორე ტური")
@@ -508,7 +512,7 @@ pr_base_all <- bind_cols(
 ) %>%
   mutate(valid_ballots = totalVotes) %>%
   filter(valid_precinct) %>%
-  add_precinct_ids(shape_lookup) %>%
+  add_precinct_ids() %>%
   select(row_order, smd, dd, pp, precinct_id, all_of(SUM_COLS))
 
 pr_valid_idx <- which(pr_pc$valid_precinct)
@@ -557,13 +561,11 @@ write_csv_like_js(
   PR_RESULT_COLS
 )
 
-pr_precinct <- pr_long %>%
-  mutate(district_id = as.character(precinct_id)) %>%
-  add_metrics() %>%
+pr_precinct <- precinct_legacy_view(pr_long, pr_base, "party_id") %>%
   arrange(precinct_order, match(party_id, PR_PARTIES))
 
 PR_PRECINCT_COLS <- c(
-  "precinct_id", "district_id", "party_id", "votes", "vote_share", "registered", "voted",
+  "precinct_id", "precinct_key", "district_id", "party_id", "votes", "vote_share", "registered", "voted",
   "voted_noon", "voted_5pm", "turnout_pct", "noon_pct", "five_pct", "invalid_ballots", "invalid_pct"
 )
 
@@ -599,7 +601,7 @@ repeated_base_all <- bind_cols(
 ) %>%
   mutate(valid_ballots = totalVotes) %>%
   filter(valid_precinct) %>%
-  add_precinct_ids(shape_lookup) %>%
+  add_precinct_ids() %>%
   select(row_order, smd, dd, pp, precinct_id, all_of(SUM_COLS))
 
 repeated_valid_idx <- which(repeated_pc$valid_precinct)
@@ -646,12 +648,7 @@ write_csv_like_js(
   PR_RESULT_COLS
 )
 
-repeated_precinct <- repeated_long %>%
-  mutate(
-    district_id = as.character(precinct_id),
-    precinct_key = paste(smd, dd, pp, sep = ".")
-  ) %>%
-  add_metrics() %>%
+repeated_precinct <- precinct_legacy_view(repeated_long, repeated_base, "party_id") %>%
   arrange(precinct_order, match(party_id, PR_PARTIES))
 
 REPEATED_PR_PRECINCT_COLS <- c(
@@ -691,7 +688,7 @@ repeated_smd_base_all <- bind_cols(
 ) %>%
   mutate(valid_ballots = totalVotes) %>%
   filter(valid_precinct) %>%
-  add_precinct_ids(shape_lookup) %>%
+  add_precinct_ids() %>%
   select(row_order, smd, dd, pp, precinct_id, all_of(SUM_COLS))
 
 repeated_smd_base <- aggregate_precincts_exact(
@@ -738,12 +735,7 @@ write_csv_like_js(
   REPEATED_SMD_RESULT_COLS
 )
 
-repeated_smd_precinct <- repeated_smd_long %>%
-  mutate(
-    district_id = as.character(precinct_id),
-    precinct_key = paste(smd, dd, pp, sep = ".")
-  ) %>%
-  add_metrics() %>%
+repeated_smd_precinct <- precinct_legacy_view(repeated_smd_long, repeated_smd_base, "code") %>%
   arrange(precinct_order, code_order)
 
 REPEATED_SMD_PRECINCT_COLS <- c(
@@ -785,7 +777,7 @@ smd_base_all <- bind_cols(
 ) %>%
   mutate(valid_ballots = totalVotes) %>%
   filter(valid_precinct) %>%
-  add_precinct_ids(shape_lookup) %>%
+  add_precinct_ids() %>%
   select(row_order, smd, dd, pp, precinct_id, all_of(SUM_COLS))
 
 smd_valid_idx <- which(smd_pc$valid_precinct)
@@ -843,12 +835,11 @@ write_csv_like_js(
 smd_precinct <- smd_long %>%
   left_join(candidate_lookup %>% select(smd, code, party_id, name_ka), by = c("smd", "code")) %>%
   filter(votes != 0, !is.na(party_id)) %>%
-  mutate(district_id = as.character(precinct_id)) %>%
-  add_metrics() %>%
+  precinct_legacy_view(smd_base, "code") %>%
   arrange(precinct_order, code_order)
 
 SMD_PRECINCT_COLS <- c(
-  "precinct_id", "district_id", "party_id", "name_ka", "votes", "vote_share", "registered", "voted",
+  "precinct_id", "precinct_key", "district_id", "party_id", "name_ka", "votes", "vote_share", "registered", "voted",
   "voted_noon", "voted_5pm", "turnout_pct", "noon_pct", "five_pct", "invalid_ballots", "invalid_pct"
 )
 
@@ -886,7 +877,7 @@ runoff_base_all <- bind_cols(
 ) %>%
   mutate(valid_ballots = totalVotes) %>%
   filter(valid_precinct) %>%
-  add_precinct_ids(shape_lookup) %>%
+  add_precinct_ids() %>%
   select(row_order, smd, dd, pp, precinct_id, all_of(SUM_COLS))
 
 runoff_valid_idx <- which(runoff_pc$valid_precinct)
@@ -937,11 +928,8 @@ write_csv_like_js(
 runoff_precinct <- runoff_long %>%
   filter(votes != 0) %>%
   left_join(candidate_lookup %>% select(smd, code, name_ka), by = c("smd", "code")) %>%
-  mutate(
-    district_id = as.character(precinct_id),
-    name_ka = replace_na(name_ka, "")
-  ) %>%
-  add_metrics() %>%
+  mutate(name_ka = replace_na(name_ka, "")) %>%
+  precinct_legacy_view(runoff_base, "code") %>%
   arrange(precinct_order, code_order)
 
 RUNOFF_PRECINCT_COLS <- SMD_PRECINCT_COLS

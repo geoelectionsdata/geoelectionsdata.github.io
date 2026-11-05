@@ -5,11 +5,11 @@
  * activates the precinct map level.
  */
 
-import { collectExistingPaths, isPrecinctPath } from "./config/registry-utils.js";
+import { collectExistingPaths } from "./config/registry-utils.js";
 
 const registry = {};
 
-for (const p of collectExistingPaths(p => p.endsWith(".csv") && isPrecinctPath(p))) {
+for (const p of collectExistingPaths("precinct-csv")) {
   registry[p] = p;
 }
 

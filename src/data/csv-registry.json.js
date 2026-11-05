@@ -5,15 +5,11 @@
  * of bundling every election result into one large JSON payload.
  */
 
-import { collectExistingPaths, isPrecinctPath } from "./config/registry-utils.js";
+import { collectExistingPaths } from "./config/registry-utils.js";
 
 const registry = {};
 
-for (const p of collectExistingPaths(p =>
-  p.endsWith(".csv") &&
-  !p.startsWith("data/turnout/") &&
-  !isPrecinctPath(p)
-)) {
+for (const p of collectExistingPaths("results")) {
   registry[p] = p;
 }
 

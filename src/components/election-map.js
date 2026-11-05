@@ -1,71 +1,37 @@
 import L from "npm:leaflet";
 import * as d3 from "npm:d3";
-import {turnoutValue, turnoutNorm, fetchTextAsset, fetchJSONAsset, councilSelfgovIdFromMajorId, selfgovIdFromRawDistrictId} from "./election-utils.js";
+import {addBasemap} from "./basemap.js";
+import {createMapSelection} from "./map-selection.js";
+import {bindMapTooltip, createMapHover, createMapTooltips} from "./map-tooltips.js";
+import {addShare, buildLookups, geoId, getDistrictBaseName, getFeatureName} from "./map-data.js";
+import {createPolygonStyles} from "./map-styles.js";
 import {
-  GEORGIA_OUTLINE_SVG,
-  TBILISI_OUTLINE_SVG,
-  SHARE_ICON_SVG,
-  CHECK_ICON_SVG,
-  FULLSCREEN_ENTER_SVG,
-  FULLSCREEN_EXIT_SVG,
-  PANEL_MINIMIZE_SVG,
-  PANEL_EXPAND_SVG
-} from "./icons.js";
+  indexPrecinctResults, precinctExactKey, precinctMajorDistrict,
+  precinctRawDistrict, precinctStationId, precinctStationNumber
+} from "./precinct-data.js";
+import {turnoutValue, turnoutNorm, councilSelfgovIdFromMajorId, selfgovIdFromRawDistrictId} from "./election-utils.js";
+import {makeCsvManifestLoader, makeManifestLoader} from "./election-assets.js";
+import {makeElectionCsvParser} from "./election-csv.js";
+import {addMapNavigation} from "./map-navigation.js";
+import {addFullscreenControl} from "./map-fullscreen.js";
+import {createMapLegend} from "./map-legend.js";
 
-// Module-level cache: survives buildElectionMap re-calls (one fetch per session)
-const _precinctRegistryCache = {
-  geoManifest: null,
-  geoByPath: new Map(),
-  csvManifest: null,
-  csvByPath: new Map()
-};
+const precinctGeoLoaders = new Map();
+const precinctCsvLoaders = new Map();
+const PRECINCT_CACHE_ENTRIES = 4;
 
-const _fullscreenState = {
-  active: false
-};
-
-async function loadPrecinctGeo(path, registryUrl) {
-  if (!path || !registryUrl) return null;
-
-  if (!_precinctRegistryCache.geoManifest) {
-    _precinctRegistryCache.geoManifest = await fetchJSONAsset(registryUrl);
+function loadPrecinctGeo(path, registryUrl) {
+  if (!precinctGeoLoaders.has(registryUrl)) {
+    precinctGeoLoaders.set(registryUrl, makeManifestLoader(registryUrl, {maxEntries: PRECINCT_CACHE_ENTRIES}));
   }
-
-  const assetPath = _precinctRegistryCache.geoManifest[path];
-  if (!assetPath) return null;
-
-  if (!_precinctRegistryCache.geoByPath.has(assetPath)) {
-    const promise = fetchJSONAsset(assetPath).catch(error => {
-      _precinctRegistryCache.geoByPath.delete(assetPath);
-      throw error;
-    });
-    _precinctRegistryCache.geoByPath.set(assetPath, promise);
-  }
-
-  return _precinctRegistryCache.geoByPath.get(assetPath);
+  return precinctGeoLoaders.get(registryUrl)(path);
 }
 
-async function loadPrecinctCsv(path, registryUrl) {
-  if (!path || !registryUrl) return [];
-
-  if (!_precinctRegistryCache.csvManifest) {
-    _precinctRegistryCache.csvManifest = await fetchJSONAsset(registryUrl);
+function loadPrecinctCsv(path, registryUrl) {
+  if (!precinctCsvLoaders.has(registryUrl)) {
+    precinctCsvLoaders.set(registryUrl, makeCsvManifestLoader(registryUrl, makeElectionCsvParser(d3), PRECINCT_CACHE_ENTRIES));
   }
-
-  const assetPath = _precinctRegistryCache.csvManifest[path];
-  if (!assetPath) return [];
-
-  if (!_precinctRegistryCache.csvByPath.has(assetPath)) {
-    const promise = fetchTextAsset(assetPath)
-      .then(text => d3.csvParse(text, d3.autoType))
-      .catch(error => {
-        _precinctRegistryCache.csvByPath.delete(assetPath);
-        throw error;
-      });
-    _precinctRegistryCache.csvByPath.set(assetPath, promise);
-  }
-
-  return _precinctRegistryCache.csvByPath.get(assetPath);
+  return precinctCsvLoaders.get(registryUrl)(path);
 }
 
 // Builds (or rebuilds) the Leaflet election map.
@@ -110,8 +76,11 @@ export async function buildElectionMap({
   const _initCenter = _sameElec ? _mapState.center : _defCenter;
   const _initZoom   = _sameElec ? _mapState.zoom   : _defZoom;
 
+  const hover = createMapHover();
   // Clean up previous Leaflet instance; save current view first so we can restore it
   invalidation.then(() => {
+    mapContainer.removeEventListener("mouseleave", hover.clear);
+    hover.clear();
     try {
       _mapState.center = map.getCenter();
       _mapState.zoom   = map.getZoom();
@@ -122,13 +91,8 @@ export async function buildElectionMap({
   });
 
   const map = L.map(mapContainer, {zoomControl: true, doubleClickZoom: false}).setView(_initCenter, _initZoom);
-  function closeMapTooltip() {
-    map.eachLayer(layer => {
-      if (layer.getTooltip?.()) layer.closeTooltip();
-    });
-  }
-  map.on("movestart dragstart zoomstart", closeMapTooltip);
-  mapContainer.addEventListener("mouseleave", closeMapTooltip);
+  map.on("movestart dragstart zoomstart", hover.clear);
+  mapContainer.addEventListener("mouseleave", hover.clear);
 
   // Clicking on empty map area (tile background) deselects the active unit
   // and resets the side panel back to the national view. Polygons and
@@ -140,7 +104,7 @@ export async function buildElectionMap({
     const target = e.originalEvent?.target;
     if (!target) return;
     if (target.classList?.contains("leaflet-interactive")) return;
-    if (currentSelectedUnitLevel || currentSelectedUnit) {
+    if (selection.level || selection.id) {
       clearSelectedUnit();
       if (typeof renderers?.showNationalPanel === "function") {
         renderers.showNationalPanel();
@@ -148,10 +112,7 @@ export async function buildElectionMap({
     }
   });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd', maxZoom: 19
-  }).addTo(map);
+  addBasemap(map);
 
   const activeGeo = mapMode === "cartogram" ? cartData : geoData;
   if (!activeGeo) {
@@ -168,28 +129,21 @@ export async function buildElectionMap({
     shareByDistrict.set(distId, d3.max(rows, r => r.vote_share));
   });
 
+  const polygonStyles = createPolygonStyles({
+    interpolateRgb: d3.interpolateRgb,
+    isColor: d3.color,
+    partyColor: id => partyColor(id, electionVal?.id),
+    turnoutIntensity: row => turnoutNorm(row, _turnoutMetricCtrl.value, _invalidMax)
+  });
   function districtStyle(feature) {
     const did = geoId(feature);
-    if (viewMode === "turnout") {
-      const td = turnoutByDistrict.get(did);
-      if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.75, color: "#bbb", weight: 0.5};
-      const fillColor = d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value, _invalidMax));
-      return {fillColor, fillOpacity: 0.85, color: "#ffffff", weight: 0.5};
-    }
-    const winner = winnerByDistrict.get(did);
-    if (!winner) return {fillColor: "#e0e0e0", fillOpacity: 0.75, color: "#bbb", weight: 0.5};
-    const baseColor = partyColor(winner.party_id, electionVal?.id);
-    const intensity = shareByDistrict.get(did) ?? 0.5;
-    const lightened = d3.color(baseColor) ? d3.interpolateRgb("#f5f5f5", baseColor)(0.4 + intensity * 0.6) : "#ccc";
-    return {fillColor: lightened, fillOpacity: 0.85, color: "#ffffff", weight: 0.5};
+    return viewMode === "turnout"
+      ? polygonStyles.district.turnout(turnoutByDistrict.get(did))
+      : polygonStyles.district.result(winnerByDistrict.get(did), shareByDistrict.get(did));
   }
 
   // Stringify GeoJSON integer ids once: result maps are keyed by string from CSV,
   // while shape keys vary across vintages (`id`, `maj_id`, `major_id`, etc.).
-  function geoId(feature) {
-    const p = feature?.properties ?? {};
-    return String(p.major_id ?? p.maj_id ?? p.MID ?? p.id ?? p.selfgov_id ?? p.self_gov_id);
-  }
   function updateCouncilSeatsForDistrict(did, props) {
     // `did` here is a raw electoral/exec district number (already selfgov-scale),
     // NOT a council maj_id — see the domain note in election-utils.js.
@@ -198,289 +152,36 @@ export async function buildElectionMap({
     updateCouncilSeats(sgId, sgFeat?.properties ?? props, true);
   }
 
-  // Returns the full human-readable feature name for panels and tooltips.
-  // Handles majoritarian GeoJSON (district_name_en + N + major) where name_en/name_ka are absent.
-  function getFeatureName(feature, l = "en") {
-    const p = feature?.properties ?? {};
-    const majorNum = p.major ?? p.majoritarian_district ?? (p.maj_id != null ? Number(p.maj_id) % 100 : null);
-    if (l === "ka" && p.name_ka) return p.name_ka;
-    if (p.name_en) return p.name_en;
-    if (l === "ka" && p.district_name_ka != null && p.major != null) return `${p.district_name_ka} N${p.major}`;
-    if (p.district_name_en != null && p.major != null) return `${p.district_name_en} N${p.major}`;
-    if (l === "ka" && p.district_name_ka) return p.district_name_ka;
-    if (p.district_name_en) return p.district_name_en;
-    if (l === "ka" && p.district_ka != null && majorNum != null) return `${p.district_ka} N${majorNum}`;
-    if (p.district_en != null && majorNum != null) return `${p.district_en} N${majorNum}`;
-    if (l === "ka" && p.district_ka) return p.district_ka;
-    if (p.district_en) return p.district_en;
-    return null;
-  }
 
-  // Returns just the base district name (without N+major) for precinct title building,
-  // so precinct titles read "Mtatsminda N{precinct_num}" not "Mtatsminda N1 N{precinct_num}".
-  function getDistrictBaseName(feature, l = "en") {
-    const p = feature?.properties ?? {};
-    if (l === "ka" && p.name_ka) return p.name_ka;
-    if (p.name_en) return p.name_en;
-    if (l === "ka" && p.district_name_ka) return p.district_name_ka;
-    if (p.district_name_en) return p.district_name_en;
-    if (l === "ka" && p.district_ka) return p.district_ka;
-    if (p.district_en) return p.district_en;
-    return null;
-  }
-
-  const _tooltipFallbacks = {
-    winner: "Leader",
-    subject: "Subject",
-    votes: "Votes",
-    share: "Share",
-    turnout: "Turnout",
-    count: "Count",
-    registered: "Registered",
-    noData: "No data"
-  };
-  function tooltipLabel(key, fallbackKey = key) {
-    return t(`elections.map.tooltip.${key}`) || _tooltipFallbacks[fallbackKey] || key;
-  }
-  // _tooltipLabels is mutated by setLang() so tooltips opened AFTER a language switch
-  // reflect the new translations. Bound (string) tooltip content stays in whichever
-  // language was active when the layer was added — accepted trade-off for now.
-  function _computeTooltipLabels() {
-    return {
-      winner:     tooltipLabel("winner"),
-      subject:    tooltipLabel("subject"),
-      votes:      tooltipLabel("votes"),
-      share:      tooltipLabel("share"),
-      turnout:    tooltipLabel("turnout"),
-      count:      tooltipLabel("count"),
-      registered: tooltipLabel("registered"),
-      noData:     tooltipLabel("no_data", "noData")
-    };
-  }
-  let _tooltipLabels = _computeTooltipLabels();
-
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function formatCount(value) {
-    const n = Number(value);
-    if (!Number.isFinite(n)) return "—";
-    const formatted = new Intl.NumberFormat("en-US", {maximumFractionDigits: 0}).format(Math.round(n));
-    return lang === "ka" ? formatted.replaceAll(",", " ") : formatted;
-  }
-
-  function formatPct(value) {
-    const n = Number(value);
-    return Number.isFinite(n) ? `${(n * 100).toFixed(1)}%` : "—";
-  }
 
   function activePartyId() {
     return _mapCtrl.current?.currentPartyId ?? _partyCtrl?.value ?? null;
   }
 
-  let currentSelectedUnitLevel = _selectedUnitLevelCtrl?.value ?? null;
-  let currentSelectedUnit      = _selectedUnitCtrl?.value ?? null;
-  const selectionHandlers = new Map();
-  // Track the Leaflet layer behind each selectable unit so we can highlight
-  // the matching polygon / circle whenever a district is selected (click,
-  // URL restore, or programmatic). Without this the side-panel updates but
-  // the map gives no visual confirmation of which unit is currently active.
-  const selectionLayers = new Map();
-  const selectionKey = (level, id) => `${level ?? ""}:${String(id ?? "")}`;
-
-  // Toggle the `.geda-selected` CSS class on the Leaflet path/circle SVG
-  // element of the currently-selected unit. CSS in elections.md styles this
-  // with a thick red accent stroke, layered on top of whatever fill the
-  // choropleth has applied — works for parliamentary SMD, council SMD,
-  // selfgov, and precinct circles alike.
-  function applySelectionHighlight() {
-    if (mapContainer) {
-      mapContainer.querySelectorAll(".geda-selected").forEach(el => el.classList.remove("geda-selected"));
-    } else {
-      document.querySelectorAll(".geda-selected").forEach(el => el.classList.remove("geda-selected"));
+  const selection = createMapSelection({
+    container: mapContainer,
+    level: _selectedUnitLevelCtrl?.value,
+    id: _selectedUnitCtrl?.value,
+    onChange({level, id, updateUrl}) {
+      if (_selectedUnitLevelCtrl) _selectedUnitLevelCtrl.value = level;
+      if (_selectedUnitCtrl) _selectedUnitCtrl.value = id;
+      if (_mapCtrl.current) {
+        _mapCtrl.current.currentSelectedUnitLevel = level;
+        _mapCtrl.current.currentSelectedUnit = id;
+      }
+      if (!updateUrl || typeof updateUrlParams !== "function") return;
+      if (level) updateUrlParams({level, unit_level: level, unit: id}, []);
+      else updateUrlParams({}, ["unit_level", "unit"]);
     }
-    if (!currentSelectedUnitLevel || !currentSelectedUnit) return;
-    const layer = selectionLayers.get(selectionKey(currentSelectedUnitLevel, currentSelectedUnit));
-    const el    = layer?.getElement?.();
-    if (el?.classList) {
-      el.classList.add("geda-selected");
-      // Promote so the highlight isn't obscured by neighbouring polygons.
-      if (typeof layer.bringToFront === "function") layer.bringToFront();
-    }
-  }
+  });
+  const {register: registerSelection, apply: applySelection, clear: clearSelectedUnit} = selection;
 
-  function setSelectedUnit(level, id, {updateUrl = true} = {}) {
-    currentSelectedUnitLevel = level || null;
-    currentSelectedUnit = id == null ? null : String(id);
-    if (_selectedUnitLevelCtrl) _selectedUnitLevelCtrl.value = currentSelectedUnitLevel;
-    if (_selectedUnitCtrl) _selectedUnitCtrl.value = currentSelectedUnit;
-    if (_mapCtrl.current) {
-      _mapCtrl.current.currentSelectedUnitLevel = currentSelectedUnitLevel;
-      _mapCtrl.current.currentSelectedUnit = currentSelectedUnit;
-    }
-    if (updateUrl && typeof updateUrlParams === "function") {
-      updateUrlParams(
-        {level: currentSelectedUnitLevel, unit_level: currentSelectedUnitLevel, unit: currentSelectedUnit},
-        []
-      );
-    }
-    applySelectionHighlight();
-  }
-
-  function clearSelectedUnit({updateUrl = true} = {}) {
-    currentSelectedUnitLevel = null;
-    currentSelectedUnit = null;
-    if (_selectedUnitLevelCtrl) _selectedUnitLevelCtrl.value = null;
-    if (_selectedUnitCtrl) _selectedUnitCtrl.value = null;
-    if (_mapCtrl.current) {
-      _mapCtrl.current.currentSelectedUnitLevel = null;
-      _mapCtrl.current.currentSelectedUnit = null;
-    }
-    if (updateUrl && typeof updateUrlParams === "function") {
-      updateUrlParams({}, ["unit_level", "unit"]);
-    }
-    applySelectionHighlight();
-  }
-
-  function registerSelection(level, id, handler, layer) {
-    if (level && id != null && typeof handler === "function") {
-      selectionHandlers.set(selectionKey(level, id), handler);
-      // Stash the layer so applySelectionHighlight() can find its SVG element.
-      if (layer) selectionLayers.set(selectionKey(level, id), layer);
-    }
-  }
-
-  function applySelection(level, id, {updateUrl = true} = {}) {
-    const handler = selectionHandlers.get(selectionKey(level, id));
-    if (!handler) return false;
-    handler();
-    setSelectedUnit(level, id, {updateUrl});
-    return true;
-  }
-
-  function rowName(row) {
-    if (!row) return null;
-    const party = getParty?.(row.party_id);
-    return (lang === "ka" && (row.name_ka || row.candidate_name_ka))
-      || row.name_en
-      || row.name_ka
-      || row.candidate_name_ka
-      || row.candidate_name
-      || row.party_label
-      || party?.name?.[lang]
-      || party?.name?.en
-      || row.party_id;
-  }
-
-  function turnoutMetricDetails(td, metric) {
-    if (!td) return null;
-    if (metric === "noon") {
-      const pct = td.noon_pct ?? (td.registered > 0 ? td.voted_noon / td.registered : null);
-      return {label: t("elections.turnout.metric.noon") || "12:00", count: td.voted_noon, pct};
-    }
-    if (metric === "5pm") {
-      const pct = td.five_pct ?? (td.registered > 0 ? td.voted_5pm / td.registered : null);
-      return {label: t("elections.turnout.metric.5pm") || "17:00", count: td.voted_5pm, pct};
-    }
-    if (metric === "invalid") {
-      const pct = td.invalid_pct ?? (td.voted > 0 ? td.invalid_ballots / td.voted : null);
-      return {label: t("elections.turnout.metric.invalid") || "Invalid ballots", count: td.invalid_ballots, pct};
-    }
-    const pct = td.turnout_pct ?? (td.registered > 0 ? td.voted / td.registered : null);
-    return {label: t("elections.turnout.metric.final") || _tooltipLabels.turnout, count: td.voted, pct};
-  }
-
-  function tooltipFrame(title, rowsHtml) {
-    return `<div class="geda-tooltip-frame">
-      <div class="geda-tooltip-title">${escapeHtml(title)}</div>
-      ${rowsHtml}
-    </div>`;
-  }
-
-  function tooltipLine(label, value, options = {}) {
-    const valueClass = options.wrapValue ? "geda-tooltip-value geda-tooltip-value-wrap" : "geda-tooltip-value";
-    return `<div class="geda-tooltip-line">
-      <span class="geda-tooltip-label">${escapeHtml(label)}</span>
-      <span class="${valueClass}">${escapeHtml(value)}</span>
-    </div>`;
-  }
-
-  function tooltipSubject(value, color) {
-    return `<div class="geda-tooltip-subject" style="color:${escapeHtml(color || "#111111")};">${escapeHtml(value)}</div>`;
-  }
-
-  function buildTurnoutTooltip(title, td) {
-    const metric = turnoutMetricDetails(td, _turnoutMetricCtrl.value);
-    if (!metric) return tooltipFrame(title, `<div style="font-size:0.74rem;color:#666;">${_tooltipLabels.noData}</div>`);
-    return tooltipFrame(title, [
-      tooltipLine(metric.label, formatPct(metric.pct)),
-      tooltipLine(_tooltipLabels.count, formatCount(metric.count)),
-      tooltipLine(_tooltipLabels.registered, formatCount(td.registered))
-    ].join(""));
-  }
-
-  function selectTooltipResultRow(rows) {
-    const activeId = activePartyId();
-    if (activeId != null) return rows.find(r => String(r.party_id) === String(activeId)) ?? null;
-    return rows.reduce((best, row) => !best || (Number(row.vote_share) || 0) > (Number(best.vote_share) || 0) ? row : best, null);
-  }
-
-  function buildResultTooltipFromRows(title, rows) {
-    const activeId = activePartyId();
-    const row = selectTooltipResultRow(rows);
-    if (!row && activeId == null) return tooltipFrame(title, `<div style="font-size:0.74rem;color:#666;">${_tooltipLabels.noData}</div>`);
-
-    const fallbackParty = activeId != null ? getParty?.(activeId) : null;
-    const subject = rowName(row) || fallbackParty?.name?.[lang] || fallbackParty?.name?.en || activeId || _tooltipLabels.noData;
-    const subjectColor = partyColor(row?.party_id ?? activeId, electionVal?.id);
-    return tooltipFrame(title, [
-      tooltipSubject(subject, subjectColor),
-      tooltipLine(_tooltipLabels.votes, formatCount(row?.votes ?? 0)),
-      tooltipLine(_tooltipLabels.share, formatPct(row?.vote_share ?? 0))
-    ].join(""));
-  }
-
-  function buildAreaResultTooltip(title, rows, id) {
-    return buildResultTooltipFromRows(
-      title,
-      rows.filter(r => String(r.district_id) === String(id))
-    );
-  }
-
-  function withHoverOutline(layer) {
-    layer.on("mouseover", () => {
-      layer._gedaHoverStyle = {
-        color: layer.options?.color,
-        weight: layer.options?.weight,
-        opacity: layer.options?.opacity
-      };
-      if (layer.setStyle) layer.setStyle({color: "#111111", weight: 1.2, opacity: 1});
-      if (layer.bringToFront) layer.bringToFront();
-    });
-    layer.on("mouseout", () => {
-      const style = layer._gedaHoverStyle;
-      if (style && layer.setStyle) layer.setStyle(style);
-      layer._gedaHoverStyle = null;
-    });
-  }
-
-  function bindDynamicTooltip(layer, contentFn) {
-    withHoverOutline(layer);
-    layer.bindTooltip(() => contentFn(), {
-      className: "geda-map-tooltip",
-      direction: "top",
-      offset: [0, -6],
-      opacity: 0.96,
-      sticky: false
-    });
-    layer.on("mousedown", closeMapTooltip);
-  }
+  const tooltips = createMapTooltips({
+    lang, t, getParty, partyColor, electionId: electionVal?.id,
+    activePartyId, getTurnoutMetric: () => _turnoutMetricCtrl.value
+  });
+  const {buildTurnoutTooltip, buildResultTooltipFromRows, buildAreaResultTooltip} = tooltips;
+  const bindDynamicTooltip = (layer, content) => bindMapTooltip(layer, content, hover);
 
   const DISTRICT_HOLLOW  = {fillColor: "transparent", fillOpacity: 0, color: "#999", weight: 0.5};
   const SAKREBULO_HOLLOW = {fillColor: "transparent", fillOpacity: 0, color: "#bbb", weight: 0.8};
@@ -550,46 +251,14 @@ export async function buildElectionMap({
       }
     }).addTo(map);
 
-    // ── Helper: build winner/share/turnout lookups from a results array ──
-    // When turnoutArr is empty, extracts inline turnout from resultsArr if available.
-    function buildLookups(resultsArr, turnoutArr) {
-      const winnerMap  = new Map();
-      const shareMap   = new Map();
-      const turnoutMap = new Map();
-      d3.group(resultsArr, r => String(r.district_id)).forEach((rows, did) => {
-        const winner = rows.reduce((a, b) => (b.vote_share > a.vote_share ? b : a));
-        winnerMap.set(did, winner);
-        shareMap.set(did, d3.max(rows, r => r.vote_share));
-        // If no separate turnout array, extract inline turnout from the first result row
-        if (turnoutArr.length === 0 && rows[0]?.registered != null) {
-          const td = {...rows[0]};
-          if (td.turnout_pct == null && td.registered > 0) td.turnout_pct = td.voted / td.registered;
-          if (td.invalid_pct == null && td.voted > 0 && td.invalid_ballots != null) td.invalid_pct = td.invalid_ballots / td.voted;
-          if (td.noon_pct    == null && td.registered > 0 && td.voted_noon != null) td.noon_pct    = td.voted_noon / td.registered;
-          if (td.five_pct    == null && td.registered > 0 && td.voted_5pm  != null) td.five_pct    = td.voted_5pm  / td.registered;
-          turnoutMap.set(did, td);
-        }
-      });
-      d3.group(turnoutArr, r => String(r.district_id)).forEach((rows, did) => {
-        turnoutMap.set(did, rows[0]);
-      });
-      return {winnerMap, shareMap, turnoutMap};
-    }
 
     function makeLayerStyle(winnerMap, shareMap, turnoutMap, weight = 0.5) {
-      return function(feature) {
+      const style = polygonStyles.detailed(weight);
+      return feature => {
         const did = geoId(feature);
-        if (viewMode === "turnout") {
-          const td = turnoutMap.get(did);
-          if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight};
-          return {fillColor: d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value, _invalidMax)), fillOpacity: 0.9, color: "#ffffff", weight};
-        }
-        const winner = winnerMap.get(did);
-        if (!winner) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight};
-        const baseColor = partyColor(winner.party_id, electionVal?.id);
-        const intensity = shareMap.get(did) ?? 0.5;
-        const lightened = d3.color(baseColor) ? d3.interpolateRgb("#f5f5f5", baseColor)(0.4 + intensity * 0.6) : "#ccc";
-        return {fillColor: lightened, fillOpacity: 0.9, color: "#ffffff", weight};
+        return viewMode === "turnout"
+          ? style.turnout(turnoutMap.get(did))
+          : style.result(winnerMap.get(did), shareMap.get(did));
       };
     }
 
@@ -680,8 +349,9 @@ export async function buildElectionMap({
     let shareByPrecinct           = new Map();
     let _shareByPartyByPrecinct   = new Map();
     let precinctLayer             = null;
-    let _precinctDataLoaded       = false;
+    let _precinctLayerPromise     = null;
     let _precinctUsesExactKeys    = false;
+    let precinctRowsByKey         = new Map();
 
     function updateCouncilSeatsForPrecinct(parentDid, stationId, props) {
       if (!isCouncilMode) return;
@@ -692,51 +362,8 @@ export async function buildElectionMap({
       updateCouncilSeats(sgId, sgFeat?.properties ?? props, true);
     }
 
-    function precinctStationId(feature) {
-      const raw = feature?.properties?.id ?? feature?.properties?.precinct_id;
-      return raw == null ? null : String(Math.round(Number(raw)));
-    }
-
-    function precinctKeyPart(value) {
-      if (value == null || value === "") return null;
-      const n = Number(value);
-      return Number.isFinite(n) ? String(Math.round(n)) : String(value);
-    }
-
-    function precinctExactKey(feature) {
-      const p = feature?.properties ?? {};
-      if (p.precinct_key != null && String(p.precinct_key).trim() !== "") return String(p.precinct_key).trim();
-      const smd = precinctKeyPart(p.MID ?? p.M_District ?? p.smd ?? p.major_id ?? p.maj_id);
-      const dd  = precinctKeyPart(p.District ?? p.district ?? p.district_id);
-      const pp  = precinctKeyPart(p.Precinct ?? p.precinct ?? p.precinct_number);
-      if (smd && dd && pp) return `${smd}.${dd}.${pp}`;
-      return precinctStationId(feature);
-    }
-
-    function precinctResultKey(row) {
-      const key = row?.precinct_key;
-      if (key != null && String(key).trim() !== "") return String(key).trim();
-      return String(Math.round(row.precinct_id));
-    }
-
     function precinctFeatureResultKey(feature) {
       return _precinctUsesExactKeys ? precinctExactKey(feature) : precinctStationId(feature);
-    }
-
-    function precinctStationNumber(feature) {
-      const p = feature?.properties ?? {};
-      const raw = p.precinct ?? p.Precinct ?? p.precinct_number ?? p.id;
-      return raw == null ? null : Math.round(Number(raw)) % 1000;
-    }
-
-    function precinctRawDistrict(feature) {
-      const p = feature?.properties ?? {};
-      return p.district ?? p.district_id ?? p.District;
-    }
-
-    function precinctMajorDistrict(feature) {
-      const p = feature?.properties ?? {};
-      return precinctKeyPart(p.MID ?? p.M_District ?? p.smd ?? p.major_id ?? p.maj_id);
     }
 
     function precinctParentId(feature, stationId) {
@@ -804,10 +431,11 @@ export async function buildElectionMap({
       });
     }
 
-    async function _ensurePrecinctLayer() {
-      if (_precinctDataLoaded) return;
-      _precinctDataLoaded = true;
+    function _ensurePrecinctLayer() {
+      return _precinctLayerPromise ??= loadPrecinctLayer();
+    }
 
+    async function loadPrecinctLayer() {
       let precinctGeoData  = null;
       let precinctResults  = [];
 
@@ -823,46 +451,22 @@ export async function buildElectionMap({
         } catch(e) { console.warn("Precinct CSV load failed", e); }
       }
 
-      _precinctUsesExactKeys = precinctResults.some(r => r.precinct_key != null && String(r.precinct_key).trim() !== "");
-      const precinctResultKeys = new Set(precinctResults.map(precinctResultKey));
-
-      // Per-station inline turnout (precincts have registered/ballots columns)
-      if (precinctResults.length > 0 && precinctResults[0]?.registered != null) {
-        const _seenPids = new Set();
-        for (const r of precinctResults) {
-          const pid = precinctResultKey(r);
-          if (!_seenPids.has(pid)) { _seenPids.add(pid); _precinctTurnoutByStation.set(pid, r); }
-        }
-      }
-
-      // Council SMD: precinct_id → major_id lookup for correct coloring
-      if (isCouncilMode && effectiveVoteType === "smd") {
-        for (const r of precinctResults) {
-          const pid = String(Math.round(r.precinct_id));
-          if (!_precinctToMajorId.has(pid)) _precinctToMajorId.set(pid, String(r.district_id));
-        }
-      }
-
-      // Per-precinct winner/share lookups (point precinct coloring)
-      d3.group(precinctResults, precinctResultKey).forEach((rows, pid) => {
-        const winner = rows.reduce((a, b) => (b.vote_share > a.vote_share ? b : a));
-        winnerByPrecinct.set(pid, winner);
-        shareByPrecinct.set(pid, d3.max(rows, r => r.vote_share));
+      const index = indexPrecinctResults(precinctResults, {
+        councilSmd: isCouncilMode && effectiveVoteType === "smd"
       });
-
-      // Party-filter share lookup
-      for (const r of precinctResults) {
-        const pid = precinctResultKey(r);
-        if (!_shareByPartyByPrecinct.has(pid)) _shareByPartyByPrecinct.set(pid, new Map());
-        const shares = _shareByPartyByPrecinct.get(pid);
-        shares.set(r.party_id, (shares.get(r.party_id) ?? 0) + (Number(r.vote_share) || 0));
-      }
+      precinctRowsByKey = index.byUnit;
+      _precinctUsesExactKeys = index.usesExactKeys;
+      _precinctTurnoutByStation = index.turnoutByUnit;
+      _precinctToMajorId = index.majorByStation;
+      winnerByPrecinct = index.winnerByUnit;
+      shareByPrecinct = index.maxShareByUnit;
+      _shareByPartyByPrecinct = index.partySharesByUnit;
 
       if (!precinctGeoData) return;
       if (_precinctUsesExactKeys) {
         precinctGeoData = {
           ...precinctGeoData,
-          features: precinctGeoData.features?.filter(f => precinctResultKeys.has(precinctExactKey(f))) ?? []
+          features: precinctGeoData.features?.filter(f => precinctRowsByKey.has(precinctExactKey(f))) ?? []
         };
       }
       const isPoints = precinctGeoData.features?.[0]?.geometry?.type === "Point";
@@ -872,7 +476,7 @@ export async function buildElectionMap({
           pointToLayer(feature, latlng) {
             const _rawDist  = precinctRawDistrict(feature);
             const _d        = Number(_rawDist);
-            const stationId = String(Math.round(feature.properties.id));
+            const stationId = precinctStationId(feature);
             const resultKey = precinctFeatureResultKey(feature) ?? stationId;
             const parentDid = precinctParentId(feature, stationId);
             let fillColor;
@@ -894,8 +498,7 @@ export async function buildElectionMap({
             });
           },
           onEachFeature(feature, layer) {
-            const _rawStId   = feature.properties.id;
-            const stationId  = String(Math.round(_rawStId));
+            const stationId  = precinctStationId(feature);
             const resultKey  = precinctFeatureResultKey(feature) ?? stationId;
             const stationNum = precinctStationNumber(feature);
             const _rawDist   = precinctRawDistrict(feature);
@@ -929,8 +532,7 @@ export async function buildElectionMap({
               if (viewMode === "turnout") {
                 panel.replaceWith(renderTurnoutPanel(resultKey, enhancedProps, _precinctTurnoutByStation));
               } else {
-                const stationRows = precinctResults
-                  .filter(r => precinctResultKey(r) === resultKey)
+                const stationRows = (precinctRowsByKey.get(resultKey) ?? [])
                   .map(r => {
                     if (!r.name_ka && !r.candidate_name) {
                       if (isCouncilMode && effectiveVoteType === "smd") {
@@ -963,7 +565,7 @@ export async function buildElectionMap({
                 return buildTurnoutTooltip(title, td);
               }
               const stationRows = enrichPrecinctRows(
-                precinctResults.filter(r => precinctResultKey(r) === resultKey)
+                precinctRowsByKey.get(resultKey) ?? []
               );
               const fallbackRows = [
                 winnerByPrecinct.get(resultKey)
@@ -976,27 +578,20 @@ export async function buildElectionMap({
         });
       } else {
         // Polygon precincts — choropleth
+        const precinctStyle = polygonStyles.detailed(0.5);
         precinctLayer = L.geoJSON(precinctGeoData, {
           style(feature) {
             const stationId = precinctStationId(feature);
             const resultKey = precinctFeatureResultKey(feature) ?? stationId;
             const parentDid = precinctParentId(feature, stationId);
             if (viewMode === "turnout") {
-              const td = _precinctTurnoutByStation.get(resultKey) ?? _precinctTurnoutByStation.get(stationId) ?? turnoutByDistrict.get(parentDid);
-              if (!td) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight: 0.5};
-              return {
-                fillColor: d3.interpolateRgb("#fee2e2", "#b91c1c")(turnoutNorm(td, _turnoutMetricCtrl.value, _invalidMax)),
-                fillOpacity: 0.9,
-                color: "#ffffff",
-                weight: 0.5
-              };
+              return precinctStyle.turnout(_precinctTurnoutByStation.get(resultKey)
+                ?? _precinctTurnoutByStation.get(stationId) ?? turnoutByDistrict.get(parentDid));
             }
-            const winner = winnerByPrecinct.get(resultKey) ?? winnerByPrecinct.get(stationId) ?? winnerByDistrict.get(parentDid);
-            if (!winner) return {fillColor: "#e0e0e0", fillOpacity: 0.6, color: "#ccc", weight: 0.5};
-            const baseColor = partyColor(winner.party_id, electionVal?.id);
-            const intensity = shareByPrecinct.get(resultKey) ?? shareByPrecinct.get(stationId) ?? shareByDistrict.get(parentDid) ?? 0.5;
-            const lightened = d3.color(baseColor) ? d3.interpolateRgb("#f5f5f5", baseColor)(0.4 + intensity * 0.6) : "#ccc";
-            return {fillColor: lightened, fillOpacity: 0.9, color: "#ffffff", weight: 0.5};
+            return precinctStyle.result(
+              winnerByPrecinct.get(resultKey) ?? winnerByPrecinct.get(stationId) ?? winnerByDistrict.get(parentDid),
+              shareByPrecinct.get(resultKey) ?? shareByPrecinct.get(stationId) ?? shareByDistrict.get(parentDid)
+            );
           },
           onEachFeature(feature, layer) {
             const stationId = precinctStationId(feature);
@@ -1010,7 +605,7 @@ export async function buildElectionMap({
                 panel.replaceWith(renderTurnoutPanel(resultKey, enhancedProps, _precinctTurnoutByStation));
               } else {
                 const stationRows = enrichPrecinctRows(
-                  precinctResults.filter(r => precinctResultKey(r) === resultKey)
+                  precinctRowsByKey.get(resultKey) ?? []
                 );
                 panel.replaceWith(renderDistrictPanel("__precinct__", enhancedProps, stationRows));
               }
@@ -1028,7 +623,7 @@ export async function buildElectionMap({
                 return buildTurnoutTooltip(title, td);
               }
               const stationRows = enrichPrecinctRows(
-                precinctResults.filter(r => precinctResultKey(r) === resultKey)
+                precinctRowsByKey.get(resultKey) ?? []
               );
               const fallbackRows = [
                 winnerByPrecinct.get(resultKey)
@@ -1105,6 +700,7 @@ export async function buildElectionMap({
     }
 
     function applyLevel(levelId, controlDiv, {clearSelection = false, updateUrl = true} = {}) {
+      hover.clear();
       currentLevel = levelId;
       if (_levelCtrl) _levelCtrl.value = currentLevel;
       if (_mapCtrl.current) _mapCtrl.current.currentLevel = currentLevel;
@@ -1132,7 +728,7 @@ export async function buildElectionMap({
         if (precinctLayer && map.hasLayer(precinctLayer)) map.removeLayer(precinctLayer);
       } else if (levelId === "precinct" && (precinctGeoPath || precinctCsvPath)) {
         _ensurePrecinctLayer().then(() => {
-          if (!precinctLayer) return;
+          if (!precinctLayer || currentLevel !== "precinct") return;
           districtLayer.setStyle(DISTRICT_HOLLOW);
           setLayerInteractivity(districtLayer, false);
           if (selfgovLayer         && map.hasLayer(selfgovLayer))         map.removeLayer(selfgovLayer);
@@ -1177,33 +773,27 @@ export async function buildElectionMap({
     applyLevel(currentLevel, null, {updateUrl: false});
 
     function restoreSelectedUnitFromUrl() {
-      if (!currentSelectedUnitLevel || !currentSelectedUnit) return;
-      if (!availableLevels.some(lvl => lvl.id === currentSelectedUnitLevel)) return;
+      if (!selection.level || !selection.id) return;
+      if (!availableLevels.some(lvl => lvl.id === selection.level)) return;
 
       const restorePanel = () => {
-        applySelection(currentSelectedUnitLevel, currentSelectedUnit, {updateUrl: false});
+        applySelection(selection.level, selection.id, {updateUrl: false});
       };
 
-      if (currentSelectedUnitLevel === "precinct" && (precinctGeoPath || precinctCsvPath)) {
+      if (selection.level === "precinct" && (precinctGeoPath || precinctCsvPath)) {
         _ensurePrecinctLayer().then(() => {
           applyLevel("precinct", _levelControlDiv, {updateUrl: false});
           setTimeout(restorePanel, 0);
         });
       } else {
-        if (currentSelectedUnitLevel !== currentLevel) {
-          applyLevel(currentSelectedUnitLevel, _levelControlDiv, {updateUrl: false});
+        if (selection.level !== currentLevel) {
+          applyLevel(selection.level, _levelControlDiv, {updateUrl: false});
         }
         setTimeout(restorePanel, 0);
       }
     }
 
     // ── Party filter: lookups for district, selfgov, and precinct vote shares ─
-    function addShare(shareMap, areaId, partyId, voteShare) {
-      const key = String(areaId);
-      if (!shareMap.has(key)) shareMap.set(key, new Map());
-      const shares = shareMap.get(key);
-      shares.set(partyId, (shares.get(partyId) ?? 0) + (Number(voteShare) || 0));
-    }
 
     const _shareByPartyByDistrict = new Map();
     for (const r of _districtRows) {
@@ -1222,61 +812,11 @@ export async function buildElectionMap({
       addShare(_shareByPartyByCouncilDistrict, r.district_id, r.party_id, r.vote_share);
     }
 
-    // ── Map legend control (bottom-left) ────────────────────────────────────
-    function buildLegendHTML(activePartyId, legendMinVal, legendMaxVal) {
-      if (viewMode === "turnout" || activePartyId) {
-        const fromColor  = activePartyId ? "#f5f5f5" : "#fee2e2";
-        const toColor    = activePartyId ? partyColor(activePartyId, electionVal?.id) : "#b91c1c";
-        const stops      = [0, 0.25, 0.5, 0.75, 1.0];
-        const stopColors = stops.map(s => d3.interpolateRgb(fromColor, toColor)(s));
-        const gradCss    = `linear-gradient(to right, ${stopColors.join(", ")})`;
-
-        let minLabel, maxLabel;
-        if (activePartyId) {
-          // Show actual min/max vote-share values for this party across districts
-          const minPct = legendMinVal != null ? `${(legendMinVal * 100).toFixed(1)}%` : "0%";
-          const maxPct = legendMaxVal != null ? `${(legendMaxVal * 100).toFixed(1)}%` : "—";
-          minLabel = minPct;
-          maxLabel = maxPct;
-        } else {
-          // Turnout metric: show 0 and realistic ceiling
-          minLabel = "0%";
-          maxLabel = _turnoutMetricCtrl.value === "invalid" ? `${(_invalidMax * 100).toFixed(0)}%`
-                   : _turnoutMetricCtrl.value === "noon"    ? "30%"
-                   : _turnoutMetricCtrl.value === "5pm"     ? "60%"
-                   : "100%";
-        }
-        const labels = ["", "", "", "", ""];
-        labels[0] = minLabel;
-        labels[4] = maxLabel;
-
-        const metricLabel = !activePartyId && viewMode === "turnout"
-          ? `<div style="font-size:0.62rem;color:#555;font-weight:600;margin-bottom:3px;">${t("elections.turnout.metric." + _turnoutMetricCtrl.value) || _turnoutMetricCtrl.value}</div>`
-          : "";
-        return `<div style="min-width:140px;">${metricLabel}
-          <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:#555;margin-bottom:2px;">
-            ${labels.map(l => `<span>${l}</span>`).join("")}
-          </div>
-          <div style="height:10px;border-radius:2px;background:${gradCss};"></div>
-        </div>`;
-      } else {
-        const _mapWinnerIds  = new Set([...winnerByDistrict.values()].map(w => w.party_id));
-        const _legendParties = passed.filter(p => _mapWinnerIds.has(p.party_id));
-        // Long party names wrap inside the legend's max-width (240px). The dot
-        // sticks to the top of the wrapped block so the layout reads like a
-        // bulleted list rather than a vertically-centred floating swatch.
-        return `<div style="display:flex;flex-direction:column;gap:4px;">
-          ${_legendParties.map(p => {
-            const name = p.party?.name?.[lang] || p.party_id;
-            return `<div style="display:flex;align-items:flex-start;gap:5px;">
-              <span style="width:9px;height:9px;border-radius:2px;background:${p.color};display:inline-block;flex-shrink:0;margin-top:3px;"></span>
-              <span style="font-size:0.65rem;color:#333;line-height:1.3;word-break:break-word;">${name}</span>
-            </div>`;
-          }).join("")}
-        </div>`;
-      }
-    }
-
+    const buildLegendHTML = createMapLegend({
+      viewMode, partyColor: id => partyColor(id, electionVal?.id), interpolateRgb: d3.interpolateRgb,
+      winnerByDistrict, passed, getLang: () => lang, translate: key => t(key),
+      getMetric: () => _turnoutMetricCtrl.value, invalidMax: _invalidMax
+    });
     const LegendControl = L.Control.extend({
       onAdd() {
         const div = L.DomUtil.create("div", "map-legend");
@@ -1285,333 +825,11 @@ export async function buildElectionMap({
         return div;
       }
     });
-    const _legendCtrl = new LegendControl({ position: "bottomleft" }).addTo(map);
+    const _legendCtrl = new LegendControl({position: "bottomleft"}).addTo(map);
 
-    // ── Zoom-to-country button (below +/−) ───────────────────────────────────
-    function boundsForFeatures(geo, predicate) {
-      const features = geo?.features?.filter(predicate) ?? [];
-      if (features.length === 0) return null;
-      const bounds = L.geoJSON({type: "FeatureCollection", features}).getBounds();
-      return bounds.isValid() ? bounds : null;
-    }
-
-    function zoomToTbilisi() {
-      const selfgovBounds = boundsForFeatures(selfgovGeoData, f => String(f.properties?.id) === "1");
-      const districtBounds = boundsForFeatures(activeGeo, f => {
-        const id = Number(geoId(f));
-        return id >= 1 && id <= 10;
-      });
-      const councilBounds = boundsForFeatures(councilDistrictGeoData, f =>
-        councilSelfgovIdFromMajorId(geoId(f)) === "1"
-      );
-      const bounds = selfgovBounds ?? districtBounds ?? councilBounds;
-      if (bounds) map.fitBounds(bounds.pad(0.08), {maxZoom: 12});
-      else map.setView([41.7151, 44.8271], 11);
-    }
-
-    const ZoomHomeControl = L.Control.extend({
-      onAdd(map) {
-        const container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
-        const btn = L.DomUtil.create("a", "", container);
-        btn.href  = "#";
-        const _label = t("elections.map.zoom_georgia");
-        btn.title = _label;
-        btn.setAttribute("role", "button");
-        btn.setAttribute("aria-label", _label);
-        btn.style.cssText = "display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#444;";
-        btn.innerHTML = GEORGIA_OUTLINE_SVG;
-        L.DomEvent.on(btn, "click", e => {
-          L.DomEvent.preventDefault(e);
-          map.setView([42.1, 43.0], 7);
-        });
-        const tbilisiBtn = L.DomUtil.create("a", "", container);
-        tbilisiBtn.href = "#";
-        const _tbilisiLabel = t("elections.map.zoom_tbilisi");
-        tbilisiBtn.title = _tbilisiLabel;
-        tbilisiBtn.setAttribute("role", "button");
-        tbilisiBtn.setAttribute("aria-label", _tbilisiLabel);
-        tbilisiBtn.style.cssText = "display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#444;text-decoration:none;";
-        tbilisiBtn.innerHTML = TBILISI_OUTLINE_SVG;
-        L.DomEvent.on(tbilisiBtn, "click", e => {
-          L.DomEvent.preventDefault(e);
-          zoomToTbilisi();
-        });
-        L.DomEvent.disableClickPropagation(container);
-        return container;
-      }
-    });
-    new ZoomHomeControl({ position: "topleft" }).addTo(map);
-
-    // ── Share button (below Tbilisi zoom button, same gap as between controls) ─
-    if (shareUrlForCurrentMap) {
-      const ShareControl = L.Control.extend({
-        onAdd() {
-          const container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
-          const btn = L.DomUtil.create("a", "", container);
-          btn.href = "#";
-          const _label = t("elections.map.share_view");
-          btn.title = _label;
-          btn.setAttribute("role", "button");
-          btn.setAttribute("aria-label", _label);
-          btn.style.cssText = "display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#444;text-decoration:none;";
-          btn.innerHTML = SHARE_ICON_SVG;
-          L.DomEvent.on(btn, "click", async e => {
-            L.DomEvent.preventDefault(e);
-            const url = shareUrlForCurrentMap();
-            try {
-              await navigator.clipboard.writeText(url);
-              btn.innerHTML = CHECK_ICON_SVG;
-              btn.style.color = "#2d7d46";
-              setTimeout(() => { btn.innerHTML = SHARE_ICON_SVG; btn.style.color = "#444"; }, 1200);
-            } catch {
-              window.prompt(_label, url);
-            }
-          });
-          L.DomEvent.disableClickPropagation(container);
-          return container;
-        }
-      });
-      new ShareControl({ position: "topleft" }).addTo(map);
-    }
-
-    // ── Fullscreen toggle ──────────────────────────────────────────────────
-    // Pops the map's parent wrapper (.elections-main) into the browser's
-    // fullscreen API — fullscreening the WRAPPER, not just mapContainer, so
-    // the right-side results panel (a sibling of the map card) stays visible
-    // and CSS (.elections-main:fullscreen > .results-panel) positions it as
-    // an overlay in the top-right corner. Listens for `fullscreenchange` so
-    // pressing Escape flips the icon back. Calls `map.invalidateSize()` after
-    // each transition so Leaflet recomputes tile layout for the new viewport.
-    const FullscreenControl = L.Control.extend({
-      onAdd() {
-        const control = this;
-        const container = L.DomUtil.create("div", "leaflet-bar leaflet-control");
-        const btn = L.DomUtil.create("a", "", container);
-        btn.href = "#";
-        btn.setAttribute("role", "button");
-        btn.style.cssText = "display:flex;align-items:center;justify-content:center;width:26px;height:26px;color:#444;text-decoration:none;";
-        let panelObserver = null;
-        let panelObserverTarget = null;
-        let panelObserverFrame = null;
-        let zoomBoosted = false;
-        let panelCollapsed = false;
-
-        // Fullscreen target: the layout wrapper holding both map + panel.
-        // Falls back to mapContainer when the wrapper isn't present.
-        const fsTarget = () => mapContainer.closest(".elections-main") || document.querySelector(".elections-main") || mapContainer;
-        const _fsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
-        const _isMapFs = () => {
-          const target = fsTarget();
-          const fsEl = _fsEl();
-          return !!fsEl && (fsEl === target || target.contains(fsEl) || fsEl.contains(target));
-        };
-        const rememberStyle = el => {
-          if (!el || el.dataset.mapFsStyle != null) return;
-          el.dataset.mapFsStyle = el.getAttribute("style") ?? "";
-        };
-        const restoreStyle = el => {
-          if (!el || el.dataset.mapFsStyle == null) return;
-          const previous = el.dataset.mapFsStyle;
-          if (previous) el.setAttribute("style", previous);
-          else el.removeAttribute("style");
-          delete el.dataset.mapFsStyle;
-        };
-        const setImportant = (el, prop, value) => el?.style?.setProperty(prop, value, "important");
-        function scheduleFullscreenLayout() {
-          if (panelObserverFrame != null) return;
-          panelObserverFrame = requestAnimationFrame(() => {
-            panelObserverFrame = null;
-            if (_fullscreenState.active || _isMapFs()) applyFullscreenLayout(true);
-          });
-        }
-        function watchFullscreenPanel(active) {
-          if (!active) {
-            if (panelObserver) panelObserver.disconnect();
-            panelObserver = null;
-            panelObserverTarget = null;
-            if (panelObserverFrame != null) {
-              cancelAnimationFrame(panelObserverFrame);
-              panelObserverFrame = null;
-            }
-            return;
-          }
-          if (typeof MutationObserver === "undefined") return;
-          const target = fsTarget();
-          if (panelObserver && panelObserverTarget === target) return;
-          if (panelObserver) panelObserver.disconnect();
-          panelObserver = new MutationObserver(scheduleFullscreenLayout);
-          panelObserver.observe(target, {childList: true});
-          panelObserverTarget = target;
-          control._panelObserver = panelObserver;
-        }
-        function decorateFullscreenPanel(panel, active) {
-          if (!panel) return;
-          panel.classList.toggle("results-panel-fullscreen", active);
-          panel.classList.toggle("results-panel-collapsed", active && panelCollapsed);
-
-          let toggle = panel.querySelector(":scope > .results-panel-toggle");
-          if (!active) {
-            if (toggle) toggle.remove();
-            panel.classList.remove("results-panel-fullscreen", "results-panel-collapsed");
-            return;
-          }
-
-          if (!toggle) {
-            toggle = document.createElement("button");
-            toggle.type = "button";
-            toggle.className = "results-panel-toggle";
-            toggle.addEventListener("click", e => {
-              e.preventDefault();
-              e.stopPropagation();
-              panelCollapsed = !panelCollapsed;
-              decorateFullscreenPanel(panel, true);
-              applyFullscreenLayout(true);
-            });
-            L.DomEvent.disableClickPropagation(toggle);
-            L.DomEvent.disableScrollPropagation(toggle);
-            panel.prepend(toggle);
-          }
-
-          toggle.innerHTML = panelCollapsed ? PANEL_EXPAND_SVG : PANEL_MINIMIZE_SVG;
-          const label = t(panelCollapsed ? "elections.map.expand_infobox" : "elections.map.minimize_infobox");
-          toggle.title = label;
-          toggle.setAttribute("aria-label", label);
-        }
-        function zoomForFullscreenEntry() {
-          setTimeout(() => {
-            map.invalidateSize();
-            const nextZoom = Math.min(map.getMaxZoom?.() ?? 19, map.getZoom() + 2);
-            map.setZoom(nextZoom, {animate: true});
-          }, 180);
-        }
-        function applyFullscreenLayout(active) {
-          const target = fsTarget();
-          const mapCard = mapContainer.closest(".card");
-          const panel = target.querySelector(".results-panel");
-          _fullscreenState.active = active;
-          target.classList.toggle("map-fullscreen-active", active);
-          watchFullscreenPanel(active);
-
-          if (!active) {
-            panelCollapsed = false;
-            decorateFullscreenPanel(panel, false);
-            [panel, mapContainer, mapCard, target].forEach(restoreStyle);
-            return;
-          }
-
-          [target, mapCard, mapContainer, panel].forEach(rememberStyle);
-          Object.entries({
-            display: "block",
-            position: "fixed",
-            inset: "0",
-            width: "100vw",
-            height: "100vh",
-            margin: "0",
-            padding: "0",
-            overflow: "hidden"
-          }).forEach(([prop, value]) => setImportant(target, prop, value));
-
-          Object.entries({
-            position: "relative",
-            width: "100vw",
-            height: "100vh",
-            margin: "0",
-            padding: "0",
-            overflow: "hidden",
-            "border-radius": "0",
-            "box-shadow": "none"
-          }).forEach(([prop, value]) => setImportant(mapCard, prop, value));
-
-          setImportant(mapContainer, "width", "100%");
-          setImportant(mapContainer, "height", "100%");
-
-          if (panel) {
-            decorateFullscreenPanel(panel, true);
-            Object.entries({
-              position: "absolute",
-              right: "16px",
-              bottom: "16px",
-              top: "auto",
-              width: panelCollapsed ? "42px" : "340px",
-              height: panelCollapsed ? "42px" : "auto",
-              "min-height": "0",
-              "max-width": "calc(100vw - 32px)",
-              "max-height": panelCollapsed ? "42px" : "min(55vh, calc(100vh - 32px))",
-              "overflow-y": panelCollapsed ? "hidden" : "auto",
-              padding: panelCollapsed ? "6px" : "2.75rem 1.25rem 1.25rem",
-              "z-index": "1000"
-            }).forEach(([prop, value]) => setImportant(panel, prop, value));
-          }
-        }
-
-        function syncIcon() {
-          const fs = _isMapFs() || _fullscreenState.active;
-          applyFullscreenLayout(fs);
-          if (fs && !zoomBoosted) {
-            zoomBoosted = true;
-            zoomForFullscreenEntry();
-          }
-          btn.innerHTML = fs ? FULLSCREEN_EXIT_SVG : FULLSCREEN_ENTER_SVG;
-          const label = t(fs ? "elections.map.exit_fullscreen" : "elections.map.enter_fullscreen");
-          btn.title = label;
-          btn.setAttribute("aria-label", label);
-          // Give Leaflet a moment to settle into the new viewport then redraw tiles
-          setTimeout(() => map.invalidateSize(), 120);
-        }
-        function handleFullscreenChange() {
-          if (!_fsEl()) {
-            zoomBoosted = false;
-            applyFullscreenLayout(false);
-          }
-          syncIcon();
-        }
-        syncIcon();
-        this._cleanupPanelObserver = () => watchFullscreenPanel(false);
-
-        L.DomEvent.on(btn, "click", e => {
-          L.DomEvent.preventDefault(e);
-          if (_isMapFs() || _fullscreenState.active) {
-            zoomBoosted = false;
-            applyFullscreenLayout(false);
-            (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
-          } else {
-            const target = fsTarget();
-            const fn = target.requestFullscreen || target.webkitRequestFullscreen;
-            applyFullscreenLayout(true);
-            zoomBoosted = true;
-            zoomForFullscreenEntry();
-            const request = fn?.call(target);
-            if (request?.catch) request.catch(() => applyFullscreenLayout(false));
-          }
-        });
-
-        this._escapeListener = e => {
-          if (e.key === "Escape" && _fullscreenState.active) {
-            zoomBoosted = false;
-            applyFullscreenLayout(false);
-          }
-        };
-        document.addEventListener("keydown", this._escapeListener);
-
-        // Track changes (including Escape) — keep a ref so onRemove can detach.
-        this._fsListener = handleFullscreenChange;
-        document.addEventListener("fullscreenchange", this._fsListener);
-        document.addEventListener("webkitfullscreenchange", this._fsListener);
-
-        L.DomEvent.disableClickPropagation(container);
-        return container;
-      },
-      onRemove() {
-        if (this._cleanupPanelObserver) this._cleanupPanelObserver();
-        else if (this._panelObserver) this._panelObserver.disconnect();
-        if (this._escapeListener) document.removeEventListener("keydown", this._escapeListener);
-        if (this._fsListener) {
-          document.removeEventListener("fullscreenchange", this._fsListener);
-          document.removeEventListener("webkitfullscreenchange", this._fsListener);
-        }
-      }
-    });
-    new FullscreenControl({ position: "topleft" }).addTo(map);
+    const translateControl = key => t(key);
+    addMapNavigation({map, t: translateControl, activeGeo, selfgovGeoData, councilDistrictGeoData, shareUrlForCurrentMap});
+    addFullscreenControl({map, mapContainer, t: translateControl});
 
     // ── Overlay opacity slider ───────────────────────────────────────────────
     // Lets the user dim the choropleth so the basemap's settlement names
@@ -1679,8 +897,9 @@ export async function buildElectionMap({
       currentPartyId: null,
       currentTurnoutMetric: _turnoutMetricCtrl.value ?? "final",
       currentLevel,
-      currentSelectedUnitLevel,
-      currentSelectedUnit,
+      currentSelectedUnitLevel: selection.level,
+      currentSelectedUnit: selection.id,
+      clearSelectedUnit,
       legendDiv: _legendCtrl.getContainer(),
 
       // Imperative language refresh — called from a separate lang-only cell in elections.md
@@ -1693,7 +912,7 @@ export async function buildElectionMap({
         if (newLang === lang && newT === t) return;
         lang = newLang;
         t    = newT;
-        _tooltipLabels = _computeTooltipLabels();
+        tooltips.setLang(newLang, newT);
         if (this.legendDiv) this.legendDiv.innerHTML = buildLegendHTML(this.currentPartyId);
       },
 
@@ -1834,7 +1053,7 @@ export async function buildElectionMap({
           range = (maxS - minS) || 1;
         }
         precinctLayer.eachLayer(l => {
-          const pid       = String(Math.round(l.feature?.properties?.id ?? 0));
+          const pid       = precinctStationId(l.feature);
           const resultKey = precinctFeatureResultKey(l.feature) ?? pid;
           const _rawD     = precinctRawDistrict(l.feature);
           const _dn       = Number(_rawD);

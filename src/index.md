@@ -7,6 +7,7 @@ toc: false
 ```js
 import L from "npm:leaflet";
 import * as d3 from "npm:d3";
+import {addBasemap} from "./components/basemap.js";
 import {getLang, tr} from "./components/state.js";
 const dict      = await FileAttachment("data/config/translations.json").json();
 const elections = await FileAttachment("data/elections.json").json();
@@ -137,10 +138,7 @@ lang;
 {
   const map = L.map(mapContainer, {zoomControl: false, scrollWheelZoom: false})
     .setView([42.1, 43.0], 7);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd', maxZoom: 19
-  }).addTo(map);
+  addBasemap(map);
 
   if (featGeo) {
     L.geoJSON(featGeo, {

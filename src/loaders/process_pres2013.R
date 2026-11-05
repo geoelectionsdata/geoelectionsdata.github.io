@@ -10,6 +10,7 @@ suppressPackageStartupMessages({
 })
 
 RAW_DIR <- Sys.getenv("RAW_DIR", unset = "src/data/raw")
+source("src/loaders/R/common/precinct_results.R")
 RES_DIR <- Sys.getenv("OUT_RESULTS", unset = "src/data/results")
 TURN_DIR <- Sys.getenv("OUT_TURNOUT", unset = "src/data/turnout")
 CAND_DIR <- Sys.getenv("OUT_CANDIDATES", unset = "src/data/candidates")
@@ -18,9 +19,10 @@ SHP_DIR <- Sys.getenv("SHP_DIR", unset = "src/data/shp")
 RAW_FILE <- file.path(RAW_DIR, "2013_საპრეზიდენტო.xlsx")
 DISTRICT_GEOJSON <- file.path(SHP_DIR, "parl2024_pr.geojson")
 
-dir.create(RES_DIR, recursive = TRUE, showWarnings = FALSE)
-dir.create(TURN_DIR, recursive = TRUE, showWarnings = FALSE)
-dir.create(CAND_DIR, recursive = TRUE, showWarnings = FALSE)
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) && (length(args) != 2L || args[[1]] != "--pilot" || !nzchar(args[[2]]))) {
+  stop("Usage: Rscript src/loaders/process_pres2013.R [--pilot OUTPUT_DIRECTORY]")
+}
 
 CANDIDATES <- tibble(
   code = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 41),
@@ -327,14 +329,78 @@ TURNOUT_PRECINCT_COLS <- c(
   "special_list", "noon_pct", "five_pct", "invalid_ballots", "invalid_pct"
 )
 
-write_csv_like_js(district_long, file.path(RES_DIR, "pres2013.csv"), RESULT_COLS)
-write_csv_like_js(precinct_long, file.path(RES_DIR, "pres2013_precincts.csv"), PRECINCT_COLS)
-write_csv_like_js(turnout_district, file.path(TURN_DIR, "pres2013_turnout.csv"), TURNOUT_COLS)
-write_csv_like_js(turnout_precinct, file.path(TURN_DIR, "pres2013_precincts_turnout.csv"), TURNOUT_PRECINCT_COLS)
-write_csv_like_js(
-  candidate_names,
-  file.path(CAND_DIR, "pres2013_candidates.csv"),
-  c("code", "party_id", "name_en", "name_ka", "party_label_ka", "vote_col")
-)
+build_normalized <- function() {
+  pilot_keys <- c("election_id", "sub_id", "ballot", "level", "unit_id")
+  identify <- function(rows, precinct) {
+    rows %>% mutate(
+      election_id = "pres_2013",
+      sub_id = "__main__",
+      ballot = "presidential",
+      level = if (precinct) "precinct" else if_else(district_id == "national", "national", "district"),
+      unit_id = if (precinct) as.character(precinct_id) else district_id
+    )
+  }
+  results <- bind_rows(identify(district_long, FALSE), identify(precinct_long, TRUE)) %>%
+    transmute(
+      across(all_of(pilot_keys)), subject_id = party_id, votes,
+      valid_vote_denominator = totalVotes,
+      vote_share = if_else(totalVotes > 0, vote_share, NA_real_)
+    )
+  turnout <- bind_rows(identify(turnout_district, FALSE), identify(turnout_precinct, TRUE)) %>%
+    mutate(
+      district_id = if_else(level == "national", NA_character_, district_id),
+      turnout_pct = if_else(registered > 0, turnout_pct, NA_real_),
+      noon_pct = if_else(registered > 0, noon_pct, NA_real_),
+      five_pct = if_else(registered > 0, five_pct, NA_real_),
+      invalid_pct = if_else(voted > 0, invalid_pct, NA_real_)
+    ) %>%
+    select(all_of(pilot_keys), district_id, precinct_number, district_name_ka, district_name_en,
+           registered, voted, voted_noon, voted_5pm, main_list, special_list, invalid_ballots,
+           turnout_pct, noon_pct, five_pct, invalid_pct)
+  list(keys = pilot_keys, results = results, turnout = turnout)
+}
 
-message("Wrote 2013 presidential results, turnout, and candidate CSVs.")
+legacy_views <- function(data) {
+  turnout <- data$turnout %>%
+    mutate(
+      district_id = if_else(level == "national", "national", district_id),
+      precinct_id = if_else(level == "precinct", unit_id, NA_character_),
+      vote_type = "pr",
+      across(c(turnout_pct, noon_pct, five_pct, invalid_pct), ~ coalesce(.x, 0))
+    )
+  results <- join_ballot_turnout(data$results, turnout, "subject_id", data$keys) %>%
+    mutate(party_id = subject_id, vote_share = coalesce(vote_share, 0))
+  list(
+    district_results = filter(results, level != "precinct"),
+    precinct_results = filter(results, level == "precinct"),
+    district_turnout = filter(turnout, level != "precinct"),
+    precinct_turnout = filter(turnout, level == "precinct")
+  )
+}
+
+normalized <- build_normalized()
+if (length(args)) {
+  validate_ballot_keys(normalized$results, normalized$turnout, "subject_id", normalized$keys)
+  pilot_dir <- args[[2]]
+  if (file.exists(pilot_dir)) stop("Pilot output must be a new directory: ", pilot_dir)
+  dir.create(pilot_dir, recursive = TRUE)
+  write_csv_like_js(normalized$results, file.path(pilot_dir, "results.csv"), names(normalized$results))
+  write_csv_like_js(normalized$turnout, file.path(pilot_dir, "turnout.csv"), names(normalized$turnout))
+  message("Wrote normalized 2013 pilot data to ", pilot_dir)
+} else {
+  views <- legacy_views(normalized)
+  dir.create(RES_DIR, recursive = TRUE, showWarnings = FALSE)
+  dir.create(TURN_DIR, recursive = TRUE, showWarnings = FALSE)
+  dir.create(CAND_DIR, recursive = TRUE, showWarnings = FALSE)
+  write_csv_like_js(views$district_results, file.path(RES_DIR, "pres2013.csv"), RESULT_COLS)
+  write_csv_like_js(views$precinct_results, file.path(RES_DIR, "pres2013_precincts.csv"), PRECINCT_COLS)
+  write_csv_like_js(views$district_turnout, file.path(TURN_DIR, "pres2013_turnout.csv"), TURNOUT_COLS)
+  write_csv_like_js(views$precinct_turnout, file.path(TURN_DIR, "pres2013_precincts_turnout.csv"), TURNOUT_PRECINCT_COLS)
+  write_csv_like_js(
+    candidate_names,
+    file.path(CAND_DIR, "pres2013_candidates.csv"),
+    c("code", "party_id", "name_en", "name_ka", "party_label_ka", "vote_col")
+  )
+
+  message("Wrote 2013 presidential results, turnout, and candidate CSVs.")
+}

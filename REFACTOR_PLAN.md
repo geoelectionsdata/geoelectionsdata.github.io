@@ -92,6 +92,40 @@ Pushing the prepared changes to `codex/linux-regeneration-audit` also starts
 the Linux audit automatically. Pages publishing is restricted to `main`,
 including when a non-main branch is dispatched manually.
 
+**First Linux audit (run 41828339441):** The build passed and publication
+was skipped. There were 327 byte-identical files, 21 known legacy additions,
+and one changed legacy file, `local2014_mayor_gamgebeli_candidates.csv`.
+The checked-in file contains four party labels with doubled carriage returns;
+the audit did not retain the Linux copy to confirm that this was the entire
+difference. The local draft stops regenerating this file and keeps it checked
+in for the historical migration script. The in-memory candidate table and
+the active map and download inputs remain unchanged. Rerun the audit branch
+with this change before enabling the blocking comparison.
+
+**CI parity checkpoint:** Linux rerun `41832844683` passed after the 2014
+archive fix, matching the Windows comparison: 328 identical files and 21
+known legacy additions. The local workflow now regenerates in a scratch copy
+and runs the comparator with `--check` before building downloads or the
+dashboard. The check rejects every difference except additions of the 21
+audited legacy roster paths; changes to checked-in files are never exempt.
+The workbook and Observable builds read the checkout unchanged. The final
+workflow change has not been pushed or deployed.
+
+**Local closeout:** The scratch workflow now copies the shared R helpers
+and runs dedicated ballot-join checks. All 18 deployment loaders ran in a
+Windows scratch tree: 339 files matched, with only the 21 already-audited
+legacy roster additions. The Node and R tests, schema inventory, clean
+npm install, and Observable production build passed. Removed unused npm
+dependencies, obsolete registry helpers, and duplicate Observable settings.
+The configured featured election, footer target, and public file paths
+were left unchanged.
+
+The full on-disk canonical migration is still a separate stage, not a
+requirement for the checked compatibility outputs. It needs a roster
+ownership and corrections policy, a decision on retirement of the legacy
+exports, and explicit geometry/subject mappings before moving public assets.
+The latest local changes still need a Linux audit before publication.
+
 This phase comes first because the live site does not match the repository, so
 any before/after parity check would otherwise use the wrong baseline.
 
@@ -243,6 +277,13 @@ here are proposals for review before implementation.
 
 ### 1. Basemap: establish the actual dependency, then replace it
 
+**Local checkpoint:** Both map views now call `addBasemap(map)` from
+`src/components/basemap.js` and use OpenFreeMap Positron through the
+MapLibre Leaflet adapter. Observable serves the MapLibre worker as a separate
+asset. Election overlays and interactions stay in Leaflet. The featured map,
+district selection, fullscreen resize, and attribution were checked in the
+local preview. No alternate tile provider is configured.
+
 Both `src/components/election-map.js:151` and `src/index.md:140` currently use
 `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png`.
 Neither call supplies an API key. No Mapbox/MapTiler/Stadia key configuration was
@@ -277,6 +318,237 @@ References checked for this proposal:
 - OSM tile hosting policy: https://operations.osmfoundation.org/policies/tiles/
 
 ### 2. Data contract: refine the existing scaffold before migrating
+
+**Local checkpoint:** `docs/data-contract.md` specifies the first
+`pres_2013` pilot, including ID scope, turnout denominators and source
+discrepancies. `node scripts/validate-pres2013-data.js` checks the current
+four CSVs without rewriting them. The baseline passes structural checks;
+the report records one district and 88 precinct reporting units without
+geometry, plus the existing share and turnout anomalies. The next step is
+to broaden the migration to a parliamentary PR election after the pilot.
+
+**Isolated pilot passed:** `process_pres2013.R --pilot <new-directory>`
+produces separate normalized results and turnout. The compatibility checker
+matched every row and field of the four current CSVs in order. It also verified
+the preserved vote-share denominators: 26 units have a denominator that differs
+from the sum of candidate votes. No YAML path or public output changed.
+
+**Consumer integration:** The default 2013 R loader now derives the four
+CSV views from its normalized result and turnout tables. The views match the
+checked-in data byte for byte. Both map and download consumers keep their
+existing YAML paths, and no normalized pilot files are shipped.
+
+**Parliamentary PR checkpoint:** The 2024 loader now keys separate results
+and turnout tables by contest and reporting unit, then joins them only to
+write the existing dashboard and download views. It rejects duplicate keys
+and result units without turnout. Both CSVs regenerated byte-identically,
+including the annulled Marneuli precinct 69 and its undefined vote shares.
+**Parliamentary SMD checkpoint:** The 2020 loader now separates SMD results
+from turnout before writing compatibility views for the main round and
+runoff. Candidate keys use the ballot number within each SMD rather than
+party affiliation; the national first-round party summary and the existing
+denominator rules are preserved. All six 2020 CSVs (including unchanged PR)
+regenerated byte-identically. Other parliamentary by-elections and 2016
+precinct geometry remain outside this migration.
+
+**2016 precinct checkpoint:** The existing shape's 3,634 exact keys were
+validated without changing geometry. Six regenerated precinct CSVs now
+use the exact tuple; vote totals and all district CSVs are unchanged.
+PR matches all 3,634 shapes, with 57 additional reporting units kept in
+the data. The first-round SMD and runoff result keys all match geometry.
+The local CI workflow now includes the loader in its isolated check.
+The map shares the pending precinct-layer promise so exact-key links restore
+the selected unit after the lazy load. Click and reload were verified locally.
+
+**Map extraction checkpoint:** Precinct keys and lookup indexes, lazy asset
+caches, and selection/highlighting now live in separate modules. The
+back-to-national control clears the selected unit from the URL and map.
+Tests cover exact keys, cache retries and eviction, and selection restoration.
+Tooltip formatting and hover binding also live in their own module, with
+tests for live party/metric changes, bilingual formatting, and escaping.
+Geographic names and district winner, turnout, and party share lookups now
+live in `map-data.js`.
+Base polygon styles for district, council, self-government and precinct
+layers share `map-styles.js`, with distinct profiles for missing data and
+the existing live turnout metric behavior.
+The legend renderer and the zoom/share and fullscreen controls now have
+separate modules. Fullscreen Escape and the exit button share the same
+cleanup path; the preview verified panel collapse and Escape restoration.
+
+**Performance baseline:** Local Node medians over five parses (no network
+or rendering): candidate index 23.5 MB / 2.18 MB gzip / 121 ms; candidate
+details 49.8 MB / 4.66 MB gzip / 227 ms; 2016 PR precinct CSV 8.58 MB /
+0.65 MB gzip / 187 ms; 2016 precinct geometry 14.7 MB / 4.71 MB gzip / 69 ms.
+Candidate search now builds each text corpus only when a valid query uses
+that scope. This shifts CPU work off initial page load; payload sizes are
+unchanged. Measure cold browser load and first-query latency before changing
+the index format or geometry.
+
+**Candidate detail payload:** The first expanded row now fetches one of 64
+hashed detail buckets rather than a 49.8 MB JSON file. Observable generates
+the buckets in one archive-loader run and publishes them as individual JSON
+assets. Build verification matched all 56,230 candidate records against
+the original output. The largest bucket was 839 KB raw / 93 KB gzip, compared
+with 49.8 MB raw / 4.66 MB gzip previously.
+
+**Candidate search payload:** Dictionary-encoded party labels and district
+names, plus compact appearance tuples, cut the initial index from 23.5 MB
+to 11.6 MB raw and 2.18 MB to 1.28 MB gzip. Median local Node JSON parse
+time fell from 121 ms to 60 ms (five runs each; excludes network and rendering).
+All 56,230 records decoded to the previous structure with identical values,
+and name and party searches returned the same results in the preview.
+
+**2016 precinct geometry payload:** The browser uses a generated display
+GeoJSON with coordinates rounded to eight decimal places. It keeps every
+property, key, ring and vertex; the original remains the source for R and
+archival use. Verification covered 3,634 features and 309,232 vertices,
+with no distinct vertices merged and maximum coordinate displacement below
+0.0000000071 degrees. Payload fell from 14.7 MB to 9.0 MB raw and from
+4.71 MB to 2.64 MB gzip. The production build publishes the generated asset,
+and the Dusheti precinct 42 deep link restored in the preview.
+
+**Additional precinct display layers:** Applied the same eight-decimal
+generator to 2008 and 2012 parliamentary, 2008 presidential, and 2010 and
+2017 local elections. These five layers together fell from 35.6 MB to
+19.6 MB gzip. Tests check each configured display layer against its original
+for unchanged properties, keys, ring closure and vertex counts, and no
+merged distinct vertices. All six display assets were published by the
+local build; the 2017 precinct map rendered in the browser preview.
+
+The same generator now covers 2008 Adjara, 2014 local, 2020 parliamentary,
+and 2013 presidential precincts. Those four layers together fell from
+19.2 MB to 10.6 MB gzip, with no distinct vertices merged. The 2013
+data validator checks geographic joins against the configured display asset.
+
+**Election cache checkpoint:** Build and preview startup refresh the small
+election manifests so edits to YAML do not leave stale paths or metadata.
+Cached precinct display copies are retained unless their source or generator
+is newer. The obsolete manual registry generator has been removed.
+The homepage featured-map payload is also refreshed at startup, and both
+page data loaders use the same YAML reader as the asset registries.
+
+**Exact precinct key checkpoint:** Map and workbook CSV readers preserve
+`precinct_key` as text; other columns retain legacy typing. Compared
+150,219 rows across 35 configured CSVs and confirmed identical resolved
+precinct keys and unchanged values in every other column.
+
+**Geographic CSV IDs:** The same reader now preserves district, selfgov,
+majoritarian and precinct IDs as text while keeping legacy typing for
+measures and subject fields. An audit of 188 configured CSVs found no
+existing nonblank geographic ID whose text differed from its legacy join key.
+
+**Precinct lookup and cache:** Station joins now preserve textual IDs through
+point styling and selection instead of rounding them. An audit of 43,834
+configured shape IDs found no existing station key changes. The map retains
+up to four precinct geometry files and four precinct CSVs per manifest.
+The 2024 parliamentary workbook also uses the shared geographic-ID reader.
+
+**Parliamentary PR precinct checkpoint:** The 2012 and 2020 loaders
+validate precinct turnout and ballot subject keys separately, then join
+them to produce the existing PR precinct CSVs. The 2020 PR path reuses
+the compatibility join already used for SMD. All 14 checked-in results
+and turnout files regenerated byte-identically in temporary directories.
+
+The 2020 parliamentary PR precinct path and the six SMD reporting paths
+(national, district and precinct in each round) now reuse the shared
+ballot join instead of joining the turnout table twice. All six output
+CSV files still match the workspace copies byte for byte.
+
+The shared turnout validation and join also cover the three 2010 local
+precinct ballots and both result outputs each for the 2024 parliamentary
+and 2013 presidential loaders. The latter two retain their precomputed
+shares. All 15 results and turnout CSVs matched byte for byte, and the
+2013 pilot parity check preserved all 26 source denominator discrepancies.
+
+The shared precinct results join now covers 2012 SMD and both 2008
+parliamentary ballots. It checks uniqueness by precinct and ballot code
+without changing the existing candidate joins or 2008 PR turnout fallback.
+All 14 checked-in 2008 and 2012 results and turnout files regenerated
+byte-identically in temporary directories.
+
+The 2015 parliamentary by-election and both October 2016 repeated
+precinct outputs now use the shared join. The 2016 ballots retain the
+full dotted precinct key, and SMD subjects retain their ballot codes.
+All 24 results and turnout files from the two loader runs matched the
+workspace data byte for byte.
+
+The remaining 2016 parliamentary precinct paths now use that same join:
+main PR, main SMD, the SMD runoff, District 54, and both Mtatsminda
+rounds. They keep the dotted precinct key and use ballot code for SMD
+subjects. All 16 loader CSVs matched the workspace data byte for byte.
+
+**Adjara precinct checkpoint:** Both 2008 ballots and the 2016 PR, SMD,
+and SMD runoff now use the shared checked precinct join. Ballot-code
+identity, source turnout denominators, candidate joins, and output paths
+are unchanged. All 14 results and turnout files matched byte for byte.
+
+Adjara 2020 PR, SMD and runoff, and Adjara 2024 PR now use the same
+checked precinct join. All 12 checked-in results and turnout CSVs
+regenerated byte-identically in temporary directories.
+
+**Presidential checkpoint:** The 2008 and 2018 precinct outputs now use
+the shared checked join. The 2018 rounds join by source row internally
+to preserve overseas records that share a published precinct ID. The
+2013 normalized loader validates unique turnout and candidate keys and
+turnout coverage before emitting either output format. All 14 checked-in
+presidential results and turnout files matched byte for byte.
+
+**Typed manifest checkpoint:** All five registries now classify assets by
+their YAML fields. Membership is unchanged across the five manifests.
+Declared missing assets fail explicitly; the unused, missing 1919 cartogram
+is marked unavailable. Dynamic asset registration and lazy fetch paths remain
+the same.
+
+**Local precinct checkpoint:** The 2010 loader now uses a shared precinct
+aggregation for council PR, council SMD, and the Tbilisi mayor ballot, with
+one turnout row per precinct and parent unit. All nine result and seat files
+regenerated byte-identically. The 2017 loader applies the same separation to
+PR and mayoral precinct output, including the mayoral runoff, while retaining
+the existing candidate lookup and SMD geography conventions.
+The same precinct adapter also covers the 2017 council SMD main ballot and
+the 2018, 2019 and 2020 council by-elections, retaining MID, exact precinct
+keys and raw district codes in the compatibility files. The by-election
+mayoral precincts use the shared adapter as well. District-level
+by-election aggregation and source joins are unchanged.
+
+The 2017 main PR, mayoral first round and runoff, council SMD, and
+2018, 2019 and 2020 by-election groups now use the shared checked turnout
+join. The existing share denominators and turnout metadata are unchanged.
+All 35 generated results and candidate files matched a fresh baseline
+byte for byte.
+
+The 2021 and 2025 council PR precinct outputs now share a checked join.
+Turnout is scoped to precinct and district; the vote-share denominator
+retains the legacy precinct-only grouping. All 25 generated files matched
+fresh pre-refactor baselines, and both PR precinct CSVs matched the
+checked-in files byte for byte.
+
+The same helper now handles 2021 mayoral first-round and runoff precincts
+and 2025 mayoral precincts. It joins turnout by precinct and self-governing
+unit, preserving the positive-vote filter and precinct-only denominator.
+All 25 generated files still match the pre-refactor baselines byte for byte.
+
+The 2021 council SMD first round and runoff and the 2025 council SMD
+precinct outputs now share that helper too. Their vote-share denominator
+remains scoped to precinct and majoritarian contest. All 25 generated
+files again matched their pre-refactor baselines byte for byte.
+
+The 2010 district PR, self-government PR, mayoral and council SMD
+aggregates and the 2025 district PR, self-government PR and mayoral
+aggregates now share the checked denominator and turnout join.
+The loaders retain their original zero-denominator behavior. All 22
+generated results and candidate files matched their prior baselines.
+
+The 2017 and 2021 local PR and mayoral aggregation paths now reuse
+the checked denominator and turnout join. The 2017 mayoral municipal
+rows retain ballot number alongside party ID; national aggregation
+still uses party ID alone. All 50 generated files matched their baselines.
+
+The 2014 local loader now uses the checked precinct join for council PR
+and SMD, mayor/gamgebeli first round and runoff, mayoral by-elections
+and their runoffs, and council SMD by-elections. Each path retains its
+existing geographic and subject grouping. All 41 generated files matched
+a fresh pre-refactor baseline byte for byte with geometry rebuilding off.
 
 The repository already has R schema/io/district helpers and R candidate ingests.
 It also has lazy path manifests, so replacing a giant registry payload is not

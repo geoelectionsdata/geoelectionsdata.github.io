@@ -12,7 +12,7 @@ system:
   pr:
     enabled: true
     shape_file: "data/shp/pres2008_districts.geojson"
-    precinct_shape_file: "data/shp/pres2008_precincts.geojson"
+    precinct_shape_file: "data/shp/pres2008_precincts_display.geojson"
   smd:
     enabled: false
   compensation:

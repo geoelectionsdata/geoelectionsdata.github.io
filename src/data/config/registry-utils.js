@@ -24,29 +24,36 @@ export function loadElections() {
   return collectYmlFiles(YAML_DIR).map(f => load(readFileSync(f, "utf8")));
 }
 
-/** Walk any JS value and collect strings that look like data file paths. */
-export function collectPaths(obj, out = new Set()) {
-  if (!obj) return out;
-  if (typeof obj === "string") {
-    if (obj.endsWith(".csv") || obj.endsWith(".geojson")) out.add(obj);
-    return out;
-  }
-  if (Array.isArray(obj)) { obj.forEach(v => collectPaths(v, out)); return out; }
-  if (typeof obj === "object") Object.values(obj).forEach(v => collectPaths(v, out));
-  return out;
-}
-
 export function diskPath(p) { return join(SRC, p); }
 export function fileExists(p) { return existsSync(diskPath(p)); }
-export function readText(p) { return readFileSync(diskPath(p), "utf8"); }
-export function isPrecinctPath(p) { return /_precincts?(?=\.|_|$)/.test(p); }
+const assetRoles = {
+  shape_file: ["geometry"],
+  selfgov_shape_file: ["geometry"],
+  cartogram: ["geometry"],
+  precinct_shape_file: ["precinct-geometry"],
+  file: ["turnout"],
+  precinct_file: ["turnout", "precinct-csv"],
+  annulled_precincts: ["precinct-csv"],
+  seats: ["results"],
+};
 
-export function collectExistingPaths(predicate = () => true) {
+export function collectExistingPaths(role) {
   const paths = new Set();
   for (const election of loadElections()) {
-    for (const p of collectPaths(election)) {
-      if (predicate(p) && fileExists(p)) paths.add(p);
+    function visit(value, field = "") {
+      if (typeof value === "string" && /^data\/.*\.(csv|geojson)$/.test(value)) {
+        const roles = Object.hasOwn(assetRoles, field) ? assetRoles[field]
+          : /_precinct_results$/.test(field) ? ["precinct-csv"]
+          : /(?:^|_)results$/.test(field) ? ["results"] : null;
+        if (!roles) throw new Error(`${election.id}: undeclared asset role for ${field} (${value})`);
+        const generated = roles.includes("precinct-geometry") && fileExists(`${value}.js`);
+        if (!fileExists(value) && !generated) throw new Error(`${election.id}: missing ${field} asset: ${value}`);
+        if (!role || roles.includes(role)) paths.add(value);
+      } else if (value && typeof value === "object") {
+        for (const [key, child] of Object.entries(value)) visit(child, key);
+      }
     }
+    visit(election);
   }
   return [...paths].sort();
 }

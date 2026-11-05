@@ -664,3 +664,7 @@ hr {
     background: var(--red-light);
   }
 }
+.leaflet-pane > .leaflet-gl-layer {
+  position: absolute;
+  pointer-events: none;
+}

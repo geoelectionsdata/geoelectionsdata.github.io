@@ -1,5 +1,5 @@
 // Slim search index for the /candidates page. Excludes the per-cluster
-// `appearances` arrays — those live in candidates-details.json (fetched
+// `appearances` arrays — those live in candidate-details/ buckets (fetched
 // lazily on the page). See ./config/candidates-build.js for the heavy lifting.
 //
 // Compact field names (one letter to shrink the payload):
@@ -8,12 +8,12 @@
 //   l  = last_name
 //   p  = latest_party_id (most recent)
 //   ps = all party_ids the candidate ran for (most-recent first)
-//   pl = election-specific party labels that differ from the global registry
-//        — each entry is {i, k?, e?}. A field is omitted when it equals the
+//   pl = indices into party_labels for election-specific party labels
+//        — each dictionary entry is {i, k?, e?}. A field is omitted when it equals the
 //        global registry's name_ka / name_en for that party_id. Page-side
 //        code falls back to the registry when a field is missing.
 //   y  = latest_year
-//   a  = appearance summaries: [{e: election_id, v: vote_type}, …]
+//   a  = appearance tuples: [election index, vote type index, district name index?]
 //   n  = appearance count
 //   v  = non-canonical name variants (only when distinct from "first last")
 import { buildCandidates } from "./config/candidates-build.js";
@@ -39,12 +39,28 @@ for (const c of built.clusters) {
 const voteTypes = [...voteTypeSet].sort();
 const voteTypeIndex = new Map(voteTypes.map((v, i) => [v, i]));
 
-function encodeAppearance(a) {
-  const out = {
-    e: electionIndex.get(a.e) ?? -1,
-    v: voteTypeIndex.get(a.v) ?? -1
+function dictionary(keyFor) {
+  const values = [];
+  const index = new Map();
+  return {
+    values,
+    intern(value) {
+      const key = keyFor(value);
+      if (!index.has(key)) {
+        index.set(key, values.length);
+        values.push(value);
+      }
+      return index.get(key);
+    }
   };
-  if (a.d) out.d = a.d;
+}
+
+const districtNames = dictionary(value => value);
+const partyLabels = dictionary(JSON.stringify);
+
+function encodeAppearance(a) {
+  const out = [electionIndex.get(a.e) ?? -1, voteTypeIndex.get(a.v) ?? -1];
+  if (a.d) out.push(districtNames.intern(a.d));
   return out;
 }
 
@@ -54,6 +70,8 @@ const slim = {
   parties: built.parties,
   // New: lookup tables so the page can decode integer-coded appearances.
   vote_types: voteTypes,
+  district_names: districtNames.values,
+  party_labels: partyLabels.values,
   clusters: built.clusters.map(c => {
     const canonical = `${c.first_name} ${c.last_name}`.trim();
     const variants = (c.name_variants || []).filter(v => v && v !== canonical);
@@ -77,7 +95,7 @@ const slim = {
         // Only carry the inline entry if at least one field actually differs
         // from the global registry. Otherwise the page can resolve via the
         // party_id alone.
-        if (entry.k !== undefined || entry.e !== undefined) pl.push(entry);
+        if (entry.k !== undefined || entry.e !== undefined) pl.push(partyLabels.intern(entry));
       }
       if (pl.length) obj.pl = pl;
     }

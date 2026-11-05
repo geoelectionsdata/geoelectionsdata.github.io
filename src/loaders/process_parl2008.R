@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
 })
 
 args <- commandArgs(trailingOnly = TRUE)
+source("src/loaders/R/common/precinct_results.R")
 args <- args[args != "--args"]
 
 RAW_DIR <- Sys.getenv("RAW_DIR", unset = "src/data/raw")
@@ -303,12 +304,13 @@ build_vote_outputs <- function(wide, codes, vote_type, candidate_lookup = NULL) 
     mutate(district_id = as.character(electoral_district_id)) %>%
     add_metrics()
 
-  precinct <- long %>%
+  precinct_votes <- long %>%
     mutate(
       district_id = as.character(precinct_id),
       electoral_district_id = as.character(electoral_district_id)
     ) %>%
-    add_metrics() %>%
+    select(precinct_id, district_id, electoral_district_id, district_name_ka,
+           precinct_number, precinct_order, raw_vote_code, party_id, any_of("name_ka"), votes) %>%
     arrange(precinct_order, raw_vote_code)
 
   turnout_district <- bind_rows(
@@ -331,6 +333,8 @@ build_vote_outputs <- function(wide, codes, vote_type, candidate_lookup = NULL) 
     ) %>%
     add_turnout_metrics() %>%
     arrange(precinct_order)
+
+  precinct <- join_precinct_results(precinct_votes, turnout_precinct, "raw_vote_code", safe_ratio)
 
   list(
     national = national,

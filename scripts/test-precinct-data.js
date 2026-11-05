@@ -1,0 +1,33 @@
+import assert from "node:assert/strict";
+import {indexPrecinctResults, precinctExactKey, precinctResultKey, precinctStationId} from "../src/components/precinct-data.js";
+
+const first = {precinct_id: 3121020, precinct_key: "31.21.22", party_id: "a", vote_share: 0.4, registered: 660};
+const tied = {...first, party_id: "b"};
+const sameParty = {...first, vote_share: 0.2};
+const other = {...first, precinct_key: "31.21.23", vote_share: 0.9};
+const exact = indexPrecinctResults([first, tied, sameParty, other]);
+assert.equal(exact.usesExactKeys, true);
+assert.equal(precinctExactKey({properties: {MID: 31, district: 21, precinct: 22}}), first.precinct_key);
+assert.deepEqual(exact.byUnit.get(first.precinct_key), [first, tied, sameParty]);
+assert.deepEqual(exact.byUnit.get(other.precinct_key), [other]);
+assert.equal(exact.turnoutByUnit.get(first.precinct_key), first);
+assert.equal(exact.winnerByUnit.get(first.precinct_key), first);
+assert.equal(exact.maxShareByUnit.get(first.precinct_key), 0.4);
+assert.equal(exact.partySharesByUnit.get(first.precinct_key).get("a"), 0.4 + 0.2);
+
+const legacyRow = {precinct_id: 67027, district_id: "672700", party_id: "a", vote_share: NaN};
+const legacy = indexPrecinctResults([legacyRow], {councilSmd: true});
+assert.equal(legacy.usesExactKeys, false);
+assert.deepEqual(legacy.byUnit.get("67027"), [legacyRow]);
+assert.equal(legacy.majorByStation.get("67027"), "672700");
+assert.equal(legacy.turnoutByUnit.size, 0);
+assert.equal(legacy.maxShareByUnit.get("67027"), undefined);
+const padded = {...legacyRow, precinct_id: "067027"};
+const dotted = {...legacyRow, precinct_id: "67027.10"};
+const textual = indexPrecinctResults([legacyRow, padded, dotted, {...legacyRow, precinct_id: null}], {councilSmd: true});
+assert.deepEqual([...textual.byUnit.keys()], ["67027", "067027", "67027.10"]);
+assert.equal(textual.majorByStation.get("067027"), "672700");
+assert.equal(precinctStationId({properties: {precinct_id: "067027"}}), precinctResultKey(padded));
+assert.equal(precinctStationId({properties: {id: "67027.10"}}), precinctResultKey(dotted));
+assert.equal(precinctStationId({properties: {id: ""}}), null);
+console.log("Precinct key and lookup checks passed.");

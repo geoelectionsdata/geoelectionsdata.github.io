@@ -5,7 +5,7 @@
 //
 // Consumed by:
 //   - src/data/candidates-index.json.js   (slim search index, no appearances)
-//   - src/data/candidates-details.json.js (cluster_id → appearance[] map)
+//   - src/data/candidate-details.zip.js  (bucketed cluster_id → appearance[] maps)
 //
 // Inputs:
 //   - src/data/config/elections/**/*.yml         (election metadata + parties)

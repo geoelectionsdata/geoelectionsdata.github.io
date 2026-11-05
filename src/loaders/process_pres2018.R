@@ -31,9 +31,10 @@ suppressPackageStartupMessages({
 # churns needless git diffs against the existing Python-generated CSVs.
 options(scipen = 100)
 
-RAW_DIR  <- "src/data/raw"
-RES_DIR  <- "src/data/results"
-TURN_DIR <- "src/data/turnout"
+source("src/loaders/R/common/precinct_results.R")
+RAW_DIR  <- Sys.getenv("RAW_DIR", unset = "src/data/raw")
+RES_DIR  <- Sys.getenv("OUT_RESULTS", unset = "src/data/results")
+TURN_DIR <- Sys.getenv("OUT_TURNOUT", unset = "src/data/turnout")
 dir.create(RES_DIR,  showWarnings = FALSE, recursive = TRUE)
 dir.create(TURN_DIR, showWarnings = FALSE, recursive = TRUE)
 
@@ -115,23 +116,21 @@ extract_turnout <- function(row, idx) {
   )
 }
 
-# ── Vote extractors → data.frame of (party_id, votes, vote_share) ───────────
-extract_votes_r1 <- function(row, valid_votes) {
+# Vote extractors return candidate counts without turnout.
+extract_votes_r1 <- function(row) {
   cols  <- R1$cand_start + (seq_along(CAND_R1) - 1) * R1$cand_step
   votes <- vapply(cols, function(c) int_or_zero(row[[c]]), integer(1))
   tibble(
     party_id   = CAND_R1,
-    votes      = votes,
-    vote_share = safe_div(votes, valid_votes)
+    votes      = votes
   )
 }
-extract_votes_r2 <- function(row, valid_votes) {
+extract_votes_r2 <- function(row) {
   pairs <- list(vashadze = R2$vashadze, zourabichvili = R2$zourabichvili)
   tibble(
     party_id   = names(pairs),
-    votes      = vapply(pairs, function(c) int_or_zero(row[[c]]), integer(1)),
-    vote_share = NA_real_
-  ) |> mutate(vote_share = safe_div(votes, valid_votes))
+    votes      = vapply(pairs, function(c) int_or_zero(row[[c]]), integer(1))
+  )
 }
 
 # ── Build a result row (district or precinct) from a raw row ────────────────
@@ -142,8 +141,9 @@ build_result_rows <- function(row, idx, extract_votes, precinct_id = NULL) {
   invalid_pct   <- safe_div(invalid_balls, t$voted)
   district_id   <- as.integer(row[[1]])
 
-  extract_votes(row, valid_votes) |>
+  extract_votes(row) |>
     mutate(
+      vote_share      = safe_div(votes, valid_votes),
       district_id     = district_id,
       registered      = t$registered, voted = t$voted,
       voted_noon      = t$voted_noon, voted_5pm = t$voted_5pm,
@@ -180,14 +180,29 @@ process_round <- function(df, idx, extract_votes, skip_district = NULL, prec_ext
   dist_rows <- map_dfr(which(jami_mask), function(i) {
     build_result_rows(df[i, ], idx, extract_votes)
   })
-  prec_rows <- map_dfr(which(prec_mask), function(i) {
+  precinct_rows <- which(prec_mask)
+  if (!is.null(skip_district)) {
+    precinct_rows <- precinct_rows[!(as.integer(df[[1]][precinct_rows]) %in% skip_district)]
+  }
+  precinct_votes <- map_dfr(precinct_rows, function(i) {
     row         <- df[i, ]
     district_id <- as.integer(row[[1]])
-    if (!is.null(skip_district) && isTRUE(district_id == skip_district)) return(NULL)
     precinct_no <- as.integer(row[[3]])
     precinct_id <- district_id * 1000L + precinct_no
-    build_result_rows(row, idx, extract_votes, precinct_id = precinct_id)
+    extract_votes(row) |>
+      mutate(source_row = i, precinct_id = precinct_id, district_id = district_id)
   })
+  # Some overseas records share a precinct ID but have distinct turnout.
+  precinct_turnout <- map_dfr(precinct_rows, function(i) {
+    row <- df[i, ]
+    turnout <- extract_turnout(row, idx)
+    invalid <- int_or_zero(row[[idx$invalid_ballots]])
+    tibble(
+      source_row = i, totalVotes = int_or_zero(row[[idx$valid_votes]]),
+      !!!turnout, invalid_ballots = invalid, invalid_pct = safe_div(invalid, turnout$voted)
+    )
+  })
+  prec_rows <- join_precinct_results(precinct_votes, precinct_turnout, "party_id", safe_div, "source_row")
 
   # Reorder to canonical column sets
   dist_rows <- dist_rows |>

@@ -3,6 +3,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import yaml from "js-yaml";
 import { csvParse, autoType } from "d3-dsv";
+import {makeElectionCsvParser} from "../../components/election-csv.js";
 
 export const ROOT = process.cwd();
 export const SRC = path.join(ROOT, "src");
@@ -260,11 +261,12 @@ export function readJSON(filePath) {
 
 // Reads a CSV file referenced by a src-relative path (e.g. "data/results/parl2024_pr.csv").
 // Returns [] for missing paths or non-existent files so callers can pass `files?.pr_results`
-// without null-checking. autoType numerifies numeric columns.
+// without null-checking. The shared parser preserves geographic IDs as text.
+const parseElectionCsv = makeElectionCsvParser({csvParse, autoType});
 export function readCSV(relPath) {
   const full = resolveSrcPath(relPath);
   if (!relPath || !fs.existsSync(full)) return [];
-  return csvParse(fs.readFileSync(full, "utf8"), autoType);
+  return parseElectionCsv(fs.readFileSync(full, "utf8"));
 }
 
 // ── XLSX styling helpers ──────────────────────────────────────────────────
